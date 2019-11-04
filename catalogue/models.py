@@ -19,7 +19,7 @@ class LocationType(models.Model):
 class LocationLocationRelation(models.Model):
 	pass
 
-class Person
+class Person(models.Model):
 	first_name = models.CharField(max_length=200)
 	last_name = models.CharField(max_length=200)
 	pseudonyms = models.CharField(max_length=200) #one to many
@@ -38,6 +38,13 @@ class PersonLocationRelation(models.Model):
 	start_date = models.DateField()
 	end_date = models.DateField()
 
+
+class PersonWorkRelationRole(models.Model):
+	'''e.g author | illustrator | translator | editor | subject | ... '''
+	role = models.CharField(max_length = 100)
+	description = models.TextField()
+
+
 class PersonWorkRelation(models.Model):
 	role = models.ForeignKey(PersonWorkRelationRole, on_delete=models.CASCADE)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
@@ -46,9 +53,8 @@ class PersonWorkRelation(models.Model):
 	main_creator = models.BooleanField()
 	
 
-class PersonWorkRelationRole(models.Model):
-	'''e.g author | illustrator | translator | editor | subject | ... '''
-	role = models.CharField(max_length = 100)
+class Genre(models.Model):
+	name = models.CharField(max_length=100);
 	description = models.TextField()
 
 class Text(models.Model):
@@ -56,6 +62,7 @@ class Text(models.Model):
 	language = models.CharField(max_length=100)
 	genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 	upload = models.FileField(upload_to='texts/') # ?
+
 
 class TextTextRelation(models.Model):
 	pass
@@ -68,7 +75,7 @@ class Illustration(models.Model):
 	language = models.CharField(max_length=100)
 	context = models.TextField()
 	illustration_format = '' # ... | ...
-	upload = ImageField(upload_to='illustrations/') # ?
+	upload = models.ImageField(upload_to='illustrations/') # ?
 
 class IllustrationCategory(models.Model):
 	category = models.CharField(max_length=100)
@@ -79,19 +86,6 @@ class IllustrationCategoryRelation(models.Model): # many to many
 	category = models.ForeignKey(IllustrationCategory, on_delete=models.CASCADE)
 
 
-class Publication(models.Model):
-	publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
-	form = '' # FK periodical | FK book
-	issue = models.PositiveIntegerField() # should this be on periodical?
-	volume = models.PositiveIntegerField() # should this be on periodical?
-	identifier = ''# ISBN
-	date = models.DateField()
-	location = models.ForeignKey(Location, on_delete=models.CASCADE)
-	e_text = models.FileField(upload_to='publication/') # ?
-
-class WorkPublicationRelation(models.Model): #many to many
-	work = '' # FK text | FK illustration
-	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 
 
 class Periodical(models.Model):
@@ -123,6 +117,21 @@ class PublisherLocationRelation(models.Model):
 class PublisherManager(models.Model): #or broker
 	publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
 	manager = models.ForeignKey(Person, on_delete=models.CASCADE)
+
+
+class Publication(models.Model):
+	publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
+	form = '' # FK periodical | FK book
+	issue = models.PositiveIntegerField() # should this be on periodical?
+	volume = models.PositiveIntegerField() # should this be on periodical?
+	identifier = ''# ISBN
+	date = models.DateField()
+	location = models.ForeignKey(Location, on_delete=models.CASCADE)
+	e_text = models.FileField(upload_to='publication/') # ?
+
+class WorkPublicationRelation(models.Model): #many to many
+	work = '' # FK text | FK illustration
+	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 
 
 
