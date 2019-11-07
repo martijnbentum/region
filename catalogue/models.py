@@ -1,28 +1,43 @@
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django_countries.fields import CountryField
+# from django_countries.fields import CountryField
 from .util import info
 
 
 
-class Location(models.Model, info):
-	STATUS = [('F','fiction'), ('NF','non-fiction')]
-	status = models.CharField(max_length=2,choices=STATUS)
-	# location_type = models.ForeignKey(LocationType,on_delete=models.CASCADE)
-	country = CountryField()
-	city = models.CharField(max_length=100)
-	region = models.CharField(max_length=100)
-	province = models.CharField(max_length=100)
+class LocationType(models.Model, info):
+	name = models.CharField(max_length=100, default = None)
+	description = models.TextField(default ='',blank=True)
 
 	def __str__(self):
-		return self.country.name + ' ' + self.province +' '+ self.city
+		return self.name
 
-class LocationType(models.Model, info):
-	pass
+class Location(models.Model, info):
+	name = models.CharField(max_length=200, default = '')
+	STATUS = [('F','fiction'), ('NF','non-fiction')]
+	status = models.CharField(max_length=2,choices=STATUS,default = 'NF')
+	location_type = models.ForeignKey(LocationType,on_delete=models.CASCADE,
+										default = None)
+	relations = models.ManyToManyField('self',
+		through='LocationLocationRelation',symmetrical=False, default=None)
+	notes = models.TextField(default='',blank=True)
+	# country = CountryField()
+
+	def __str__(self):
+		return self.name 
+
+
 
 class LocationLocationRelation(models.Model, info):
-	pass
+	container = models.ForeignKey('Location', related_name='container',
+									on_delete=models.CASCADE, default=None)
+	contained = models.ForeignKey('Location', related_name='contained',
+									on_delete=models.CASCADE, default=None)
+
+	def __str__(self):
+		return self.contained.name + ' is located in: ' + self.container.name
+	
 
 class Person(models.Model, info):
 	first_name = models.CharField(max_length=200)
@@ -62,8 +77,9 @@ class PersonWorkRelation(models.Model, info):
 	role = models.ForeignKey(PersonWorkRelationRole, on_delete=models.CASCADE)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	# unique together [person, role]
-	content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-	object_id = models.PositiveIntegerField()
+	content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
+									default = None)
+	object_id = models.PositiveIntegerField(default= None)
 	work = GenericForeignKey('content_type','object_id') # FK text | FK illustration
 	main_creator = models.BooleanField()
 	
