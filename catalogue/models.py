@@ -1,8 +1,12 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django_countries.fields import CountryField
+from .util import info
 
 
-class Location(models.Model):
+
+class Location(models.Model, info):
 	STATUS = [('F','fiction'), ('NF','non-fiction')]
 	status = models.CharField(max_length=2,choices=STATUS)
 	# location_type = models.ForeignKey(LocationType,on_delete=models.CASCADE)
@@ -12,15 +16,15 @@ class Location(models.Model):
 	province = models.CharField(max_length=100)
 
 	def __str__(self):
-		return self.country.name
+		return self.country.name + ' ' + self.province +' '+ self.city
 
-class LocationType(models.Model):
+class LocationType(models.Model, info):
 	pass
 
-class LocationLocationRelation(models.Model):
+class LocationLocationRelation(models.Model, info):
 	pass
 
-class Person(models.Model):
+class Person(models.Model, info):
 	first_name = models.CharField(max_length=200)
 	last_name = models.CharField(max_length=200)
 	pseudonyms = models.CharField(max_length=200) #one to many
@@ -44,28 +48,36 @@ class PersonLocationRelation(models.Model):
 	end_date = models.DateField()
 
 
-class PersonWorkRelationRole(models.Model):
+class PersonWorkRelationRole(models.Model, info):
 	'''e.g author | illustrator | translator | editor | subject | ... '''
+	# how to initialize with above values
 	role = models.CharField(max_length = 100)
 	description = models.TextField()
 
+	def __str__(self):
+		return self.role
 
-class PersonWorkRelation(models.Model):
+
+class PersonWorkRelation(models.Model, info):
 	role = models.ForeignKey(PersonWorkRelationRole, on_delete=models.CASCADE)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	# unique together [person, role]
-	work = '' # FK text | FK illustration
+	content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+	object_id = models.PositiveIntegerField()
+	work = GenericForeignKey('content_type','object_id') # FK text | FK illustration
 	main_creator = models.BooleanField()
 	
+	def __str__(self):
+		return self.person.__str__() + ' ' + self.role.__str__()
 
-class Genre(models.Model):
+class Genre(models.Model, info):
 	name = models.CharField(max_length=100);
 	description = models.TextField()
 	
 	def __str__(self):
 		return self.name
 
-class Text(models.Model):
+class Text(models.Model, info):
 	title = models.CharField(max_length=300)
 	language = models.CharField(max_length=100)
 	genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
@@ -81,7 +93,7 @@ class TextTextRelation(models.Model):
 class Fragment(models.Model):
 	pass
 
-class Illustration(models.Model):
+class Illustration(models.Model, info):
 	caption =  models.CharField(max_length=300)
 	language = models.CharField(max_length=100)
 	context = models.TextField()
@@ -102,7 +114,7 @@ class IllustrationCategoryRelation(models.Model): # many to many
 
 
 
-class Periodical(models.Model):
+class Periodical(models.Model, info):
 	title = models.CharField(max_length=300)
 	language = models.CharField(max_length=100)
 	start_date = models.DateField()
@@ -112,7 +124,7 @@ class Periodical(models.Model):
 	def __str__(self):
 		return self.title
 
-class Audience(models.Model): # only usefull for periodical not book?
+class Audience(models.Model, info): # only usefull for periodical not book?
 	name = models.CharField(max_length=100)
 	description = models.TextField()
 
@@ -120,14 +132,14 @@ class Audience(models.Model): # only usefull for periodical not book?
 		return self.name
 
 
-class Book(models.Model):
+class Book(models.Model, info):
 	title = models.CharField(max_length=300) # duplicate -> text
 	language = models.CharField(max_length=100) # duplicate -> text
 
 	def __str__(self):
 		return self.title
 	
-class Publisher(models.Model):
+class Publisher(models.Model, info):
 	name = models.CharField(max_length=300)
 	start_date = models.DateField()
 	end_date = models.DateField()
@@ -146,7 +158,7 @@ class PublisherManager(models.Model): #or broker
 	manager = models.ForeignKey(Person, on_delete=models.CASCADE)
 
 
-class Publication(models.Model):
+class Publication(models.Model, info):
 	publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
 	form = '' # FK periodical | FK book
 	issue = models.PositiveIntegerField() # should this be on periodical?
