@@ -87,7 +87,7 @@ class PersonWorkRelation(models.Model, info):
 		return self.person.__str__() + ' ' + self.role.__str__()
 
 class Genre(models.Model, info):
-	name = models.CharField(max_length=100);
+	name = models.CharField(max_length=100)
 	description = models.TextField()
 	
 	def __str__(self):
@@ -98,13 +98,33 @@ class Text(models.Model, info):
 	language = models.CharField(max_length=100)
 	genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 	upload = models.FileField(upload_to='texts/') # ?
+	relations = models.ManyToManyField('self',
+		through='TextTextRelation',symmetrical=False, default=None)
+	notes = models.TextField(default='',blank=True)
 
 	def __str__(self):
 		return self.title
 
+class TextTextRelationType(models.Model, info):
+	name = models.CharField(max_length=100)
+	description = models.TextField()
 
-class TextTextRelation(models.Model):
-	pass
+	def __str__(self):
+		return self.name
+	
+class TextTextRelation(models.Model, info):
+	primary = models.ForeignKey('Text', related_name='primary',
+									on_delete=models.CASCADE, default=None)
+	secondary = models.ForeignKey('Text', related_name='secondary',
+									on_delete=models.CASCADE, default=None)
+	relation_type = models.ForeignKey(TextTextRelationType, 
+									on_delete=models.CASCADE, default=None)
+
+	def __str__(self):
+		m =  self.secondary.name + ' is a ' + self.relation_type.name +' of '
+		m += self.primary.name
+		return m
+
 
 class Fragment(models.Model):
 	pass
