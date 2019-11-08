@@ -161,7 +161,8 @@ class PersonWorkRelation(models.Model, info):
 		raise AssertionError("neither (work) text nor illustration is set")
 
 	def save(self,*args, **kwargs):
-		if self.work_text != None and self.work_illustration != None:
+		if ((self.work_text == self.work_illustration == None) or
+			(self.work_text != None and self.work_illustration != None)):
 			raise AssertionError('set either (work) text or illustration')
 		super(PersonWorkRelation, self).save(*args, **kwargs)
 		
