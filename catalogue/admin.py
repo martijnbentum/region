@@ -4,7 +4,7 @@ import catalogue.models as models
 
 object_list = 'Audience,Book,Fragment,Genre,Illustration,Periodical'
 object_list += ',LocationType,LocationLocationRelation'
-object_list += ',Person,Publication,Publisher,PublisherManager'
+object_list += ',Person,Publication,PublisherManager,Publisher'
 object_list += ',PersonWorkRelation,PersonWorkRelationRole,TextTextRelationType'
 object_list = object_list.split(',')
 
@@ -39,6 +39,7 @@ class TextTextRelationSecondary(admin.TabularInline):
 
 class TextAdmin(admin.ModelAdmin):
 	inlines = (TextTextRelationPrimary,TextTextRelationSecondary)
+
 
 admin.site.register(models.Location, LocationAdmin)
 admin.site.register(models.Text, TextAdmin)
