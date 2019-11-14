@@ -1,0 +1,38 @@
+<!-- test view to print data in a table from model --> 
+{% if person_list %}
+
+<table>
+	<tr>
+	<!-- create header -->
+	{% for attr in person_list.0.attribute_names %}
+		<th>{{ attr }}</th>
+	{% endfor %}
+	</tr>
+	{% for person in person_list %}
+	<tr>
+		{% for attr in person.listify %}
+			{% if attr|length > 20 %}
+				<!-- truncate long strings -->
+				<td>{{ attr|truncatechars:20}}</td>
+			{% else %}
+				<td>{{ attr }}</td>
+			{% endif %}
+		{% endfor %}
+	</tr>
+	{% endfor %}
+</table>
+
+{% else %}
+	<p>No polls are available.</p>
+{% endif %}
+
+<!-- minimal style to make the table more readable -->
+<style>
+table {
+	border-spacing: 20px 0;
+}
+th {
+	color: blue;
+}
+</style>
+<!-- test -->
