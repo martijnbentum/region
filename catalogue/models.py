@@ -21,6 +21,10 @@ class Location(models.Model, info):
 										default = None)
 	relations = models.ManyToManyField('self',
 		through='LocationLocationRelation',symmetrical=False, default=None)
+	geonames_id = models.PositiveIntegerField(blank=True)
+	coordinates_polygon = models.CharField(max_length=3000, default = '')
+	latitude = models.PositiveIntegerField(blank=True, null=True)
+	longitude = models.PositiveIntegerField(blank=True, null=True)
 	notes = models.TextField(default='',blank=True)
 	# country = CountryField()
 
