@@ -1,11 +1,16 @@
 <!-- test view to print data in a table from model --> 
+{% extends "catalogue/base_person_list.html" %}
 {% if person_list %}
 
-<table>
-	<tr>
+{% block content %}
+
+<div class="d-flex">
+
+<table class="table table-hover">
+	<tr class="table-primary">
 	<!-- create header -->
-	{% for attr in person_list.0.attribute_names %}
-		<th>{{ attr }}</th>
+	{% for attr in person_list.0.attribute_names_with_spaces %}
+		<th> {{ attr }}</th>
 	{% endfor %}
 	</tr>
 	{% for person in person_list %}
@@ -21,18 +26,22 @@
 	</tr>
 	{% endfor %}
 </table>
+<a class ="btn btn-link ml-auto" href="../add_person" role="button">Add person</a>
+</div>
+
+{% endblock content %}
 
 {% else %}
-	<p>No polls are available.</p>
+	<p>no persons are available</p>
 {% endif %}
 
 <!-- minimal style to make the table more readable -->
-<style>
-table {
-	border-spacing: 20px 0;
-}
-th {
-	color: blue;
-}
-</style>
+<!-- <style> -->
+<!-- table { -->
+<!-- 	border-spacing: 20px 0; -->
+<!-- } -->
+<!-- th { -->
+<!-- 	color: blue; -->
+<!-- } -->
+<!-- </style> -->
 <!-- test -->
