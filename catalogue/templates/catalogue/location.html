@@ -1,0 +1,14 @@
+{% extends "catalogue/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<h1 class="mt-2">Location</h1>
+<hr class="mt-0 mb-4">
+<form action="/location/location_name/" method="post">
+    {% csrf_token %}
+    <!-- <table>{{ form.as_table }}</table> -->
+    {{ form|crispy}}
+    <button type="submit" value="Submit" class ="btn btn-success">Save</button>
+</form>
+{% endblock content %}
+
