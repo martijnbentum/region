@@ -2,34 +2,64 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 # from django_countries.fields import CountryField
-from .util import info
+from .util_models import info
+from .util_models import id_generator
 
 
-class LocationType(models.Model, info):
-	name = models.CharField(max_length=100, default = None)
-	description = models.TextField(default ='',blank=True)
-
-	def __str__(self):
-		return self.name
 
 class Location(models.Model, info):
 	'''Geographic location of a specific type (e.g. city or country)'''
 	name = models.CharField(max_length=200, default = '')
-	STATUS = [('F','fiction'), ('NF','non-fiction')]
+	FICTION = 'F'
+	NON_FICTION = 'NF'
+	STATUS = [(FICTION,'fiction'), (NON_FICTION,'non-fiction')]
 	status = models.CharField(max_length=2,choices=STATUS,default = 'NF')
-	location_type = models.ForeignKey(LocationType,on_delete=models.CASCADE,
-										default = None)
+	CITY = 'CIT'
+	PROVINCE = 'PRO'
+	COUNTRY = 'COU'
+	CONTINENT = 'CON'
+	REGION = 'REG'
+	LOCATION_TYPE = [
+		(CITY,'city'),
+		(PROVINCE,'province'),
+		(COUNTRY,'country'),
+		(CONTINENT,'continent'),
+		(REGION,'region'),
+	]
+	location_type= models.CharField(
+		max_length=3,
+		choices=LOCATION_TYPE,
+		default = CITY
+	)
 	relations = models.ManyToManyField('self',
 		through='LocationLocationRelation',symmetrical=False, default=None)
-	geonames_id = models.PositiveIntegerField(blank=True)
-	coordinates_polygon = models.CharField(max_length=3000, default = '')
-	latitude = models.PositiveIntegerField(blank=True, null=True)
-	longitude = models.PositiveIntegerField(blank=True, null=True)
+	geonameid = models.CharField(
+		max_length=12, 
+		default= id_generator(length = 12),
+		unique = True,
+	)
+	coordinates_polygon = models.CharField(max_length=3000, blank=True ,null=True)
+	latitude=models.DecimalField(
+		blank=True,
+		null=True,
+		max_digits=8,
+		decimal_places=5
+	)
+	longitude=models.DecimalField(
+		blank=True,
+		null=True,
+		max_digits=8,
+		decimal_places=5
+	)
 	notes = models.TextField(default='',blank=True)
 	# country = CountryField()
 
 	def __str__(self):
 		return self.name 
+	
+	class Meta:
+		ordering = ['name']
+
 
 class LocationLocationRelation(models.Model, info):
 	'''defines a hierarchy of locations, e.g. a city is in a province.'''
@@ -52,7 +82,7 @@ class Person(models.Model, info):
 	gender = models.CharField(max_length=1,choices=GENDER)
 	date_of_birth = models.DateField(blank=True,null=True)
 	date_of_death = models.DateField(blank=True,null=True)
-	residence = models.ForeignKey(Location, on_delete=models.CASCADE) 
+	residence = models.ForeignKey(Location, on_delete=models.CASCADE,blank=True,null=True) 
 	# multiple residences?? duplicate of PersonLocationRelation??
 	# should be one to many??
 	notes = models.TextField(blank=True,null=True) # one to many
@@ -64,6 +94,13 @@ class Person(models.Model, info):
 	def attribute_names(self):
 		m = 'first_name,last_name,pseudonyms,gender,date_of_birth,date_of_death'
 		m += ',residence,notes'
+		return m.split(',')
+
+	@property
+	def attribute_names_with_spaces(self):
+		m = 'first_name,last_name,pseudonyms,gender,date_of_birth,date_of_death'
+		m += ',residence,notes'
+		m = m.replace('_',' ')
 		return m.split(',')
 
 	@property
