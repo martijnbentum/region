@@ -1,23 +1,5 @@
-
-
-class info():
-	'''inherit from this class to add extra viewing functionality for models'''
-
-	HEADER = '\033[95m'
-	BLUE = '\033[94m'
-	GREEN = '\033[92m'
-	WARNING = '\033[93m'
-	FAIL = '\033[91m'
-	END = '\033[0m'
-	BOLD = '\033[1m'
-	UNDERLINE = '\033[4m'
-
-	def view(self):
-		'''show all attributes of instance'''
-		print(self.UNDERLINE,self.__class__,self.END)
-		n = max([len(k) for k in self.__dict__.keys()]) + 3
-		for k in self.__dict__.keys():
-			print(k.ljust(n),self.BLUE,self.__dict__[k], self.END)
+from .models import Location
+from .util_models import info
 
 class city_info(info):
 	def __init__(self,line):
@@ -31,14 +13,36 @@ class city_info(info):
 		self.attribute_names = m.split(',')
 		for i,name in enumerate(self.attribute_names):
 			setattr(self,name,line[i])
+		self.continent = 'NA'
+		self.country='NA'
 
 	def set_country(self,country_dict):
 		try: self.country = country_dict[self.country_code]
-		except: self.country_name='NA'
+		except: pass
 
 	def set_continent(self, continent_dict):
-		try: self.continent = continent_dict[self.country]
-		except: self.continent = 'NA'
+		for continent in continent_dict.keys():
+			if self.country in continent_dict[continent]:
+				self.continent = continent
+
+	def set_admin(self,ac1,ac2):
+		code1 = self.country_code + '.' + self.admin1_code
+		code2 = self.country_code + '.' + self.admin2_code
+		if code1 in ac1.keys(): self.admin1_name = ac1[code1]
+		else: self.admin1_name = 'NA'
+		if code2 in ac2.keys(): self.admin2_name = ac2[code2]
+		else: self.admin2_name = 'NA'
+		
+
+	def make_location(self):
+		self.location = Location( 
+			geonameid = self.geonameid,
+			latitude = self.latitude,
+			longitude = self.longitude,
+			name = self.name,
+			location_type = 'city'
+		)
+		return self.location
 
 
 class country_info(info):
@@ -61,10 +65,31 @@ class country_info(info):
 		ccd = code2continent_dict()
 		self.continent = ccd[self.continent]
 
+	def make_location(self):
+		self.location = Location(
+			geonameid = self.geonameid,
+			name = self.name
+		)
+
+class admin_info(info):
+	def __init__(self,line, level):
+		'''set information from columns into attributes.
+		level should be set to the administration level of geonames
+		higher number is a more specific region'''
+		assert type(line) == list, f'input should be list {line}'
+		assert len(line) == 4, f'lenght should be 4 is:{len(line),line}'
+		self.line = line
+		self.level = level
+		m = 'admin_code,name,name_ascii,geonameid'
+		self.attribute_names = m.split(',')
+		for i,name in enumerate(self.attribute_names):
+			setattr(self,name,line[i])
+
+
 class language_info(info):
 	def __init__(self,line):
-		assert type(line) == list, 'input should be list'
-		assert len(line) == 4, 'lenght of line should be 4'
+		assert type(line) == list, f'input should be list'
+		assert len(line) == 4, f'lenght of line should be 4'
 		self.line = line
 		m = 'iso639_3,iso_639_2,iso_639_1,language_name'
 		self.attribute_names = m.split(',')
@@ -82,7 +107,6 @@ def country2continent_dict(countries):
 			name = country.country
 			if country.continent == continent: output[continent].append(name)
 	return output
-	
 
 def code2continent_dict():
 	output = {
@@ -110,6 +134,25 @@ def make_languages(filename= ''):
 		output.append(language_info(language))
 	return output
 
+def make_admin(level = 1):
+	assert level in [1,2], f'level should be 1 or 2, is {level}'
+	f = 'data/admin'+str(level)+'codes.txt'
+	admins = open_table(f)
+	output = []
+	for admin in admins:
+		if admin == ['']: continue
+		output.append(admin_info(admin,level=level))
+	return output
+
+def make_admin2name_dict(level = 1):
+	admins = make_admin(level = level)
+	output = {}
+	for admin in admins:
+		if admin.admin_code in output.keys():
+			raise ValueError(f'{admin.admin_code} already in keys')
+		output[admin.admin_code] = admin.name
+	return output, admins
+
 def make_countries(filename= ''):
 	if filename == '':f = 'data/country_codes.txt'
 	else: f= filename
@@ -125,19 +168,22 @@ def make_country_dict(filename= ''):
 	output = []
 	for country in countries:
 		output.append(country.code_name)
-	return dict(output)
+	return dict(output), countries
 		
 
 def make_cities(filename=''):
 	if filename == '': f = 'data/cities500.txt'
 	cities = open_table(f)
-	countries = make_country_dict()
-	country2continent = country2continent_dict()
+	countries_dict, countries = make_country_dict()
+	admin1_dict, admins1 = make_admin2name_dict(level=1)
+	admin2_dict, admins2 = make_admin2name_dict(level=2)
+	country2continent = country2continent_dict(countries)
 	output = []
 	for city in cities:
 		if city == ['']: continue
 		output.append(city_info(city))
-		output[-1].set_country(countries)
+		output[-1].set_admin(admin1_dict,admin2_dict)
+		output[-1].set_country(countries_dict)
 		output[-1].set_continent(country2continent)
 	return output
 
