@@ -9,16 +9,16 @@
 <table class="table table-hover">
 	<tr class="table-primary">
 	<!-- create header -->
-	{% for attr in person_list.0.attribute_names_with_spaces %}
-		<th> {{ attr }}</th>
+	{% for attr in person_list.0.attribute_names_hr%}
+		<th> {{ attr }} </th>
 	{% endfor %}
 	</tr>
 	{% for person in person_list %}
 	<tr>
 		{% for attr in person.listify %}
-			{% if attr|length > 20 %}
+			{% if attr|length > 12 %}
 				<!-- truncate long strings -->
-				<td>{{ attr|truncatechars:20}}</td>
+				<td>{{ attr|truncatechars:12}}</td>
 			{% else %}
 				<td>{{ attr }}</td>
 			{% endif %}
