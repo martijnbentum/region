@@ -4,7 +4,7 @@ from . import views
 
 app_name = 'catalogue'
 urlpatterns = [
-	path('', views.get_locationname, name='location_name'),
+	path('', views.PersonView.as_view(), name='person_view'),
 	path('person/',views.PersonView.as_view(),name='person_view'),
 	path('location/',views.get_locationname, 'location_name'),
 	path('location_name/', views.get_locationname, name='location_name'),
