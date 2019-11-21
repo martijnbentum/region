@@ -80,6 +80,8 @@ class Person(models.Model, info):
 	pseudonyms = models.CharField(max_length=200,blank=True,null=True) 
 	GENDER = [('F','female'),('M','male'),('O','other')]
 	gender = models.CharField(max_length=1,choices=GENDER)
+	DATE_SPEC = [('d','day'),('m','month'),('y','year'),('c','century')]
+	date_spec = models.CharField(max_length=1,choices=DATE_SPEC,default='d')
 	date_of_birth = models.DateField(blank=True,null=True)
 	date_of_death = models.DateField(blank=True,null=True)
 	residence = models.ForeignKey(Location, on_delete=models.CASCADE,blank=True,null=True) 
@@ -97,21 +99,25 @@ class Person(models.Model, info):
 		return m.split(',')
 
 	@property
-	def attribute_names_with_spaces(self):
-		m = 'first_name,last_name,pseudonyms,gender,date_of_birth,date_of_death'
-		m += ',residence,notes'
+	def attribute_names_hr(self):
+		m = ','.join(self.attribute_names)
+		m = m.replace('date_of_birth','born')
+		m = m.replace('date_of_death','died')
+		m = m.replace('date_spec','date specificity')
 		m = m.replace('_',' ')
 		return m.split(',')
 
 	@property
-	def listify(self):
+	def listify(self,date = '%Y'):
 		m = []
 		for attr in self.attribute_names:
 			if attr == 'gender': m.append(dict(self.GENDER)[self.gender])
 			elif 'date_of' in attr: 
-				try:temp = getattr(self,attr).ctime().split(' ')
-				except: m.append('no date')
-				else:m.append(' '.join(temp[:3]) +' '+temp[4]) 
+				try:m.append(getattr(self,attr).strftime(date))
+				except: m.append('')
+			elif attr == 'notes':  
+				note =  getattr(self,attr) 
+				m.append('') if note == None else m.append(note)
 			else: m.append(str(getattr(self,attr)))
 		return m
 
