@@ -56,6 +56,25 @@ class Location(models.Model, info):
 
 	def __str__(self):
 		return self.name 
+
+	@property
+	def attribute_names_hr(self):
+		names = 'name,status,type,notes'.split(',')
+		return names
+
+	@property
+	def listify(self):
+		names = 'name,status,location_type,notes'.split(',')
+		m = []
+		for attr in names:
+			if attr == 'status': m.append(dict(self.STATUS)[self.status])
+			elif attr == 'location_type': 
+				m.append(dict(self.LOCATION_TYPE)[self.location_type])
+			elif attr == 'notes':  
+				note =  getattr(self,attr) 
+				m.append('') if note == None else m.append(note)
+			else: m.append(str(getattr(self,attr)))
+		return m
 	
 	class Meta:
 		ordering = ['name']
@@ -111,13 +130,12 @@ class Person(models.Model, info):
 	def listify(self,date = '%Y'):
 		m = []
 		for attr in self.attribute_names:
+			value = getattr(self,attr) 
 			if attr == 'gender': m.append(dict(self.GENDER)[self.gender])
 			elif 'date_of' in attr: 
 				try:m.append(getattr(self,attr).strftime(date))
 				except: m.append('')
-			elif attr == 'notes':  
-				note =  getattr(self,attr) 
-				m.append('') if note == None else m.append(note)
+			elif value == None: m.append('')
 			else: m.append(str(getattr(self,attr)))
 		return m
 
@@ -140,10 +158,18 @@ class Genre(models.Model, info):
 	def __str__(self):
 		return self.name
 
+
+class Language(models.Model, info):
+	name = models.CharField(max_length=100)
+	iso = models.CharField(max_length=3,null=True,blank=True)
+
+	def __str__(self):
+		return self.name
+
 class Text(models.Model, info):
 	'''a text can be an entire book or article or a subsection thereof.'''
 	title = models.CharField(max_length=300)
-	language = models.CharField(max_length=100)
+	language = models.ForeignKey(Language, on_delete=models.CASCADE)
 	genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 	upload = models.FileField(upload_to='texts/',blank=True,null=True) # ?
 	relations = models.ManyToManyField('self',
@@ -152,6 +178,20 @@ class Text(models.Model, info):
 
 	def __str__(self):
 		return self.title
+
+	@property
+	def attribute_names(self):
+		return 'title,language,genre,upload,notes'.split(',')
+
+	@property
+	def listify(self,date = '%Y'):
+		m = []
+		for attr in self.attribute_names:
+			value = getattr(self,attr)
+			if value == None: m.append('')
+			else: m.append(value)
+		return m
+
 
 class TextTextRelationType(models.Model, info):
 	'''category of text2text relations e.g. a translation, review etc.'''
