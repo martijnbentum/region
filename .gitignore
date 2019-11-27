@@ -2,3 +2,9 @@
 *.pyc
 *.swp
 __pychache__
+catalogue/SWP/
+data/
+node_modules/
+package.json
+yarn.lock
+db.sqlite3
