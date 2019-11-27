@@ -1,4 +1,4 @@
-from .models import Location
+from .models import Language, Location 
 from .util_models import info
 
 class city_info(info):
@@ -40,7 +40,7 @@ class city_info(info):
 			latitude = self.latitude,
 			longitude = self.longitude,
 			name = self.name,
-			location_type = 'city'
+			location_type = 'CIT'
 		)
 		return self.location
 
@@ -70,6 +70,7 @@ class country_info(info):
 			geonameid = self.geonameid,
 			name = self.name
 		)
+		return self.location
 
 class admin_info(info):
 	def __init__(self,line, level):
@@ -95,7 +96,12 @@ class language_info(info):
 		self.attribute_names = m.split(',')
 		for i,name in enumerate(self.attribute_names):
 			setattr(self,name,line[i])
-		self.code_name = (self.iso639_9,self.name)
+		self.code_name = (self.iso639_3,self.language_name)
+
+	def make_language(self):
+		self.language = Language(name = self.language_name, iso = self.iso639_3)
+		return self.language
+		
 
 def country2continent_dict(countries):
 	ccd = code2continent_dict()
@@ -129,8 +135,8 @@ def make_languages(filename= ''):
 	else: f= filename
 	languages = open_table(f)
 	output = []
-	for language in languages:
-		if country == ['']: continue
+	for language in languages[1:]:
+		if language == ['']: continue
 		output.append(language_info(language))
 	return output
 
