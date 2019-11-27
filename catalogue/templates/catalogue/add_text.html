@@ -1,0 +1,17 @@
+{% extends "catalogue/base_add.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="col-md-12 d-flex">
+<h4 class="mt-2">Add Text</h4>
+<a class ="btn btn-link ml-auto" href="../text" role="button">text list</a>
+</div>
+<hr class="mt-0 mb-4">
+<form action="/add_text/" method="post">
+    {% csrf_token %}
+    {% crispy form %}
+    <button type="submit" value="Submit" class ="btn btn-success">Save</button>
+</form>
+{% endblock content %}
+ 
+
