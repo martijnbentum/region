@@ -6,12 +6,64 @@ from .util_models import info
 from .util_models import id_generator
 
 
-class Date(models.Model):
-	start_date = models.DateField()
-	end_date = models.DateField()
-	DATE_SPEC = [('d','day'),('m','month'),('y','year'),('c','century')]
-	start_spec = models.CharField(max_length=1,choices=DATE_SPEC,default='d')
-	end_spec = models.CharField(max_length=1,choices=DATE_SPEC,default='d')
+class Date(models.Model, info):
+	start= models.DateField()
+	end= models.DateField(blank = True, null = True)
+	SPECIFICITY = [('d','day'),('m','month'),('y','year'),('c','century')]
+	start_specificity=models.CharField(max_length=1,choices=SPECIFICITY,default='d')
+	end_specificity=models.CharField(max_length=1,choices=SPECIFICITY,default='d') 
+
+	@property
+	def attribute_names(self):
+		return 'start,end,start_specificity,end_specificity'.split(',')
+
+	def _set_specificity_str(self):
+		if self.start_specificity == 'd': self.start_str = '%-d %B %y'
+		elif self.start_specificity == 'm': self.start_str = '%B %y'
+		elif self.start_specificity in ['y','c']: self.start_str = '%y'
+		if self.end_specificity == 'd': self.end_str = '%-d %B %y'
+		if self.end_specificity == 'm': self.end_str = '%B %y'
+		if self.end_specificity in ['y','c']: self.end_str = '%y'
+
+	def	_set_time_delta(self):
+		self.delta = self.end - self.start
+
+	def list(self):
+		self._set_specificity_str()
+		self._set_time_delta()
+		m = []
+		if self.start: m.append( self.start.strftime(self.start_str) )
+		if self.end: m.append( self.end.strftime(self.end_str) )
+		spec = [self.start_specificity,self.end_specificity]
+		if 'c' in spec: return m
+		if self.start and self.end: 
+			t = (self.end.year - self.start.year)
+			if t == 1 and self.delta.days >= 365: t = str(t) + ' year'
+			elif t > 1: t = str(t) + ' years'
+			elif spec == ['d','d']: 
+				t = str(self.delta.days) + ' day'
+				if self.delta.days > 1: t += 's'
+			if type(t) == str: m.append(t)
+		return m
+
+	def __str__(self):
+		m = ''
+		if not self.ok(): m += f'ERROR: {self.error}'
+		for n,v in zip('start,end,duration'.split(','), self.list()):
+			m += n + ': ' + v + '   '
+		return m.rstrip('   ')
+
+	def ok(self):
+		self._set_time_delta()
+		if self.start and self.end:	
+			if self.delta.days < 0: self.error = 'end date before start date '
+			return self.delta.days >= 0
+		if not start:
+			self.error = 'no start date '
+		if not start and not end:
+			self.error = 'no dates '
+			
+			
 
 class Location(models.Model, info):
 	'''Geographic location of a specific type (e.g. city or country)'''
@@ -101,12 +153,26 @@ class Person(models.Model, info):
 	'''A person with a specific role e.g. author, writer, etc.'''
 	first_name = models.CharField(max_length=200)
 	last_name = models.CharField(max_length=200)
-	GENDER = [('F','female'),('M','male'),('O','other')]
-	gender = models.CharField(max_length=1,choices=GENDER)
-	notes = models.TextField(blank=True,null=True) # one to many
+	SEX = [('F','female'),('M','male'),('O','other')]
+	sex = models.CharField(max_length=1,choices=SEX)
+	birth_death_date = models.ForeignKey(Date, 
+		on_delete=models.CASCADE,default=None,null =True)
+	place_of_birth = models.ForeignKey(Location, on_delete=models.CASCADE,
+		related_name = 'born', default = None, null = True)
+	place_of_death= models.ForeignKey(Location, on_delete=models.CASCADE,
+		related_name = 'died', default = None, null = True)
+	notes = models.TextField(blank=True,null=True) 
 	
 	def __str__(self):
 		return self.first_name + ' ' + self.last_name
+
+	def age(self):
+		if self.birth_death_date == None: return 'unknown'
+		m = str(self.birth_death_date)
+		on = ['start,end,duration'.split(','),'born,died,age'.split(',')]
+		for o,n in zip(on):
+			m.replace(o,n)
+		return m
 
 	@property
 	def attribute_names(self):
