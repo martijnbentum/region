@@ -73,17 +73,17 @@ class DateForm(ModelForm):
 
 		self.helper.layout= Layout(
 			Row(
-				Column('start_date', css_class='form-group col-md-6 mb-0'),
-				Column('end_date', css_class='form-group col-md-6 mb-0'),
+				Column('start', css_class='form-group col-md-6 mb-0'),
+				Column('end', css_class='form-group col-md-6 mb-0'),
 				css_class='from-row'
 			),
-			'start_spec',
-			'end_spec',
+			'start_specificity',
+			'end_specificity',
 			)
 
 	class Meta:
 		model = Date
-		fields = 'start_date,end_date,start_spec,end_spec'.split(',')
+		fields = 'start,end,start_specificity,end_specificity'.split(',')
 		attrs={'class':'form-control',
 			'type':'date'}
 		widgets = {
@@ -114,6 +114,7 @@ class PersonLocationRelationForm(ModelForm):
 		required = False
 		)
 
+
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.helper = FormHelper()
@@ -133,6 +134,28 @@ class PersonLocationRelationForm(ModelForm):
 
 class PersonForm(ModelForm):
 	'''form to add a person'''
+	spec_choices= [('d','day'),('m','month'),('y','year'),('c','century')]
+	attrs={'class':'form-control','type':'date'}
+	date_of_birth = forms.DateField(required=False, 
+		widget = forms.DateInput(format=('%d %m $Y'), attrs=attrs))
+	date_of_death = forms.DateField(required=False,
+		widget = forms.DateInput(format=('%d %m $Y'), attrs=attrs))
+	place_of_birth= forms.ModelChoiceField(
+		queryset=Location.objects.order_by('name'),
+		widget=Select2Widget,
+		required = False
+		)
+	place_of_death= forms.ModelChoiceField(
+		queryset=Location.objects.order_by('name'),
+		widget=Select2Widget,
+		required = False
+		)
+	birth_spec = forms.ChoiceField(choices = spec_choices, 
+		label= '.', required = False)
+	death_spec = forms.ChoiceField(choices = spec_choices, 	
+		label = '.', required = False)
+
+
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.helper = FormHelper()
@@ -146,26 +169,26 @@ class PersonForm(ModelForm):
 				Column('last_name', css_class='form-group col-md-6 mb-0'),
 				css_class='from-row'
 			),
-			'gender'
-			)
+			'sex',
+			Row(
+				Column('date_of_birth', css_class='form-group col-md-4 mb-0'),
+				Column('birth_spec', css_class='form-group col-md-2 mb-0'),
+				Column('date_of_death', css_class='form-group col-md-4 mb-0'),
+				Column('death_spec', css_class='form-group col-md-2 mb-0'),
+				css_class='from-row'
+			),
+			Row(
+				Column('place_of_birth', css_class='form-group col-md-6 mb-0'),
+				Column('place_of_death', css_class='form-group col-md-6 mb-0'),
+				css_class='from-row'
+			),
+			Field('birth_location',style='width:100%'),
+			'notes')
 
 	class Meta:
 		model = Person
-		m = 'first_name,last_name,gender,notes'
+		m = 'first_name,last_name,sex,notes'
 		fields = m.split(',')
-		attrs={'class':'form-control',
-			'type':'date'}
-		widgets = {
-			'date_of_birth': forms.DateInput(
-				format=('%d %m $Y'),
-				attrs= attrs
-				),
-			'date_of_death': forms.DateInput(
-				format=('%d %m $Y'),
-				attrs= attrs
-				)
-		}
-		labels = {'date_spec':'date specificity'}
 
 def bound_form(request, id):
 	person = get_object_or_404(Person, id=id)
