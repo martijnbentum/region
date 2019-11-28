@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic
 from .models import Location, Person, Text
-from .forms import PersonForm, LocationForm, TextForm
+from .forms import PersonForm, LocationForm, TextForm, PersonLocationRelationForm
 
 class LocationView(generic.ListView):
 	template_name = 'catalogue/location_list.html'
@@ -62,6 +62,24 @@ def add_person(request, person_id=None):
 			form = PersonForm()
 			var = {'form':form,'page_name':'Add person'}
 	return render(request, 'catalogue/add_person.html', var)
+
+
+def add_person_location_relation(request, person_id=None):
+	# if this is a post request we need to process the form data
+	if request.method == 'POST':
+		form = PersonForm(request.POST)
+		if form.is_valid():
+			print(f'form is valid: {form.cleaned_data}',type(form))
+			# form.instance.residence = form.cleaned_data["residence"]#[0]
+			form.save()
+			return HttpResponseRedirect('/person/')
+	else:
+		if person_id:
+			pass
+		else: 
+			form = PersonLocationRelationForm()
+			var = {'form':form,'page_name':'Add person location'}
+	return render(request, 'catalogue/add_person_location.html', var)
 	
 
 def add_location(request):
