@@ -6,6 +6,12 @@ from .util_models import info
 from .util_models import id_generator
 
 
+class Date(models.Model):
+	start_date = models.DateField()
+	end_date = models.DateField()
+	DATE_SPEC = [('d','day'),('m','month'),('y','year'),('c','century')]
+	start_spec = models.CharField(max_length=1,choices=DATE_SPEC,default='d')
+	end_spec = models.CharField(max_length=1,choices=DATE_SPEC,default='d')
 
 class Location(models.Model, info):
 	'''Geographic location of a specific type (e.g. city or country)'''
@@ -91,21 +97,12 @@ class LocationLocationRelation(models.Model, info):
 		return self.contained.name + ' is located in: ' + self.container.name
 	
 
-
 class Person(models.Model, info):
 	'''A person with a specific role e.g. author, writer, etc.'''
 	first_name = models.CharField(max_length=200)
 	last_name = models.CharField(max_length=200)
-	pseudonyms = models.CharField(max_length=200,blank=True,null=True) 
 	GENDER = [('F','female'),('M','male'),('O','other')]
 	gender = models.CharField(max_length=1,choices=GENDER)
-	DATE_SPEC = [('d','day'),('m','month'),('y','year'),('c','century')]
-	date_spec = models.CharField(max_length=1,choices=DATE_SPEC,default='d')
-	date_of_birth = models.DateField(blank=True,null=True)
-	date_of_death = models.DateField(blank=True,null=True)
-	residence = models.ForeignKey(Location, on_delete=models.CASCADE,blank=True,null=True) 
-	# multiple residences?? duplicate of PersonLocationRelation??
-	# should be one to many??
 	notes = models.TextField(blank=True,null=True) # one to many
 	
 	def __str__(self):
@@ -113,8 +110,8 @@ class Person(models.Model, info):
 
 	@property
 	def attribute_names(self):
-		m = 'first_name,last_name,pseudonyms,gender,date_of_birth,date_of_death'
-		m += ',residence,notes'
+		m = 'first_name,last_name,gender'
+		m += ',notes'
 		return m.split(',')
 
 	@property
@@ -139,15 +136,23 @@ class Person(models.Model, info):
 			else: m.append(str(getattr(self,attr)))
 		return m
 
+
+class Pseudonym(models.Model, info):
+	person = models.ForeignKey(Person, related_name='Pseudonyms', 
+		on_delete=models.CASCADE)
+	name = models.CharField(max_length=500)
+
 class PersonLocationRelation(models.Model):
 	'''location function for a person e.g. residence, work, travel.'''
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	location = models.ForeignKey(Location, on_delete=models.CASCADE)
 	#hard coded location function good idea?
-	LOCATION_FUNCTION= [('R','residence'),('T','travel')]
-	location_function= models.CharField(max_length=1,choices= LOCATION_FUNCTION)
-	start_date = models.DateField()
-	end_date = models.DateField()
+	RELATION= [('R','residence'),('T','travel'),('B','birth'),
+		('D','death'),('W','work'),('U','unknown')]
+	relation= models.CharField(max_length=1,choices= RELATION,default = None)
+	date = models.ForeignKey(Date, default= None, on_delete=models.CASCADE)
+
+
 
 
 class Genre(models.Model, info):
