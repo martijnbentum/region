@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Language, Location, Person, Text
+from .models import Date, Language, Location, Person, PersonLocationRelation, Text
 from django_select2.forms import Select2MultipleWidget, Select2Widget
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field
@@ -61,14 +61,78 @@ class LocationForm(ModelForm):#forms.Form):
 		fields = m.split(',')
 	
 
-class PersonForm(ModelForm):#forms.Form):
-	'''Form to add a person'''
-	residence = forms.ModelChoiceField(
+class DateForm(ModelForm):
+	'''form to add a person'''
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.helper = FormHelper()
+		self.helper.add_input(
+			Submit('submit', 'Save', css_class='btn-success'))
+		self.helper.form_method = 'POST'
+
+		self.helper.layout= Layout(
+			Row(
+				Column('start_date', css_class='form-group col-md-6 mb-0'),
+				Column('end_date', css_class='form-group col-md-6 mb-0'),
+				css_class='from-row'
+			),
+			'start_spec',
+			'end_spec',
+			)
+
+	class Meta:
+		model = Date
+		fields = 'start_date,end_date,start_spec,end_spec'.split(',')
+		attrs={'class':'form-control',
+			'type':'date'}
+		widgets = {
+			'date_start': forms.DateInput(
+				format=('%d %m $Y'),
+				attrs= attrs
+				),
+			'date_end': forms.DateInput(
+				format=('%d %m $Y'),
+				attrs= attrs
+				)
+		}
+		labels = {'start_spec':'start specificity',
+			'end_spec':'end specificity'}
+
+
+class PersonLocationRelationForm(ModelForm):
+	'''Form to add a person location relation'''
+	location = forms.ModelChoiceField(
 		queryset=Location.objects.order_by('name'),
 		widget=Select2Widget,
 		required = False
 		)
 
+	person = forms.ModelChoiceField(
+		queryset=Person.objects.order_by('last_name'),
+		widget=Select2Widget,
+		required = False
+		)
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.helper = FormHelper()
+		self.helper.add_input(
+			Submit('submit', 'Save', css_class='btn-success'))
+		self.helper.form_method = 'POST'
+		self.helper.layout= Layout(
+			'person',
+			Field('location', style='width:100%'),
+			'relation',
+			'date',
+			)
+
+	class Meta:
+		model = PersonLocationRelation
+		fields = 'person,location,relation,date'.split(',')
+
+class PersonForm(ModelForm):
+	'''form to add a person'''
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.helper = FormHelper()
@@ -82,21 +146,12 @@ class PersonForm(ModelForm):#forms.Form):
 				Column('last_name', css_class='form-group col-md-6 mb-0'),
 				css_class='from-row'
 			),
-			'pseudonyms',
-			'gender',
-			Row(
-				Column('date_of_birth', css_class='form-group col-md-6 mb-0'),
-				Column('date_of_death', css_class='form-group col-md-6 mb-0'),
-				css_class='from-row'
-			),
-			'date_spec',
-			Field('residence', style='width:100%')
+			'gender'
 			)
 
 	class Meta:
 		model = Person
-		m = 'first_name,last_name,pseudonyms'
-		m += ',gender,date_spec,date_of_birth,date_of_death,residence'#,notes'
+		m = 'first_name,last_name,gender,notes'
 		fields = m.split(',')
 		attrs={'class':'form-control',
 			'type':'date'}
