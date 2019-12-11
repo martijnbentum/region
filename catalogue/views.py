@@ -1,8 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic
-from .models import Location, Person, Text
+from django.views.generic.edit import CreateView, UpdateView
+from .models import Location, Person, Text,PersonLocationRelation
 from .forms import PersonForm, LocationForm, TextForm, PersonLocationRelationForm
+from .forms import location_formset, helper
+from django.forms import inlineformset_factory
+
 
 class LocationView(generic.ListView):
 	template_name = 'catalogue/location_list.html'
@@ -25,6 +29,32 @@ class TextView(generic.ListView):
 	def get_queryset(self):
 		return Text.objects.order_by('title')
 
+class PersonCreate(CreateView):
+	model = Person
+	template_name = 'catalogue/add_person.html'
+	form_class = PersonForm
+	success_url = None
+	
+	def get_context_data(self, **kwargs):
+		data = super().get_context_data(**kwargs)
+		if self.request.POST:
+			data['locations'] = location_formset(self.request.POST)
+		else:
+			data['locations'] = location_formset()
+		return data
+	
+	def form_valid(self,form):
+		context = self.get_context_data()
+		locations = context['locations']
+		with transaction.atomic():
+			form.instance.created_by = self.request.user
+			self.object = form.save()
+			if locations.is_valid():
+				locations.instance = self.object
+				locations.save()
+		return super(PersonCreate, self).form_valid(form)
+		
+
 def person_detail(request, person_id):
 	p = Person.objects.get(pk=person_id)
 	form = PersonForm(instance=p)
@@ -44,23 +74,26 @@ def add_text(request):
 	var = {'form':form,'page_name':'Add text'}
 	return render(request, 'catalogue/add_text.html', var)
 
+
 def add_person(request, person_id=None):
 	# if this is a post request we need to process the form data
+	if person_id: p = Person.objects.get(pk=person_id)
+	else:  p = None
 	if request.method == 'POST':
-		form = PersonForm(request.POST)
+		form = PersonForm(request.POST,instance=p)
+		formset = location_formset(request.POST,instance=p)
 		if form.is_valid():
 			print(f'form is valid: {form.cleaned_data}',type(form))
+			print(f'formset is valid: {formset.cleaned_data}',type(form))
 			# form.instance.residence = form.cleaned_data["residence"]#[0]
 			form.save()
 			return HttpResponseRedirect('/person/')
-	else:
-		if person_id:
-			p = Person.objects.get(pk=person_id)
-			form = PersonForm(instance=p)
-			var = {'form':form,'page_name':'Edit person'}
-		else: 
-			form = PersonForm()
-			var = {'form':form,'page_name':'Add person'}
+	form = PersonForm(instance=p)
+	formset = location_formset(instance=p)
+	print(form,'\n\n\n',formset)
+	if person_id: page_name ='Edit page'
+	else: page_name = 'Add Person'
+	var = {'form':form,'formset':formset,'helper':helper,'page_name':page_name}
 	return render(request, 'catalogue/add_person.html', var)
 
 
