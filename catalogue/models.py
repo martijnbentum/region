@@ -212,13 +212,18 @@ class PersonLocationRelation(models.Model):
 	'''location function for a person e.g. residence, work, travel.'''
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	location = models.ForeignKey(Location, on_delete=models.CASCADE)
-	#hard coded location function good idea?
-	RELATION= [('R','residence'),('T','travel'),('B','birth'),
-		('D','death'),('W','work'),('U','unknown')]
+	RELATION= [('R','residence'),('T','travel'),('W','work'),('U','unknown')]
 	relation= models.CharField(max_length=1,choices= RELATION,default = None)
 	date = models.ForeignKey(Date, default= None, on_delete=models.CASCADE)
+	location_name = models.CharField(max_length=200, default='',null=True)
+	person_name = models.CharField(max_length=200, default='',null=True)
 
-
+	@classmethod
+	def create(cls):
+		if hasattr(cls,'location'):
+			cls.location_name = cls.location.name
+		if hasattr(cls,'person'):
+			cls.person_name = cls.person.first_name + ' ' + cls.person.last_name
 
 
 class Genre(models.Model, info):
