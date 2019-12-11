@@ -1,9 +1,12 @@
 from django import forms
-from django.forms import ModelForm
-from .models import Date, Language, Location, Person, PersonLocationRelation, Text
+from django.forms import ModelForm, inlineformset_factory
+from django.template.loader import render_to_string
+from .models import Date, Language, Location, Person
+from .models import PersonLocationRelation, Text
 from django_select2.forms import Select2MultipleWidget, Select2Widget
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column, Field
+from crispy_forms.layout import Layout, Submit, Row, Column, Field, Fieldset,HTML
+from crispy_forms.layout import LayoutObject, TEMPLATE_PACK
 
 
 class TextForm(ModelForm):
@@ -32,6 +35,20 @@ class TextForm(ModelForm):
 		model = Text
 		m = 'title,language,genre,upload,notes'
 		fields = m.split(',')
+
+class Formset(LayoutObject):
+	template = "catalogue/formset.html"
+
+	def __init__(self, formset_name_in_context, template=None):
+		self.formset_name_in_context = formset_name_in_context
+		self.fields = []
+		if template:
+			self.template = template
+
+	def render(self, form, form_style, context, template_pack=TEMPLATE_PACK):
+		print(context)
+		formset = context[self.formset_name_in_context]
+		render_to_string(self.template,{'formset':formset})
 
 class LocationForm(ModelForm):#forms.Form):
 	'''Form to add a location'''
@@ -102,44 +119,59 @@ class DateForm(ModelForm):
 
 class PersonLocationRelationForm(ModelForm):
 	'''Form to add a person location relation'''
+	spec_choices= [('d','day'),('m','month'),('y','year'),('c','century')]
+	attrs={'class':'form-control','type':'date'}
 	location = forms.ModelChoiceField(
 		queryset=Location.objects.order_by('name'),
 		widget=Select2Widget,
 		required = False
 		)
-
-	person = forms.ModelChoiceField(
-		queryset=Person.objects.order_by('last_name'),
-		widget=Select2Widget,
-		required = False
-		)
-
-
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		self.helper = FormHelper()
-		self.helper.add_input(
-			Submit('submit', 'Save', css_class='btn-success'))
-		self.helper.form_method = 'POST'
-		self.helper.layout= Layout(
-			'person',
-			Field('location', style='width:100%'),
-			'relation',
-			'date',
-			)
+	start_date = forms.DateField(required=False, 
+		widget = forms.DateInput(format=('%d %m $Y'), attrs=attrs))
+	end_date = forms.DateField(required=False,
+		widget = forms.DateInput(format=('%d %m $y'), attrs=attrs))
+	start_spec = forms.ChoiceField(choices = spec_choices, 
+		label= '&nbsp;', required = False)
+	end_spec = forms.ChoiceField(choices = spec_choices, 	
+		label = '&nbsp;', required = False)
 
 	class Meta:
 		model = PersonLocationRelation
-		fields = 'person,location,relation,date'.split(',')
+		fields = 'location,relation,start_date,start_spec,end_date,end_spec'
+		fields = fields.split(',')
+
+class formsethelper(FormHelper):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.form_method = 'POST'
+		self.layout= Layout(
+			Row(
+				Column(Field('location', style ='width:100%'),css_class='form-group col-md-6 mb-0'),
+				Column('relation', css_class='form-group col-md-6 mb-0'),
+				css_class='from-row'
+			),
+			Row(
+				Column('start_date', css_class='form-group col-md-4 mb-0'),
+				Column('start_spec', css_class='form-group col-md-2 mb-0'),
+				Column('end_date', css_class='form-group col-md-4 mb-0'),
+				Column('end_spec', css_class='form-group col-md-2 mb-0'),
+				css_class='from-row'
+			),
+			)
+
+location_formset = inlineformset_factory(
+	Person,PersonLocationRelation,
+	form = PersonLocationRelationForm, extra=1)
+helper = formsethelper()
 
 class PersonForm(ModelForm):
 	'''form to add a person'''
 	spec_choices= [('d','day'),('m','month'),('y','year'),('c','century')]
 	attrs={'class':'form-control','type':'date'}
 	date_of_birth = forms.DateField(required=False, 
-		widget = forms.DateInput(format=('%d %m $Y'), attrs=attrs))
+		widget = forms.DateInput(format=('%d %m $y'), attrs=attrs))
 	date_of_death = forms.DateField(required=False,
-		widget = forms.DateInput(format=('%d %m $Y'), attrs=attrs))
+		widget = forms.DateInput(format=('%d %m $y'), attrs=attrs))
 	place_of_birth= forms.ModelChoiceField(
 		queryset=Location.objects.order_by('name'),
 		widget=Select2Widget,
@@ -151,9 +183,9 @@ class PersonForm(ModelForm):
 		required = False
 		)
 	birth_spec = forms.ChoiceField(choices = spec_choices, 
-		label= '.', required = False)
+		label= '&nbsp;', required = False)
 	death_spec = forms.ChoiceField(choices = spec_choices, 	
-		label = '.', required = False)
+		label = '&nbsp;', required = False)
 
 
 	def __init__(self, *args, **kwargs):
@@ -162,14 +194,16 @@ class PersonForm(ModelForm):
 		self.helper.add_input(
 			Submit('submit', 'Save', css_class='btn-success'))
 		self.helper.form_method = 'POST'
+		# self.helper.form_class= 'form-horizontal'
 
 		self.helper.layout= Layout(
+			'first_name',
 			Row(
-				Column('first_name', css_class='form-group col-md-6 mb-0'),
-				Column('last_name', css_class='form-group col-md-6 mb-0'),
+				Column('last_name', css_class='form-group col-md-10 mb-0'),
+				Column('sex', css_class='form-group col-md-2 mb-0'),
 				css_class='from-row'
 			),
-			'sex',
+			HTML('<hr class="mt-0 mb-4">'),
 			Row(
 				Column('date_of_birth', css_class='form-group col-md-4 mb-0'),
 				Column('birth_spec', css_class='form-group col-md-2 mb-0'),
@@ -178,12 +212,12 @@ class PersonForm(ModelForm):
 				css_class='from-row'
 			),
 			Row(
-				Column('place_of_birth', css_class='form-group col-md-6 mb-0'),
-				Column('place_of_death', css_class='form-group col-md-6 mb-0'),
+				Column(Field('place_of_birth',style='width:100%'), css_class='form-group col-md-6 mb-0'),
+				Column(Field('place_of_death',style='width:100%'), css_class='form-group col-md-6 mb-0'),
 				css_class='from-row'
 			),
-			Field('birth_location',style='width:100%'),
-			'notes')
+			Formset('locations'),
+			)
 
 	class Meta:
 		model = Person
