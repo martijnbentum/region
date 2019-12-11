@@ -123,5 +123,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-SELECT2_CSS = ''
+SELECT2BOOTSTRAP = True
+# SELECT2_CSS = ''

@@ -9,3 +9,4 @@ package.json
 yarn.lock
 db.sqlite3
 catalogue/migrations/
+JUNK/

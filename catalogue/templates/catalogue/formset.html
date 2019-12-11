@@ -1,0 +1,21 @@
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+<table class="col-md-9" style="margin-left: 10px;">
+
+{{ formset.management_form|crispy }}
+
+{% for form in formset.forms %}
+	<tr class="{% cycle 'row1' 'row2' %} formset_row-{{ formset.prefix }}">
+		{% for field in form.visible_fields %}
+		<td>
+			{{field|as_crispy_field}}
+		</td>
+		{% endfor %}
+	</tr>
+{% endfor %}
+
+</table>
+<br>
+ 
+
