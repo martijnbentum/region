@@ -25,7 +25,7 @@ SECRET_KEY = 'u#3^^61!)k%#zd6l#!yq65-wwlsb*n@4ghd+c(yczj29ax8daz'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['redefiningtheregion.cls.ru.nl',]
 
 
 # Application definition
