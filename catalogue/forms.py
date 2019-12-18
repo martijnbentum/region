@@ -126,7 +126,7 @@ class PersonLocationRelationForm(ModelForm):
 		widget=Select2Widget,
 		required = False
 		)
-	start_date = forms.DateField(required=False, 
+	start_date = forms.DateField(required=False,
 		widget = forms.DateInput(format=('%d %m $Y'), attrs=attrs))
 	end_date = forms.DateField(required=False,
 		widget = forms.DateInput(format=('%d %m $y'), attrs=attrs))
@@ -187,41 +187,10 @@ class PersonForm(ModelForm):
 	death_spec = forms.ChoiceField(choices = spec_choices, 	
 		label = '&nbsp;', required = False)
 
-
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		self.helper = FormHelper()
-		self.helper.add_input(
-			Submit('submit', 'Save', css_class='btn-success'))
-		self.helper.form_method = 'POST'
-		# self.helper.form_class= 'form-horizontal'
-
-		self.helper.layout= Layout(
-			'first_name',
-			Row(
-				Column('last_name', css_class='form-group col-md-10 mb-0'),
-				Column('sex', css_class='form-group col-md-2 mb-0'),
-				css_class='from-row'
-			),
-			HTML('<hr class="mt-0 mb-4">'),
-			Row(
-				Column('date_of_birth', css_class='form-group col-md-4 mb-0'),
-				Column('birth_spec', css_class='form-group col-md-2 mb-0'),
-				Column('date_of_death', css_class='form-group col-md-4 mb-0'),
-				Column('death_spec', css_class='form-group col-md-2 mb-0'),
-				css_class='from-row'
-			),
-			Row(
-				Column(Field('place_of_birth',style='width:100%'), css_class='form-group col-md-6 mb-0'),
-				Column(Field('place_of_death',style='width:100%'), css_class='form-group col-md-6 mb-0'),
-				css_class='from-row'
-			),
-			Formset('locations'),
-			)
-
 	class Meta:
 		model = Person
-		m = 'first_name,last_name,sex,notes'
+		m = 'first_name,last_name,sex,date_of_birth,birth_spec,date_of_death'
+		m +=',death_spec,place_of_birth,place_of_death'
 		fields = m.split(',')
 
 def bound_form(request, id):
