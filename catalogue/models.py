@@ -7,7 +7,7 @@ from .util_models import id_generator
 
 
 class Date(models.Model, info):
-	start= models.DateField()
+	start= models.DateField(blank = True, null = True)
 	end= models.DateField(blank = True, null = True)
 	SPECIFICITY = [('d','day'),('m','month'),('y','year'),('c','century')]
 	start_specificity=models.CharField(max_length=1,choices=SPECIFICITY,default='d')
@@ -26,7 +26,9 @@ class Date(models.Model, info):
 		if self.end_specificity in ['y','c']: self.end_str = '%y'
 
 	def	_set_time_delta(self):
-		self.delta = self.end - self.start
+		if self.start and self.end:
+			self.delta = self.end - self.start
+		else: self.delta = None
 
 	def list(self):
 		self._set_specificity_str()
@@ -35,7 +37,7 @@ class Date(models.Model, info):
 		if self.start: m.append( self.start.strftime(self.start_str) )
 		if self.end: m.append( self.end.strftime(self.end_str) )
 		spec = [self.start_specificity,self.end_specificity]
-		if 'c' in spec: return m
+		if 'c' in spec or not self.delta: return m
 		if self.start and self.end: 
 			t = (self.end.year - self.start.year)
 			if t == 1 and self.delta.days >= 365: t = str(t) + ' year'
@@ -48,19 +50,20 @@ class Date(models.Model, info):
 
 	def __str__(self):
 		m = ''
-		if not self.ok(): m += f'ERROR: {self.error}'
+		if not self.ok(): m += f'{self.error}'
 		for n,v in zip('start,end,duration'.split(','), self.list()):
 			m += n + ': ' + v + '   '
 		return m.rstrip('   ')
 
 	def ok(self):
+		self.error = ''
 		self._set_time_delta()
 		if self.start and self.end:	
 			if self.delta.days < 0: self.error = 'end date before start date '
 			return self.delta.days >= 0
-		if not start:
+		if not self.start:
 			self.error = 'no start date '
-		if not start and not end:
+		if not self.start and not self.end:
 			self.error = 'no dates '
 			
 			
@@ -73,13 +76,11 @@ class Location(models.Model, info):
 	STATUS = [(FICTION,'fiction'), (NON_FICTION,'non-fiction')]
 	status = models.CharField(max_length=2,choices=STATUS,default = 'NF')
 	CITY = 'CIT'
-	PROVINCE = 'PRO'
 	COUNTRY = 'COU'
 	CONTINENT = 'CON'
 	REGION = 'REG'
 	LOCATION_TYPE = [
 		(CITY,'city'),
-		(PROVINCE,'province'),
 		(COUNTRY,'country'),
 		(CONTINENT,'continent'),
 		(REGION,'region'),
@@ -176,7 +177,7 @@ class Person(models.Model, info):
 
 	@property
 	def attribute_names(self):
-		m = 'first_name,last_name,gender'
+		m = 'first_name,last_name,sex'
 		m += ',notes'
 		return m.split(',')
 
@@ -194,7 +195,7 @@ class Person(models.Model, info):
 		m = []
 		for attr in self.attribute_names:
 			value = getattr(self,attr) 
-			if attr == 'gender': m.append(dict(self.GENDER)[self.gender])
+			if attr == 'sex': m.append(dict(self.SEX)[self.sex])
 			elif 'date_of' in attr: 
 				try:m.append(getattr(self,attr).strftime(date))
 				except: m.append('')
