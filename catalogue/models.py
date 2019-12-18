@@ -50,7 +50,7 @@ class Date(models.Model, info):
 
 	def __str__(self):
 		m = ''
-		if not self.ok(): m += f'{self.error}'
+		if not self.ok(): m += self.error
 		for n,v in zip('start,end,duration'.split(','), self.list()):
 			m += n + ': ' + v + '   '
 		return m.rstrip('   ')

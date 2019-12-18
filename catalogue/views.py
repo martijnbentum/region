@@ -42,7 +42,7 @@ def add_text(request):
 	if request.method == 'POST':
 		form = PersonForm(request.POST)
 		if form.is_valid():
-			print(f'form is valid: {form.cleaned_data}',type(form))
+			print('form is valid: ',form.cleaned_data,type(form))
 			form.save()
 			return HttpResponseRedirect('/text/')
 	else:
@@ -202,7 +202,7 @@ def add_person_location_relation(request, person_id=None):
 	if request.method == 'POST':
 		form = PersonForm(request.POST)
 		if form.is_valid():
-			print(f'form is valid: {form.cleaned_data}',type(form))
+			print('form is valid: ',form.cleaned_data,type(form))
 			# form.instance.residence = form.cleaned_data["residence"]#[0]
 			form.save()
 			return HttpResponseRedirect('/person/')
@@ -220,7 +220,7 @@ def add_location(request):
 	if request.method == 'POST':
 		form = LocationForm(request.POST)
 		if form.is_valid():
-			print(f'form is valid: {form.cleaned_data}')
+			print('form is valid: ',form.cleaned_data)
 			form.save()
 			return HttpResponseRedirect('/admin/catalogue/location/')
 	else:

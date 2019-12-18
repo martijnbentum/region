@@ -3,8 +3,8 @@ from .util_models import info
 
 class city_info(info):
 	def __init__(self,line):
-		assert type(line) == list, f'input should be list {line}'
-		assert len(line) == 19, f'lenght of line should be 19 {line}'
+		assert type(line) == list, 'input should be list '+ str(line)
+		assert len(line) == 19, 'lenght of line should be 19 ' + str(line)
 		self.line = line
 		m = 'geonameid,name,asciiname,alternatenames,latitude,longitude'
 		m += ',feature_class,feature_code,country_code,cc2,admin1_code'
@@ -50,8 +50,8 @@ class country_info(info):
 	def __init__(self,line):
 		'''set information from columns into attributes and create country
 		(code, name) tuple.'''
-		assert type(line) == list, f'input should be list {line}'
-		assert len(line) == 19, f'lenght should be 19 is:{len(line),line}'
+		assert type(line) == list, 'input should be list ' + str(line)
+		assert len(line) == 19, 'lenght should be 19 is: ' + str(len(line)) +' '+str(line)
 		self.line = line
 		m = 'iso,iso3,iso_numeric,fips,country,captial,area_km,population'
 		m += ',continent,tld,currency_code,currency_name,phone'
@@ -77,8 +77,8 @@ class admin_info(info):
 		'''set information from columns into attributes.
 		level should be set to the administration level of geonames
 		higher number is a more specific region'''
-		assert type(line) == list, f'input should be list {line}'
-		assert len(line) == 4, f'lenght should be 4 is:{len(line),line}'
+		assert type(line) == list, 'input should be list '+str(line)
+		assert len(line) == 4, 'lenght should be 4 is: ' +str(len(line)) +' '+str(line)
 		self.line = line
 		self.level = level
 		m = 'admin_code,name,name_ascii,geonameid'
@@ -89,8 +89,8 @@ class admin_info(info):
 
 class language_info(info):
 	def __init__(self,line):
-		assert type(line) == list, f'input should be list'
-		assert len(line) == 4, f'lenght of line should be 4'
+		assert type(line) == list, 'input should be list'
+		assert len(line) == 4, 'lenght of line should be 4'
 		self.line = line
 		m = 'iso639_3,iso_639_2,iso_639_1,language_name'
 		self.attribute_names = m.split(',')
@@ -107,7 +107,7 @@ def country2continent_dict(countries):
 	ccd = code2continent_dict()
 	output = {} 
 	for continent in ccd.values():
-		assert continent not in output.keys(), f'{continent} already in {keys}'
+		assert continent not in output.keys(), str(continent) + ' already in '+str(keys)
 		output[continent] = []
 		for country in countries:
 			name = country.country
@@ -141,7 +141,7 @@ def make_languages(filename= ''):
 	return output
 
 def make_admin(level = 1):
-	assert level in [1,2], f'level should be 1 or 2, is {level}'
+	assert level in [1,2], 'level should be 1 or 2, is '+str(level)
 	f = 'data/admin'+str(level)+'codes.txt'
 	admins = open_table(f)
 	output = []
@@ -155,7 +155,7 @@ def make_admin2name_dict(level = 1):
 	output = {}
 	for admin in admins:
 		if admin.admin_code in output.keys():
-			raise ValueError(f'{admin.admin_code} already in keys')
+			raise ValueError(str(admin.admin_code)+ ' already in keys')
 		output[admin.admin_code] = admin.name
 	return output, admins
 
