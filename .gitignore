@@ -10,3 +10,5 @@ yarn.lock
 db.sqlite3
 catalogue/migrations/
 JUNK/
+catalogue/templates/catalogue/OLD/
+.gitignore
