@@ -7,6 +7,16 @@ from .models import Date, Location, Person, Text,PersonLocationRelation
 from .forms import PersonForm, LocationForm, TextForm, PersonLocationRelationForm
 from .forms import location_formset, helper
 from django.forms import inlineformset_factory
+import json
+
+		
+
+def heavy_data(request):
+	term = request.GET['term']
+	filtered_location=Location.objects.filter(name__icontains=term)
+	fl = [{'id':loc.pk,'text':loc.name} for loc in filtered_location]
+	o = {'results':fl,'pagination':{'more':True}}
+	return HttpResponse(json.dumps(o),content_type='application/json')
 
 
 class LocationView(generic.ListView):
@@ -129,6 +139,7 @@ def add_person(request):
 		if form.is_valid():
 			person = _handle_person_form(form)
 			formset = location_formset(request.POST, request.FILES, instance=person)
+			print(formset,'--------',formset.is_valid())
 			if formset.is_valid():
 				_handle_plr_formset(formset)
 				'''
@@ -158,6 +169,7 @@ def edit_person(request, person_id):
 	person = Person.objects.get(pk=person_id)
 	if request.method == 'POST':
 		formset = location_formset(request.POST, request.FILES, instance=person)
+		print(formset,'--------',formset.is_valid())
 		form = PersonForm(request.POST,instance=person)
 		if form.is_valid() and formset.is_valid():
 			person = _handle_person_form(form)
@@ -201,6 +213,7 @@ def add_person_location_relation(request, person_id=None):
 	# if this is a post request we need to process the form data
 	if request.method == 'POST':
 		form = PersonForm(request.POST)
+		# print(form,form.is_valid()
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
 			# form.instance.residence = form.cleaned_data["residence"]#[0]

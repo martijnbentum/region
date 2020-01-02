@@ -3,10 +3,11 @@ from django.forms import ModelForm, inlineformset_factory
 from django.template.loader import render_to_string
 from .models import Date, Language, Location, Person
 from .models import PersonLocationRelation, Text
-from django_select2.forms import Select2MultipleWidget, Select2Widget
+from django_select2.forms import Select2Widget,HeavySelect2Widget,ModelSelect2Widget
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field, Fieldset,HTML
 from crispy_forms.layout import LayoutObject, TEMPLATE_PACK
+import json
 
 
 class TextForm(ModelForm):
@@ -117,13 +118,24 @@ class DateForm(ModelForm):
 			'end_spec':'end specificity'}
 
 
+class LocationWidget(ModelSelect2Widget):
+	model = Location
+	search_fields = ['name__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.name
+
+	def get_queryset(self):
+		return Location.objects.all().order_by('name')
+
 class PersonLocationRelationForm(ModelForm):
 	'''Form to add a person location relation'''
 	spec_choices= [('d','day'),('m','month'),('y','year'),('c','century')]
 	attrs={'class':'form-control','type':'date'}
 	location = forms.ModelChoiceField(
-		queryset=Location.objects.order_by('name'),
-		widget=Select2Widget,
+		queryset=Location.objects.all().order_by('name'),
+		widget=LocationWidget(attrs={'data-placeholder':'Select location...',
+			'style':'width:100%;','class':'searching'}),
 		required = False
 		)
 	start_date = forms.DateField(required=False,
@@ -173,13 +185,17 @@ class PersonForm(ModelForm):
 	date_of_death = forms.DateField(required=False,
 		widget = forms.DateInput(format=('%d %m $y'), attrs=attrs))
 	place_of_birth= forms.ModelChoiceField(
-		queryset=Location.objects.order_by('name'),
-		widget=Select2Widget,
+		queryset=Location.objects.all().order_by('name'),
+		widget=LocationWidget(attrs={'data-placeholder':'Select location...',
+			'style':'width:100%;','class':'searching'}),
+		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
 		required = False
 		)
 	place_of_death= forms.ModelChoiceField(
-		queryset=Location.objects.order_by('name'),
-		widget=Select2Widget,
+		queryset=Location.objects.all().order_by('name'),
+		widget=LocationWidget(attrs={'data-placeholder':'Select location...',
+			'style':'width:100%;','class':'searching'}),
+		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
 		required = False
 		)
 	birth_spec = forms.ChoiceField(choices = spec_choices, 

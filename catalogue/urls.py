@@ -13,5 +13,6 @@ urlpatterns = [
 	path('add_person/', views.add_person, name='add_person'),
 	path('edit_person/<int:person_id>', views.edit_person, name='edit_person'),
 	path('person/<int:person_id>',views.edit_person,name='person_detail'),
-	re_path(r'^select2/', include('django_select2.urls')),
+	# re_path(r'^heavy_data/', views.LocationSelect2View, name='heavy_data'),
+	re_path(r'^heavy_data/', views.heavy_data, name='heavy_data'),
 ]
