@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+{% load static %}
+  <title>{{location_name}}</title>
+  <link rel="stylesheet" href={% static "locations/jquery-jvectormap.css" %} type="text/css" media="screen"/>
+  <!-- <script src="jquery.js"></script> -->
+<!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src={% static "locations/jquery-jvectormap.js" %}></script>
+{% with "locations/"|add:map_name as static_path %}
+<script src={% static static_path %}></script>
+{% endwith %}
+<!-- <button onclick="marker()">amsterdam</button> -->
+<div align="right">
+<div id="map" style="width: 66%; height: 100vh; "></div>
+</div>
+<script>
+$(function(){
+	<!-- map = new jvm.Map({ -->
+	$('#map').vectorMap({
+	map: '{{location_name}}',
+	backgroundColor: 'white',
+	regionStyle: { initial: {
+		fill:'lightgrey'}, 
+		hover: {fill:'yellow'},
+		selected: {fill:'grey'}
+		},
+	markerStyle: {initial: {fill:'red',r:3,'stroke-width':1}},
+	markersSelectable:true,
+	regionsSelectable:true,
+	regionsSelectableOne:true,
+	onRegionTipShow: function(e, el, code){
+		el.html(el.html());
+		},
+	onRegionSelected(e,code,selected,regions){
+		console.info(code,selected);
+		var xhttp = new XMLHttpRequest();
+		xhttp.open("GET", code, true);
+		xhttp.send();
+		}
+	});
+	<!-- map.setFocus({region:'NL'}); -->
+});
+function marker(){
+	var mapObject = $('#map').vectorMap('get', 'mapObject');
+	mapObject.setFocus({lat:49,lng:9,x:1,y:1,scale:1.5});
+	mapObject.addMarker('Amsterdam',{latLng:[52.37403,4.88969],name:'Amsterdam'})
+};
+</script>

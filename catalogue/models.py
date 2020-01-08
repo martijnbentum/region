@@ -90,13 +90,6 @@ class Location(models.Model, info):
 		choices=LOCATION_TYPE,
 		default = CITY
 	)
-	relations = models.ManyToManyField('self',
-		through='LocationLocationRelation',symmetrical=False, default=None)
-	geonameid = models.CharField(
-		max_length=12, 
-		default= id_generator(length = 12),
-		unique = True,
-	)
 	coordinates_polygon = models.CharField(max_length=3000, blank=True ,null=True)
 	latitude=models.DecimalField(
 		blank=True,
@@ -138,16 +131,6 @@ class Location(models.Model, info):
 	class Meta:
 		ordering = ['name']
 
-
-class LocationLocationRelation(models.Model, info):
-	'''defines a hierarchy of locations, e.g. a city is in a province.'''
-	container = models.ForeignKey('Location', related_name='container',
-									on_delete=models.CASCADE, default=None)
-	contained = models.ForeignKey('Location', related_name='contained',
-									on_delete=models.CASCADE, default=None)
-
-	def __str__(self):
-		return self.contained.name + ' is located in: ' + self.container.name
 	
 
 class Person(models.Model, info):

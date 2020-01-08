@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+  <title>jVectorMap demo</title>
+  <link rel="stylesheet" href={% static "locations/jquery-jvectormap.css" %} type="text/css" media="screen"/>
+  <!-- <script src="jquery.js"></script> -->
+<!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src={% static "locations/jquery-jvectormap.js" %}></script>
+  <script src={% static "locations/world.js" %}></script>
+  <script src={% static "locations/gdp-data.js" %}></script>
+</head>
+<body>
+  <div id="map" style="width: 1600px; height: 900px"></div>
+  <script>
+    $(function(){
+      $('#map').vectorMap({
+		map: 'world_mill',
+		series: {
+			regions: [{
+				values: gdpData,
+				scale: ['#C8EEFF', '#0071A4'],
+				normalizeFunction: 'polynomial'
+				}]
+		},
+		regionsSelectable:true,
+		regionsSelectableOne:true,
+		onRegionTipShow: function(e, el, code){
+			el.html(el.html()+' (GDP - '+gdpData[code]+') '+code);
+		  },
+		onRegionSelected(e,code,selected,regions){
+			console.info(code,selected);
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("GET", code, true);
+			xhttp.send();
+		}
+});
+});
+
+ 
+  </script>
+</body>
+</html>

@@ -1,20 +1,29 @@
+
 <!-- test view to print data in a table from model --> 
 {% extends "catalogue/base.html" %}
 {% block content %}
 {% if location_list %}
+{{location_list.0.latitude}}
 
 <div class="d-flex">
 
 <table class="table table-hover">
 	<tr class="table-primary">
 	<!-- create header -->
-	{% for attr in location_list.0.attribute_names_hr%}
+	{% for attr in location_list.0.table_header%}
 		<th> {{ attr }} </th>
 	{% endfor %}
 	</tr>
 	{% for location in location_list %}
 	<tr>
-			<td>{{ attr }}</td>
+		{% for attr in location.table %}
+			{% if attr|length > 18 %}
+				<!-- truncate long strings -->
+				<td>{{ attr|truncatechars:12}}</td>
+			{% else %}
+				<td>{{ attr }}</td>
+			{% endif %}
+		{% endfor %}
 	</tr>
 	{% endfor %}
 </table>
@@ -26,4 +35,3 @@
 	<p>no locations are available</p>
 {% endif %}
 {% endblock content %}
-
