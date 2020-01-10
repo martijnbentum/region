@@ -192,7 +192,7 @@ class Pseudonym(models.Model, info):
 		on_delete=models.CASCADE)
 	name = models.CharField(max_length=500)
 
-class PersonLocationRelation(models.Model):
+class PersonLocationRelation(models.Model,info):
 	'''location function for a person e.g. residence, work, travel.'''
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	location = models.ForeignKey(Location, on_delete=models.CASCADE)
