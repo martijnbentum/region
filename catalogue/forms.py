@@ -152,29 +152,10 @@ class PersonLocationRelationForm(ModelForm):
 		fields = 'location,relation,start_date,start_spec,end_date,end_spec'
 		fields = fields.split(',')
 
-class formsethelper(FormHelper):
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		self.form_method = 'POST'
-		self.layout= Layout(
-			Row(
-				Column(Field('location', style ='width:100%'),css_class='form-group col-md-6 mb-0'),
-				Column('relation', css_class='form-group col-md-6 mb-0'),
-				css_class='from-row'
-			),
-			Row(
-				Column('start_date', css_class='form-group col-md-4 mb-0'),
-				Column('start_spec', css_class='form-group col-md-2 mb-0'),
-				Column('end_date', css_class='form-group col-md-4 mb-0'),
-				Column('end_spec', css_class='form-group col-md-2 mb-0'),
-				css_class='from-row'
-			),
-			)
 
 location_formset = inlineformset_factory(
 	Person,PersonLocationRelation,
 	form = PersonLocationRelationForm, extra=1)
-helper = formsethelper()
 
 class PersonForm(ModelForm):
 	'''form to add a person'''
@@ -213,6 +194,5 @@ def bound_form(request, id):
 	person = get_object_or_404(Person, id=id)
 	form = PersonForm(instance=person) 
 	return render_to_response('edit_person.html', {'form':form})
-# location_name = forms.CharField(label='location name',max_length= 200)
 
 
