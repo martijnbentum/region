@@ -1,6 +1,7 @@
 from catalogue.models import Language
 from django import db
 from locations.models import GeoLoc as Location
+from locations.models import GeoLoc, UserLoc, LocType
 from locations.models import GeoLocsRelation 
 from utils.model_util import info
 
@@ -43,7 +44,7 @@ class city_info(info):
 			latitude = self.latitude,
 			longitude = self.longitude,
 			name = self.name,
-			location_type = 'CIT'
+			location_type = 'CITY'
 		)
 		return self.location
 
@@ -72,7 +73,7 @@ class country_info(info):
 		self.location = Location(
 			geonameid = self.geonameid,
 			name = self.country,
-			location_type = 'COU'
+			location_type = 'COUNTRY'
 		)
 		return self.location
 
@@ -202,16 +203,17 @@ default_countries += ',Portugal,Austria,Denmark,Norway,Sweden,Finland,Belgium'
 default_countries += ',Luxembourg,Ireland,Poland,slovenia'
 default_countries = default_countries.split(',')
 
-def _save_locations(locations,loctype = 'unk'):
+def _save_locations(locations,loctype = 'unk', verbose=True):
 	saved, already_exists, error = [],[],[]
 	for l in locations:
 		try: l.save() 
 		except db.IntegrityError: already_exists.append(l)
 		except: error.append(l)
 		else: saved.append(l)
-	print('saving location type:',loctype)
-	print('saved: ',len(saved),'already_exists: ',len(already_exists),
-		'error: ',len(error))
+	if verbose:
+		print('saving location type:',loctype)
+		print('saved: ',len(saved),'already_exists: ',len(already_exists),
+			'error: ',len(error))
 	return saved, already_exists, error
 
 def make_geolocations(countries='default', min_size_cities = 5000, save = True):
@@ -232,6 +234,18 @@ def make_geolocations(countries='default', min_size_cities = 5000, save = True):
 			for city in cloc])
 	_save_locations(glr,'locationrelation')
 	return cities, city_results, country_results, glr
+
+def make_userlocations():
+	gl = GeoLoc.objects.all()
+	lts = [LocType(name = lt[1]) for lt in gl[0].LOCATION_TYPE]
+	lt_results = _save_locations(lts,'LocType')
+	lt_dict = dict([(lt.name,lt) for lt in LocType.objects.all()])
+	for l in gl:
+		ul = UserLoc(name=l.name,loc_precision='E',status='NF',
+			loc_type= lt_dict[l.location_type.lower()])
+		_save_locations([ul],verbose = False)
+		l.user_locs.add(ul)
+
 
 def add_geoloactions_country(country):
 	return make_geolocations([country])
