@@ -1,13 +1,14 @@
 from django import forms
 from django.forms import ModelForm, inlineformset_factory
 from django.template.loader import render_to_string
-from .models import Date, Language, Location, Person
+from .models import Date, Language, UserLoc, Person
 from .models import PersonLocationRelation, Text
 from django_select2.forms import Select2Widget,HeavySelect2Widget,ModelSelect2Widget
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field, Fieldset,HTML
 from crispy_forms.layout import LayoutObject, TEMPLATE_PACK
 import json
+from locations.models import UserLoc
 
 
 class TextForm(ModelForm):
@@ -51,33 +52,6 @@ class Formset(LayoutObject):
 		formset = context[self.formset_name_in_context]
 		render_to_string(self.template,{'formset':formset})
 
-class LocationForm(ModelForm):#forms.Form):
-	'''Form to add a location'''
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		self.helper = FormHelper()
-		self.helper.layout= Layout(
-			'name',
-			Row(
-				Column('status', css_class='form-group col-md-6 mb-0'),
-				Column('location_type', css_class='form-group col-md-6 mb-0'),
-				css_class='from-row'
-			),
-			Row(
-				Column('latitude', css_class='form-group col-md-6 mb-0'),
-				Column('longitude', css_class='form-group col-md-6 mb-0'),
-				css_class='from-row'
-			),
-			'coordinates_polygon',
-			'notes'
-			)
-
-	class Meta:
-		model = Location
-		m = 'name,status,location_type'
-		m += ',latitude,longitude,notes,coordinates_polygon'
-		fields = m.split(',')
-	
 
 class DateForm(ModelForm):
 	'''form to add a person'''
@@ -119,21 +93,21 @@ class DateForm(ModelForm):
 
 
 class LocationWidget(ModelSelect2Widget):
-	model = Location
+	model = UserLoc 
 	search_fields = ['name__icontains']
 
 	def label_from_instance(self,obj):
 		return obj.name
 
 	def get_queryset(self):
-		return Location.objects.all().order_by('name')
+		return UserLoc.objects.all().order_by('name')
 
 class PersonLocationRelationForm(ModelForm):
 	'''Form to add a person location relation'''
 	spec_choices= [('d','day'),('m','month'),('y','year'),('c','century')]
 	attrs={'class':'form-control','type':'date'}
 	location = forms.ModelChoiceField(
-		queryset=Location.objects.all().order_by('name'),
+		queryset=UserLoc.objects.all().order_by('name'),
 		widget=LocationWidget(attrs={'data-placeholder':'Select location...',
 			'style':'width:100%;','class':'searching'}),
 		required = False
@@ -166,14 +140,14 @@ class PersonForm(ModelForm):
 	date_of_death = forms.DateField(required=False,
 		widget = forms.DateInput(format=('%d %m $y'), attrs=attrs))
 	place_of_birth= forms.ModelChoiceField(
-		queryset=Location.objects.all().order_by('name'),
+		queryset=UserLoc.objects.all().order_by('name'),
 		widget=LocationWidget(attrs={'data-placeholder':'Select location...',
 			'style':'width:100%;','class':'searching'}),
 		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
 		required = False
 		)
 	place_of_death= forms.ModelChoiceField(
-		queryset=Location.objects.all().order_by('name'),
+		queryset=UserLoc.objects.all().order_by('name'),
 		widget=LocationWidget(attrs={'data-placeholder':'Select location...',
 			'style':'width:100%;','class':'searching'}),
 		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),

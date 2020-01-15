@@ -3,35 +3,14 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
-from .models import Date, Location, Person, Text,PersonLocationRelation
-from .forms import PersonForm, LocationForm, TextForm, PersonLocationRelationForm
+from .models import Date, Person, Text,PersonLocationRelation
+from .forms import PersonForm, TextForm, PersonLocationRelationForm
 from .forms import location_formset 
 from django.forms import inlineformset_factory
 import json
+from locations.models import UserLoc
 
 		
-
-def heavy_data(request):
-	term = request.GET['term']
-	filtered_location=Location.objects.filter(name__icontains=term)
-	fl = [{'id':loc.pk,'text':loc.name} for loc in filtered_location]
-	o = {'results':fl,'pagination':{'more':True}}
-	return HttpResponse(json.dumps(o),content_type='application/json')
-
-
-class LocationView(generic.ListView):
-	template_name = 'catalogue/location_list.html'
-	context_object_name = 'location_list'
-
-	def get_queryset(self):
-		return Location.objects.order_by('name')
-
-class PersonView(generic.ListView):
-	template_name = 'catalogue/person_list.html'
-	context_object_name = 'person_list'
-
-	def get_queryset(self):
-		return Person.objects.order_by('last_name')
 
 class TextView(generic.ListView):
 	template_name = 'catalogue/text_list.html'
@@ -40,12 +19,6 @@ class TextView(generic.ListView):
 	def get_queryset(self):
 		return Text.objects.order_by('title')
 
-
-def person_detail(request, person_id):
-	p = Person.objects.get(pk=person_id)
-	form = PersonForm(instance=p)
-	print(form.instance.view())
-	return render(request,'catalogue/add_person.html',{'form':form})
 
 def add_text(request):
 	# if this is a post request we need to process the form data
@@ -59,6 +32,23 @@ def add_text(request):
 		form = TextForm()
 	var = {'form':form,'page_name':'Add text'}
 	return render(request, 'catalogue/add_text.html', var)
+
+
+class PersonView(generic.ListView):
+	template_name = 'catalogue/person_list.html'
+	context_object_name = 'person_list'
+
+	def get_queryset(self):
+		return Person.objects.order_by('last_name')
+
+
+def person_detail(request, person_id):
+	p = Person.objects.get(pk=person_id)
+	# form = PersonForm(instance=p)
+	# print(form.instance.view())
+	var = {'person':p}
+	return render(request,'catalogue/add_person.html',{'form':form})
+
 
 
 def _handle_date(goal_object,form,names=None):

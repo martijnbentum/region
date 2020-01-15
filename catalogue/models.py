@@ -1,9 +1,12 @@
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 # from django_countries.fields import CountryField
-from .util_models import info
-from .util_models import id_generator
+# from .util_models import info
+# from .util_models import id_generator
+from locations.models import UserLoc
+from utils.model_util import id_generator, info
 
 
 class Date(models.Model, info):
@@ -18,34 +21,56 @@ class Date(models.Model, info):
 		return 'start,end,start_specificity,end_specificity'.split(',')
 
 	def _set_specificity_str(self):
-		if self.start_specificity == 'd': self.start_str = '%-d %B %y'
-		elif self.start_specificity == 'm': self.start_str = '%B %y'
-		elif self.start_specificity in ['y','c']: self.start_str = '%y'
-		if self.end_specificity == 'd': self.end_str = '%-d %B %y'
-		if self.end_specificity == 'm': self.end_str = '%B %y'
-		if self.end_specificity in ['y','c']: self.end_str = '%y'
+		if self.start_specificity == 'd': self.start_strf = '%-d %B %Y'
+		elif self.start_specificity == 'm': self.start_strf = '%B %Y'
+		elif self.start_specificity in ['y','c']: self.start_strf = '%Y'
+		if self.end_specificity == 'd': self.end_strf = '%-d %B %Y'
+		if self.end_specificity == 'm': self.end_strf = '%B %Y'
+		if self.end_specificity in ['y','c']: self.end_strf = '%Y'
 
 	def	_set_time_delta(self):
 		if self.start and self.end:
 			self.delta = self.end - self.start
+		elif self.start:
+			self.delta = timezone.datetime.date(timezone.now()) - self.start
 		else: self.delta = None
+
+	@property
+	def start_str(self):
+		self._set_specificity_str()
+		if self.start: return self.start.strftime(self.start_strf) 
+		return ''
+		
+	@property
+	def end_str(self):
+		self._set_specificity_str()
+		if self.end: return self.end.strftime(self.end_strf) 
+		return ''
+
+	@property
+	def duration_str(self):
+		self._set_specificity_str()
+		if self.start and self.end: t = (self.end.year - self.start.year)
+		elif self.start:
+			t = timezone.datetime.date(timezone.now()).year - self.start.year
+		else: return ''
+		if t == 1 and self.delta.days >= 365: t = str(t) + ' year'
+		elif t > 1: t = str(t) + ' years'
+		elif spec == ['d','d']: 
+			t = str(self.delta.days) + ' day'
+			if self.delta.days > 1: t += 's'
+		return t
 
 	def list(self):
 		self._set_specificity_str()
 		self._set_time_delta()
 		m = []
-		if self.start: m.append( self.start.strftime(self.start_str) )
-		if self.end: m.append( self.end.strftime(self.end_str) )
+		if self.start: m.append( self.start_str )
+		if self.end: m.append( self.end_str )
 		spec = [self.start_specificity,self.end_specificity]
 		if 'c' in spec or not self.delta: return m
-		if self.start and self.end: 
-			t = (self.end.year - self.start.year)
-			if t == 1 and self.delta.days >= 365: t = str(t) + ' year'
-			elif t > 1: t = str(t) + ' years'
-			elif spec == ['d','d']: 
-				t = str(self.delta.days) + ' day'
-				if self.delta.days > 1: t += 's'
-			if type(t) == str: m.append(t)
+		t = self.duration_str
+		if type(t) == str and t != '': m.append(t)
 		return m
 
 	def __str__(self):
@@ -66,72 +91,6 @@ class Date(models.Model, info):
 		if not self.start and not self.end:
 			self.error = 'no dates '
 			
-			
-
-class Location(models.Model, info):
-	'''Geographic location of a specific type (e.g. city or country)'''
-	name = models.CharField(max_length=200, default = '')
-	FICTION = 'F'
-	NON_FICTION = 'NF'
-	STATUS = [(FICTION,'fiction'), (NON_FICTION,'non-fiction')]
-	status = models.CharField(max_length=2,choices=STATUS,default = 'NF')
-	CITY = 'CIT'
-	COUNTRY = 'COU'
-	CONTINENT = 'CON'
-	REGION = 'REG'
-	LOCATION_TYPE = [
-		(CITY,'city'),
-		(COUNTRY,'country'),
-		(CONTINENT,'continent'),
-		(REGION,'region'),
-	]
-	location_type= models.CharField(
-		max_length=3,
-		choices=LOCATION_TYPE,
-		default = CITY
-	)
-	coordinates_polygon = models.CharField(max_length=3000, blank=True ,null=True)
-	latitude=models.DecimalField(
-		blank=True,
-		null=True,
-		max_digits=8,
-		decimal_places=5
-	)
-	longitude=models.DecimalField(
-		blank=True,
-		null=True,
-		max_digits=8,
-		decimal_places=5
-	)
-	notes = models.TextField(default='',blank=True)
-	# country = CountryField()
-
-	def __str__(self):
-		return self.name 
-
-	@property
-	def attribute_names_hr(self):
-		names = 'name,status,type,notes'.split(',')
-		return names
-
-	@property
-	def listify(self):
-		names = 'name,status,location_type,notes'.split(',')
-		m = []
-		for attr in names:
-			if attr == 'status': m.append(dict(self.STATUS)[self.status])
-			elif attr == 'location_type': 
-				m.append(dict(self.LOCATION_TYPE)[self.location_type])
-			elif attr == 'notes':  
-				note =  getattr(self,attr) 
-				m.append('') if note == None else m.append(note)
-			else: m.append(str(getattr(self,attr)))
-		return m
-	
-	class Meta:
-		ordering = ['name']
-
-	
 
 class Person(models.Model, info):
 	'''A person with a specific role e.g. author, writer, etc.'''
@@ -140,38 +99,52 @@ class Person(models.Model, info):
 	SEX = [('F','female'),('M','male'),('O','other')]
 	sex = models.CharField(max_length=1,choices=SEX)
 	birth_death_date = models.ForeignKey(Date, 
-		on_delete=models.CASCADE,default=None,null =True)
-	place_of_birth = models.ForeignKey(Location, on_delete=models.CASCADE,
+		on_delete=models.SET_NULL,default=None,null =True)
+	place_of_birth = models.ForeignKey(UserLoc, on_delete=models.SET_NULL,
 		related_name = 'born', default = None, null = True)
-	place_of_death= models.ForeignKey(Location, on_delete=models.CASCADE,
+	place_of_death= models.ForeignKey(UserLoc, on_delete=models.SET_NULL,
 		related_name = 'died', default = None, null = True)
 	notes = models.TextField(blank=True,null=True) 
+
+
+	@property
+	def name(self):
+		return self.first_name + ' ' + self.last_name
 	
 	def __str__(self):
-		return self.first_name + ' ' + self.last_name
+		return self.name
 
+	@property
+	def born(self):
+		return self.birth_death_date.start_str
+
+	@property
+	def died(self):
+		return self.birth_death_date.end_str
+
+	@property
 	def age(self):
-		if self.birth_death_date == None: return 'unknown'
-		m = str(self.birth_death_date)
-		on = ['start,end,duration'.split(','),'born,died,age'.split(',')]
-		for o,n in zip(on):
-			m.replace(o,n)
-		return m
+		return self.birth_death_date.duration_str
+
 
 	@property
 	def attribute_names(self):
-		m = 'first_name,last_name,sex'
-		m += ',notes'
+		m = 'first_name,last_name,sex,birth_death_date,place_of_birth'
+		m += ',place_of_death,notes'
 		return m.split(',')
 
 	@property
-	def attribute_names_hr(self):
-		m = ','.join(self.attribute_names)
-		m = m.replace('date_of_birth','born')
-		m = m.replace('date_of_death','died')
-		m = m.replace('date_spec','date specificity')
-		m = m.replace('_',' ')
-		return m.split(',')
+	def locations(self):
+		locs, names = [], []
+		for n in 'place_of_birth,place_of_death'.split(','):
+			if getattr(self,n):
+				locs.append(getattr(self,n))
+				names.append(n.replace('_',' '))
+		for plr in self.personlocationrelation_set.all():
+			locs.append(plr.location)
+			names.append(plr.relation_name)
+		return locs, names
+
 
 	@property
 	def listify(self,date = '%Y'):
@@ -186,6 +159,14 @@ class Person(models.Model, info):
 			else: m.append(str(getattr(self,attr)))
 		return m
 
+	@property
+	def table_header(self):
+		return 'name,age,sex,born,died,birthplace,deathplace'.split(',')
+
+	@property
+	def table(self):
+		return [self.name,self.age]
+
 
 class Pseudonym(models.Model, info):
 	person = models.ForeignKey(Person, related_name='Pseudonyms', 
@@ -195,12 +176,20 @@ class Pseudonym(models.Model, info):
 class PersonLocationRelation(models.Model,info):
 	'''location function for a person e.g. residence, work, travel.'''
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
-	location = models.ForeignKey(Location, on_delete=models.CASCADE)
+	location = models.ForeignKey(UserLoc, on_delete=models.CASCADE)
 	RELATION= [('R','residence'),('T','travel'),('W','work'),('U','unknown')]
 	relation= models.CharField(max_length=1,choices= RELATION,default = None)
 	date = models.ForeignKey(Date, default= None, on_delete=models.CASCADE)
 	location_name = models.CharField(max_length=200, default='',null=True)
 	person_name = models.CharField(max_length=200, default='',null=True)
+
+	@property
+	def relation_name(self):
+		return dict(self.RELATION)[self.relation]
+
+	def __str__(self):
+		r = self.relation_name
+		return ', '.join([self.person.name, self.location.name, r])
 
 	@classmethod
 	def create(cls):
@@ -208,6 +197,7 @@ class PersonLocationRelation(models.Model,info):
 			cls.location_name = cls.location.name
 		if hasattr(cls,'person'):
 			cls.person_name = cls.person.first_name + ' ' + cls.person.last_name
+
 
 
 class Genre(models.Model, info):
@@ -353,7 +343,7 @@ class Periodical(models.Model, info):
 	language = models.CharField(max_length=100)
 	start_date = models.DateField()
 	end_date = models.DateField()
-	location = models.ForeignKey(Location, on_delete=models.CASCADE)
+	location = models.ForeignKey(UserLoc, null=True,on_delete=models.SET_NULL)
 
 	def __str__(self):
 		return self.title
@@ -377,9 +367,8 @@ class Book(models.Model, info):
 class Publisher(models.Model, info):
 	'''Company that publishes works.'''
 	name = models.CharField(max_length=300)
-	location= models.ManyToManyField(Location,blank=True)
-	start_date = models.DateField(null=True,blank=True)
-	end_date = models.DateField(null=True,blank=True)
+	location= models.ManyToManyField(UserLoc)
+	start_end_date = models.ForeignKey(Date,null=True,on_delete=models.SET_NULL)
 	notes = models.TextField(null=True,blank=True) # many to many
 
 	def __str__(self):
@@ -398,7 +387,7 @@ class Publication(models.Model, info):
 	volume = models.PositiveIntegerField(null=True,blank=True) 
 	identifier = models.CharField(max_length=100,null=True,blank=True)# ISBN
 	date = models.DateField(null=True,blank=True)
-	location = models.ForeignKey(Location, on_delete=models.CASCADE)
+	location = models.ForeignKey(UserLoc, on_delete=models.SET_NULL,null=True)
 	e_text = models.FileField(upload_to='publication/') # ?
 
 	def __str__(self):
