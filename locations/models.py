@@ -2,9 +2,12 @@ from django.db import models
 from utils.model_util import info, id_generator
 
 
-class LocType(models.Model):
+class LocType(models.Model, info):
 	name = models.CharField(max_length = 100, unique = True)
 	notes = models.TextField(default='', blank=True)
+
+	def __str__(self):
+		return self.name 
 
 
 class UserLoc(models.Model, info):
@@ -25,6 +28,32 @@ class UserLoc(models.Model, info):
 
 	notes = models.TextField(default='', blank=True)
 
+	def __str__(self):
+		return self.name 
+
+	@property
+	def latitudes(self):
+		return [gl.latitude for gl in self.geoloc_set.all()]
+
+	@property
+	def longitudes(self):
+		return [gl.longitude for gl in self.geoloc_set.all()]
+
+	@property
+	def latitude(self):
+		return self.latitudes[0]
+
+	@property
+	def longitude(self):
+		return self.longitudes[0]
+	
+	@property
+	def multiple_geolocs(self):
+		return len(self.geoloc_set.all()) > 1
+
+	@property
+	def n_geolocs(self):
+		return len(self.geoloc_set.all()) 
 
 class GeoLocsRelation(models.Model, info):
 	'''defines a hierarchy of locations, e.g. a city is in a province.'''
@@ -42,10 +71,10 @@ class GeoLocsRelation(models.Model, info):
 class GeoLoc(models.Model, info):
 	'''Geographic location of a specific type (e.g. city or country)'''
 	name = models.CharField(max_length=200)
-	CITY = 'CIT'
-	COUNTRY = 'COU'
-	CONTINENT = 'CON'
-	REGION = 'REG'
+	CITY = 'CITY'
+	COUNTRY = 'COUNTRY'
+	CONTINENT = 'CONTINENT'
+	REGION = 'REGION'
 	LOCATION_TYPE = [
 		(CITY,'city'),
 		(COUNTRY,'country'),
@@ -53,7 +82,7 @@ class GeoLoc(models.Model, info):
 		(REGION,'region'),
 	]
 	location_type= models.CharField(
-		max_length=3,
+		max_length=9,
 		choices=LOCATION_TYPE,
 		default = CITY
 	)
