@@ -10,5 +10,5 @@ urlpatterns = [
 	path('text/',views.TextView.as_view(),name='text_view'),
 	path('add_person/', views.add_person, name='add_person'),
 	path('edit_person/<int:person_id>', views.edit_person, name='edit_person'),
-	path('person/<int:person_id>',views.edit_person,name='person_detail'),
+	path('person/<int:person_id>',views.person_detail,name='person_detail'),
 ]

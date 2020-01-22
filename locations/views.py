@@ -31,11 +31,18 @@ def add_location(request):
 	var = {'form':form,'page_name':'Add location'}
 	return render(request, 'locations/add_location.html', var)
 
-def map(request, location_name = ''):
+def mapp(request, location_name = ''):
 	if location_name == '': location_name = 'europe'
 	map_name = location_name + '.js'
 	var = {'map_name':map_name,'location_name':location_name}
 	return render(request,'locations/map_location.html',var)
+
+def germany(request):
+	location_name = 'germany'
+	map_name = location_name + '.js'
+	var = {'map_name':map_name,'location_name':location_name}
+	return render(request,'locations/markers.html',var)
+	
 
 def world(request):
 	return render(request,'locations/world.html')

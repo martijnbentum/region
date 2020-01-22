@@ -5,6 +5,7 @@ from django.utils import timezone
 # from django_countries.fields import CountryField
 # from .util_models import info
 # from .util_models import id_generator
+import json
 from locations.models import UserLoc
 from utils.model_util import id_generator, info
 
@@ -145,6 +146,12 @@ class Person(models.Model, info):
 			names.append(plr.relation_name)
 		return locs, names
 
+	@property
+	def location_status(self):
+		locs, names = self.locations
+		o = dict([[str(i),n] for i,n in zip(range(1,len(names)+1),names)])
+		# return ','.join(names)
+		return json.dumps(o)
 
 	@property
 	def listify(self,date = '%Y'):
@@ -165,7 +172,7 @@ class Person(models.Model, info):
 
 	@property
 	def table(self):
-		return [self.name,self.age]
+		return [self.name,self.age,sex,born,died,birthplace,deathplace]
 
 
 class Pseudonym(models.Model, info):

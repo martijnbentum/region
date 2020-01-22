@@ -46,8 +46,8 @@ def person_detail(request, person_id):
 	p = Person.objects.get(pk=person_id)
 	# form = PersonForm(instance=p)
 	# print(form.instance.view())
-	var = {'person':p}
-	return render(request,'catalogue/add_person.html',{'form':form})
+	var = {'person':p,'map_name':'europe.js','location_name':'europe'}
+	return render(request,'catalogue/person_detail.html',var)
 
 
 

@@ -3,13 +3,10 @@
 
 <div>
 	<div style="float:left">
-	<!-- <button onclick="oslo()">Oslo</button> -->
-
 	<table class="table table-hover">
 		<tr class="table-primary">
 		<!-- create header -->
 		{% for attr in location_list.0.table_header%}
-			<!-- <th><a href="?order_by={{attr}}"> {{ attr }}</a></th> -->
 			<th> {{ attr }}</th>
 		{% endfor %}
 		</tr>
@@ -26,28 +23,30 @@
 		</tr>
 		{% endfor %}
 	</table>
-
 </div>
 	<div> 
 	{% include "locations/map_location.html" %}
 	</div>
 </div>
+
 <script>
-function oslo(){
+function remove_loc(){
 	var mapObject = $('#map').vectorMap('get', 'mapObject');
-	mapObject.setFocus({lat:60,lng:11,x:1,y:1,scale:3});
-	mapObject.addMarker('oslo',{latLng:[59.91273,10.74609],name:'Oslo'})
+	mapObject.removeAllMarkers();
 };
 function show_loc(latitude,longitude,name){
 	remove_loc();
 	var mapObject = $('#map').vectorMap('get', 'mapObject');
 	mapObject.setFocus({lat:latitude,lng:longitude,x:1,y:1,scale:3});
-	mapObject.addMarker(name,{latLng:[latitude,longitude],name:name})
+	mapObject.addMarker(1,{
+			latLng:[latitude,longitude],
+			name:name,
+			})
+	mapObject.series.markers[0].setValues({1:'location'});
+	console.log(mapObject);
 };
-function remove_loc(){
-	var mapObject = $('#map').vectorMap('get', 'mapObject');
-	mapObject.removeAllMarkers();
-};
+
 </script>
+
 
 {% endblock content %}

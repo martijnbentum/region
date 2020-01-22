@@ -2,8 +2,6 @@
 {% load static %}
   <title>{{location_name}}</title>
   <link rel="stylesheet" href={% static "locations/jquery-jvectormap.css" %} type="text/css" media="screen"/>
-  <!-- <script src="jquery.js"></script> -->
-<!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src={% static "locations/jquery-jvectormap.js" %}></script>
 {% with "locations/"|add:map_name as static_path %}
@@ -24,7 +22,24 @@ $(function(){
 		hover: {fill:'yellow'},
 		selected: {fill:'grey'}
 		},
-	markerStyle: {initial: {fill:'red',r:3,'stroke-width':1}},
+	markerStyle: {
+				initial: 
+			   {fill:'red',r:3,'stroke-width':1},
+				selected: {image: '/media/ok.png'}		
+				},
+	markers: [],
+	series: {
+		markers: [{
+			attribute: 'image',
+			scale: {
+				'residence': '/media/house.png',
+				'place of birth': '/media/location.png',
+				'location': '/media/location.png',
+				'ok': '/media/ok.png',
+				},
+			values: [],
+			}]
+		},
 	markersSelectable:true,
 	regionsSelectable:true,
 	regionsSelectableOne:true,
@@ -44,5 +59,10 @@ function marker(){
 	var mapObject = $('#map').vectorMap('get', 'mapObject');
 	mapObject.setFocus({lat:49,lng:9,x:1,y:1,scale:1.5});
 	mapObject.addMarker('Amsterdam',{latLng:[52.37403,4.88969],name:'Amsterdam'})
+};
+function show_loc(latitude,longitude,name){
+	var mapObject = $('#map').vectorMap('get', 'mapObject');
+	<!-- mapObject.setFocus({lat:latitude,lng:longitude,x:1,y:1,scale:3}); -->
+	mapObject.addMarker(name,{latLng:[latitude,longitude],name:name})
 };
 </script>
