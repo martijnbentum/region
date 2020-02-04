@@ -1,7 +1,7 @@
-django==2.2.6
+django==2.2.9
 django-crispy-forms==1.8.0
 django_select2
-Pillow==6.0.0
+Pillow==6.2.0
 python-decouple
 
 
