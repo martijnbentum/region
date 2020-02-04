@@ -10,8 +10,8 @@ from utils.model_util import id_generator, info
 			
 
 class Genre(models.Model, info):
-	'''category for texts (and maybe illustrations?) needs a relation as well?L'''
-	name = models.CharField(max_length=100)
+	'''category for texts (and maybe illustrations?) needs a relation as well?'''
+	name = models.CharField(max_length=100,unique=True)
 	description = models.TextField(blank=True)
 	
 	def __str__(self):
@@ -21,12 +21,18 @@ class Genre(models.Model, info):
 class Text(models.Model, info):
 	'''a text can be an entire book or article or a subsection thereof.'''
 	title = models.CharField(max_length=300)
-	language = models.ForeignKey(Language, on_delete=models.CASCADE)
-	genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+	text_id = models.IntegerField(default = id_generator('numbers',length=12),
+		unique = True)
+	setting = models.CharField(max_length=300,blank=True)
+		
+	language = models.ForeignKey(Language, on_delete=models.SET_NULL,
+		blank=True,null=True)
+	genre = models.ForeignKey(Genre, on_delete=models.SET_NULL,
+		blank=True,null=True)
 	upload = models.FileField(upload_to='texts/',blank=True,null=True) # ?
 	relations = models.ManyToManyField('self',
 		through='TextTextRelation',symmetrical=False, default=None)
-	notes = models.TextField(default='',blank=True)
+	notes = models.TextField(default='',blank=True, null=True)
 
 	def __str__(self):
 		return self.title
@@ -127,38 +133,56 @@ class Book(models.Model, info):
 class Publisher(models.Model, info):
 	'''Company that publishes works.'''
 	name = models.CharField(max_length=300)
-	location= models.ManyToManyField(UserLoc)
-	start_end_date = models.ForeignKey(Date,null=True,on_delete=models.SET_NULL)
+	location= models.ManyToManyField(UserLoc,blank=True)
+	start_end_date = models.ForeignKey(Date,blank= True,null=True,
+		on_delete=models.SET_NULL)
 	notes = models.TextField(null=True,blank=True) # many to many
 
 	def __str__(self):
 		return self.name
-	
+
+	@property
+	def location_string(self):
+		return ', '.join([l.name for l in self.location.all()])
 
 class PublisherManager(models.Model): #or broker
 	'''Person that manages writers, should be linked to texts and creators?'''
 	publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
 	manager = models.ForeignKey(Person, on_delete=models.CASCADE)
 
-
-class Publication(models.Model, info):
-	'''A specific instance of a text and or illustration or periodical or book?'''
-	publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
-	form = '' # FK periodical | FK book
-	issue = models.PositiveIntegerField(null=True,blank=True) 
-	volume = models.PositiveIntegerField(null=True,blank=True) 
-	identifier = models.CharField(max_length=100,null=True,blank=True)# ISBN
-	date = models.DateField(null=True,blank=True)
-	location = models.ForeignKey(UserLoc, on_delete=models.SET_NULL,null=True)
-	e_text = models.FileField(upload_to='publication/') # ?
+class Binding(models.Model):
+	name = models.CharField(max_length=100,unique=True)
 
 	def __str__(self):
-		return 'work_name' # self.work.name
+		return self.name
 
+class Publication(models.Model, info):
+	'''The publication of a text or collection of texts and illustrations'''
+	title = models.CharField(max_length=300,null=True)
+	publisher = models.ManyToManyField(Publisher,blank=True)
+	publication_id = models.IntegerField(
+		default = id_generator('numbers',length=12), unique= True)
+	form = models.ForeignKey(Binding,on_delete=models.SET_NULL,null=True) 
+	# FK periodical | FK book
+	issue = models.PositiveIntegerField(null=True,blank=True) 
+	volume = models.PositiveIntegerField(null=True,blank=True) 
+	identifier = models.CharField(max_length=100,null=True,blank=True,unique=True)
+	# ISBN
+	date = models.DateField(null=True,blank=True)
+	location = models.ForeignKey(UserLoc, on_delete=models.SET_NULL,null=True)
+	upload = models.FileField(upload_to='publication/',null=True,blank=True) # ?
 
-class WorkPublicationRelation(models.Model): #many to many
+	def __str__(self):
+		return self.title # self.work.name
+
+class TextPublicationRelation(models.Model): #many to many
 	'''Links a work with a publication.'''
-	work = '' # FK text | FK illustration
+	text = models.ForeignKey(Text, on_delete=models.CASCADE)
+	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
+
+class IllustrationPublicationRelation(models.Model): #many to many
+	'''Links a work with a publication.'''
+	text = models.ForeignKey(Illustration, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 
 
