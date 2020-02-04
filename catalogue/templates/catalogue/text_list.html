@@ -7,26 +7,23 @@
 <div class="d-flex">
 
 <table class="table table-hover">
-	<tr class="table-primary">
-	<!-- create header -->
-	{% for attr in text_list.0.attribute_names_hr%}
-		<th> {{ attr }} </th>
-	{% endfor %}
+	<tr> 
+	<th>Title</th>
+	<th>Language</th>
+	<th>Genre</th>
+	<th>Setting</th>
 	</tr>
 	{% for text in text_list %}
-	<tr>
-		{% for attr in text.listify %}
-			{% if attr|length > 12 %}
-				<!-- truncate long strings -->
-				<td>{{ attr|truncatechars:12}}</td>
-			{% else %}
-				<td>{{ attr }}</td>
-			{% endif %}
-		{% endfor %}
+	<tr onclick='window.location="{% url 'catalogue:edit_text' text.pk %}"'>
+		<td>{{text.title}}</td>
+		<td>{{text.language}}</td>
+		<td>{{text.genre}}</td>
+		<td>{{text.setting}}</td>
 	</tr>
 	{% endfor %}
 </table>
-<a class ="btn btn-link ml-auto" href="../add_text" role="button">Add text</a>
+<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_text' %}"
+role="button">Add text</a>
 </div>
 
 {% endblock content %}
@@ -34,3 +31,5 @@
 {% else %}
 	<p>no texts are available</p>
 {% endif %}
+
+	<!-- <td>{{ attr|truncatechars:40}}</td> -->
