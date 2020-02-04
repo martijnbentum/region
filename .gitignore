@@ -12,3 +12,4 @@ JUNK/
 catalogue/templates/catalogue/OLD/
 .gitignore
 .env
+static/
