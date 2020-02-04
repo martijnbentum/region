@@ -10,5 +10,5 @@ urlpatterns = [
 	path('world',views.world, name='world'),
 	path('germany',views.germany, name='germany'),
 	path('add_userloc/<str:location_name>/',views.add_userloc,name='add_userloc'),
-	path('',views.LocationView.as_view(),name='location_view'),
+	path('',views.LocationView.as_view(),name='location_list'),
 ]

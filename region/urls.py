@@ -20,7 +20,7 @@ from django.contrib.staticfiles.urls import static, staticfiles_urlpatterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-	path('',include('catalogue.urls')),
+	path('catalogue/',include('catalogue.urls')),
 	path('locations/',include('locations.urls')),
 	path('persons/',include('persons.urls')),
 	re_path(r'^select2/', include('django_select2.urls')),
