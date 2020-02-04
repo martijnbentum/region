@@ -1,0 +1,30 @@
+{% extends "catalogue/base.html" %}
+{% if publisher_list %}
+
+{% block content %}
+
+<div class="d-flex">
+
+<table class="table table-hover">
+	<tr> 
+	<th>Name</th>
+	<th>Location</th>
+	</tr>
+	{% for publisher in publisher_list %}
+	<tr onclick='window.location="{% url 'catalogue:edit_publisher' publisher.pk %}"'>
+		<td>{{publisher.name}}</td>
+		<td>{{publisher.location_string}}</td>
+	</tr>
+	{% endfor %}
+</table>
+<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publisher' %}"
+role="button">Add publisher</a>
+</div>
+
+{% endblock content %}
+
+{% else %}
+	<p>no publishers are available</p>
+{% endif %}
+
+	<!-- <td>{{ attr|truncatechars:40}}</td> -->
