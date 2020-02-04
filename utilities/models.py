@@ -85,7 +85,7 @@ class Date(models.Model, info):
 
 
 class Language(models.Model, info):
-	name = models.CharField(max_length=100)
+	name = models.CharField(max_length=100, unique = True)
 	iso = models.CharField(max_length=3,null=True,blank=True)
 
 	def __str__(self):
