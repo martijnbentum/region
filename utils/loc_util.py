@@ -1,4 +1,4 @@
-from catalogue.models import Language
+from utilities.models import Language
 from django import db
 from locations.models import GeoLoc as Location
 from locations.models import GeoLoc, UserLoc, LocType
@@ -246,6 +246,16 @@ def make_userlocations():
 		_save_locations([ul],verbose = False)
 		l.user_locs.add(ul)
 
+def make_database_languages():
+	l = make_languages()
+	o = [lang.make_language() for lang in l]
+	language_results = _save_locations(o,'languages')
+	
+
+def make_database_defaults():
+	make_geolocations()
+	make_userlocations()
+	make_database_languages()
 
 def add_geoloactions_country(country):
 	return make_geolocations([country])
