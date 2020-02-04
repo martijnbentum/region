@@ -1,16 +1,54 @@
 {% extends "catalogue/base.html" %}
 
+{% block head %}
+	{{form.media.css}}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+
 {% block content %}
 <div class="col-md-12 d-flex">
-<h4 class="mt-2">Add Text</h4>
-<a class ="btn btn-link ml-auto" href="../text" role="button">text list</a>
+<h4 class="mt-2">{{page_name}}</h4>
+{% if page_name == "Edit text"%}
+<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_text' %}"
+role="button">add Text</a>
+{% endif %}
+<a class ="btn btn-link ml-auto" href="{% url 'catalogue:text_list' %}"
+role="button">Text list</a>
 </div>
 <hr class="mt-0 mb-4">
-<form action="/add_text/" method="post">
+<form method="post">
     {% csrf_token %}
-    {% crispy form %}
+	<table class="table table-borderless" >
+	<tr class="d-flex">
+		<th class="col-2">Title</th>
+		<td class="col-8">{{form.title}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Language</th>
+		<td class="col-8">{{form.language}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Genre</th>
+		<td class="col-8">{{form.genre}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Setting</th>
+		<td class="col-8">{{form.setting}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Upload</th>
+		<td class="col-8">{{form.upload}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Notes</th>
+		<td class="col-8">{{form.notes}}</td>
+	</tr>
+	</table>
     <button type="submit" value="Submit" class ="btn btn-success">Save</button>
 </form>
+
+{{form.media.js}}
 {% endblock content %}
  
 
