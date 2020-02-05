@@ -1,4 +1,9 @@
 {% extends "catalogue/base.html" %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+{% endblock %}
+
 {% if publication_list %}
 
 {% block content %}
@@ -16,9 +21,9 @@
 	{% for publication in publication_list %}
 	<tr onclick='window.location="{% url 'catalogue:edit_publication' publication.pk %}"'>
 		<td>{{publication.title}}</td>
-		<td>{{publication.form}}</td>
-		<td>{{publication.publisher}}</td>
-		<td>{{publication.location}}</td>
+		<td>{{publication.form.name}}</td>
+		<td>{{publication.publisher_str}}</td>
+		<td>{{publication.location.name}}</td>
 	</tr>
 	{% endfor %}
 </table>

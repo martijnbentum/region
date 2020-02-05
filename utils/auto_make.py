@@ -1,20 +1,32 @@
 from catalogue.models import Genre, Text, Publisher, Publication
+from persons.models import Person
 from django.apps import apps
+from django.core import exceptions
 import pandas as pd
 from utils.loc_util import _save_locations as save_model
 from utils.loc_util import UserLoc
 from utilities.models import Language
 
-def make_all():
+def delete_all(name):
+	model = apps.get_model('catalogue',name)
+	instances = model.objects.all()
+	[i.delete() for i in instances]
+
+def make_all(delete_current = False):
 	'''Create model instances for several models based on excel files.'''
+	if delete_current: 
+		names = 'Genre,Binding,Publisher,Text,Publication'.split(',')
+		[delete_all(name) for name in names]
 	make_genres()
 	make_bindings()
 	make_publishers()
+	make_texts()
+	make_publications()
 
 
 def load_model_instance(name, model_name, app_name, field_name = 'name'):
 	'''load a model instance
-	name 			string to search model
+	name 			string to search model, instances should be seperated with ;
 	model_name 		name of the model
 	app_name 		name of the app the model belongs to
 	field_name 		name of the field to search for the name
@@ -22,11 +34,18 @@ def load_model_instance(name, model_name, app_name, field_name = 'name'):
 	returns list of model instances or model instance
 	throws error if instance does not exists
 	'''
-	names = name.split(';')
+	if type(name) != str: return None
+	names = list(set(name.split(';')))
 	output = []
 	model = apps.get_model(app_name,model_name)
 	for name in names:
-		output.append(model.objects.get(**{field_name:name}))
+		try: output.append(model.objects.get(**{field_name:name}))
+		except exceptions.ObjectDoesNotExist: 
+			print(field_name,name,'not found in',model_name)
+		except exceptions.MultipleObjectsReturned: 
+			print('found more than one instance:',
+				name,model_name,app_name,field_name)
+	if len(output) == 0: return None
 	if len(output) == 1: return output[0]
 	return output
 
@@ -43,14 +62,17 @@ def make_simple_model(filename = '',column_name = '',model_name='',app_name=''):
 	'''
 	d = pd.read_excel(filename)
 	values = list(set(getattr(d,column_name)))
+	print(values)
 	o = []
 	for v in values:
 		if str(v) == 'nan': continue
 		if ';' in v: o.extend(v.split(';'))
 		else: o.append(v)
-	values = o
+	o = [v.strip(' ') for v in o]
+	values = list(set(o))
+	print(values)
 	model = apps.get_model(app_name,model_name)
-	o = [model(name=v.strip(' ')) for v in values]
+	o = [model(name=v) for v in values]
 	save_model(o,model_name)
 	return o
 
@@ -90,37 +112,67 @@ def make_texts(filename_text = ''):
 	for line in d.values:
 		l,g =None,None
 		text_id,title,language, genre, setting = line
-		try: l = Language.objects.get(name = language)
-		except: langauage_error.append(line)
-		try:g = Genre.objects.get(name = genre)
-		except: genre_error.append(line)
+		if type(setting) != str:setting = ''
+		l = load_model_instance(language,'Language','utilities')
+		g = load_model_instance(genre,'Genre','catalogue')
 		o.append(Text(text_id=text_id,title=title,language=l,
 			genre=g,setting=setting))
 	save_model(o,'texts')
-	if len(langauage_error) > 0 or len(genre_error) > 0:
-		print('some languages or genres were not recognized')
 	return langauage_error, genre_error
 
+def intornone(i):
+	try: return int(i)
+	except: return None
 
 def make_publications(filename_text = ''):
 	'''Create publication instances based on excel file.'''
 	if filename_text == '': filename_text = 'data/Publication.xlsx'
 	d = pd.read_excel(filename_text)
-	o, publisher_error, binding_error, location_error = [],[],[],[]
 	for line in d.values:
 		l,g =None,None
 		p_id,title,binding,publisher,date,location,npub,dedication= line
-		try: p = publisher.objects.get(name = publisher)
-		except: publisher_error.append(line)
-		try:b = Binding.objects.get(name = binding)
-		except: binding_error.append(line)
-		try: l = UserLoc.objects.get(name = location)
-		except: location.append(line)
-		o.append(Publication(publication_id=p_id,title=title,binding=binding,
-			date=date,location=location))
-	save_model(o,'texts')
-	if len(publisher_error) > 0 or len(binding_error) > 0:
-		print('some publishers or bindings were not recognized')
-	return publisher_error, binding_error
+		p = load_model_instance(publisher,'Publisher','catalogue')
+		b = load_model_instance(binding,'Binding','catalogue')
+		l = load_model_instance(location,'UserLoc','locations')
+		o=Publication(publication_id=p_id,title=title,form=b,
+			date=intornone(date),location=l)
+		s,a,e = save_model([o],'publication',verbose = False)
+		if len(s) != 1: continue
+		if p == None: continue
+		elif type(p) == list: [o.publisher.add(pub) for pub in p]
+		else: o.publisher.add(p)
+	return o
 	
+def make_function(filename= 'data/Person.xlsx', column_name = 'Function'):
+	return make_simple_model(filename=filename,column_name=column_name,
+		model_name = 'Function',app_name='persons')
+
+def make_pseudonym(filename= 'data/Person.xlsx', column_name = 'Pseudonym(s)'):
+	return make_simple_model(filename=filename,column_name=column_name,
+		model_name = 'Pseudonym',app_name='persons')
+
+def make_persons(filename_text = 'data/Person.xlsx'):
+	d = pd.read_excel(filename_text)
+	o = []
+	for line in d.values:
+		p_id,lname,fname,func,pseud,sex,dob,dod,pob,pod,res,trav,ac,notes = line
+		f = load_model_instance(func,'Function','persons')
+		p = load_model_instance(pseud,'Pseudonym','persons')
+		o= Person(first_name=fname,last_name=lname,sex=sex,
+		notes=notes) 
+		s,a,e = save_model([o],'Persons',verbose=False)
+		if len(s) != 1: continue
+		if type(f) == list: [o.function.add(func) for func in f]
+		elif f != None: o.function.add(f)
+		if type(p) == list: [o.pseudonym.add(pseud) for pseud in p]
+		elif p != None: o.pseudonym.add(pseud)
+	return o
+		
+
+		
+			
+
+
+
+
 	

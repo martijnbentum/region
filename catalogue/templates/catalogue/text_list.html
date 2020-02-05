@@ -1,5 +1,10 @@
 <!-- test view to print data in a table from model --> 
 {% extends "catalogue/base.html" %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+{% endblock %}
+
 {% if text_list %}
 
 {% block content %}

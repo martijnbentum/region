@@ -13,6 +13,7 @@ import json
 class LocationView(generic.ListView):
 	template_name = 'locations/location_list.html'
 	context_object_name = 'location_list'
+	extra_context={'page_name':'Location'}
 
 	def get_queryset(self):
 		return GeoLoc.objects.order_by('name')[:100]

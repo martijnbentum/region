@@ -36,6 +36,8 @@ def _edit_model(request, instance_id, model_name):
 class TextView(generic.ListView):
 	template_name = 'catalogue/text_list.html'
 	context_object_name = 'text_list'
+	# paginate_by = 10 # http://127.0.0.1:8000/catalogue/text/?page=2
+	extra_context={'page_name':'Text'}
 
 	def get_queryset(self):
 		return Text.objects.order_by('title')
@@ -43,6 +45,7 @@ class TextView(generic.ListView):
 class PublicationView(generic.ListView):
 	template_name = 'catalogue/publication_list.html'
 	context_object_name = 'publication_list'
+	extra_context={'page_name':'Publication'}
 
 	def get_queryset(self):
 		return Publication.objects.order_by('title')
@@ -50,6 +53,7 @@ class PublicationView(generic.ListView):
 class PublisherView(generic.ListView):
 	template_name = 'catalogue/publisher_list.html'
 	context_object_name = 'publisher_list'
+	extra_context={'page_name':'Publisher'}
 
 	def get_queryset(self):
 		return Publisher.objects.order_by('name')

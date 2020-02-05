@@ -5,6 +5,17 @@ from locations.models import UserLoc
 from utilities.models import Date, Language
 from utils.model_util import id_generator, info
 
+class Pseudonym(models.Model, info):
+	name = models.CharField(max_length=300, unique= True)
+
+	def __str__(self):
+		return self.name
+
+class Function(models.Model, info): 
+	name = models.CharField(max_length=200, unique=True)
+	
+	def __str__(self):
+		return self.name
 
 class Person(models.Model, info):
 	'''A person with a specific role e.g. author, writer, etc.'''
@@ -12,6 +23,8 @@ class Person(models.Model, info):
 	last_name = models.CharField(max_length=200)
 	SEX = [('F','female'),('M','male'),('O','other')]
 	sex = models.CharField(max_length=1,choices=SEX)
+	function= models.ManyToManyField(Function,blank=True)
+	pseudonym= models.ManyToManyField(Pseudonym,blank=True)
 	birth_death_date = models.ForeignKey(Date, 
 		on_delete=models.SET_NULL,default=None,null =True)
 	place_of_birth = models.ForeignKey(UserLoc, on_delete=models.SET_NULL,
@@ -112,10 +125,6 @@ class PersonLocationRelation(models.Model,info):
 			cls.person_name = cls.person.first_name + ' ' + cls.person.last_name
 
 
-class Pseudonym(models.Model, info):
-	person = models.ForeignKey(Person, related_name='Pseudonyms', 
-		on_delete=models.CASCADE)
-	name = models.CharField(max_length=500)
 
 
 

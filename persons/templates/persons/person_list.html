@@ -14,7 +14,7 @@
 	{% endfor %}
 	</tr>
 	{% for person in person_list %}
-	<tr class='clickable-row'> 
+	<tr onclick='window.location="{% url 'persons:person_detail' person.pk %}"'>
 		{% for attr in person.listify %}
 			{% if attr|length > 12 %}
 				<!-- truncate long strings -->

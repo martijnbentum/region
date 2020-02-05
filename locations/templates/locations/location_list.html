@@ -1,13 +1,18 @@
 
 <!-- test view to print data in a table from model --> 
 {% extends "catalogue/base.html" %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+{% endblock %}
+
 {% block content %}
 {% if location_list %}
 
 <div class="d-flex">
 
 <table class="table table-hover">
-	<tr class="table-primary">
+	<tr> 
 	<!-- create header -->
 	{% for attr in location_list.0.table_header%}
 		<th> {{ attr }} </th>

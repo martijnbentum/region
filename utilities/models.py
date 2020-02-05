@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from utils.model_util import id_generator, info
 
 class Date(models.Model, info):

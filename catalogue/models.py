@@ -168,12 +168,16 @@ class Publication(models.Model, info):
 	volume = models.PositiveIntegerField(null=True,blank=True) 
 	identifier = models.CharField(max_length=100,null=True,blank=True,unique=True)
 	# ISBN
-	date = models.DateField(null=True,blank=True)
+	date = models.PositiveIntegerField(null=True,blank=True)
 	location = models.ForeignKey(UserLoc, on_delete=models.SET_NULL,null=True)
 	upload = models.FileField(upload_to='publication/',null=True,blank=True) # ?
 
 	def __str__(self):
 		return self.title # self.work.name
+
+	@property
+	def publisher_str(self):
+		return ' | '.join([pu.name for pu in self.publisher.all()])
 
 class TextPublicationRelation(models.Model): #many to many
 	'''Links a work with a publication.'''
