@@ -1,0 +1,32 @@
+{% extends "catalogue/base.html" %}
+
+{% block head %}
+	<title>Login</title>
+{% endblock %}
+
+
+{% block login %}
+{{user.username}}
+
+<div class="col-md-12 d-flex">
+<h4 class="mt-2">Login</h4>
+</div>
+<hr class="mt-0 mb-4">
+<form method="post" action="{% url 'login' %}">
+	{% csrf_token %}
+	<table class="table table-borderless" >
+		<tr class="d-flex">
+			<th class="col-2">Username</th>
+			<td class="col-8">{{form.username}}</td>
+		</tr>
+		<tr class="d-flex">
+			<th class="col-2">Password</th>
+			<td class="col-8">{{form.password}}</td>
+		</tr>
+	</table>
+    <button type="submit" value="login" class ="btn btn-success">Login</button>
+</form>
+
+{% endblock %}
+
+
