@@ -19,27 +19,35 @@
         {% include 'catalogue/navbar.html' %}
     {% endblock %}
     <br>
-    <div class="row">
-    <div class="col-1">
-        {% block left %}
-            <!-- <div style="background-image: url(https://cdn.cnn.com/cnnnext/dam/assets/191024091949-02-foster-cat-exlarge-169.jpg)"> -->
-        {% endblock %}
-    </div>
+	<div class='row'><div class='col-1'></div><div class='col-10'>
+    {% block login %}
+    {% endblock %}
+	</div></div>
 
-    <div class="col-10">
-        {% block content %}
-        {% endblock %}
-    </div>
+	{% if user.username == '' %}
+	{% else %}
+		<div class="row">
+		<div class="col-1">
+			{% block left %}
+			{% endblock %}
+		</div>
 
-    <div class="col-1">
-        {% block right %}
-        {% endblock %}
-    </div>
-    </div>
+		<div class="col-10">
+			{% block content %}
+			{% endblock %}
+		</div>
 
-    </body>
-	{% block afterbody%}
-	{% endblock %}
+		<div class="col-1">
+			{% block right %}
+			{% endblock %}
+		</div>
+		</div>
+
+		</body>
+		{% block afterbody%}
+		{% endblock %}
+	
+	{% endif %}
     <footer>
         <!-- <p>made by: humanities lab, radboud university</p> -->
     </footer>
