@@ -1,1 +1,29 @@
-{% extends 'base.html' %}
+{% extends 'catalogue/base.html' %}
+
+{% block head %}
+	<title>Login</title>
+{% endblock %}
+
+
+{% block login %}
+{{user.username}}
+
+
+<div class="col-md-12 d-flex">
+<h4 class="mt-2">Register</h4>
+<a class ="btn btn-link ml-auto" href="{% url 'login' %}" 
+role="button">Login</a>
+<a class ="btn btn-link ml-auto" href="{% url 'password_reset' %}" 
+role="button">Password reset</a>
+</div>
+<hr class="mt-0 mb-4">
+
+
+  <form method="post">
+    {% csrf_token %}
+<table class="table table-borderless" >
+    {{ form.as_table }}
+</table>
+    <button type="submit" value="Submit" class ="btn btn-success">Register</button>
+  </form>
+{% endblock %}

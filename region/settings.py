@@ -140,3 +140,6 @@ SELECT2BOOTSTRAP = True
 # SELECT2_CSS = ''
 LOGIN_REDIRECT_URL = '/catalogue/text/'
 LOGOUT_REDIRECT_URL = '/catalogue/text/'
+
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+EMAIL_FILE_PATH = os.path.join(BASE_DIR,'sent_emails')
