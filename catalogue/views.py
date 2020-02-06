@@ -11,8 +11,9 @@ from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
 from utilities.models import Date
 from utils import view_util
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
 def _edit_model(request, instance_id, model_name):
 	'''edit view generalized over models.
 	assumes a 'add_{{model_name}}.html template and edit_{{model_name}} function
