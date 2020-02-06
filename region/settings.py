@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+	'accounts.apps.AccountsConfig',
 	'catalogue.apps.CatalogueConfig',
 	'locations.apps.LocationsConfig',
 	'persons.apps.PersonsConfig',
@@ -137,3 +138,5 @@ STATIC_ROOT =  os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/' 
 SELECT2BOOTSTRAP = True
 # SELECT2_CSS = ''
+LOGIN_REDIRECT_URL = '/catalogue/text/'
+LOGOUT_REDIRECT_URL = '/catalogue/text/'
