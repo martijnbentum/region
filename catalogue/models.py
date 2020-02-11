@@ -152,6 +152,7 @@ class PublisherManager(models.Model): #or broker
 
 class Type(models.Model):
 	name = models.CharField(max_length=100,unique=True)
+	notes = models.TextField(null=True,blank=True) 
 
 	def __str__(self):
 		return self.name

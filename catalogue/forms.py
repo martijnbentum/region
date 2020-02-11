@@ -45,6 +45,18 @@ class TypeWidget(ModelSelect2Widget):
 	def get_queryset(self):
 		return Type.objects.all().order_by('name')
 
+class TypeForm(ModelForm):
+	'''Form to add a text'''
+	name = forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	notes = forms.CharField(widget=forms.Textarea(
+		attrs={'style':'width:100%','rows':3}),
+		required=False)
+		
+	class Meta:
+		model = Type
+		m = 'name,notes'
+		fields = m.split(',')
 
 class TextForm(ModelForm):
 	'''Form to add a text'''

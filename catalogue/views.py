@@ -5,7 +5,7 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
 from .models import Publication, Publisher, Text
-from .forms import TextForm, PublicationForm, PublisherForm
+from .forms import TextForm, PublicationForm, PublisherForm, TypeForm
 import json
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
@@ -32,6 +32,9 @@ def _edit_model(request, instance_id, model_name):
 	form = modelform(instance=instance)
 	args = {'form':form,'page_name':'Edit '+model_name.lower()}
 	return render(request,'catalogue/add_' + model_name.lower() + '.html',args)
+
+def close(request):
+	return render(request,'catalogue/close.html')
 
 
 class TextView(generic.ListView):
@@ -73,31 +76,49 @@ def add_text(request):
 	return render(request, 'catalogue/add_text.html', var)
 
 
+def add_type(request, view='complete'):
+	print(view)
+	if request.method == 'POST':
+		form = TypeForm(request.POST)
+		if form.is_valid():
+			print('form is valid: ',form.cleaned_data,type(form))
+			form.save()
+			if view == 'complete':
+				return HttpResponseRedirect('/catalogue/type/')
+			return HttpResponseRedirect('/catalogue/close/')
+	form = TypeForm()
+	var = {'form':form,'page_name':'Add type','view':view}
+	return render(request, 'catalogue/add_type.html', var)
+	
 
-def add_publication(request):
+def add_publication(request, view='complete'):
 	# if this is a post request we need to process the form data
 	if request.method == 'POST':
 		form = PublicationForm(request.POST)
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
 			form.save()
-			return HttpResponseRedirect('/catalogue/publication/')
+			if view == 'complete':
+				return HttpResponseRedirect('/catalogue/publication/')
+			return HttpResponseRedirect('/catalogue/close/')
 	form = PublicationForm()
-	var = {'form':form,'page_name':'Add Publication'}
+	var = {'form':form,'page_name':'Add Publication','view':view}
 	return render(request, 'catalogue/add_publication.html', var)
 
 
-
-def add_publisher(request):
+def add_publisher(request,view='complete'):
 	# if this is a post request we need to process the form data
+	print(view)
 	if request.method == 'POST':
 		form = PublisherForm(request.POST)
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
 			form.save()
-			return HttpResponseRedirect('/catalogue/publisher/')
+			if view == 'complete':
+				return HttpResponseRedirect('/catalogue/publisher/')
+			return HttpResponseRedirect('/catalogue/close/')
 	form = PublisherForm()
-	var = {'form':form,'page_name':'Add Publisher'}
+	var = {'form':form,'page_name':'Add Publisher','view':view}
 	return render(request, 'catalogue/add_publisher.html', var)
 
 

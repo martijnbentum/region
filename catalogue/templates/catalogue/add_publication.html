@@ -1,19 +1,30 @@
 {% extends "catalogue/base.html" %}
 
+{% block navbar%}
+	{% if view == "inline" %}
+	{% else %}
+        {% include 'catalogue/navbar.html' %}
+	{% endif %}
+{% endblock %}
+
 {% block head %}
 	{{form.media.css}}
 	<title>{{page_name}}</title>
 {% endblock %}
 
 {% block content %}
+
 <div class="col-md-12 d-flex">
 <h4 class="mt-2">{{page_name}}</h4>
-{% if page_name == "Edit publication"%}
-<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publication' %}"
-role="button">add Publication</a>
+
+{% if view != "inline" %}
+	{% if page_name == "Edit publication"%}
+	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publication' %}"
+	role="button">add Publication</a>
+	{% endif %}
+	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:publication_list' %}" 
+	role="button">publication list</a>
 {% endif %}
-<a class ="btn btn-link ml-auto" href="{% url 'catalogue:publication_list' %}" 
-role="button">publication list</a>
 </div>
 <hr class="mt-0 mb-4">
 <form method="post">
@@ -26,16 +37,16 @@ role="button">publication list</a>
 	<tr class="d-flex">
 		<th class="col-2">Form</th>
 		<td class="col-8">{{form.form}}</td>
-			<td><a class = "btn btn-link btn-sm ml-auto" 
-				href ="{% url 'catalogue:add_binding' %}" role="button">
+			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_type' 'inline' %}" role="button">
 				 <i class="fa fa-plus"></i></a>
 			</td>
 	</tr>
 	<tr class="d-flex">
 		<th class="col-2">Publisher</th>
 		<td class="col-8">{{form.publisher}}</td>
-			<td><a class = "btn btn-link btn-sm ml-auto" 
-				href ="{% url 'catalogue:add_publisher' %}" role="button">
+			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_publisher' 'inline' %}" role="button">
 				 <i class="fa fa-plus"></i></a>
 			</td>
 	</tr>
@@ -53,6 +64,10 @@ role="button">publication list</a>
 	</tr>
 	</table>
     <button type="submit" value="Submit" class ="btn btn-success">Save</button>
+	{% if view == "inline" %}
+		<a type="reset" value="Cancel" class ="btn btn-light"
+		href="{% url 'catalogue:close' %}">Cancel</a>
+	{% endif %}
 </form>
 
 {{form.media.js}}

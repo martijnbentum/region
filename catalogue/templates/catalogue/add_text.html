@@ -1,5 +1,13 @@
 {% extends "catalogue/base.html" %}
 
+{% block navbar%}
+	{% if view == "inline" %}
+	{% else %}
+        {% include 'catalogue/navbar.html' %}
+	{% endif %}
+{% endblock %}
+
+
 {% block head %}
 	{{form.media.css}}
 	<title>{{page_name}}</title>
@@ -9,12 +17,14 @@
 {% block content %}
 <div class="col-md-12 d-flex">
 <h4 class="mt-2">{{page_name}}</h4>
-{% if page_name == "Edit text"%}
-<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_text' %}"
-role="button">add Text</a>
+{% if view != "inline" %}
+	{% if page_name == "Edit text"%}
+	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_text' %}"
+	role="button">add Text</a>
+	{% endif %}
+	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:text_list' %}"
+	role="button">Text list</a>
 {% endif %}
-<a class ="btn btn-link ml-auto" href="{% url 'catalogue:text_list' %}"
-role="button">Text list</a>
 </div>
 <hr class="mt-0 mb-4">
 <form method="post">
@@ -46,6 +56,10 @@ role="button">Text list</a>
 	</tr>
 	</table>
     <button type="submit" value="Submit" class ="btn btn-success">Save</button>
+	{% if view == "inline" %}
+		<a type="reset" value="Cancel" class ="btn btn-light"
+		href="{% url 'catalogue:close' %}">Cancel</a>
+	{% endif %}
 </form>
 
 {{form.media.js}}

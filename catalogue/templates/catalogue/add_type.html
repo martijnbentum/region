@@ -7,6 +7,7 @@
 	{% endif %}
 {% endblock %}
 
+
 {% block head %}
 	{{form.media.css}}
 	<title>{{page_name}}</title>
@@ -14,51 +15,40 @@
 
 
 {% block content %}
+
 <div class="col-md-12 d-flex">
 <h4 class="mt-2">{{page_name}}</h4>
-
 {% if view != "inline" %}
-	{% if page_name == "Edit publisher"%}
-	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publisher' %}"
-	role="button">add Publisher</a>
+	{% if page_name == "Edit type"%}
+	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_type' %}"
+	role="button">add Text</a>
 	{% endif %}
-	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:publisher_list' %}"
-	role="button">Publisher list</a>
+	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:type_list' %}"
+	role="button">Type list</a>
 {% endif %}
+
 </div>
-
-
 <hr class="mt-0 mb-4">
-<form method="post">
+<form name = "form1" id = "form1" method="post">
     {% csrf_token %}
 	<table class="table table-borderless" >
 	<tr class="d-flex">
 		<th class="col-2">Name</th>
 		<td class="col-8">{{form.name}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Locations</th>
-		<td class="col-8">{{form.location}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Date</th>
-		<td class="col-8">{{form.start_end_date}}</td>
-	</tr>
 	<tr class="d-flex">
 		<th class="col-2">Notes</th>
 		<td class="col-8">{{form.notes}}</td>
 	</tr>
 	</table>
-    <button type="submit" value="Submit" class ="btn btn-success">Save</button>
+	<button type="submit" value="Submit" class ="btn btn-success">Save</button>
 	{% if view == "inline" %}
 		<a type="reset" value="Cancel" class ="btn btn-light"
 		href="{% url 'catalogue:close' %}">Cancel</a>
 	{% endif %}
 </form>
-<br>
 
 {{form.media.js}}
 {% endblock content %}
-
  
+
 
