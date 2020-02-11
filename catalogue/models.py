@@ -150,7 +150,7 @@ class PublisherManager(models.Model): #or broker
 	publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
 	manager = models.ForeignKey(Person, on_delete=models.CASCADE)
 
-class Binding(models.Model):
+class Type(models.Model):
 	name = models.CharField(max_length=100,unique=True)
 
 	def __str__(self):
@@ -162,7 +162,7 @@ class Publication(models.Model, info):
 	publisher = models.ManyToManyField(Publisher,blank=True)
 	publication_id = models.IntegerField(
 		default = id_generator('numbers',length=12), unique= True)
-	form = models.ForeignKey(Binding,on_delete=models.SET_NULL,null=True) 
+	form = models.ForeignKey(Type,on_delete=models.SET_NULL,null=True) 
 	# FK periodical | FK book
 	issue = models.PositiveIntegerField(null=True,blank=True) 
 	volume = models.PositiveIntegerField(null=True,blank=True) 

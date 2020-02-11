@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm, inlineformset_factory
 from django.template.loader import render_to_string
-from .models import Genre, Text, Publisher, Publication, Binding 
+from .models import Genre, Text, Publisher, Publication,Type 
 from django_select2.forms import Select2Widget,ModelSelect2MultipleWidget,HeavySelect2Widget,ModelSelect2Widget
 import json
 from locations.models import UserLoc
@@ -35,15 +35,15 @@ class PublisherWidget(ModelSelect2MultipleWidget):
 		return Publisher.objects.all().order_by('name')
 
 
-class BindingWidget(ModelSelect2Widget):
-	model = Binding
+class TypeWidget(ModelSelect2Widget):
+	model = Type
 	search_fields = ['name__icontains']
 
 	def label_from_instance(self,obj):
 		return obj.name
 
 	def get_queryset(self):
-		return Binding.objects.all().order_by('name')
+		return Type.objects.all().order_by('name')
 
 
 class TextForm(ModelForm):
@@ -81,8 +81,8 @@ class TextForm(ModelForm):
 class PublicationForm(ModelForm):
 	'''Form to add a text'''
 	form = forms.ModelChoiceField(
-		queryset=Binding.objects.all().order_by('name'),
-		widget=BindingWidget(
+		queryset=Type.objects.all().order_by('name'),
+		widget=TypeWidget(
 			attrs={'data-placeholder':'Select publication form... e.g., novel',
 			'style':'width:100%;','class':'searching'}),
 		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
