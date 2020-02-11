@@ -169,8 +169,8 @@ class Publication(models.Model, info):
 	volume = models.PositiveIntegerField(null=True,blank=True) 
 	identifier = models.CharField(max_length=100,null=True,blank=True,unique=True)
 	# ISBN
-	date = models.PositiveIntegerField(null=True,blank=True)
-	location = models.ForeignKey(UserLoc, on_delete=models.SET_NULL,null=True)
+	year = models.PositiveIntegerField(null=True,blank=True)
+	location = models.ManyToManyField(UserLoc,blank=True) 
 	upload = models.FileField(upload_to='publication/',null=True,blank=True) # ?
 
 	def __str__(self):

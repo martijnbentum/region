@@ -109,7 +109,7 @@ class PublicationForm(ModelForm):
 		)
 	location= forms.ModelChoiceField(
 		queryset=UserLoc.objects.all().order_by('name'),
-		widget=LocationWidget(attrs={'data-placeholder':'Select location...',
+		widget=LocationsWidget(attrs={'data-placeholder':'Select location(s)...',
 			'style':'width:100%;','class':'searching'}),
 		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
 		required = False
@@ -125,7 +125,7 @@ class PublicationForm(ModelForm):
 		
 	class Meta:
 		model = Publication
-		m = 'title,form,publisher,date,location,notes,upload'
+		m = 'title,form,publisher,year,location,notes,upload'
 		fields = m.split(',')
 
 
