@@ -107,7 +107,7 @@ class PublicationForm(ModelForm):
 		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
 		required = False
 		)
-	location= forms.ModelChoiceField(
+	location= forms.ModelMultipleChoiceField(
 		queryset=UserLoc.objects.all().order_by('name'),
 		widget=LocationsWidget(attrs={'data-placeholder':'Select location(s)...',
 			'style':'width:100%;','class':'searching'}),
