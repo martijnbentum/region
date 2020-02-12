@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 import json
 from locations.models import UserLoc
-from utilities.models import Date, Language
+from utilities.models import Language
 from utils.model_util import id_generator, info
 
 class Pseudonym(models.Model, info):
@@ -25,11 +25,11 @@ class Person(models.Model, info):
 	sex = models.CharField(max_length=1,choices=SEX)
 	function= models.ManyToManyField(Function,blank=True)
 	pseudonym= models.ManyToManyField(Pseudonym,blank=True)
-	birth_death_date = models.ForeignKey(Date, 
-		on_delete=models.SET_NULL,default=None,null =True)
-	place_of_birth = models.ForeignKey(UserLoc, on_delete=models.SET_NULL,
+	birth_year = models.PositiveIntegerField(null=True,blank=True)
+	death_year = models.PositiveIntegerField(null=True,blank=True)
+	birth_place= models.ForeignKey(UserLoc, on_delete=models.SET_NULL,
 		related_name = 'born', default = None, null = True)
-	place_of_death= models.ForeignKey(UserLoc, on_delete=models.SET_NULL,
+	death_place= models.ForeignKey(UserLoc, on_delete=models.SET_NULL,
 		related_name = 'died', default = None, null = True)
 	notes = models.TextField(blank=True,null=True) 
 
@@ -42,26 +42,22 @@ class Person(models.Model, info):
 
 	@property
 	def born(self):
-		return self.birth_death_date.start_str
+		return self.birth_year
 
 	@property
 	def died(self):
-		return self.birth_death_date.end_str
-
-	@property
-	def age(self):
-		return self.birth_death_date.duration_str
+		return self.death_year
 
 	@property
 	def attribute_names(self):
-		m = 'first_name,last_name,sex,birth_death_date,place_of_birth'
-		m += ',place_of_death,notes'
+		m = 'first_name,last_name,sex,birth_year,death_year,birth_place'
+		m += ',death_place,notes'
 		return m.split(',')
 
 	@property
 	def locations(self):
 		locs, names = [], []
-		for n in 'place_of_birth,place_of_death'.split(','):
+		for n in 'birth_place,death_place'.split(','):
 			if getattr(self,n):
 				locs.append(getattr(self,n))
 				names.append(n.replace('_',' '))
@@ -92,7 +88,7 @@ class Person(models.Model, info):
 
 	@property
 	def table_header(self):
-		return 'name,age,sex,born,died,birthplace,deathplace'.split(',')
+		return 'name,sex,born,died,birth_place,death_place'.split(',')
 
 	@property
 	def table(self):
@@ -104,8 +100,9 @@ class PersonLocationRelation(models.Model,info):
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	location = models.ForeignKey(UserLoc, on_delete=models.CASCADE)
 	RELATION= [('R','residence'),('T','travel'),('W','work'),('U','unknown')]
-	relation= models.CharField(max_length=1,choices= RELATION,default = None)
-	date = models.ForeignKey(Date, default= None, on_delete=models.CASCADE)
+	relation= models.CharField(max_length=1,choices= RELATION,null= None)
+	start_year = models.PositiveIntegerField(null=True,blank=True)
+	end_year = models.PositiveIntegerField(null=True,blank=True)
 	location_name = models.CharField(max_length=200, default='',null=True)
 	person_name = models.CharField(max_length=200, default='',null=True)
 

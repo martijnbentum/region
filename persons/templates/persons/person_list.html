@@ -14,7 +14,8 @@
 	{% endfor %}
 	</tr>
 	{% for person in person_list %}
-	<tr onclick='window.location="{% url 'persons:person_detail' person.pk %}"'>
+	<!-- <tr onclick='window.location="{% url 'persons:person_detail' person.pk %}"'> -->
+	<tr onclick='window.location="{% url 'persons:edit_person' person.pk %}"'>
 		{% for attr in person.listify %}
 			{% if attr|length > 12 %}
 				<!-- truncate long strings -->
@@ -27,7 +28,6 @@
 	{% endfor %}
 </table>
 <a class ="btn btn-link ml-auto" href="{% url 'persons:add_person' %}" role="button">Add person</a>
-<a class ="btn btn-link ml-auto" href="../{{person_list.0.id}}/person/" role="button">go</a>
 </div>
 
 {% endblock content %}

@@ -5,73 +5,117 @@
 
 {% block content %}
 <div class="col-md-12 d-flex">
-<h4 class="mt-2">{{page_name}}</h4>
+<h4 class="mt-2">{{page_name}}</h4> 
 <a class ="btn btn-link ml-auto" href="{% url 'persons:person_list' %}" role="button">person list</a>
 </div>
-<hr> 
 
 <form method = "post">
-	{% csrf_token %}
-	<!-- <table class = "table table-borderless table-sm"> -->
-	<table class = "table table-borderless"> 
-	<!-- {{form}} -->
-	<tr>
-	<th>First name</th><td>{{form.first_name}}</td>
-	<th>Last name</th><td>{{form.last_name}}</td>
-	<th>Sex</th><td>{{form.sex}}</td>
+    {% csrf_token %}
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a href="#edit" class="nav-link active" data-toggle="tab">
+		<i class="fa fa-pencil"></i></a>
+		
+    </li>
+    <li class="nav-item">
+        <a href="#minimize" class="nav-link" data-toggle="tab">
+		<i class="fa fa-power-off"></i></a>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="edit">
+
+	<table class="table table-borderless" >
+	<tr class="d-flex">
+		<th class="col-2">First name</th>
+		<td class="col-8">{{form.first_name}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Last name</th>
+		<td class="col-8">{{form.last_name}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Sex</th>
+		<td class="col-8">{{form.sex}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Born</th>
+		<td class="col-8">{{form.birth_year}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Birth place</th>
+		<td class="col-8">{{form.birth_place}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Died</th>
+		<td class="col-8">{{form.death_year}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Death place</th>
+		<td class="col-8">{{form.death_place}}</td>
 	</tr>
 	</table>
+    </div>
+    <div class="tab-pane fade" id="minimize">
+		<br>
+        <h5>Person: {{form.instance.first_name}} {{form.instance.last_name}}</h5>
+    </div>
+</div>
+<hr>
 
-	<hr> 
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a href="#home" class="nav-link active" data-toggle="tab">Locations</a>
+    </li>
+    <li class="nav-item">
+        <a href="#profile" class="nav-link" data-toggle="tab">Texts</a>
+    </li>
+    <li class="nav-item">
+        <a href="#messages" class="nav-link" data-toggle="tab">Other</a>
+    </li>
+</ul>
 
-	<table class="table table-borderless">
-		<tr>
-			<th></th><th>Birth</th><th></th><th>Death</th>
-		</tr>
-		<tr>
-			<th>Date</th>
-			<td>{{form.date_of_birth}}</td>
-			<td>{{form.birth_spec}}</td>
-			<td>{{form.date_of_death}}</td>
-			<td>{{form.death_spec}}</td>
-		</tr>
-		<tr>
-			<th>location</th>
-			<td>{{form.place_of_birth}}</td>
-			<td></td>
-			<td>{{form.place_of_death}}</td>
-		</tr>
-	</table>
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="home">
 
-	<hr> 
 	{{formset.management_form}}
-	
 	<table class="table table-borderless">
-	<!-- {{formset}} -->
-	<tr>
-	<!-- <th class="text-center">Location</th> -->
-	<th>Location</th>
-	<th>Type</th>
-	<th>Start</th>
-	<th></th>
-	<th>End</th>
-	<th></th>
-	<th></th>
+	<tr class ="d-flex">
+	<th class="col-4">Location</th>
+	<th class="col-2">Type</th>
+	<th class="col-2">Start</th>
+	<th class="col-2">End</th>
 	<th><i class="fa fa-times text-danger"></i></th>
-	{% for form in formset.forms %}
-		<tr>
-		{% for field in form %}
-			<td>{{field}}</td>
-		{% endfor %}
+	</tr>
+	{% for f in formset.forms %}
+		<tr class ="d-flex">
+		<td class="col-4">{{f.location}} {{f.location.errors}}</td>
+		<td class="col-2">{{f.relation}} {{f.relation.errors}}</td>
+		<td class="col-2">{{f.start_year}}</td>
+		<td class="col-2">{{f.end_year}}</td>
+		<td class="col-1">{{f.DELETE}} {{f.id}}</td>
 		</tr>
 	{% endfor %}
 	</table>
-<br>
+
+    </div>
+    <div class="tab-pane fade" id="profile">
+        <p>text..</p>
+    </div>
+    <div class="tab-pane fade" id="messages">
+        <p>other..</p>
+    </div>
+</div>
 <hr> 
-<input type="submit" value="Save" class="btn btn-primary">
+<input type="submit" value="Save" class="btn btn-success">
 </form>
 
 {{form.media.js}}
 {% endblock content %}
+
+
+
 
  
