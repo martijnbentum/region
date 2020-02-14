@@ -2,11 +2,102 @@ from django import forms
 from django.forms import ModelForm, inlineformset_factory
 from django.template.loader import render_to_string
 from .models import Person, PersonLocationRelation 
-from catalogue.models import Date, Language 
+from .models import  PersonTextRelation, PersonTextRelationRole 
+from .models import  PersonIllustrationRelation, PersonIllustrationRelationRole
+from catalogue.models import Text, Illustration 
 from django_select2.forms import Select2Widget,HeavySelect2Widget,ModelSelect2Widget
 import json
 from locations.models import UserLoc
 from locations.forms import LocationWidget, LocationsWidget
+
+
+class TextWidget(ModelSelect2Widget):
+	model = Text
+	search_fields = ['title__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.title
+
+	def get_queryset(self):
+		return Text.objects.all().order_by('title')
+
+
+class IllustrationWidget(ModelSelect2Widget):
+	model = Illustration
+	search_fields = ['caption__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.caption
+
+	def get_queryset(self):
+		return Illustration.objects.all().order_by('caption')
+
+
+class PersonTextRelationRoleWidget(ModelSelect2Widget):
+	model = PersonTextRelationRole
+	search_fields = ['name__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.name
+
+	def get_queryset(self):
+		return PersonTextRelationRole.objects.all()
+
+class PersonIllustrationRelationRoleWidget(ModelSelect2Widget):
+	model = PersonIllustrationRelationRole
+	search_fields = ['name__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.name
+
+	def get_queryset(self):
+		return PersonIllustrationRelationRole.objects.all()
+
+
+class PersonTextRelationForm(ModelForm):
+	'''Form to add a person location relation'''
+	text = forms.ModelChoiceField(
+		queryset=Text.objects.all(),
+		widget=TextWidget(
+			attrs={'data-placeholder':'Select text by title...',
+			'style':'width:100%;','class':'searching'}))
+	role = forms.ModelChoiceField(
+		queryset=PersonTextRelationRole.objects.all(),
+		widget=PersonTextRelationRoleWidget(
+			attrs={'data-placeholder':'Select role... e.g., author',
+			'style':'width:100%;','class':'searching'}))
+
+	class Meta:
+		model = PersonTextRelation
+		fields = 'text,role'
+		fields = fields.split(',')
+
+text_formset = inlineformset_factory(
+	Person,PersonTextRelation,
+	form = PersonTextRelationForm, extra=1)
+
+
+class PersonIllustrationRelationForm(ModelForm):
+	'''Form to add a person location relation'''
+	illustration = forms.ModelChoiceField(
+		queryset=Illustration.objects.all(),
+		widget=IllustrationWidget(
+			attrs={'data-placeholder':'Select illustration by title...',
+			'style':'width:100%;','class':'searching'}))
+	role = forms.ModelChoiceField(
+		queryset=PersonIllustrationRelationRole.objects.all(),
+		widget=PersonIllustrationRelationRoleWidget(
+			attrs={'data-placeholder':'Select role... e.g., illustrator',
+			'style':'width:100%;','class':'searching'}))
+
+	class Meta:
+		model = PersonIllustrationRelation
+		fields = 'illustration,role'
+		fields = fields.split(',')
+
+illustration_formset = inlineformset_factory(
+	Person,PersonIllustrationRelation,
+	form = PersonIllustrationRelationForm, extra=1)
 
 
 class PersonLocationRelationForm(ModelForm):

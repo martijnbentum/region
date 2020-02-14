@@ -6,7 +6,7 @@ from django.urls import reverse
 from utilities.models import Date 
 from .models import Person, PersonLocationRelation
 from .forms import PersonForm, PersonLocationRelationForm
-from .forms import location_formset 
+from .forms import location_formset, text_formset, illustration_formset
 from django.forms import inlineformset_factory
 import json
 from locations.models import UserLoc
@@ -52,16 +52,24 @@ def add_person(request):
 		form = PersonForm(request.POST)
 		if form.is_valid():
 			person = form.save()
-			formset = location_formset(request.POST, instance=person)
-			if formset.is_valid():
-				formset.save()
+			loc_formset = location_formset(request.POST, instance=person)
+			txt_formset = text_formset(request.POST, instance=person)
+			ill_formset = illustration_formset(request.POST, instance=person)
+			if loc_formset.is_valid():
+				loc_formset.save()
+			if txt_formset.is_valid():
+				txt_formset.save()
+			if ill_formset.is_valid():
+				ill_formset.save()
 			return HttpResponseRedirect(reverse('persons:edit_person', 
 				args=[person.pk]))
 	form = PersonForm()
-	formset = location_formset()
+	loc_formset = location_formset()
+	txt_formset = text_formset()
+	ill_formset = illustration_formset()
 	page_name = 'Add Person'
-	var = {'form':form,'formset':formset,'page_name':page_name,
-		'navbar':'default'}
+	var = {'form':form,'loc_formset':loc_formset,'page_name':page_name,
+		'txt_formset':txt_formset,'ill_formset':ill_formset,'navbar':'default'}
 	return render(request, 'persons/add_person.html', var)
 
 
@@ -69,28 +77,33 @@ def edit_person(request, person_id, navbar = 'default',navcontent=None):
 	'''edit person instance and person location relation
 	navbar and navcontent set the active tab (last used one)
 	'''
-	form, formset= None, None
+	form, loc_formset, txt_formset, ill_formset = None, None, None, None
 	person = Person.objects.get(pk=person_id)
 	if request.method == 'POST':
 		navbar, navcontent = getnavs(request)
 		form = PersonForm(request.POST,instance=person)
 		if form.is_valid(): 
-			print('form is valid: ',form.cleaned_data,type(form))
 			person = form.save()
-			formset = location_formset(request.POST,instance=person)
-			if formset.is_valid() == True:
-				print('formset is valid: ',formset.cleaned_data,type(formset))
-				formset.save()
-				return HttpResponseRedirect(reverse('persons:edit_person', 
-					args = [person.pk, navbar, navcontent]))
-			else:  
-				print('formset invalid', formset.errors)
+			loc_formset = location_formset(request.POST,instance=person)
+			txt_formset = text_formset(request.POST,instance=person)
+			ill_formset = ill_formset(request.POST,instance=person)
+			if loc_formset.is_valid() == True:
+				loc_formset.save()
+			if txt_formset.is_valid() == True:
+				txt_formset.save()
+			if ill_formset.is_valid() == True:
+				ill_formset.save()
+			return HttpResponseRedirect(reverse('persons:edit_person', 
+				args = [person.pk, navbar, navcontent]))
 		else:  print('form invalid', form.errors)
-	if formset ==None:formset = location_formset(instance=person)
+	if loc_formset ==None:loc_formset = location_formset(instance=person)
 	if form == None: form = PersonForm(instance=person)
+	if txt_formset == None:txt_formset = text_formset(instance=person)
+	if ill_formset == None:ill_formset = illustration_formset(instance=person)
 	page_name = 'Edit Person'
 	navbar,navcontent = listify_navs(navbar,navcontent)
-	var = {'form':form,'formset':formset,'page_name':page_name,
+	var = {'form':form,'loc_formset':loc_formset,'page_name':page_name,
+		'txt_formset':txt_formset,'ill_formset':ill_formset,
 		'navbar':navbar, 'navcontent':navcontent}
 	return render(request, 'persons/add_person.html',var)
 

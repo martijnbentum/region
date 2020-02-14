@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.db import models
 from django.utils import timezone
 import json
@@ -123,6 +124,55 @@ class PersonLocationRelation(models.Model,info):
 
 
 
+class PersonTextRelationRole(models.Model, info):
+	'''e.g author | translator | editor | subject | ... '''
+	# how to initialize with above values
+	name = models.CharField(max_length = 100,unique=True)
+	description = models.TextField(null=True,blank=True)
+
+	def __str__(self):
+		return self.name
+
+
+class PersonIllustrationRelationRole(models.Model, info):
+	'''e.g illustrator | subject | ... '''
+	# how to initialize with above values
+	name = models.CharField(max_length = 100,unique=True)
+	description = models.TextField(null=True,blank=True)
+
+	def __str__(self):
+		return self.name
+
+
+class PersonTextRelation(models.Model, info):
+	role = models.ForeignKey(PersonTextRelationRole, on_delete=models.CASCADE)
+	person = models.ForeignKey(Person, on_delete=models.CASCADE)
+	text = models.ForeignKey('catalogue.Text', null=True, blank=True, 
+		on_delete=models.CASCADE)
+	
+	def __str__(self):
+		m = self.person.__str__() + ' | ' + self.role.__str__() 
+		m += ' | ' + self.text.__str__()
+		return m
+
+	class Meta:
+		unique_together = ['role','person','text']
+
+
+class PersonIllustrationRelation(models.Model, info):
+	role = models.ForeignKey(PersonIllustrationRelationRole, 
+		on_delete=models.CASCADE)
+	person = models.ForeignKey(Person, on_delete=models.CASCADE)
+	illustration= models.ForeignKey('catalogue.Illustration', null=True, 
+		blank=True, on_delete=models.CASCADE)
+	
+	def __str__(self):
+		m = self.person.__str__() + ' | ' + self.role.__str__() 
+		m += ' | ' + self.illustration.__str__()
+		return m
+
+	class Meta:
+		unique_together = ['role','person','illustration']
 
 
 # Create your models here.

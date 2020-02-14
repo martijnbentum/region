@@ -67,20 +67,22 @@
 
 <ul class="nav nav-tabs">
     <li class="nav-item">
-        <a href="#location" id='locationa' class="nav-link" data-toggle="tab">Locations</a>
+        <a href="#location" id='locationa' class="nav-link" data-toggle="tab">
+		Locations</a>
     </li>
     <li class="nav-item">
         <a href="#text" id='texta' class="nav-link" data-toggle="tab">Texts</a>
     </li>
     <li class="nav-item">
-        <a href="#other" id='othera' class="nav-link" data-toggle="tab">Other</a>
+        <a href="#illustration" id='illustrationa' class="nav-link" 
+		data-toggle="tab">Illustration</a>
     </li>
 </ul>
 
 <div class="tab-content">
     <div class="tab-pane fade" id="location">
 
-	{{formset.management_form}}
+	{{loc_formset.management_form}}
 	<table class="table table-borderless">
 	<tr class ="d-flex">
 	<th class="col-4">Location</th>
@@ -89,7 +91,7 @@
 	<th class="col-2">End</th>
 	<th><i class="fa fa-times text-danger"></i></th>
 	</tr>
-	{% for f in formset.forms %}
+	{% for f in loc_formset.forms %}
 		<tr class ="d-flex">
 		<td class="col-4">{{f.location}} {{f.location.errors}}</td>
 		<td class="col-2">{{f.relation}} {{f.relation.errors}}</td>
@@ -102,10 +104,38 @@
 
     </div>
     <div class="tab-pane fade" id="text">
-        <p>text..</p>
+		{{txt_formset.management_form}}
+		<table class="table table-borderless">
+		<tr class ="d-flex">
+		<th class="col-5">Text</th>
+		<th class="col-5">Role</th>
+		<th><i class="fa fa-times text-danger"></i></th>
+		</tr>
+		{% for f in txt_formset.forms %}
+			<tr class ="d-flex">
+			<td class="col-5">{{f.text}} {{f.text.errors}}</td>
+			<td class="col-5">{{f.role}} {{f.role.errors}}</td>
+			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
+		</table>
     </div>
-    <div class="tab-pane fade" id="other">
-        <p>other..</p>
+    <div class="tab-pane fade" id="illustration">
+		{{ill_formset.management_form}}
+		<table class="table table-borderless">
+		<tr class ="d-flex">
+		<th class="col-5">Illustration</th>
+		<th class="col-5">Role</th>
+		<th><i class="fa fa-times text-danger"></i></th>
+		</tr>
+		{% for f in ill_formset.forms %}
+			<tr class ="d-flex">
+			<td class="col-5">{{f.illustration}} {{f.illustration.errors}}</td>
+			<td class="col-5">{{f.role}} {{f.role.errors}}</td>
+			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
+	</table>
     </div>
 </div>
 <hr> 
