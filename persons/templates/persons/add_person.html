@@ -9,23 +9,23 @@
 <a class ="btn btn-link ml-auto" href="{% url 'persons:person_list' %}" role="button">person list</a>
 </div>
 
-<form method = "post">
+<form name="myform" id="myform" method = "post" onsubmit="dosubmit();">
     {% csrf_token %}
 
 <ul class="nav nav-tabs">
     <li class="nav-item">
-        <a href="#edit" class="nav-link active" data-toggle="tab">
+        <a href="#edit" id='edita' class="nav-link" data-toggle="tab">
 		<i class="fa fa-pencil"></i></a>
 		
     </li>
     <li class="nav-item">
-        <a href="#minimize" class="nav-link" data-toggle="tab">
+        <a href="#minimize" id='minimizea' class="nav-link" data-toggle="tab">
 		<i class="fa fa-power-off"></i></a>
     </li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade show active" id="edit">
+    <div class="tab-pane fade" id="edit">
 
 	<table class="table table-borderless" >
 	<tr class="d-flex">
@@ -60,25 +60,25 @@
     </div>
     <div class="tab-pane fade" id="minimize">
 		<br>
-        <h5>Person: {{form.instance.first_name}} {{form.instance.last_name}}</h5>
+        <h5>{{form.instance.first_name}} {{form.instance.last_name}}</h5>
     </div>
 </div>
 <hr>
 
 <ul class="nav nav-tabs">
     <li class="nav-item">
-        <a href="#home" class="nav-link active" data-toggle="tab">Locations</a>
+        <a href="#location" id='locationa' class="nav-link" data-toggle="tab">Locations</a>
     </li>
     <li class="nav-item">
-        <a href="#profile" class="nav-link" data-toggle="tab">Texts</a>
+        <a href="#text" id='texta' class="nav-link" data-toggle="tab">Texts</a>
     </li>
     <li class="nav-item">
-        <a href="#messages" class="nav-link" data-toggle="tab">Other</a>
+        <a href="#other" id='othera' class="nav-link" data-toggle="tab">Other</a>
     </li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade show active" id="home">
+    <div class="tab-pane fade" id="location">
 
 	{{formset.management_form}}
 	<table class="table table-borderless">
@@ -101,21 +101,64 @@
 	</table>
 
     </div>
-    <div class="tab-pane fade" id="profile">
+    <div class="tab-pane fade" id="text">
         <p>text..</p>
     </div>
-    <div class="tab-pane fade" id="messages">
+    <div class="tab-pane fade" id="other">
         <p>other..</p>
     </div>
 </div>
 <hr> 
+<input type="hidden" name="navbar" id="navbar" value="" />
+<input type="hidden" name="navcontent" id="navcontent" value="" />
 <input type="submit" value="Save" class="btn btn-success">
 </form>
 
 {{form.media.js}}
+
+<script>
+function set_active(){
+	{% if navbar == 'default' %}
+	document.getElementById('edita').className="nav-link active";
+	document.getElementById('edit').className="tab-pane fade show active";
+	document.getElementById('locationa').className="nav-link active";
+	document.getElementById('location').className="tab-pane fade show active";
+	{% else %}
+	{% for nt in navbar %}
+		document.getElementById('{{nt}}').className="nav-link active";
+	{% endfor %}
+
+	{% for nc in navcontent %}
+		document.getElementById('{{nc}}').className="tab-pane fade show active";
+	{% endfor %}
+	{% endif %}
+};
+
+function get_tab_state(){
+	var tab = get_ids("nav-link active")
+	var content = get_ids("show active")
+}
+
+function get_ids(classname){
+	var x = document.getElementsByClassName(classname);
+	var i, arr = [];
+	for (i=0; i < x.length; i++) {
+	arr.push(x[i].id);
+	}
+	return arr;
+}
+
+function dosubmit(){
+	document.getElementById('navbar').value = get_ids("nav-link active");
+	document.getElementById('navcontent').value = get_ids("show active");
+	return true;
+}
+
+
+$(document).ready(function(){set_active();});
+</script>
+
 {% endblock content %}
-
-
 
 
  
