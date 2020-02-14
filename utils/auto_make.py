@@ -50,7 +50,8 @@ def load_model_instance(name, model_name, app_name, field_name = 'name'):
 	return output
 
 
-def make_simple_model(filename = '',column_name = '',model_name='',app_name=''):
+def make_simple_model(filename = '',column_name = '',model_name='',app_name='',
+	values = ''):
 	'''Create model instances
 	extract a list of string values form excel file
 	to create simple instances of the specified model
@@ -60,16 +61,18 @@ def make_simple_model(filename = '',column_name = '',model_name='',app_name=''):
 	model_name 		name of model to create instances of
 	app_name 		name of app model belongs to
 	'''
-	d = pd.read_excel(filename)
-	values = list(set(getattr(d,column_name)))
-	print(values)
-	o = []
-	for v in values:
-		if str(v) == 'nan': continue
-		if ';' in v: o.extend(v.split(';'))
-		else: o.append(v)
-	o = [v.strip(' ') for v in o]
-	values = list(set(o))
+	if values == '':
+		d = pd.read_excel(filename)
+		values = list(set(getattr(d,column_name)))
+		print(values)
+		o = []
+		for v in values:
+			if str(v) == 'nan': continue
+			if ';' in v: o.extend(v.split(';'))
+			else: o.append(v)
+		o = [v.strip(' ') for v in o]
+		values = list(set(o))
+	elif type(values) == str: values = values.split(',')
 	print(values)
 	model = apps.get_model(app_name,model_name)
 	o = [model(name=v) for v in values]
@@ -168,6 +171,21 @@ def make_persons(filename_text = 'data/Person.xlsx'):
 		elif p != None: o.pseudonym.add(pseud)
 	return o
 		
+
+def make_personillustrationrelationroles():
+	make_simple_model(
+		values= 'illustrator,subject',
+		model_name='PersonIllustrationRelationRole',
+		app_name='persons'
+		)
+
+def make_persontextrelationroles():
+	make_simple_model(
+		values= 'author,translator,editor,subject',
+		model_name='PersonTextRelationRole',
+		app_name='persons'
+		)
+	
 
 		
 			
