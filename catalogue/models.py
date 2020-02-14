@@ -85,8 +85,8 @@ class Fragment(models.Model):
 class Illustration(models.Model, info):
 	'''a picture, should the picture itself be saveable?, illustration format?'''
 	caption =  models.CharField(max_length=300,null=True,blank=True)
-	language = models.CharField(max_length=100,null=True,blank=True)
-	context = models.TextField(null=True,blank=True)
+	page_number = models.PositiveIntegerField(null=True,blank=True)
+	notes = models.TextField(null=True,blank=True)
 	illustration_format = '' # ... | ...
 	upload = models.ImageField(upload_to='illustrations/',null=True,blank=True)
 	
@@ -191,43 +191,6 @@ class IllustrationPublicationRelation(models.Model): #many to many
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 
 
-class PersonWorkRelationRole(models.Model, info):
-	'''e.g author | illustrator | translator | editor | subject | ... '''
-	# how to initialize with above values
-	role = models.CharField(max_length = 100)
-	description = models.TextField(null=True,blank=True)
-
-	def __str__(self):
-		return self.role
-
-class PersonWorkRelation(models.Model, info):
-	role = models.ForeignKey(PersonWorkRelationRole, on_delete=models.CASCADE)
-	person = models.ForeignKey(Person, on_delete=models.CASCADE)
-	# unique together [person, role]
-	main_creator = models.BooleanField()
-	work_text = models.ForeignKey(Text, null=True, blank=True, 
-									on_delete=models.CASCADE)
-	work_illustration= models.ForeignKey(Illustration, null=True, blank=True,
-									on_delete=models.CASCADE)
-	
-	def __str__(self):
-		m = self.person.__str__() + ' | ' + self.role.__str__() 
-		m += ' | ' + self.work.__str__()
-		return m
-
-	@property
-	def work(self):
-		if self.work_text is not None:
-			return self.work_text
-		if self.work_illustration is not None:
-			return self.work_illustration
-		raise AssertionError("neither (work) text nor illustration is set")
-
-	def save(self,*args, **kwargs):
-		if ((self.work_text == self.work_illustration == None) or
-			(self.work_text != None and self.work_illustration != None)):
-			raise AssertionError('set either (work) text or illustration')
-		super(PersonWorkRelation, self).save(*args, **kwargs)
 
 
 
