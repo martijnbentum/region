@@ -1,10 +1,12 @@
-from django.apps import apps
 from django.db import models
 from django.utils import timezone
 import json
 from locations.models import UserLoc
 from utilities.models import Language
 from utils.model_util import id_generator, info
+
+
+
 
 class Pseudonym(models.Model, info):
 	name = models.CharField(max_length=300, unique= True)
@@ -96,6 +98,8 @@ class Person(models.Model, info):
 		return [self.name,self.age,sex,born,died,birthplace,deathplace]
 
 
+
+
 class LocationRelation(models.Model, info):
 	name = models.CharField(max_length=200,unique=True)
 	notes = models.TextField(null=True,blank=True)
@@ -150,6 +154,15 @@ class PersonIllustrationRelationRole(models.Model, info):
 
 	def __str__(self):
 		return self.name
+
+
+class PublisherManager(models.Model): #or broker
+	'''Person that manages writers, should be linked to texts and creators?'''
+	# Publisher= apps.get_model('catalogue','Publisher')
+	publisher = models.ForeignKey('catalogue.Publisher', 
+		on_delete=models.CASCADE, related_name='publisher')
+	manager = models.ForeignKey(Person, on_delete=models.CASCADE,
+		related_name='manager')
 
 
 class PersonTextRelation(models.Model, info):
