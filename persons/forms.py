@@ -2,13 +2,26 @@ from django import forms
 from django.forms import ModelForm, inlineformset_factory
 from django.template.loader import render_to_string
 from .models import Person, PersonLocationRelation, LocationRelation
-from .models import  PersonTextRelation, PersonTextRelationRole 
-from .models import  PersonIllustrationRelation, PersonIllustrationRelationRole
-from catalogue.models import Text, Illustration 
-from django_select2.forms import Select2Widget,HeavySelect2Widget,ModelSelect2Widget
+from .models import PersonTextRelation, PersonTextRelationRole 
+from .models import PersonIllustrationRelation, PersonIllustrationRelationRole
+from .models import PublisherManager
+from catalogue.models import Text, Illustration, Publisher 
+from catalogue.forms import PublisherWidget
+from django_select2.forms import Select2Widget,ModelSelect2Widget
 import json
 from locations.models import UserLoc
 from locations.forms import LocationWidget, LocationsWidget
+
+
+class PersonWidget(ModelSelect2Widget):
+	model = Person
+	search_fields = ['name__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.name
+
+	def get_queryset(self):
+		return Person.objects.all().order_by('name')
 
 
 class LocationRelationWidget(ModelSelect2Widget):
@@ -76,6 +89,29 @@ class PersonIllustrationRelationRoleForm(ModelForm):
 	class Meta:
 		model = PersonIllustrationRelationRole
 		fields = ['name']
+
+
+class PublisherManagerForm(ModelForm):
+	manager = forms.ModelChoiceField(
+		queryset=Person.objects.all(),
+		widget=PersonWidget(
+			attrs={'data-placeholder':'Select role... e.g., author',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'1'}))
+	publisher = forms.ModelChoiceField(
+		queryset=Publisher.objects.all().order_by('name'),
+		widget=PublisherWidget(attrs={'data-placeholder':'Select publisher..',
+			'style':'width:100%;','class':'searching'}),
+		required = False
+		)
+	class Meta:
+		model = PublisherManager
+		fields = ['manager','publisher']
+
+publisher_formset = inlineformset_factory(
+	Person,PublisherManager,
+	form = PublisherManagerForm, extra=1)
+
 
 class PersonTextRelationForm(ModelForm):
 	'''Form to add a person location relation'''
