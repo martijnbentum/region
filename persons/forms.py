@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm, inlineformset_factory
 from django.template.loader import render_to_string
-from .models import Person, PersonLocationRelation 
+from .models import Person, PersonLocationRelation, LocationRelation
 from .models import  PersonTextRelation, PersonTextRelationRole 
 from .models import  PersonIllustrationRelation, PersonIllustrationRelationRole
 from catalogue.models import Text, Illustration 
@@ -10,6 +10,16 @@ import json
 from locations.models import UserLoc
 from locations.forms import LocationWidget, LocationsWidget
 
+
+class LocationRelationWidget(ModelSelect2Widget):
+	model = LocationRelation 
+	search_fields = ['name__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.name
+
+	def get_queryset(self):
+		return LocationRelation.objects.all().order_by('name')
 
 class TextWidget(ModelSelect2Widget):
 	model = Text
@@ -53,6 +63,19 @@ class PersonIllustrationRelationRoleWidget(ModelSelect2Widget):
 	def get_queryset(self):
 		return PersonIllustrationRelationRole.objects.all()
 
+class PersonTextRelationRoleForm(ModelForm):
+	name= forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	class Meta:
+		model = PersonTextRelationRole
+		fields = ['name']
+
+class PersonIllustrationRelationRoleForm(ModelForm):
+	name= forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	class Meta:
+		model = PersonIllustrationRelationRole
+		fields = ['name']
 
 class PersonTextRelationForm(ModelForm):
 	'''Form to add a person location relation'''
@@ -65,7 +88,8 @@ class PersonTextRelationForm(ModelForm):
 		queryset=PersonTextRelationRole.objects.all(),
 		widget=PersonTextRelationRoleWidget(
 			attrs={'data-placeholder':'Select role... e.g., author',
-			'style':'width:100%;','class':'searching'}))
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}))
 
 	class Meta:
 		model = PersonTextRelation
@@ -88,7 +112,8 @@ class PersonIllustrationRelationForm(ModelForm):
 		queryset=PersonIllustrationRelationRole.objects.all(),
 		widget=PersonIllustrationRelationRoleWidget(
 			attrs={'data-placeholder':'Select role... e.g., illustrator',
-			'style':'width:100%;','class':'searching'}))
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}))
 
 	class Meta:
 		model = PersonIllustrationRelation
@@ -100,6 +125,13 @@ illustration_formset = inlineformset_factory(
 	form = PersonIllustrationRelationForm, extra=1)
 
 
+class LocationRelationForm(ModelForm):
+	name= forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	class Meta:
+		model = LocationRelation
+		fields = ['name']
+
 class PersonLocationRelationForm(ModelForm):
 	'''Form to add a person location relation'''
 	spec_choices= [('d','day'),('m','month'),('y','year'),('c','century')]
@@ -108,6 +140,12 @@ class PersonLocationRelationForm(ModelForm):
 		queryset=UserLoc.objects.all().order_by('name'),
 		widget=LocationWidget(attrs={'data-placeholder':'Select location...',
 			'style':'width:100%;','class':'searching'}))
+	relation = forms.ModelChoiceField(
+		queryset=PersonIllustrationRelationRole.objects.all(),
+		widget=LocationRelationWidget(
+			attrs={'data-placeholder':'e.g. travel',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}))
 	start_year= forms.IntegerField(widget=forms.NumberInput(
 		attrs={'style':'width:100%', 'placeholder':'year'}),
 	required = False)

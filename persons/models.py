@@ -96,12 +96,20 @@ class Person(models.Model, info):
 		return [self.name,self.age,sex,born,died,birthplace,deathplace]
 
 
+class LocationRelation(models.Model, info):
+	name = models.CharField(max_length=200,unique=True)
+	notes = models.TextField(null=True,blank=True)
+
+	def __str__(self):
+		return self.name
+
 class PersonLocationRelation(models.Model,info):
 	'''location function for a person e.g. residence, work, travel.'''
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	location = models.ForeignKey(UserLoc, on_delete=models.CASCADE)
-	RELATION= [('R','residence'),('T','travel'),('W','work'),('U','unknown')]
-	relation= models.CharField(max_length=1,choices= RELATION,null= None)
+	# RELATION= [('R','residence'),('T','travel'),('W','work'),('U','unknown')]
+	# relation= models.CharField(max_length=1,choices= RELATION,null= None)
+	relation = models.ForeignKey(LocationRelation, null=True, on_delete=models.SET_NULL)
 	start_year = models.PositiveIntegerField(null=True,blank=True)
 	end_year = models.PositiveIntegerField(null=True,blank=True)
 	location_name = models.CharField(max_length=200, default='',null=True)
@@ -128,7 +136,7 @@ class PersonTextRelationRole(models.Model, info):
 	'''e.g author | translator | editor | subject | ... '''
 	# how to initialize with above values
 	name = models.CharField(max_length = 100,unique=True)
-	description = models.TextField(null=True,blank=True)
+	notes = models.TextField(null=True,blank=True)
 
 	def __str__(self):
 		return self.name
@@ -138,7 +146,7 @@ class PersonIllustrationRelationRole(models.Model, info):
 	'''e.g illustrator | subject | ... '''
 	# how to initialize with above values
 	name = models.CharField(max_length = 100,unique=True)
-	description = models.TextField(null=True,blank=True)
+	notes = models.TextField(null=True,blank=True)
 
 	def __str__(self):
 		return self.name
