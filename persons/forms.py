@@ -6,75 +6,12 @@ from .models import PersonTextRelation, PersonTextRelationRole
 from .models import PersonIllustrationRelation, PersonIllustrationRelationRole
 from .models import PublisherManager
 from catalogue.models import Text, Illustration, Publisher 
-from catalogue.forms import PublisherWidget
-from django_select2.forms import Select2Widget,ModelSelect2Widget
-import json
+from catalogue.widgets import TextWidget, PublisherWidget, IllustrationWidget
 from locations.models import UserLoc
 from locations.forms import LocationWidget, LocationsWidget
+from .widgets import PersonIllustrationRelationRoleWidget, LocationRelationWidget
+from .widgets import PersonTextRelationRoleWidget, PersonWidget
 
-
-class PersonWidget(ModelSelect2Widget):
-	model = Person
-	search_fields = ['name__icontains']
-
-	def label_from_instance(self,obj):
-		return obj.name
-
-	def get_queryset(self):
-		return Person.objects.all().order_by('name')
-
-
-class LocationRelationWidget(ModelSelect2Widget):
-	model = LocationRelation 
-	search_fields = ['name__icontains']
-
-	def label_from_instance(self,obj):
-		return obj.name
-
-	def get_queryset(self):
-		return LocationRelation.objects.all().order_by('name')
-
-class TextWidget(ModelSelect2Widget):
-	model = Text
-	search_fields = ['title__icontains']
-
-	def label_from_instance(self,obj):
-		return obj.title
-
-	def get_queryset(self):
-		return Text.objects.all().order_by('title')
-
-
-class IllustrationWidget(ModelSelect2Widget):
-	model = Illustration
-	search_fields = ['caption__icontains']
-
-	def label_from_instance(self,obj):
-		return obj.caption
-
-	def get_queryset(self):
-		return Illustration.objects.all().order_by('caption')
-
-
-class PersonTextRelationRoleWidget(ModelSelect2Widget):
-	model = PersonTextRelationRole
-	search_fields = ['name__icontains']
-
-	def label_from_instance(self,obj):
-		return obj.name
-
-	def get_queryset(self):
-		return PersonTextRelationRole.objects.all()
-
-class PersonIllustrationRelationRoleWidget(ModelSelect2Widget):
-	model = PersonIllustrationRelationRole
-	search_fields = ['name__icontains']
-
-	def label_from_instance(self,obj):
-		return obj.name
-
-	def get_queryset(self):
-		return PersonIllustrationRelationRole.objects.all()
 
 class PersonTextRelationRoleForm(ModelForm):
 	name= forms.CharField(widget=forms.TextInput(

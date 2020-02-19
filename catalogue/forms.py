@@ -3,57 +3,14 @@ from django.forms import ModelForm, inlineformset_factory
 from django.template.loader import render_to_string
 from .models import Genre, Text, Publisher, Publication,Type 
 from django_select2.forms import Select2Widget,ModelSelect2MultipleWidget,HeavySelect2Widget,ModelSelect2Widget
-import json
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
-from utilities.models import Date, Language 
+from utilities.models import Language 
 from utilities.forms import LanguageWidget 
 from locations.forms import LocationWidget, LocationsWidget
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Fieldset, ButtonHolder, Submit
+from .widgets import GenreWidget, TypeWidget, PublishersWidget 
 
 
-class GenreWidget(ModelSelect2Widget):
-	model = Genre 
-	search_fields = ['name__startswith']
-
-	def label_from_instance(self,obj):
-		return obj.name
-
-	def get_queryset(self):
-		return Genre.objects.all().order_by('name')
-
-
-class PublisherWidget(ModelSelect2Widget):
-	model = Publisher
-	search_fields = ['name__icontains']
-
-	def label_from_instance(self,obj):
-		return obj.name
-
-	def get_queryset(self):
-		return Publisher.objects.all().order_by('name')
-
-class PublishersWidget(ModelSelect2MultipleWidget):
-	model = Publisher
-	search_fields = ['name__icontains']
-
-	def label_from_instance(self,obj):
-		return obj.name
-
-	def get_queryset(self):
-		return Publisher.objects.all().order_by('name')
-
-
-class TypeWidget(ModelSelect2Widget):
-	model = Type
-	search_fields = ['name__icontains']
-
-	def label_from_instance(self,obj):
-		return obj.name
-
-	def get_queryset(self):
-		return Type.objects.all().order_by('name')
 
 class TypeForm(ModelForm):
 	'''Form to add a text'''
