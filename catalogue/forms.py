@@ -24,7 +24,17 @@ class GenreWidget(ModelSelect2Widget):
 		return Genre.objects.all().order_by('name')
 
 
-class PublisherWidget(ModelSelect2MultipleWidget):
+class PublisherWidget(ModelSelect2Widget):
+	model = Publisher
+	search_fields = ['name__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.name
+
+	def get_queryset(self):
+		return Publisher.objects.all().order_by('name')
+
+class PublishersWidget(ModelSelect2MultipleWidget):
 	model = Publisher
 	search_fields = ['name__icontains']
 
@@ -63,15 +73,15 @@ class TextForm(ModelForm):
 	language = forms.ModelChoiceField(
 		queryset=Language.objects.all().order_by('name'),
 		widget=LanguageWidget(attrs={'data-placeholder':'Select language...',
-			'style':'width:100%;','class':'searching'}),
-		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}),
 		required = False
 		)
 	genre = forms.ModelChoiceField(
 		queryset=Genre.objects.all().order_by('name'),
 		widget=GenreWidget(attrs={'data-placeholder':'Select genre...',
-			'style':'width:100%;','class':'searching'}),
-		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}),
 		required = False
 		)
 	title = forms.CharField(widget=forms.TextInput(
@@ -82,7 +92,6 @@ class TextForm(ModelForm):
 	notes = forms.CharField(widget=forms.Textarea(
 		attrs={'style':'width:100%','rows':3}),
 		required=False)
-		
 
 	class Meta:
 		model = Text
@@ -96,22 +105,20 @@ class PublicationForm(ModelForm):
 		queryset=Type.objects.all().order_by('name'),
 		widget=TypeWidget(
 			attrs={'data-placeholder':'Select publication form... e.g., novel',
-			'style':'width:100%;','class':'searching'}),
-		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}),
 		required = False
 		)
 	publisher = forms.ModelMultipleChoiceField(
 		queryset=Publisher.objects.all().order_by('name'),
-		widget=PublisherWidget(attrs={'data-placeholder':'Select publisher(s)...',
+		widget=PublishersWidget(attrs={'data-placeholder':'Select publisher(s)',
 			'style':'width:100%;','class':'searching'}),
-		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
 		required = False
 		)
 	location= forms.ModelMultipleChoiceField(
 		queryset=UserLoc.objects.all().order_by('name'),
 		widget=LocationsWidget(attrs={'data-placeholder':'Select location(s)...',
 			'style':'width:100%;','class':'searching'}),
-		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
 		required = False
 		)
 	title = forms.CharField(widget=forms.TextInput(
@@ -140,14 +147,20 @@ class PublisherForm(ModelForm):
 		)
 	name = forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
+	founded = forms.IntegerField(widget=forms.NumberInput(
+		attrs={'style':'width:100%'}))
+	closure = forms.IntegerField(widget=forms.NumberInput(
+		attrs={'style':'width:100%'}))
 	notes = forms.CharField(widget=forms.Textarea(
 		attrs={'style':'width:100%','rows':3}),
 		required=False)
 
 	class Meta:
 		model = Publisher
-		m = 'name,location,start_end_date,notes'
+		m = 'name,location,founded,closure,notes'
 		fields = m.split(',')
+
+
 	
 class IllustrationForm(ModelForm):
 	pass

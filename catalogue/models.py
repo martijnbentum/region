@@ -134,8 +134,8 @@ class Publisher(models.Model, info):
 	'''Company that publishes works.'''
 	name = models.CharField(max_length=300)
 	location= models.ManyToManyField(UserLoc,blank=True)
-	start_end_date = models.ForeignKey(Date,blank= True,null=True,
-		on_delete=models.SET_NULL)
+	founded = models.PositiveIntegerField(null=True,blank=True) 
+	closure = models.PositiveIntegerField(null=True,blank=True) 
 	notes = models.TextField(null=True,blank=True) # many to many
 
 	def __str__(self):
@@ -145,10 +145,7 @@ class Publisher(models.Model, info):
 	def location_string(self):
 		return ', '.join([l.name for l in self.location.all()])
 
-class PublisherManager(models.Model): #or broker
-	'''Person that manages writers, should be linked to texts and creators?'''
-	publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
-	manager = models.ForeignKey(Person, on_delete=models.CASCADE)
+
 
 class Type(models.Model):
 	name = models.CharField(max_length=100,unique=True)
