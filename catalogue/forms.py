@@ -149,5 +149,7 @@ class PublisherForm(ModelForm):
 		m = 'name,location,start_end_date,notes'
 		fields = m.split(',')
 	
+class IllustrationForm(ModelForm):
+	pass
 
 

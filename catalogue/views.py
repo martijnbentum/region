@@ -63,16 +63,18 @@ class PublisherView(generic.ListView):
 		return Publisher.objects.order_by('name')
 
 
-def add_text(request):
+def add_text(request, view = 'complete'):
 	# if this is a post request we need to process the form data
 	if request.method == 'POST':
 		form = TextForm(request.POST)
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
 			form.save()
-			return HttpResponseRedirect('/catalogue/text/')
+			if view == 'complete':
+				return HttpResponseRedirect('/catalogue/text/')
+			return HttpResponseRedirect('/catalogue/close/')
 	form = TextForm()
-	var = {'form':form,'page_name':'Add text'}
+	var = {'form':form,'page_name':'Add text','view':view}
 	return render(request, 'catalogue/add_text.html', var)
 
 

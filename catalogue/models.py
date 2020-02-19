@@ -187,7 +187,7 @@ class TextPublicationRelation(models.Model): #many to many
 
 class IllustrationPublicationRelation(models.Model): #many to many
 	'''Links a work with a publication.'''
-	text = models.ForeignKey(Illustration, on_delete=models.CASCADE)
+	illustration = models.ForeignKey(Illustration, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 
 
