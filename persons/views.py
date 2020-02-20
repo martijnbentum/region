@@ -14,6 +14,7 @@ from django.forms import inlineformset_factory
 import json
 from locations.models import UserLoc
 from utils import view_util
+from utilities.views import add_simple_model
 
 
 def getnavs(request):
@@ -121,30 +122,19 @@ def edit_person(request, person_id, navbar = 'default',navcontent=None):
 		'navbar':navbar, 'navcontent':navcontent,'pub_formset':pub_formset}
 	return render(request, 'persons/add_person.html',var)
 
-def add_simple_model(request, model_name,app_name, page_name):
-	modelform = view_util.get_modelform(__name__,model_name+'Form')
-	form = modelform(request.POST)
-	if request.method == 'POST':
-		if form.is_valid():
-			form.save()
-			return HttpResponseRedirect('/catalogue/close/')
-	model = apps.get_model(app_name,model_name)
-	instances = model.objects.all().order_by('name')
-	var = {'form':form, 'page_name':page_name, 'instances':instances}
-	return render(request, 'persons/add_simple_model.html',var)
-
 
 def add_person_location_relation(request):
-	return add_simple_model(request,'LocationRelation','persons',
+	return add_simple_model(request,__name__,'LocationRelation','persons',
 		'person - location relation')
 
 def add_person_text_relation_role(request):
-	return add_simple_model(request,'PersonTextRelationRole','persons',
+	return add_simple_model(request,__name__,'PersonTextRelationRole','persons',
 		'person - text relation role')
 
 def add_person_illustration_relation_role(request):
-	return add_simple_model(request,'PersonIllustrationRelationRole','persons',
-		'person - illustration relation role')
+	return add_simple_model(request,__name__,'PersonIllustrationRelationRole',
+		'persons','person - illustration relation role')
+		
 		
 
 # Create your views here.
