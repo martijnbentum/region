@@ -8,7 +8,7 @@ from django.urls import reverse
 from .models import Person, PersonLocationRelation, LocationRelation
 from .forms import PersonForm, PersonLocationRelationForm, LocationRelationForm
 from .forms import location_formset, text_formset, illustration_formset
-from .forms import publisher_formset
+from .forms import publisher_formset, PseudonymForm
 from .forms import PersonTextRelationRoleForm, PersonIllustrationRelationRoleForm
 from django.forms import inlineformset_factory
 import json
@@ -61,14 +61,10 @@ def add_person(request):
 			txt_formset = text_formset(request.POST, instance=person)
 			ill_formset = illustration_formset(request.POST, instance=person)
 			pub_formset = publisher_formset(request.POST, instance = person)
-			if loc_formset.is_valid():
-				loc_formset.save()
-			if txt_formset.is_valid():
-				txt_formset.save()
-			if ill_formset.is_valid():
-				ill_formset.save()
-			if pub_formset.is_valid():
-				pub_formset.save()
+			if loc_formset.is_valid(): loc_formset.save()
+			if txt_formset.is_valid(): txt_formset.save()
+			if ill_formset.is_valid(): ill_formset.save()
+			if pub_formset.is_valid(): pub_formset.save()
 			return HttpResponseRedirect(reverse('persons:edit_person', 
 				args=[person.pk]))
 	form = PersonForm()
@@ -97,7 +93,7 @@ def edit_person(request, person_id, navbar = 'default',navcontent=None):
 			person = form.save()
 			loc_formset = location_formset(request.POST,instance=person)
 			txt_formset = text_formset(request.POST,instance=person)
-			ill_formset = ill_formset(request.POST,instance=person)
+			ill_formset = illustration_formset(request.POST,instance=person)
 			pub_formset = publisher_formset(request.POST, instance = person)
 			if loc_formset.is_valid():
 				loc_formset.save()
@@ -134,6 +130,10 @@ def add_person_text_relation_role(request):
 def add_person_illustration_relation_role(request):
 	return add_simple_model(request,__name__,'PersonIllustrationRelationRole',
 		'persons','person - illustration relation role')
+
+def add_pseudonym(request):
+	return add_simple_model(request,__name__,'Pseudonym',
+		'persons','add pseudonym')
 		
 		
 

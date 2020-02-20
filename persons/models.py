@@ -6,8 +6,6 @@ from utilities.models import Language
 from utils.model_util import id_generator, info
 
 
-
-
 class Pseudonym(models.Model, info):
 	name = models.CharField(max_length=300, unique= True)
 

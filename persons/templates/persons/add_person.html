@@ -59,6 +59,10 @@ role="button">add person</a>
         <a href="#publisher" id='publishera' class="nav-link" 
 		data-toggle="tab">Publisher manager</a>
     </li>
+    <li class="nav-item">
+        <a href="#pseudonym" id='pseudonyma' class="nav-link" 
+		data-toggle="tab">pseudonym</a>
+    </li>
 </ul>
 
 <div class="tab-content">
@@ -156,6 +160,20 @@ role="button">add person</a>
 			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
 			</tr>
 		{% endfor %}
+	</table>
+    </div>
+    <div class="tab-pane fade" id="pseudonym">
+		<table class="table table-borderless">
+		<tr class ="d-flex">
+			<th class="col-10">Pseudonym(s)
+			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'persons:add_pseudonym' %}" 
+				role="button"><i class="fa fa-plus"></i></a>
+			</th>
+		</tr>
+		<tr class ="d-flex">
+			<td class="col-10">{{form.pseudonym}} {{form.pseudonym.errors}}</td>
+		</tr>
 	</table>
     </div>
 </div>

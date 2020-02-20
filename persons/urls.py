@@ -18,4 +18,6 @@ urlpatterns = [
 		name='add_person_illustration_relation_role'),
 	path('person/add_person_location_relation',views.add_person_location_relation,
 		name='add_person_location_relation'),
+	path('person/add_pseudonym',views.add_pseudonym,
+		name='add_pseudonym'),
 ]

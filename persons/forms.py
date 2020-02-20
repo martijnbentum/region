@@ -4,13 +4,21 @@ from django.template.loader import render_to_string
 from .models import Person, PersonLocationRelation, LocationRelation
 from .models import PersonTextRelation, PersonTextRelationRole 
 from .models import PersonIllustrationRelation, PersonIllustrationRelationRole
-from .models import PublisherManager
+from .models import PublisherManager, Pseudonym
 from catalogue.models import Text, Illustration, Publisher 
 from catalogue.widgets import TextWidget, PublisherWidget, IllustrationWidget
 from locations.models import UserLoc
 from locations.forms import LocationWidget, LocationsWidget
 from .widgets import PersonIllustrationRelationRoleWidget, LocationRelationWidget
-from .widgets import PersonTextRelationRoleWidget, PersonWidget
+from .widgets import PersonTextRelationRoleWidget, PersonWidget, PseudonymsWidget
+
+
+class PseudonymForm(ModelForm):
+	name= forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	class Meta:
+		model = Pseudonym
+		fields = ['name']
 
 
 class PersonTextRelationRoleForm(ModelForm):
@@ -114,7 +122,7 @@ class PersonLocationRelationForm(ModelForm):
 		widget=LocationWidget(attrs={'data-placeholder':'Select location...',
 			'style':'width:100%;','class':'searching'}))
 	relation = forms.ModelChoiceField(
-		queryset=PersonIllustrationRelationRole.objects.all(),
+		queryset=LocationRelation.objects.all(),
 		widget=LocationRelationWidget(
 			attrs={'data-placeholder':'e.g. travel',
 			'style':'width:100%;','class':'searching',
@@ -161,11 +169,18 @@ class PersonForm(ModelForm):
 	death_year= forms.IntegerField(widget=forms.NumberInput(
 		attrs={'style':'width:100%','placeholder':'year of death'}),
 		required = False)
+	pseudonym = forms.ModelMultipleChoiceField(
+		queryset=Pseudonym.objects.all().order_by('name'),
+		widget=PseudonymsWidget(attrs={'data-placeholder':'Select pseudonym(s)',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'1'}),
+		required = False
+		)
 
 	class Meta:
 		model = Person
 		m = 'first_name,last_name,sex,birth_year,death_year'
-		m +=',birth_place,death_place'
+		m +=',birth_place,death_place,pseudonym'
 		fields = m.split(',')
 
 def bound_form(request, id):
