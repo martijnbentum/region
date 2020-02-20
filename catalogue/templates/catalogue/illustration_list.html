@@ -1,0 +1,34 @@
+{% extends "catalogue/base.html" %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+{% if illustration_list %}
+
+{% block content %}
+
+<div class="d-flex">
+
+<table class="table table-hover">
+	<tr> 
+	<th>Caption</th>
+	<th>Category</th>
+	</tr>
+	{% for illustration in illustration_list %}
+	<tr onclick='window.location="{% url 'catalogue:edit_illustration' 
+		illustration.pk %}"'>
+		<td>{{illustration.caption}}</td>
+		<td>{{illustration.category}}</td>
+	</tr>
+	{% endfor %}
+</table>
+<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_illustration' %}"
+role="button">Add illustration</a>
+</div>
+
+{% endblock content %}
+
+{% else %}
+	<p>no publishers are available</p>
+{% endif %}

@@ -5,7 +5,7 @@ from django.utils import timezone
 import json
 from locations.models import UserLoc
 from persons.models import Person
-from utilities.models import Date, Language
+from utilities.models import Language
 from utils.model_util import id_generator, info
 			
 
@@ -82,26 +82,25 @@ class Fragment(models.Model):
 	pass
 
 
+class IllustrationCategory(models.Model):
+	name = models.CharField(max_length=200,unique=True)
+	notes = models.TextField(null=True,blank=True)
+	
+	def __str__(self):
+		return self.name
+
+
 class Illustration(models.Model, info):
 	'''a picture, should the picture itself be saveable?, illustration format?'''
 	caption =  models.CharField(max_length=300,null=True,blank=True)
+	category= models.ForeignKey(IllustrationCategory, on_delete=models.SET_NULL,
+		blank=True,null=True)
 	page_number = models.PositiveIntegerField(null=True,blank=True)
 	notes = models.TextField(null=True,blank=True)
-	illustration_format = '' # ... | ...
 	upload = models.ImageField(upload_to='illustrations/',null=True,blank=True)
 	
 	def __str__(self):
 		return self.caption
-
-class IllustrationCategory(models.Model):
-	'''could also be genre?'''
-	category = models.CharField(max_length=100)
-	description = models.TextField(null=True,blank=True)
-
-class IllustrationCategoryRelation(models.Model): # many to many
-	'''links a category to an illustration.'''
-	illustration = models.ForeignKey(Illustration, on_delete=models.CASCADE)
-	category = models.ForeignKey(IllustrationCategory, on_delete=models.CASCADE)
 
 
 class Periodical(models.Model, info):

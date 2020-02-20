@@ -1,7 +1,8 @@
 from django import forms
 from django.forms import ModelForm, inlineformset_factory
 from django.template.loader import render_to_string
-from .models import Genre, Text, Publisher, Publication,Type 
+from .models import Genre, Text, Publisher, Publication,Type, Illustration 
+from .models import IllustrationCategory
 from django_select2.forms import Select2Widget,ModelSelect2MultipleWidget,HeavySelect2Widget,ModelSelect2Widget
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
@@ -9,6 +10,7 @@ from utilities.models import Language
 from utilities.forms import LanguageWidget 
 from locations.forms import LocationWidget, LocationsWidget
 from .widgets import GenreWidget, TypeWidget, PublishersWidget 
+from .widgets import IllustrationCategoryWidget 
 
 
 
@@ -118,8 +120,38 @@ class PublisherForm(ModelForm):
 		fields = m.split(',')
 
 
+class IllustrationCategoryForm(ModelForm):
+	name = forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	notes = forms.CharField(widget=forms.Textarea(
+		attrs={'style':'width:100%','rows':3}),
+		required=False)
+
+	class Meta:
+		model = IllustrationCategory
+		fields = 'name,notes'.split(',')
 	
+
 class IllustrationForm(ModelForm):
-	pass
+	caption = forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	category = forms.ModelChoiceField(
+		queryset=IllustrationCategory.objects.all().order_by('name'),
+		widget=IllustrationCategoryWidget(
+			attrs={'data-placeholder':'Select category...',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}),
+		required = False
+		)
+	page_number= forms.IntegerField(widget=forms.NumberInput(
+		attrs={'style':'width:100%'}),
+		required=False)
+	notes = forms.CharField(widget=forms.Textarea(
+		attrs={'style':'width:100%','rows':3}),
+		required=False)
+
+	class Meta:
+		model = Illustration
+		fields = 'caption,category,page_number,notes,upload'.split(',')
 
 

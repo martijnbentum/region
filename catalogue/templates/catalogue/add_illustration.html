@@ -18,12 +18,12 @@
 <h4 class="mt-2">{{page_name}}</h4>
 
 {% if view != "inline" %}
-	{% if page_name == "Edit publication"%}
-	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publication' %}"
-	role="button">add Publication</a>
+	{% if page_name == "Edit Illustration"%}
+	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_illustration' %}"
+	role="button">add illustration</a>
 	{% endif %}
-	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:publication_list' %}" 
-	role="button">publication list</a>
+	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:illustration_list' %}" 
+	role="button">illustration list</a>
 {% endif %}
 </div>
 <hr class="mt-0 mb-4">
@@ -31,36 +31,28 @@
     {% csrf_token %}
 	<table class="table table-borderless" >
 	<tr class="d-flex">
-		<th class="col-2">Title</th>
-		<td class="col-8">{{form.title}}</td>
+		<th class="col-2">Caption</th>
+		<td class="col-8">{{form.caption}}</td>
 	</tr>
 	<tr class="d-flex">
-		<th class="col-2">Type</th>
-		<td class="col-8">{{form.form}}</td>
+		<th class="col-2">Category</th>
+		<td class="col-8">{{form.category}}</td>
 			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_type'%}" role="button">
-				 <i class="fa fa-plus"></i></a>
+				href ="{% url 'catalogue:add_illustration_category'%}"
+				role="button"><i class="fa fa-plus"></i></a>
 			</td>
 	</tr>
 	<tr class="d-flex">
-		<th class="col-2">Publisher</th>
-		<td class="col-8">{{form.publisher}}</td>
-			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_publisher' 'inline' %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-			</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Year</th>
-		<td class="col-8">{{form.year}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Location</th>
-		<td class="col-8">{{form.location}}</td>
+		<th class="col-2">Page</th>
+		<td class="col-8">{{form.page_number}}</td>
 	</tr>
 	<tr class="d-flex">
 		<th class="col-2">Upload</th>
 		<td class="col-8">{{form.upload}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Notes</th>
+		<td class="col-8">{{form.notes}}</td>
 	</tr>
 	</table>
     <button type="submit" value="Submit" class ="btn btn-success">Save</button>

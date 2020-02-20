@@ -1,17 +1,17 @@
 from django.apps import apps
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
-from .models import Publication, Publisher, Text
+from .models import Publication, Publisher, Text, Illustration
 from .forms import TextForm, PublicationForm, PublisherForm, TypeForm
-import json
+from .forms import IllustrationForm, IllustrationCategoryForm
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
-from utilities.models import Date
 from utils import view_util
-from django.contrib.auth.decorators import login_required
+from utilities.views import add_simple_model
 
 @login_required
 def _edit_model(request, instance_id, model_name):
@@ -36,6 +36,15 @@ def _edit_model(request, instance_id, model_name):
 def close(request):
 	return render(request,'catalogue/close.html')
 
+
+class IllustrationView(generic.ListView):
+	template_name = 'catalogue/illustration_list.html'
+	context_object_name = 'illustration_list'
+	# paginate_by = 10 # http://127.0.0.1:8000/catalogue/text/?page=2
+	extra_context={'page_name':'illustration'}
+
+	def get_queryset(self):
+		return Illustration.objects.order_by('caption')
 
 class TextView(generic.ListView):
 	template_name = 'catalogue/text_list.html'
@@ -78,21 +87,6 @@ def add_text(request, view = 'complete'):
 	return render(request, 'catalogue/add_text.html', var)
 
 
-def add_type(request, view='complete'):
-	print(view)
-	if request.method == 'POST':
-		form = TypeForm(request.POST)
-		if form.is_valid():
-			print('form is valid: ',form.cleaned_data,type(form))
-			form.save()
-			if view == 'complete':
-				return HttpResponseRedirect('/catalogue/type/')
-			return HttpResponseRedirect('/catalogue/close/')
-	form = TypeForm()
-	var = {'form':form,'page_name':'Add type','view':view}
-	return render(request, 'catalogue/add_type.html', var)
-	
-
 def add_publication(request, view='complete'):
 	# if this is a post request we need to process the form data
 	if request.method == 'POST':
@@ -110,7 +104,6 @@ def add_publication(request, view='complete'):
 
 def add_publisher(request,view='complete'):
 	# if this is a post request we need to process the form data
-	print(view)
 	if request.method == 'POST':
 		form = PublisherForm(request.POST)
 		if form.is_valid():
@@ -124,6 +117,29 @@ def add_publisher(request,view='complete'):
 	return render(request, 'catalogue/add_publisher.html', var)
 
 
+def add_illustration(request,view='complete'):
+	# if this is a post request we need to process the form data
+	if request.method == 'POST':
+		form = IllustrationForm(request.POST)
+		if form.is_valid():
+			print('form is valid: ',form.cleaned_data,type(form))
+			form.save()
+			if view == 'complete':
+				return HttpResponseRedirect('/catalogue/illustration/')
+			return HttpResponseRedirect('/catalogue/close/')
+	form = IllustrationForm()
+	var = {'form':form,'page_name':'Add Illustration','view':view}
+	return render(request, 'catalogue/add_illustration.html', var)
+
+
+def add_illustration_category(request):
+	return add_simple_model(request,__name__,'IllustrationCategory','catalogue',
+		'add illustration category')
+
+def add_type(request):
+	return add_simple_model(request,__name__,'Type','catalogue',
+		'add publication type')
+
 def edit_text(request, pk):
 	return _edit_model(request, pk, 'Text')
 
@@ -132,6 +148,9 @@ def edit_publisher(request, pk):
 
 def edit_publication(request, pk):
 	return _edit_model(request, pk, 'Publication')
+
+def edit_illustration(request, pk):
+	return _edit_model(request, pk, 'Illustration')
 
 
 
