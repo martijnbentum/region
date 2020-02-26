@@ -3,6 +3,7 @@ from django import db
 from locations.models import GeoLoc as Location
 from locations.models import GeoLoc, UserLoc, LocType
 from locations.models import GeoLocsRelation 
+import pandas as pd
 from utils.model_util import info
 
 class city_info(info):
@@ -90,6 +91,13 @@ class admin_info(info):
 		self.attribute_names = m.split(',')
 		for i,name in enumerate(self.attribute_names):
 			setattr(self,name,line[i])
+
+
+	def __repr__(self):
+		return self.name
+
+	def __str__(self):
+		return self.name
 
 
 class language_info(info):
@@ -266,6 +274,55 @@ def delete_all_geolocations():
 	_=[gl.delete() for gl in geolocs]
 	
 	
+def country2admins_dict(cities):
+	'''link all administrive regions to appropriate country.'''
+	o = {}
+	for city in cities:
+		if not city.country in o.keys(): o[city.country] = []
+		if city.admin1_name != 'NA': 
+			if city.admin1_name not in o[city.country]:
+				o[city.country].append(city.admin1_name)
+		if city.admin2_name != 'NA': 
+			if city.admin2_name not in o[city.country]:
+				o[city.country].append(city.admin2_name)
+	return o
+
+def admin2cities_dict(cities):
+	'''link all cities to appropriate administrive region.
+	WIP: does not take into account double admin names.
+	'''
+	o = {}
+	for city in cities:
+		if city.admin1_name != 'NA': 
+			if not city.admin1_name in o.keys(): o[city.admin1_name] = []
+			o[city.admin1_name].append(city.name)
+		if city.admin2_name != 'NA': 
+			if not city.admin2_name in o.keys(): o[city.admin2_name] = []
+			o[city.admin2_name].append(city.name)
+	return o
+		
+def check_region_present(filename = 'data/region_names.xlsx', cities = None):
+	'''check whether region in xlsx file is present in geonames data.'''
+	xls = pd.ExcelFile('data/region_names.xlsx')
+	countries = xls.sheet_names
+	if cities == None: cities = make_cities() 
+	country2admin = country2admins_dict(cities)
+	missing_countries = []
+	country2missing_region, country2present_region = {}, {}
+	for country in countries:
+		if country not in country2admin.keys(): 
+			missing_countries.append(country)
+			continue
+		admins = country2admin[country]
+		regions = [i[0] for i in xls.parse(country).values.tolist() if i]
+		print(country,admins,regions)
+		country2missing_region[country], country2present_region[country] = [] , []
+		for region in regions:
+			if region not in admins: country2missing_region[country].append(region)
+			else: country2present_region[country].append(region)
+	return missing_countries,country2missing_region,country2present_region
+		
+		
 
 '''
 city_info attribute name legend
