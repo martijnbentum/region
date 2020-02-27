@@ -1,7 +1,9 @@
 from catalogue.models import Genre, Text, Publisher, Publication
 from persons.models import Person
+import datetime
 from django.apps import apps
 from django.core import exceptions
+import math
 import pandas as pd
 from utils.loc_util import _save_locations as save_model
 from utils.loc_util import UserLoc
@@ -154,21 +156,46 @@ def make_pseudonym(filename= 'data/Person.xlsx', column_name = 'Pseudonym(s)'):
 	return make_simple_model(filename=filename,column_name=column_name,
 		model_name = 'Pseudonym',app_name='persons')
 
+def extract_names(s):
+	if type(s) == float: return []
+	return [x.strip() for x in s.split(';')]
+
+def extract_number(n):
+	if type(n) == int: return n
+	if type(n) == datetime.datetime: return n.year
+	if type(n) == float: return None
+	if '-' in n: n = n.split('-')[-1]
+	if '/' in n: n = n.split('/')[-1]
+	n = ''.join([x for x in n if x.isnumeric()])
+	try: return int(n)
+	except: return None
+
+def _ms(s):
+	if type(s) != str and math.isnan(s): return None
+	return str(s)
+
+def set_sex(sex):
+	if sex in ['F','M','O']: return sex
+	return 'U'
+
+
 def make_persons(filename_text = 'data/Person.xlsx'):
 	d = pd.read_excel(filename_text)
 	o = []
 	for line in d.values:
 		p_id,lname,fname,func,pseud,sex,dob,dod,pob,pod,res,trav,ac,notes = line
-		f = load_model_instance(func,'Function','persons')
-		p = load_model_instance(pseud,'Pseudonym','persons')
-		o= Person(first_name=fname,last_name=lname,sex=sex,
-		notes=notes) 
+		if type(lname) == type(fname) == float: continue
+		print([type(lname), type(fname),float])
+		print(type(lname) == type(fname) == float)
+		pseud = extract_names(pseud)
+		pseuds = [load_model_instance(x,'Pseudonym','persons') for x in pseud]
+		by, dy = extract_number(dob), extract_number(dod)
+		o= Person(first_name=_ms(fname),last_name=_ms(lname),
+			sex=set_sex(sex),birth_year=by, death_year=dy,notes= _ms(notes) )
 		s,a,e = save_model([o],'Persons',verbose=False)
 		if len(s) != 1: continue
-		if type(f) == list: [o.function.add(func) for func in f]
-		elif f != None: o.function.add(f)
-		if type(p) == list: [o.pseudonym.add(pseud) for pseud in p]
-		elif p != None: o.pseudonym.add(pseud)
+		[o.pseudonym.add(pseud) for pseud in pseuds]
+		o.save()
 	return o
 		
 
