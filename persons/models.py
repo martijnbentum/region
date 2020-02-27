@@ -12,19 +12,13 @@ class Pseudonym(models.Model, info):
 	def __str__(self):
 		return self.name
 
-class Function(models.Model, info): 
-	name = models.CharField(max_length=200, unique=True)
-	
-	def __str__(self):
-		return self.name
 
 class Person(models.Model, info):
 	'''A person with a specific role e.g. author, writer, etc.'''
-	first_name = models.CharField(max_length=200)
-	last_name = models.CharField(max_length=200)
-	SEX = [('F','female'),('M','male'),('O','other')]
+	first_name = models.CharField(max_length=200, null=True, blank=True)
+	last_name = models.CharField(max_length=200, null=True, blank=True)
+	SEX = [('F','female'),('M','male'),('O','other'),('U','unknown')]
 	sex = models.CharField(max_length=1,choices=SEX)
-	function= models.ManyToManyField(Function,blank=True)
 	pseudonym= models.ManyToManyField(Pseudonym,blank=True)
 	birth_year = models.PositiveIntegerField(null=True,blank=True)
 	death_year = models.PositiveIntegerField(null=True,blank=True)
@@ -36,7 +30,7 @@ class Person(models.Model, info):
 
 	@property
 	def name(self):
-		return self.first_name + ' ' + self.last_name
+		return str(self.first_name) + ' ' + str(self.last_name)
 	
 	def __str__(self):
 		return self.name
