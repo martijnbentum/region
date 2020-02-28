@@ -11,7 +11,8 @@ from .forms import IllustrationForm, IllustrationCategoryForm
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
 from utils import view_util
-from utilities.views import add_simple_model
+from utilities.views import add_simple_model, Crud
+
 
 @login_required
 def _edit_model(request, instance_id, model_name):
@@ -22,15 +23,19 @@ def _edit_model(request, instance_id, model_name):
 	model = apps.get_model('catalogue',model_name)
 	modelform = view_util.get_modelform(__name__,model_name+'Form')
 	instance= model.objects.get(pk=instance_id)
+	crud = Crud(instance)
 	if request.method == 'POST':
 		form = modelform(request.POST, instance=instance)
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
 			form.save()
+			return HttpResponseRedirect(reverse(
+				'catalogue:edit_'+model_name.lower(), 
+				args = [instance.pk]))
 			return HttpResponseRedirect(
 				reverse('catalogue:'+model_name.lower()+'_list'))
 	form = modelform(instance=instance)
-	args = {'form':form,'page_name':'Edit '+model_name.lower()}
+	args = {'form':form,'page_name':'Edit '+model_name.lower(),'crud':crud}
 	return render(request,'catalogue/add_' + model_name.lower() + '.html',args)
 
 def close(request):

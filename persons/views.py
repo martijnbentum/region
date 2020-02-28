@@ -14,7 +14,7 @@ from django.forms import inlineformset_factory
 import json
 from locations.models import UserLoc
 from utils import view_util
-from utilities.views import add_simple_model
+from utilities.views import add_simple_model, Crud
 
 
 def getnavs(request):
@@ -113,9 +113,11 @@ def edit_person(request, person_id, navbar = 'default',navcontent=None):
 	if pub_formset == None:pub_formset = publisher_formset(instance=person)
 	page_name = 'Edit Person'
 	navbar,navcontent = listify_navs(navbar,navcontent)
+	crud = Crud(person)
 	var = {'form':form,'loc_formset':loc_formset,'page_name':page_name,
 		'txt_formset':txt_formset,'ill_formset':ill_formset,
-		'navbar':navbar, 'navcontent':navcontent,'pub_formset':pub_formset}
+		'navbar':navbar, 'navcontent':navcontent,'pub_formset':pub_formset,
+		'crud':crud}
 	return render(request, 'persons/add_person.html',var)
 
 

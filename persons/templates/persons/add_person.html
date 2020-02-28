@@ -13,6 +13,7 @@ role="button">add person</a>
 <a class ="btn btn-link ml-auto" href="{% url 'persons:person_list' %}" role="button">person list</a>
 </div>
 
+
 <form name="myform" id="myform" method = "post" onsubmit="dosubmit();">
     {% csrf_token %}
 
@@ -32,6 +33,10 @@ role="button">add person</a>
 <div class="tab-content">
     <div class="tab-pane fade" id="edit">
 		<!-- person form is defined in a seperate template -->
+		{% if page_name == "Edit Person" and 'unknown' not in crud.last_update %}
+			{% include 'catalogue/change_log.html' %}
+			{% else %} <p class="mb-4"></p>
+		{% endif %}
 		{% include 'persons/_person_form.html' %}
     </div>
     <div class="tab-pane fade" id="minimize">

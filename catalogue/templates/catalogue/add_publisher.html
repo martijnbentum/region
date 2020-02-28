@@ -27,8 +27,13 @@
 {% endif %}
 </div>
 
+<hr class="mt-0 mb-o">
+{% if page_name == "Edit publisher" and 'unknown' not in crud.last_update %}
+	{% include 'catalogue/change_log.html' %}
+	{% else %} <p class="mb-4"></p>
+{% endif %}
 
-<hr class="mt-0 mb-4">
+
 <form method="post">
     {% csrf_token %}
 	<table class="table table-borderless" >

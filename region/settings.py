@@ -49,7 +49,7 @@ INSTALLED_APPS = [
 	'locations.apps.LocationsConfig',
 	'persons.apps.PersonsConfig',
 	'utilities.apps.UtilitiesConfig',
-	'crispy_forms',
+	'easyaudit',
 	'django_select2',
 ]
 
@@ -63,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
 ]
 
 ROOT_URLCONF = 'region.urls'

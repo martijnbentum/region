@@ -16,8 +16,7 @@
 	<th>Category</th>
 	</tr>
 	{% for illustration in illustration_list %}
-	<tr onclick='window.location="{% url 'catalogue:edit_illustration' 
-		illustration.pk %}"'>
+	<tr onclick='window.location="{% url 'catalogue:edit_illustration' illustration.pk %}"'>
 		<td>{{illustration.caption}}</td>
 		<td>{{illustration.category}}</td>
 	</tr>
