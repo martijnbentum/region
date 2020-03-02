@@ -73,8 +73,9 @@
 
 {{form.media.js}}
 
-
-<img class="mx-auto d-block" src="{{form.instance.upload.url}}" alt="{{form.instance.upload.url}}" > 
+{% if not form.instance.upload.url %}
+	<img class="mx-auto d-block" src="{{form.instance.upload.url}}" alt="{{form.instance.upload.url}}" > 
+{% endif %}
 
 {% endblock content %}
 
