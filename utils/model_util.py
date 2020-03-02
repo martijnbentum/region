@@ -23,6 +23,6 @@ class info():
 
 def id_generator(id_type= 'letters', length = 9):
 	if id_type == 'letters':
-		return ''.join(random.sample(string.ascii_letters*5,length))
+		return ''.join(random.sample(string.ascii_letters*length,length))
 	if id_type == 'numbers':
-		return int(''.join(random.sample('123456789'*5,length)))
+		return int(''.join(random.sample('123456789'*length,length)))
