@@ -4,6 +4,27 @@ from django.shortcuts import render
 from utils import view_util
 from easyaudit.models import CRUDEvent
 
+class Cruds:
+	def __init__(self,app_name,model_name):
+		self.app_name = app_name
+		self.model_name = model_name
+		self.model = apps.get_model(app_name,model_name)
+		self.instances = self.model.objects.all()
+		self.cruds = [Crud(i) for i in self.instances]
+		self.cruds.sort(reverse = True)
+
+	def __repr__(self):
+		return ' '.join([self.app_name,self.model_name,'n:',str(self.ninstances)])
+
+	@property
+	def ninstances(self):
+		return len(self.cruds)
+
+	@property
+	def last_update(self):
+		return self.cruds[0].last_update
+		
+
 class Crud:
 	def __init__(self,instance):
 		i = instance
@@ -16,6 +37,17 @@ class Crud:
 		events= CRUDEvent.objects.filter(
 			content_type__model=self.model_name,object_id=self.instance.pk)
 		self.events = [Event(e) for e in events]
+
+	def __lt__(self,other):
+		if len(self.events) == 0: return True
+		if len(other.events) == 0: return False
+		return self.events[0].epoch < other.events[0].epoch
+
+	def __repr__(self):
+		return self.__str__()
+
+	def __str__(self):
+		return ' // '.join([self.app_name,self.model_name, self.last_update])
 
 	@property
 	def contributers(self):
@@ -66,7 +98,6 @@ class Crud:
 			cf = 'created'
 		else:
 			cf = ' | '.join(self._make_change_fields_string(e))
-		print(cf,9, len(self.events))
 		return ' // '.join([e.time_str,e.username,cf])
 
 	@property

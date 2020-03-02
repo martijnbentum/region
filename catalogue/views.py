@@ -11,7 +11,7 @@ from .forms import IllustrationForm, IllustrationCategoryForm
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
 from utils import view_util
-from utilities.views import add_simple_model, Crud
+from utilities.views import add_simple_model, Crud, Cruds
 
 
 @login_required
@@ -46,7 +46,8 @@ class IllustrationView(generic.ListView):
 	template_name = 'catalogue/illustration_list.html'
 	context_object_name = 'illustration_list'
 	# paginate_by = 10 # http://127.0.0.1:8000/catalogue/text/?page=2
-	extra_context={'page_name':'illustration'}
+	cruds = Cruds('catalogue','Illustration')
+	extra_context={'page_name':'illustration','cruds':cruds}
 
 	def get_queryset(self):
 		return Illustration.objects.order_by('caption')
