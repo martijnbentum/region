@@ -72,9 +72,10 @@
 </form>
 
 {{form.media.js}}
+{{form.instance.upload}}
 
-{% if not form.instance.upload.url %}
-	<img class="mx-auto d-block" src="{{form.instance.upload.url}}" alt="{{form.instance.upload.url}}" > 
+{% if form.instance.upload %}
+	<img class="mx-auto d-block img-fluid" src="{{form.instance.upload.url}}" alt="{{form.instance.upload.url}}" > 
 {% endif %}
 
 {% endblock content %}
