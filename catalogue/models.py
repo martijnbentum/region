@@ -21,10 +21,8 @@ class Genre(models.Model, info):
 class Text(models.Model, info):
 	'''a text can be an entire book or article or a subsection thereof.'''
 	title = models.CharField(max_length=300)
-	text_id = models.IntegerField(default = id_generator('numbers',length=12),
-		unique = True)
+	text_id = models.IntegerField(default = id_generator('numbers',length=18))
 	setting = models.CharField(max_length=300,blank=True)
-		
 	language = models.ForeignKey(Language, on_delete=models.SET_NULL,
 		blank=True,null=True)
 	genre = models.ForeignKey(Genre, on_delete=models.SET_NULL,

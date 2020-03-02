@@ -12,7 +12,12 @@
 	<title>{{page_name}}</title>
 {% endblock %}
 
+
+
+
 {% block content %}
+
+
 
 <div class="col-md-12 d-flex">
 <h4 class="mt-2">{{page_name}}</h4>
@@ -31,7 +36,7 @@
 	{% include 'catalogue/change_log.html' %}
 	{% else %} <p class="mb-4"></p>
 {% endif %}
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
 	<table class="table table-borderless" >
 	<tr class="d-flex">
@@ -68,5 +73,9 @@
 
 {{form.media.js}}
 
+
+<img class="mx-auto d-block" src="{{form.instance.upload.url}}" alt="{{form.instance.upload.url}}" > 
+
 {% endblock content %}
+
 

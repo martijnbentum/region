@@ -9,18 +9,18 @@ href="#" onclick="show_edit_log();"><p class="text-secondary small text-center p
 	<table class="table table-borderless table-sm">
 	{% if crud.anychanges %}
 		<tr class="d-flex">
-			<th class="col-2"></td>
+			<!-- <th class="col-2"></td> -->
 			<th class="col-1">User</td>
 			<th class="col-2">Time</td>
 			<th class="col-2">Field</td>
-			<th class="col-2">Before</td>
-			<th class="col-2">Now</td>
+			<th class="col-4">Before</td>
+			<th class="col-4">Now</td>
 		</tr>
 	{% endif %}
 	{% for event in crud.updates %}
 		{% for change in event.changes %}
 		<tr class="d-flex">
-			<td class="col-2"></td>
+			<!-- <td class="col-2"></td> -->
 			{% if forloop.first %}
 				<td class="col-1">{{event.username}}</td>
 				<td class="col-2">{{event.time_str}}</td>
@@ -29,8 +29,8 @@ href="#" onclick="show_edit_log();"><p class="text-secondary small text-center p
 				<td class="col-2"></td>
 			{% endif %}
 			<td class="col-2">{{change.field}}</td>
-			<td class="col-2">{{change.old_state}}</td>
-			<td class="col-2">{{change.new_state}}</td>
+			<td class="col-4">{{change.old_state}}</td>
+			<td class="col-4">{{change.new_state}}</td>
 		</tr>
 	<!-- <p class="text-right">{{update}}</p> -->
 		{% endfor %}

@@ -25,7 +25,7 @@ def _edit_model(request, instance_id, model_name):
 	instance= model.objects.get(pk=instance_id)
 	crud = Crud(instance)
 	if request.method == 'POST':
-		form = modelform(request.POST, instance=instance)
+		form = modelform(request.POST, request.FILES, instance=instance)
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
 			form.save()
@@ -80,7 +80,8 @@ class PublisherView(generic.ListView):
 def add_text(request, view = 'complete'):
 	# if this is a post request we need to process the form data
 	if request.method == 'POST':
-		form = TextForm(request.POST)
+		print(request.FILES)
+		form = TextForm(request.POST, request.FILES)
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
 			form.save()
@@ -95,7 +96,7 @@ def add_text(request, view = 'complete'):
 def add_publication(request, view='complete'):
 	# if this is a post request we need to process the form data
 	if request.method == 'POST':
-		form = PublicationForm(request.POST)
+		form = PublicationForm(request.POST, request.FILES)
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
 			form.save()
@@ -125,7 +126,7 @@ def add_publisher(request,view='complete'):
 def add_illustration(request,view='complete'):
 	# if this is a post request we need to process the form data
 	if request.method == 'POST':
-		form = IllustrationForm(request.POST)
+		form = IllustrationForm(request.POST, request.FILES)
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
 			form.save()
