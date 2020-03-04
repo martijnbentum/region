@@ -33,6 +33,10 @@
 	{% else %} <p class="mb-4"></p>
 {% endif %}
 
+<!-- start example -->
+
+<!-- end -->
+
 <form method="post">
     {% csrf_token %}
 	<table class="table table-borderless" >
@@ -65,8 +69,12 @@
 		<td class="col-8">{{form.location}}</td>
 	</tr>
 	<tr class="d-flex">
-		<th class="col-2">Upload</th>
-		<td class="col-8">{{form.upload}}</td>
+		<th class="col-2">pdf</th>
+		<td class="col-8">{{form.pdf}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Cover</th>
+		<td class="col-8">{{form.cover}}</td>
 	</tr>
 	</table>
     <button type="submit" value="Submit" class ="btn btn-success">Save</button>

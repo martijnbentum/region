@@ -27,7 +27,7 @@ class Text(models.Model, info):
 		blank=True,null=True)
 	genre = models.ForeignKey(Genre, on_delete=models.SET_NULL,
 		blank=True,null=True)
-	upload = models.FileField(upload_to='texts/',blank=True,null=True) # ?
+	# upload = models.FileField(upload_to='texts/',blank=True,null=True) # ?
 	relations = models.ManyToManyField('self',
 		through='TextTextRelation',symmetrical=False, default=None)
 	notes = models.TextField(default='',blank=True, null=True)
@@ -95,7 +95,7 @@ class Illustration(models.Model, info):
 		blank=True,null=True)
 	page_number = models.PositiveIntegerField(null=True,blank=True)
 	notes = models.TextField(null=True,blank=True)
-	upload = models.ImageField(upload_to='illustrations/',null=True,blank=True)
+	upload= models.ImageField(upload_to='illustrations/',null=True,blank=True)
 	
 	def __str__(self):
 		return self.caption
@@ -165,7 +165,8 @@ class Publication(models.Model, info):
 	# ISBN
 	year = models.PositiveIntegerField(null=True,blank=True)
 	location = models.ManyToManyField(UserLoc,blank=True) 
-	upload = models.FileField(upload_to='publication/',null=True,blank=True) # ?
+	pdf = models.FileField(upload_to='publication/',null=True,blank=True) # ?
+	cover = models.ImageField(upload_to='publication/',null=True,blank=True)
 
 	def __str__(self):
 		return self.title # self.work.name
@@ -178,11 +179,14 @@ class TextPublicationRelation(models.Model): #many to many
 	'''Links a work with a publication.'''
 	text = models.ForeignKey(Text, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
+	start_page = models.PositiveIntegerField(null=True,blank=True)
+	end_page = models.PositiveIntegerField(null=True,blank=True)
 
 class IllustrationPublicationRelation(models.Model): #many to many
 	'''Links a work with a publication.'''
 	illustration = models.ForeignKey(Illustration, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
+	page = models.PositiveIntegerField(null=True,blank=True)
 
 
 

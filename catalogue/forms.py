@@ -54,7 +54,7 @@ class TextForm(ModelForm):
 
 	class Meta:
 		model = Text
-		m = 'title,setting,language,genre,upload,notes'
+		m = 'title,setting,language,genre,notes'
 		fields = m.split(',')
 
 
@@ -91,7 +91,7 @@ class PublicationForm(ModelForm):
 		
 	class Meta:
 		model = Publication
-		m = 'title,form,publisher,year,location,notes,upload'
+		m = 'title,form,publisher,year,location,notes,pdf,cover'
 		fields = m.split(',')
 
 
