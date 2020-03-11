@@ -18,20 +18,10 @@ role="button">add person</a>
     {% csrf_token %}
 
 <!-- adding or editing a person -->
-<ul class="nav nav-tabs">
-    <li class="nav-item">
-        <a href="#edit" id='edita' class="nav-link" data-toggle="tab">
-		<i class="fa fa-pencil"></i></a>
-		
-    </li>
-    <li class="nav-item">
-        <a href="#minimize" id='minimizea' class="nav-link" data-toggle="tab">
-		<i class="fa fa-power-off"></i></a>
-    </li>
-</ul>
+{% include 'utilities/edit_minimize_tab.html' %}
 
 <div class="tab-content">
-    <div class="tab-pane fade" id="edit">
+    <div class="tab-pane fade" id="Edit">
 		<!-- person form is defined in a seperate template -->
 		{% if page_name == "Edit Person" and 'unknown' not in crud.last_update %}
 			{% include 'catalogue/change_log.html' %}
@@ -39,7 +29,7 @@ role="button">add person</a>
 		{% endif %}
 		{% include 'persons/_person_form.html' %}
     </div>
-    <div class="tab-pane fade" id="minimize">
+    <div class="tab-pane fade" id="Minimize">
 		<!-- you can minimize the person form -->
 		<br>
         <h5>{{form.instance.first_name}} {{form.instance.last_name}}</h5>
@@ -48,30 +38,10 @@ role="button">add person</a>
 <hr>
 
 <!-- Inline formsets to linking persons to other items -->
-<ul class="nav nav-tabs">
-    <li class="nav-item">
-        <a href="#location" id='locationa' class="nav-link" data-toggle="tab">
-		Locations</a>
-    </li>
-    <li class="nav-item">
-        <a href="#text" id='texta' class="nav-link" data-toggle="tab">Texts</a>
-    </li>
-    <li class="nav-item">
-        <a href="#illustration" id='illustrationa' class="nav-link" 
-		data-toggle="tab">Illustration</a>
-    </li>
-    <li class="nav-item">
-        <a href="#publisher" id='publishera' class="nav-link" 
-		data-toggle="tab">Publisher manager</a>
-    </li>
-    <li class="nav-item">
-        <a href="#pseudonym" id='pseudonyma' class="nav-link" 
-		data-toggle="tab">pseudonym</a>
-    </li>
-</ul>
+{% include 'utilities/relation_tabs.html' %}
 
 <div class="tab-content">
-    <div class="tab-pane fade" id="location">
+    <div class="tab-pane fade" id="Locations">
 
 	{{loc_formset.management_form}}
 	<table class="table table-borderless">
@@ -96,9 +66,9 @@ role="button">add person</a>
 		</tr>
 	{% endfor %}
 	</table>
+	</div>
 
-    </div>
-    <div class="tab-pane fade" id="text">
+	<div class="tab-pane fade" id="Texts">
 		{{txt_formset.management_form}}
 		<table class="table table-borderless">
 		<tr class ="d-flex">
@@ -122,8 +92,9 @@ role="button">add person</a>
 			</tr>
 		{% endfor %}
 		</table>
-    </div>
-    <div class="tab-pane fade" id="illustration">
+	</div>
+
+	<div class="tab-pane fade" id="Illustrations">
 		{{ill_formset.management_form}}
 		<table class="table table-borderless">
 		<tr class ="d-flex">
@@ -147,8 +118,9 @@ role="button">add person</a>
 			</tr>
 		{% endfor %}
 	</table>
-    </div>
-    <div class="tab-pane fade" id="publisher">
+	</div>
+
+	<div class="tab-pane fade" id="Publisher-Manager">
 		{{pub_formset.management_form}}
 		<table class="table table-borderless">
 		<tr class ="d-flex">
@@ -166,8 +138,9 @@ role="button">add person</a>
 			</tr>
 		{% endfor %}
 	</table>
-    </div>
-    <div class="tab-pane fade" id="pseudonym">
+	</div>
+
+	<div class="tab-pane fade" id="Pseudonym">
 		<table class="table table-borderless">
 		<tr class ="d-flex">
 			<th class="col-10">Pseudonym(s)
@@ -180,57 +153,20 @@ role="button">add person</a>
 			<td class="col-10">{{form.pseudonym}} {{form.pseudonym.errors}}</td>
 		</tr>
 	</table>
-    </div>
+	</div>
+
 </div>
 <hr> 
 <input type="hidden" name="navbar" id="navbar" value="" />
 <input type="hidden" name="navcontent" id="navcontent" value="" />
+<input type="hidden" name="focus" id="focus" value="" />
 <input type="submit" value="Save" class="btn btn-success">
 </form>
 
 {{form.media.js}}
 
-<script>
-function set_active(){
-	{% if navbar == 'default' %}
-	document.getElementById('edita').className="nav-link active";
-	document.getElementById('edit').className="tab-pane fade show active";
-	document.getElementById('locationa').className="nav-link active";
-	document.getElementById('location').className="tab-pane fade show active";
-	{% else %}
-	{% for nt in navbar %}
-		document.getElementById('{{nt}}').className="nav-link active";
-	{% endfor %}
 
-	{% for nc in navcontent %}
-		document.getElementById('{{nc}}').className="tab-pane fade show active";
-	{% endfor %}
-	{% endif %}
-};
-
-function get_tab_state(){
-	var tab = get_ids("nav-link active")
-	var content = get_ids("show active")
-}
-
-function get_ids(classname){
-	var x = document.getElementsByClassName(classname);
-	var i, arr = [];
-	for (i=0; i < x.length; i++) {
-	arr.push(x[i].id);
-	}
-	return arr;
-}
-
-function dosubmit(){
-	document.getElementById('navbar').value = get_ids("nav-link active");
-	document.getElementById('navcontent').value = get_ids("show active");
-	return true;
-}
-
-
-$(document).ready(function(){set_active();});
-</script>
+{% include 'utilities/tab_selector.html' %}
 
 {% endblock content %}
 
