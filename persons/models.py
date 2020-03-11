@@ -113,7 +113,7 @@ class PersonLocationRelation(models.Model,info):
 
 	@property
 	def relation_name(self):
-		return dict(self.RELATION)[self.relation]
+		return 'search in foreignkey work in progress'
 
 	def __str__(self):
 		r = self.relation_name
