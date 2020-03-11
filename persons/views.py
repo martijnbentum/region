@@ -14,26 +14,8 @@ from django.forms import inlineformset_factory
 import json
 from locations.models import UserLoc
 from utils import view_util
-from utilities.views import add_simple_model, Crud
-
-
-def getnavs(request):
-	'''navs are variables to set the active tabs on a page.
-	navbar is the tab link
-	navcontent is the content link
-	'''
-	navbar, navcontent = 'default', None
-	if 'navbar' in request.POST.keys():
-		navbar = request.POST['navbar']
-	if 'navcontent' in request.POST.keys():
-		navcontent= request.POST['navcontent']
-	return navbar,navcontent
-
-def listify_navs(navbar,navcontent):
-	'''nav variables are csv in the url, need to transform them in a list.'''
-	if ',' in navbar: navbar = navbar.split(',')
-	if navcontent !=None: navcontent = navcontent.split(',')
-	return navbar,navcontent
+from utils.view_util import Crud, make_tabs
+from utilities.views import add_simple_model, getfocus
 	
 
 class PersonView(generic.ListView):
@@ -50,74 +32,50 @@ def person_detail(request, person_id):
 	return render(request,'persons/person_detail.html',var)
 
 
-def add_person(request):
-	'''create a person instance with person location relation 
-	'''
-	if request.method == 'POST':
-		form = PersonForm(request.POST)
-		if form.is_valid():
-			person = form.save()
-			loc_formset = location_formset(request.POST, instance=person)
-			txt_formset = text_formset(request.POST, instance=person)
-			ill_formset = illustration_formset(request.POST, instance=person)
-			pub_formset = publisher_formset(request.POST, instance = person)
-			if loc_formset.is_valid(): loc_formset.save()
-			if txt_formset.is_valid(): txt_formset.save()
-			if ill_formset.is_valid(): ill_formset.save()
-			if pub_formset.is_valid(): pub_formset.save()
-			return HttpResponseRedirect(reverse('persons:edit_person', 
-				args=[person.pk]))
-	form = PersonForm()
-	loc_formset = location_formset()
-	txt_formset = text_formset()
-	ill_formset = illustration_formset()
-	pub_formset = publisher_formset()
-	page_name = 'Add Person'
-	var = {'form':form,'loc_formset':loc_formset,'page_name':page_name,
-		'txt_formset':txt_formset,'ill_formset':ill_formset,'navbar':'default',
-		'pub_formset':pub_formset}
-	return render(request, 'persons/add_person.html', var)
-
-
-def edit_person(request, person_id, navbar = 'default',navcontent=None):
-	'''edit person instance and person location relation
+def edit_person(request, person_id = None, focus = ''):
+	'''add or edit a person instance and person location relation
 	navbar and navcontent set the active tab (last used one)
 	'''
 	form, loc_formset, txt_formset, ill_formset = None, None, None, None
 	pub_formset = None
-	person = Person.objects.get(pk=person_id)
+	if person_id: person = Person.objects.get(pk=person_id)
 	if request.method == 'POST':
-		navbar, navcontent = getnavs(request)
-		form = PersonForm(request.POST,instance=person)
+		focus = getfocus(request)
+		if person_id: form = PersonForm(request.POST,instance=person)
+		else: form = PersonForm(request.POST)
 		if form.is_valid(): 
 			person = form.save()
 			loc_formset = location_formset(request.POST,instance=person)
 			txt_formset = text_formset(request.POST,instance=person)
 			ill_formset = illustration_formset(request.POST,instance=person)
 			pub_formset = publisher_formset(request.POST, instance = person)
-			if loc_formset.is_valid():
-				loc_formset.save()
-			if txt_formset.is_valid():
-				txt_formset.save()
-			if ill_formset.is_valid():
-				ill_formset.save()
-			if pub_formset.is_valid():
-				pub_formset.save()
+			if loc_formset.is_valid(): loc_formset.save()
+			if txt_formset.is_valid(): txt_formset.save()
+			if ill_formset.is_valid(): ill_formset.save()
+			if pub_formset.is_valid(): pub_formset.save()
 			return HttpResponseRedirect(reverse('persons:edit_person', 
-				args = [person.pk, navbar, navcontent]))
+				args = [person.pk, focus]))
 		else:  print('form invalid', form.errors)
-	if loc_formset ==None:loc_formset = location_formset(instance=person)
-	if form == None: form = PersonForm(instance=person)
-	if txt_formset == None:txt_formset = text_formset(instance=person)
-	if ill_formset == None:ill_formset = illustration_formset(instance=person)
-	if pub_formset == None:pub_formset = publisher_formset(instance=person)
-	page_name = 'Edit Person'
-	navbar,navcontent = listify_navs(navbar,navcontent)
-	crud = Crud(person)
+	if person_id == None:
+		form = PersonForm()
+		loc_formset = location_formset()
+		txt_formset = text_formset()
+		ill_formset = illustration_formset()
+		pub_formset = publisher_formset()
+	else:
+		if loc_formset ==None:loc_formset = location_formset(instance=person)
+		if form == None: form = PersonForm(instance=person)
+		if txt_formset == None:txt_formset = text_formset(instance=person)
+		if ill_formset == None:
+			ill_formset = illustration_formset(instance=person)
+		if pub_formset == None:pub_formset = publisher_formset(instance=person)
+	page_name = 'Edit Person' if person_id else 'Add Person'
+	tabs = make_tabs('person',focus_names = focus)
+	if person_id: crud = Crud(person)
+	else: crud = None
 	var = {'form':form,'loc_formset':loc_formset,'page_name':page_name,
 		'txt_formset':txt_formset,'ill_formset':ill_formset,
-		'navbar':navbar, 'navcontent':navcontent,'pub_formset':pub_formset,
-		'crud':crud}
+		'tabs':tabs,'pub_formset':pub_formset,'crud':crud}
 	return render(request, 'persons/add_person.html',var)
 
 
