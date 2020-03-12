@@ -1,0 +1,52 @@
+
+<a class= role="button" 
+href="#" onclick="show_edit_log();"><p class="text-secondary small text-center pt-0">last edit: {{crud.last_update}}</p></a>
+
+<div id="edit_log" style="display:none" onclick="show_edit_log();">
+	<div align="center">
+	<h5 class="text-warning">Change Log </h5>
+	<p class="text-secondary small">created by {{crud.created}}</p>
+	<table class="table table-borderless table-sm">
+	{% if crud.anychanges %}
+		<tr class="d-flex">
+			<!-- <th class="col-2"></td> -->
+			<th class="col-1">User</td>
+			<th class="col-2">Time</td>
+			<th class="col-2">Field</td>
+			<th class="col-4">Before</td>
+			<th class="col-4">Now</td>
+		</tr>
+	{% endif %}
+	{% for event in crud.updates %}
+		{% for change in event.changes %}
+		<tr class="d-flex">
+			<!-- <td class="col-2"></td> -->
+			{% if forloop.first %}
+				<td class="col-1">{{event.username}}</td>
+				<td class="col-2">{{event.time_str}}</td>
+			{% else %}
+				<td class="col-1"></td>
+				<td class="col-2"></td>
+			{% endif %}
+			<td class="col-2">{{change.field}}</td>
+			<td class="col-4">{{change.old_state}}</td>
+			<td class="col-4">{{change.new_state}}</td>
+		</tr>
+	<!-- <p class="text-right">{{update}}</p> -->
+		{% endfor %}
+	{% endfor %}
+	</table>
+	<hr class="mt-0 mb-0">
+	</div>
+</div>
+
+<script>
+function show_edit_log(){
+  var x = document.getElementById("edit_log");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+</script>

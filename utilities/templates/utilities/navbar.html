@@ -1,0 +1,78 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href={% url 'catalogue:text_list' %}>Region</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          View
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href=
+			"{% url 'catalogue:text_list' %}">text</a>
+          <a class="dropdown-item" href=
+			"{% url 'catalogue:publication_list' %}">publication</a>
+          <a class="dropdown-item" href=
+			"{% url 'catalogue:publisher_list' %}">publisher</a>
+          <a class="dropdown-item" href=
+			"{% url 'catalogue:illustration_list' %}">illustration</a>
+          <a class="dropdown-item" href=
+			"{% url 'persons:person_list' %}">person</a>
+          <a class="dropdown-item" href=
+			"{% url 'locations:location_list' %}">location</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href=
+			"{% url 'locations:add_userloc' 'europe' %}">map</a>
+        </div>
+      </li>
+
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Add
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href=
+			"{% url 'catalogue:add_text' %}">text</a>
+          <a class="dropdown-item" href=
+			"{% url 'catalogue:add_publication' %}">publication</a>
+          <a class="dropdown-item" href=
+			"{% url 'catalogue:add_publisher' %}">publisher</a>
+          <a class="dropdown-item" href=
+			"{% url 'catalogue:add_illustration' %}">illustration</a>
+          <a class="dropdown-item" href=
+			"{% url 'persons:add_person' %}">person</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+      </li>
+
+
+      <li class="nav-item">
+        <a class="nav-link disabled" href="#"></a>
+      </li>
+    </ul>
+
+	<ul class = "navbar-nav mr-auto">
+		<li class ="nav-item">
+		  {% if user.username == '' %}
+			<a class="nav-link" href="{% url 'login' %}">
+			login<span class="sr-only">(current)</span></a>
+		  {% else %}
+			<a class="nav-link" href="{% url 'logout' %}">
+			{{user.username}}<span class="sr-only">(current)</span></a>
+		  {% endif %}
+		</li>
+	</ul>
+
+    <form class="form-inline my-2 my-lg-0">
+      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+
+  </div>
+</nav>
+

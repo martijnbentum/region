@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang='en'>
+    <head>
+        <meta charset="utf-8">
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+        <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <!-- Popper JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <!-- Latest compiled JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+	{% block head %}
+	{% endblock %}
+    </head>
+    <body>
+    {% block navbar %}
+        {% include 'utilities/navbar.html' %}
+    {% endblock %}
+    <br>
+	<div class='row'><div class='col-1'></div><div class='col-10'>
+    {% block login %}
+    {% endblock %}
+	</div></div>
+
+	{% if user.username == '' %}
+	{% else %}
+		<div class="row">
+		<div class="col-1">
+			{% block left %}
+			{% endblock %}
+		</div>
+
+		<div class="col-10">
+			{% block content %}
+			{% endblock %}
+		</div>
+
+		<div class="col-1">
+			{% block right %}
+			{% endblock %}
+		</div>
+		</div>
+
+		</body>
+		{% block afterbody%}
+		{% endblock %}
+	
+	{% endif %}
+    <footer>
+        <!-- <p>made by: humanities lab, radboud university</p> -->
+    </footer>
+</html>

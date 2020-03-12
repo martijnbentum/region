@@ -1,0 +1,36 @@
+<script>
+function set_active(){
+	{% for name in tabs.focus %}
+		console.log(document.getElementById('{{name}}a'))
+		console.log(document.getElementById('{{name}}'))
+		if (document.getElementById('{{name}}a') !== null) {
+		document.getElementById('{{name}}a').className="nav-link active"; }
+		if (document.getElementById('{{name}}') !== null) {
+		document.getElementById('{{name}}').className="tab-pane fade show active"; }
+	{% endfor %}
+};
+
+function get_tab_state(){
+	var tab = get_ids("nav-link active")
+	var content = get_ids("show active")
+}
+
+function get_ids(classname){
+	var x = document.getElementsByClassName(classname);
+	var i, arr = [];
+	for (i=0; i < x.length; i++) {
+	arr.push(x[i].id);
+	}
+	return arr;
+}
+
+function dosubmit(){
+	document.getElementById('navbar').value = get_ids("nav-link active");
+	document.getElementById('navcontent').value = get_ids("show active");
+	document.getElementById('focus').value = get_ids("tab-pane fade show active");
+	return true;
+}
+
+
+$(document).ready(function(){set_active();});
+</script>

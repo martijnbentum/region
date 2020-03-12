@@ -1,0 +1,37 @@
+{% extends "utilities/base.html" %}
+
+{% block navbar%}
+{% endblock %}
+
+{% block head %}
+	{{form.media.css}}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+{% block content %}
+<div class="col-md-12 d-flex">
+<h4 class="mt-2">{{page_name}}</h4>
+</div>
+<hr class="mt-0 mb-4">
+<form method="post">
+    {% csrf_token %}
+	<table class="table table-borderless" >
+	<tr class="d-flex">
+		<th class="col-2">name</th>
+		<td class="col-8">{{form.name}}</td>
+	</tr>
+	</table>
+    <button type="submit" value="Submit" class ="btn btn-success">Save</button>
+		<a type="reset" value="Cancel" class ="btn btn-light"
+		href="{% url 'utilities:close' %}">Cancel</a>
+</form>
+<br>
+<br>
+<h5 class="text-secondary">Current set</h4> 
+<hr class="mt-0 mb-4">
+{% for instance in instances %}
+	<p class="text-secondary">{{instance.name}}</p>
+{% endfor %}
+
+{{form.media.js}}
+{% endblock content %}
