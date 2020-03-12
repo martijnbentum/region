@@ -26,6 +26,7 @@ urlpatterns = [
 	path('catalogue/',include('catalogue.urls')),
 	path('locations/',include('locations.urls')),
 	path('persons/',include('persons.urls')),
+	path('utilities/',include('utilities.urls')),
 	re_path(r'^select2/', include('django_select2.urls')),
 	path('', include('catalogue.urls')),
 	]
