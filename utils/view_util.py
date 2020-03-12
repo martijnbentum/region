@@ -33,6 +33,41 @@ def _wip_edit_model(request, instance_id, app_name, model_name):
 	return render(request,app_name+'/add_' + model_name.lower() + '.html',args)
 
 
+class FormsetFactoryManager:
+	'''object that hold formset factories and corresponding names.
+	use case: and add/edit view uses many formsets these can be created
+	with this class by providing a list of names of the formset factory functions
+	the formsets are stored in formset variable and the dict variable contains
+	a name / formset to update the var variable provided for the template
+	(names can be used in the template to acces the formsets)
+	'''
+	def __init__(self,name_space,names,request=None,instance=None):
+		'''
+		names_sp 	__name__
+		names 		csv or list of names, should correspond to formset factories 
+					imported in the module calling this class
+		request 	django request variable
+		instance 	instance of model that is updated
+		'''	
+		self.names = names.split(',') if type(names) == str else names
+		self.formset_factories = [get_modelform(name_space,name)
+			 for name in self.names if name != '']
+		if request == None:
+			self.formsets = [ff(instance=instance) for ff in self.formset_factories]
+		else:
+			self.formsets = [ff(request.POST, request.FILES,instance=instance) 
+				for ff in self.formset_factories]
+		self.dict = dict([[name,fs] for name,fs in zip(self.names,self.formsets)])
+
+	def __repr__(self):
+		return ' '.join(self.names)
+		
+	def save(self):
+		self.valid = True
+		for formset in self.formsets:
+			if formset.is_valid(): formset.save()
+			else: self.valid = false
+		return self.valid
 
 
 class Cruds:
@@ -222,9 +257,17 @@ class Tabs:
 
 
 def make_tabs(tab_type,focus=0,focus_names = ''):
-	minimize = Tab('Edit,minimize',focus)
+	minimize = Tab('Edit,Minimize',focus)
 	if tab_type == 'person':
 		t = 'Locations,Texts,Illustrations,Publisher-Manager,Pseudonym'
+		relations = Tab(t,focus)
+		return Tabs([minimize,relations],'minimize,relations',focus_names)
+	if tab_type == 'publication':
+		t = 'Texts,Illustrations'
+		relations = Tab(t,focus)
+		return Tabs([minimize,relations],'minimize,relations',focus_names)
+	if tab_type == 'text':
+		t = 'Texts,A'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 		

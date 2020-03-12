@@ -14,7 +14,7 @@ from django.forms import inlineformset_factory
 import json
 from locations.models import UserLoc
 from utils import view_util
-from utils.view_util import Crud, make_tabs
+from utils.view_util import Crud, make_tabs, get_modelform, FormsetFactoryManager
 from utilities.views import add_simple_model, getfocus
 	
 
@@ -25,6 +25,10 @@ class PersonView(generic.ListView):
 	def get_queryset(self):
 		return Person.objects.order_by('last_name')
 
+def make_ffm(names):
+	print(names,type(names))
+	return FormsetFactoryManager(__name__,names)
+	
 
 def person_detail(request, person_id):
 	p = Person.objects.get(pk=person_id)
@@ -36,46 +40,27 @@ def edit_person(request, person_id = None, focus = ''):
 	'''add or edit a person instance and person location relation
 	navbar and navcontent set the active tab (last used one)
 	'''
-	form, loc_formset, txt_formset, ill_formset = None, None, None, None
-	pub_formset = None
-	if person_id: person = Person.objects.get(pk=person_id)
+	names='location_formset,text_formset,illustration_formset,publisher_formset'
+	person = Person.objects.get(pk=person_id) if person_id else None
+	ffm, form = None, None
 	if request.method == 'POST':
 		focus = getfocus(request)
-		if person_id: form = PersonForm(request.POST,instance=person)
-		else: form = PersonForm(request.POST)
+		form = PersonForm(request.POST,instance=person)
 		if form.is_valid(): 
 			person = form.save()
-			loc_formset = location_formset(request.POST,instance=person)
-			txt_formset = text_formset(request.POST,instance=person)
-			ill_formset = illustration_formset(request.POST,instance=person)
-			pub_formset = publisher_formset(request.POST, instance = person)
-			if loc_formset.is_valid(): loc_formset.save()
-			if txt_formset.is_valid(): txt_formset.save()
-			if ill_formset.is_valid(): ill_formset.save()
-			if pub_formset.is_valid(): pub_formset.save()
-			return HttpResponseRedirect(reverse('persons:edit_person', 
-				args = [person.pk, focus]))
+			ffm = FormsetFactoryManager(__name__,names,request,person)
+			valid = ffm.save()
+			if valid: 
+				return HttpResponseRedirect(reverse('persons:edit_person', 
+					args = [person.pk, focus]))
 		else:  print('form invalid', form.errors)
-	if person_id == None:
-		form = PersonForm()
-		loc_formset = location_formset()
-		txt_formset = text_formset()
-		ill_formset = illustration_formset()
-		pub_formset = publisher_formset()
-	else:
-		if loc_formset ==None:loc_formset = location_formset(instance=person)
-		if form == None: form = PersonForm(instance=person)
-		if txt_formset == None:txt_formset = text_formset(instance=person)
-		if ill_formset == None:
-			ill_formset = illustration_formset(instance=person)
-		if pub_formset == None:pub_formset = publisher_formset(instance=person)
+	if not form: form = PersonForm(instance=person)
+	if not ffm: ffm = FormsetFactoryManager(__name__,names,instance=person)
 	page_name = 'Edit Person' if person_id else 'Add Person'
 	tabs = make_tabs('person',focus_names = focus)
-	if person_id: crud = Crud(person)
-	else: crud = None
-	var = {'form':form,'loc_formset':loc_formset,'page_name':page_name,
-		'txt_formset':txt_formset,'ill_formset':ill_formset,
-		'tabs':tabs,'pub_formset':pub_formset,'crud':crud}
+	crud = Crud(person) if person_id else None
+	var = {'form':form,'page_name':page_name, 'tabs':tabs,'crud':crud}
+	var.update(ffm.dict)
 	return render(request, 'persons/add_person.html',var)
 
 
