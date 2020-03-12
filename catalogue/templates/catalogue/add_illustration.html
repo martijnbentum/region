@@ -1,9 +1,9 @@
-{% extends "catalogue/base.html" %}
+{% extends "utilities/base.html" %}
 
 {% block navbar%}
 	{% if view == "inline" %}
 	{% else %}
-        {% include 'catalogue/navbar.html' %}
+        {% include 'utilities/navbar.html' %}
 	{% endif %}
 {% endblock %}
 
@@ -33,7 +33,7 @@
 </div>
 <hr class="mt-0 mb-0">
 {% if page_name == "Edit illustration" and 'unknown' not in crud.last_update %}
-	{% include 'catalogue/change_log.html' %}
+	{% include 'utilities/change_log.html' %}
 	{% else %} <p class="mb-4"></p>
 {% endif %}
 <form method="post" enctype="multipart/form-data">
@@ -67,7 +67,7 @@
     <button type="submit" value="Submit" class ="btn btn-success">Save</button>
 	{% if view == "inline" %}
 		<a type="reset" value="Cancel" class ="btn btn-light"
-		href="{% url 'catalogue:close' %}">Cancel</a>
+		href="{% url 'utilities:close' %}">Cancel</a>
 	{% endif %}
 </form>
 

@@ -1,0 +1,38 @@
+	<table class="table table-borderless" >
+	<tr class="d-flex">
+		<th class="col-2">Title</th>
+		<td class="col-8">{{form.title}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Type</th>
+		<td class="col-8">{{form.form}}</td>
+			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_publication_type'%}" role="button">
+				 <i class="fa fa-plus"></i></a>
+			</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Publisher</th>
+		<td class="col-8">{{form.publisher}}</td>
+			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_publisher' 'inline' %}" role="button">
+				 <i class="fa fa-plus"></i></a>
+			</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Year</th>
+		<td class="col-8">{{form.year}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Location</th>
+		<td class="col-8">{{form.location}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">pdf</th>
+		<td class="col-8">{{form.pdf}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Cover</th>
+		<td class="col-8">{{form.cover}}</td>
+	</tr>
+	</table>

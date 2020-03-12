@@ -1,20 +1,79 @@
 from django import forms
 from django.forms import ModelForm, inlineformset_factory
 from django.template.loader import render_to_string
-from .models import Genre, Text, Publisher, Publication,Type, Illustration 
-from .models import IllustrationCategory
-from django_select2.forms import Select2Widget,ModelSelect2MultipleWidget,HeavySelect2Widget,ModelSelect2Widget
+from .models import Genre, Text, Publisher, Publication, Illustration 
+from .models import IllustrationCategory, IllustrationPublicationRelation
+from .models import TextPublicationRelation, TextTextRelation,PublicationType
+from .models import TextTextRelationType 
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
 from utilities.models import Language 
 from utilities.forms import LanguageWidget 
 from locations.forms import LocationWidget, LocationsWidget
-from .widgets import GenreWidget, TypeWidget, PublishersWidget 
-from .widgets import IllustrationCategoryWidget 
+from .widgets import GenreWidget, PublicationTypeWidget, PublishersWidget 
+from .widgets import IllustrationCategoryWidget,IllustrationWidget,TextWidget
+from .widgets import TextTextRelationTypeWidget
 
 
 
-class TypeForm(ModelForm):
+class IllustrationPublicationRelationForm(ModelForm):
+	'''Form to add a person location relation'''
+	illustration = forms.ModelChoiceField(
+		queryset=Illustration.objects.all(),
+		widget=IllustrationWidget(
+			attrs={'data-placeholder':'Select illustration by title...',
+			'style':'width:100%;','class':'searching'}))
+
+	class Meta:
+		model = IllustrationPublicationRelation
+		fields = 'illustration,page'
+		fields = fields.split(',')
+
+illustration_formset = inlineformset_factory(
+	Publication,IllustrationPublicationRelation,
+	form = IllustrationPublicationRelationForm, extra=2)
+
+class TextPublicationRelationForm(ModelForm):
+	'''Form to add a person location relation'''
+	text = forms.ModelChoiceField(
+		queryset=Text.objects.all(),
+		widget=TextWidget(
+			attrs={'data-placeholder':'Select text by title...',
+			'style':'width:100%;','class':'searching'}))
+
+	class Meta:
+		model = TextPublicationRelation
+		fields = 'text,start_page,end_page'
+		fields = fields.split(',')
+
+text_formset = inlineformset_factory(
+	Publication,TextPublicationRelation,
+	form = TextPublicationRelationForm, extra=2)
+
+
+class TextTextRelationForm(ModelForm):
+	'''Form to add a person location relation'''
+	text = forms.ModelChoiceField(
+		queryset=Text.objects.all(),
+		widget=TextWidget(
+			attrs={'data-placeholder':'Select text by title...',
+			'style':'width:100%;','class':'searching'}))
+	relation = forms.ModelChoiceField(
+		queryset=TextTextRelationType.objects.all(),
+		widget=TextTextRelationTypeWidget(
+			attrs={'data-placeholder':'Select a relation...',
+			'style':'width:100%;','class':'searching'}))
+
+	class Meta:
+		model = TextTextRelation
+		fields = 'text,relation_type'
+		fields = fields.split(',')
+
+texttext_formset = inlineformset_factory(
+	Text,TextTextRelation,fk_name = 'primary',
+	form = TextTextRelationForm, extra=2)
+
+class TextTextRelationTypeForm(ModelForm):
 	'''Form to add a text'''
 	name = forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
@@ -23,7 +82,20 @@ class TypeForm(ModelForm):
 		required=False)
 		
 	class Meta:
-		model = Type
+		model = TextTextRelationType
+		m = 'name,notes'
+		fields = m.split(',')
+
+class PublicationTypeForm(ModelForm):
+	'''Form to add a text'''
+	name = forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	notes = forms.CharField(widget=forms.Textarea(
+		attrs={'style':'width:100%','rows':3}),
+		required=False)
+		
+	class Meta:
+		model = PublicationType
 		m = 'name,notes'
 		fields = m.split(',')
 
@@ -61,8 +133,8 @@ class TextForm(ModelForm):
 class PublicationForm(ModelForm):
 	'''Form to add a text'''
 	form = forms.ModelChoiceField(
-		queryset=Type.objects.all().order_by('name'),
-		widget=TypeWidget(
+		queryset=PublicationType.objects.all().order_by('name'),
+		widget=PublicationTypeWidget(
 			attrs={'data-placeholder':'Select publication form... e.g., novel',
 			'style':'width:100%;','class':'searching',
 			'data-minimum-input-length':'0'}),

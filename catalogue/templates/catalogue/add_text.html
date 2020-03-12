@@ -1,9 +1,9 @@
-{% extends "catalogue/base.html" %}
+{% extends "utilities/base.html" %}
 
 {% block navbar%}
 	{% if view == "inline" %}
 	{% else %}
-        {% include 'catalogue/navbar.html' %}
+        {% include 'utilities/navbar.html' %}
 	{% endif %}
 {% endblock %}
 
@@ -29,42 +29,76 @@
 
 <hr class="mt-0 mb-0">
 {% if page_name == "Edit text" and 'unknown' not in crud.last_update %}
-	{% include 'catalogue/change_log.html' %}
+	{% include 'utilities/change_log.html' %}
 	{% else %} <p class="mb-4"></p>
 {% endif %}
 
 
+
 <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-	<table class="table table-borderless" >
-	<tr class="d-flex">
-		<th class="col-2">Title</th>
-		<td class="col-8">{{form.title}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Language</th>
-		<td class="col-8">{{form.language}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Genre</th>
-		<td class="col-8">{{form.genre}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Setting</th>
-		<td class="col-8">{{form.setting}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Notes</th>
-		<td class="col-8">{{form.notes}}</td>
-	</tr>
-	</table>
+{% csrf_token %}
+{% include 'utilities/edit_minimize_tab.html' %}
+
+<div class="tab-content">
+    <div class="tab-pane fade" id="Edit">
+	{%if page_name == "Edit text" and 'unknown' not in crud.last_update %}
+		{% include 'utilities/change_log.html' %}
+		{% else %} <p class="mb-4"></p>
+	{% endif %}
+	<!-- text form is defined in a seperate template -->
+	{% include 'catalogue/_text_form.html' %}
+    </div>
+    <div class="tab-pane fade" id="Minimize">
+		<!-- you can minimize the text form -->
+		<br>
+		<div class="col-md-12 d-flex">
+        <h5 class="mb-1">{{form.instance.title}} </h5> 
+		<p class="text-small ml-auto text-secondary mb-1">{{form.instance.form}} 
+			{{form.instance.year}}</p> 
+		</div>
+    </div>
+</div>
+
+{% include 'utilities/relation_tabs.html' %}
+
+<div class="tab-content">
+	<div class="tab-pane fade" id="Texts">
+		{{texttext_formset.management_form}}
+		<table class="table table-borderless">
+		<tr class ="d-flex">
+		<th class="col-5">Text
+			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_text' 'inline' %}" role="button">
+				 <i class="fa fa-plus"></i></a>
+			</th>
+		<th class="col-3">relation
+			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_text' 'inline' %}" role="button">
+				 <i class="fa fa-plus"></i></a>
+			</th>
+		<th><i class="fa fa-times text-danger"></i></th>
+		</tr>
+		{% for f in texttext_formset.forms %}
+			<tr class ="d-flex">
+			<td class="col-5">{{f.text}} {{f.text.errors}}</td>
+			<td class="col-3">{{f.relation}} {{f.relation.errors}}</td>
+			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+<div>
+
+
+
     <button type="submit" value="Submit" class ="btn btn-success">Save</button>
 	{% if view == "inline" %}
 		<a type="reset" value="Cancel" class ="btn btn-light"
-		href="{% url 'catalogue:close' %}">Cancel</a>
+		href="{% url 'utilities:close' %}">Cancel</a>
 	{% endif %}
 </form>
 
+{% include 'utilities/tab_selector.html' %}
 {{form.media.js}}
 {% endblock content %}
  

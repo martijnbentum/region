@@ -6,14 +6,13 @@ from . import views
 app_name = 'catalogue'
 urlpatterns = [
 	path('',views.TextView.as_view(),name='text_view'),
-	path('close/',views.close,name='close'),
 	path('add_illustration/', views.add_illustration, name='add_illustration'),
 	path('add_illustration_category/', views.add_illustration_category, 
 		name='add_illustration_category'),
 	path('add_text/', views.add_text, name='add_text'),
 	path('add_publication/', views.add_publication, name='add_publication'),
 	path('add_publisher/', views.add_publisher, name='add_publisher'),
-	path('add_type/', views.add_type, name='add_type'),
+	path('add_publication_type/', views.add_type, name='add_publication_type'),
 	path('add_illustration/<str:view>', views.add_illustration, 
 		name='add_illustration'),
 	path('add_text/<str:view>', views.add_text, name='add_text'),

@@ -52,10 +52,11 @@ class Text(models.Model, info):
 class TextTextRelationType(models.Model, info):
 	'''category of text2text relations e.g. a translation, review etc.'''
 	name = models.CharField(max_length=100)
-	description = models.TextField(blank=True)
+	notes= models.TextField(blank=True)
 
 	def __str__(self):
 		return self.name
+
 	
 class TextTextRelation(models.Model, info):
 	'''connects two texts with a specific type of relation e.g. original 
@@ -144,7 +145,7 @@ class Publisher(models.Model, info):
 
 
 
-class Type(models.Model):
+class PublicationType(models.Model):
 	name = models.CharField(max_length=100,unique=True)
 	notes = models.TextField(null=True,blank=True) 
 
@@ -157,7 +158,7 @@ class Publication(models.Model, info):
 	publisher = models.ManyToManyField(Publisher,blank=True)
 	publication_id = models.IntegerField(
 		default = id_generator('numbers',length=12), unique= True)
-	form = models.ForeignKey(Type,on_delete=models.SET_NULL,null=True) 
+	form = models.ForeignKey(PublicationType,on_delete=models.SET_NULL,null=True)
 	# FK periodical | FK book
 	issue = models.PositiveIntegerField(null=True,blank=True) 
 	volume = models.PositiveIntegerField(null=True,blank=True) 

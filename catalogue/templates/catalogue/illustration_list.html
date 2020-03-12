@@ -1,15 +1,14 @@
-{% extends "catalogue/base.html" %}
+{% extends "utilities/base.html" %}
 
 {% block head %}
 	<title>{{page_name}}</title>
 {% endblock %}
 
-{% if illustration_list %}
 
 {% block content %}
+{% if illustration_list %}
 
-
-{% include 'catalogue/change_log_list.html' %}
+{% include 'utilities/change_log_list.html' %}
 <div class="d-flex">
 
 
@@ -29,8 +28,9 @@
 role="button">Add illustration</a>
 </div>
 
-{% endblock content %}
-
 {% else %}
 	<p>no publishers are available</p>
 {% endif %}
+
+{% endblock content %}
+

@@ -1,13 +1,13 @@
-{% extends "catalogue/base.html" %}
+{% extends "utilities/base.html" %}
 
 {% block head %}
 	<title>{{page_name}}</title>
 {% endblock %}
 
-{% if publication_list %}
 
 {% block content %}
-
+{% if publication_list %}
+{% include 'utilities/change_log_list.html' %}
 
 <div class="d-flex">
 
@@ -31,10 +31,11 @@
 role="button">Add publication</a>
 </div>
 
-{% endblock content %}
-
 {% else %}
 	<p>no publications are available</p>
 {% endif %}
+
+{% endblock content %}
+
 
 	<!-- <td>{{ attr|truncatechars:40}}</td> -->

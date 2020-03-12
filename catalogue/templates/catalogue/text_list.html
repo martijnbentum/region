@@ -1,13 +1,14 @@
 <!-- test view to print data in a table from model --> 
-{% extends "catalogue/base.html" %}
+{% extends "utilities/base.html" %}
 
 {% block head %}
 	<title>{{page_name}}</title>
 {% endblock %}
 
-{% if text_list %}
 
 {% block content %}
+{% include 'utilities/change_log_list.html' %}
+{% if text_list %}
 
 <div class="d-flex">
 
@@ -31,10 +32,11 @@
 role="button">Add text</a>
 </div>
 
-{% endblock content %}
-
 {% else %}
 	<p>no texts are available</p>
 {% endif %}
+
+{% endblock content %}
+
 
 	<!-- <td>{{ attr|truncatechars:40}}</td> -->

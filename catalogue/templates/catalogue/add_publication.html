@@ -1,9 +1,9 @@
-{% extends "catalogue/base.html" %}
+{% extends "utilities/base.html" %}
 
 {% block navbar%}
 	{% if view == "inline" %}
 	{% else %}
-        {% include 'catalogue/navbar.html' %}
+        {% include 'utilities/navbar.html' %}
 	{% endif %}
 {% endblock %}
 
@@ -27,62 +27,93 @@
 {% endif %}
 </div>
 
-<hr class="mt-0 mb-0">
-{% if page_name == "Edit publication" and 'unknown' not in crud.last_update %}
-	{% include 'catalogue/change_log.html' %}
-	{% else %} <p class="mb-4"></p>
-{% endif %}
-
-<!-- start example -->
-
-<!-- end -->
-
-<form method="post">
+<form name="myform" id="myform" method = "post" onsubmit="dosubmit();">
     {% csrf_token %}
-	<table class="table table-borderless" >
-	<tr class="d-flex">
-		<th class="col-2">Title</th>
-		<td class="col-8">{{form.title}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Type</th>
-		<td class="col-8">{{form.form}}</td>
-			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_type'%}" role="button">
+
+<!-- adding or editing a publication-->
+{% include 'utilities/edit_minimize_tab.html' %}
+<div class="tab-content">
+    <div class="tab-pane fade" id="Edit">
+	{%if page_name == "Edit publication" and 'unknown' not in crud.last_update %}
+		{% include 'utilities/change_log.html' %}
+		{% else %} <p class="mb-4"></p>
+	{% endif %}
+	<!-- publication form is defined in a seperate template -->
+	{% include 'catalogue/_publication_form.html' %}
+    </div>
+    <div class="tab-pane fade" id="Minimize">
+		<!-- you can minimize the publication form -->
+		<br>
+		<div class="col-md-12 d-flex">
+        <h5 class="mb-1">{{form.instance.title}} </h5> 
+		<p class="text-small ml-auto text-secondary mb-1">{{form.instance.form}} 
+			{{form.instance.year}}</p> 
+		</div>
+    </div>
+</div>
+<hr>
+
+{% include 'utilities/relation_tabs.html' %}
+
+<div class="tab-content">
+	<div class="tab-pane fade" id="Texts">
+		{{text_formset.management_form}}
+		<table class="table table-borderless">
+		<tr class ="d-flex">
+		<th class="col-5">Text
+			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_text' 'inline' %}" role="button">
 				 <i class="fa fa-plus"></i></a>
-			</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Publisher</th>
-		<td class="col-8">{{form.publisher}}</td>
-			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_publisher' 'inline' %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-			</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Year</th>
-		<td class="col-8">{{form.year}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Location</th>
-		<td class="col-8">{{form.location}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">pdf</th>
-		<td class="col-8">{{form.pdf}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Cover</th>
-		<td class="col-8">{{form.cover}}</td>
-	</tr>
+			</th>
+		<th class="col-3">start page</th>
+		<th class="col-3">end page</th>
+		<th><i class="fa fa-times text-danger"></i></th>
+		</tr>
+		{% for f in text_formset.forms %}
+			<tr class ="d-flex">
+			<td class="col-5">{{f.text}} {{f.text.errors}}</td>
+			<td class="col-3">{{f.start_page}} {{f.start_page.errors}}</td>
+			<td class="col-3">{{f.end_page}} {{f.end_page.errors}}</td>
+			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+
+	<div class="tab-pane fade" id="Illustrations">
+		{{illustration_formset.management_form}}
+		<table class="table table-borderless">
+		<tr class ="d-flex">
+		<th class="col-5">Illustration
+			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_illustration' 'inline' %}" 
+				role="button"><i class="fa fa-plus"></i></a>
+			</th>
+		<th class="col-4">Page 
+			</th>
+		<th><i class="fa fa-times text-danger"></i></th>
+		</tr>
+		{% for f in illustration_formset.forms %}
+			<tr class ="d-flex">
+			<td class="col-5">{{f.illustration}} {{f.illustration.errors}}</td>
+			<td class="col-4">{{f.page}} {{f.page.errors}}</td>
+			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
 	</table>
+	</div>
+
+
     <button type="submit" value="Submit" class ="btn btn-success">Save</button>
 	{% if view == "inline" %}
 		<a type="reset" value="Cancel" class ="btn btn-light"
-		href="{% url 'catalogue:close' %}">Cancel</a>
+		href="{% url 'utilties:close' %}">Cancel</a>
 	{% endif %}
+	<input type="hidden" name="focus" id="focus" value="" />
 </form>
 
 {{form.media.js}}
+
+{% include 'utilities/tab_selector.html' %}
+
 {% endblock content %}

@@ -6,40 +6,48 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
 from .models import Publication, Publisher, Text, Illustration
-from .forms import TextForm, PublicationForm, PublisherForm, TypeForm
+from .forms import TextForm, PublicationForm, PublisherForm 
 from .forms import IllustrationForm, IllustrationCategoryForm
+from .forms import text_formset, illustration_formset, PublicationTypeForm
+from .forms import texttext_formset
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
 from utils import view_util
-from utilities.views import add_simple_model, Crud, Cruds
+from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
+from utilities.views import add_simple_model 
 
 
 @login_required
-def _edit_model(request, instance_id, model_name):
+def _edit_model(request, instance_id, model_name, formset_names='', focus=''):
 	'''edit view generalized over models.
 	assumes a 'add_{{model_name}}.html template and edit_{{model_name}} function
 	and {{model_name}}Form
 	'''
+	names = formset_names
 	model = apps.get_model('catalogue',model_name)
 	modelform = view_util.get_modelform(__name__,model_name+'Form')
 	instance= model.objects.get(pk=instance_id)
 	crud = Crud(instance)
+	ffm, form = None, None
 	if request.method == 'POST':
 		form = modelform(request.POST, request.FILES, instance=instance)
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
-			form.save()
-			return HttpResponseRedirect(reverse(
-				'catalogue:edit_'+model_name.lower(), 
-				args = [instance.pk]))
-			return HttpResponseRedirect(
-				reverse('catalogue:'+model_name.lower()+'_list'))
-	form = modelform(instance=instance)
-	args = {'form':form,'page_name':'Edit '+model_name.lower(),'crud':crud}
+			instance = form.save()
+			ffm = FormsetFactoryManager(__name__,names,request,instance)
+			valid = ffm.save()
+			if valid:
+				return HttpResponseRedirect(reverse(
+					'catalogue:edit_'+model_name.lower(), 
+					args = [instance.pk]))
+	if not form: form = modelform(instance=instance)
+	if not ffm: ffm = FormsetFactoryManager(__name__,names,instance=instance)
+	tabs = make_tabs(model_name.lower(), focus_names = focus)
+	args = {'form':form,'page_name':'Edit '+model_name.lower(),'crud':crud,
+		'tabs':tabs}
+	args.update(ffm.dict)
 	return render(request,'catalogue/add_' + model_name.lower() + '.html',args)
 
-def close(request):
-	return render(request,'catalogue/close.html')
 
 
 class IllustrationView(generic.ListView):
@@ -78,8 +86,10 @@ class PublisherView(generic.ListView):
 		return Publisher.objects.order_by('name')
 
 
-def add_text(request, view = 'complete'):
+def add_text(request, view = 'complete',focus = ''):
 	# if this is a post request we need to process the form data
+	ffm, form = None, None
+	names='texttext_formset'
 	if request.method == 'POST':
 		print(request.FILES)
 		form = TextForm(request.POST, request.FILES)
@@ -87,25 +97,40 @@ def add_text(request, view = 'complete'):
 			print('form is valid: ',form.cleaned_data,type(form))
 			form.save()
 			if view == 'complete':
-				return HttpResponseRedirect('/catalogue/text/')
-			return HttpResponseRedirect('/catalogue/close/')
-	form = TextForm()
-	var = {'form':form,'page_name':'Add text','view':view}
+				ffm = FormsetFactoryManager(__name__,names,request,publication)
+				valid = ffm.save()
+				if valid:
+					return httpresponseredirect('/catalogue/text/')
+			else: return HttpResponseRedirect('/catalogue/close/')
+	if not form: form = TextForm()
+	if not ffm: ffm = FormsetFactoryManager(__name__,names)
+	tabs = make_tabs('text',focus_names = focus)
+	var = {'form':form,'page_name':'Add text','view':view,'tabs':tabs}
+	var.update(ffm.dict)
+	print(ffm.dict)
 	return render(request, 'catalogue/add_text.html', var)
 
 
-def add_publication(request, view='complete'):
+def add_publication(request, view='complete', focus = ''):
 	# if this is a post request we need to process the form data
+	names='text_formset,illustration_formset'
+	ffm, form = None, None
 	if request.method == 'POST':
 		form = PublicationForm(request.POST, request.FILES)
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
-			form.save()
+			publication = form.save()
 			if view == 'complete':
-				return HttpResponseRedirect('/catalogue/publication/')
-			return HttpResponseRedirect('/catalogue/close/')
-	form = PublicationForm()
-	var = {'form':form,'page_name':'Add Publication','view':view}
+				ffm = FormsetFactoryManager(__name__,names,request,publication)
+				valid = ffm.save()
+				if valid:
+					return HttpResponseRedirect('/catalogue/publication/')
+			else: return HttpResponseRedirect('/catalogue/close/')
+	if not form: form = PublicationForm()
+	if not ffm: ffm = FormsetFactoryManager(__name__,names)
+	tabs = make_tabs('publication',focus_names = focus)
+	var = {'form':form,'page_name':'Add Publication','view':view,'tabs':tabs}
+	var.update(ffm.dict)
 	return render(request, 'catalogue/add_publication.html', var)
 
 
@@ -144,7 +169,7 @@ def add_illustration_category(request):
 		'add illustration category')
 
 def add_type(request):
-	return add_simple_model(request,__name__,'Type','catalogue',
+	return add_simple_model(request,__name__,'PublicationType','catalogue',
 		'add publication type')
 
 def edit_text(request, pk):
@@ -154,7 +179,8 @@ def edit_publisher(request, pk):
 	return _edit_model(request, pk, 'Publisher')
 
 def edit_publication(request, pk):
-	return _edit_model(request, pk, 'Publication')
+	names='text_formset,illustration_formset'
+	return _edit_model(request, pk, 'Publication',formset_names=names)
 
 def edit_illustration(request, pk):
 	return _edit_model(request, pk, 'Illustration')
