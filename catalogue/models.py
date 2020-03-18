@@ -1,4 +1,7 @@
 from django.db import models
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
+from django.db.utils import IntegrityError
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
@@ -157,7 +160,7 @@ class Publication(models.Model, info):
 	title = models.CharField(max_length=300,null=True)
 	publisher = models.ManyToManyField(Publisher,blank=True)
 	publication_id = models.IntegerField(
-		default = id_generator('numbers',length=12), unique= True)
+		default = id_generator('numbers',length=12))
 	form = models.ForeignKey(PublicationType,on_delete=models.SET_NULL,null=True)
 	# FK periodical | FK book
 	issue = models.PositiveIntegerField(null=True,blank=True) 
@@ -175,6 +178,21 @@ class Publication(models.Model, info):
 	@property
 	def publisher_str(self):
 		return ' | '.join([pu.name for pu in self.publisher.all()])
+
+
+@receiver(m2m_changed, sender = Publication.publisher.through)
+def verify_uniqueness(sender, **kwargs):
+	publication = kwargs.get('instance',None)
+	action = kwargs.get('action',None)
+	publishers = kwargs.get('pk_set',None)
+
+	if action == 'pre_add':
+		for pub in publishers:
+			if Publication.objects.filter(title=publication.title).filter(publisher=pub).filter(year=publication.year):
+				raise IntegrityError('publication with title %s already exists for publisher %s' %
+					(publication.title, Publisher.objects.get(pk=pub)))
+			
+
 
 class TextPublicationRelation(models.Model): #many to many
 	'''Links a work with a publication.'''
