@@ -101,7 +101,7 @@ def add_text(request, view = 'complete',focus = ''):
 				valid = ffm.save()
 				if valid:
 					return httpresponseredirect('/catalogue/text/')
-			else: return HttpResponseRedirect('/catalogue/close/')
+			else: return HttpResponseRedirect('/utilities/close/')
 	if not form: form = TextForm()
 	if not ffm: ffm = FormsetFactoryManager(__name__,names)
 	tabs = make_tabs('text',focus_names = focus)
@@ -125,7 +125,7 @@ def add_publication(request, view='complete', focus = ''):
 				valid = ffm.save()
 				if valid:
 					return HttpResponseRedirect('/catalogue/publication/')
-			else: return HttpResponseRedirect('/catalogue/close/')
+			else: return HttpResponseRedirect('/utilities/close/')
 	if not form: form = PublicationForm()
 	if not ffm: ffm = FormsetFactoryManager(__name__,names)
 	tabs = make_tabs('publication',focus_names = focus)
@@ -143,7 +143,7 @@ def add_publisher(request,view='complete'):
 			form.save()
 			if view == 'complete':
 				return HttpResponseRedirect('/catalogue/publisher/')
-			return HttpResponseRedirect('/catalogue/close/')
+			return HttpResponseRedirect('/utilities/close/')
 	form = PublisherForm()
 	var = {'form':form,'page_name':'Add Publisher','view':view}
 	return render(request, 'catalogue/add_publisher.html', var)
@@ -158,7 +158,7 @@ def add_illustration(request,view='complete'):
 			form.save()
 			if view == 'complete':
 				return HttpResponseRedirect('/catalogue/illustration/')
-			return HttpResponseRedirect('/catalogue/close/')
+			return HttpResponseRedirect('/utilities/close/')
 	form = IllustrationForm()
 	var = {'form':form,'page_name':'Add Illustration','view':view}
 	return render(request, 'catalogue/add_illustration.html', var)
@@ -173,7 +173,8 @@ def add_type(request):
 		'add publication type')
 
 def edit_text(request, pk):
-	return _edit_model(request, pk, 'Text')
+	names='texttext_formset'
+	return _edit_model(request, pk, 'Text',formset_names=names)
 
 def edit_publisher(request, pk):
 	return _edit_model(request, pk, 'Publisher')
