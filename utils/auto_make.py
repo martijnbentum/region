@@ -17,7 +17,7 @@ def delete_all(name):
 def make_all(delete_current = False):
 	'''Create model instances for several models based on excel files.'''
 	if delete_current: 
-		names = 'Genre,Binding,Publisher,Text,Publication'.split(',')
+		names = 'Genre,PublicationType,Publisher,Text,Publication'.split(',')
 		[delete_all(name) for name in names]
 	make_genres()
 	make_bindings()
@@ -100,7 +100,7 @@ def names2genres(genre_names= ''):
 def make_bindings(filename= 'data/Publication.xlsx', column_name = 'Form'):
 	'''Create binding instances based on excel file.'''
 	return make_simple_model(filename=filename,column_name=column_name,
-		model_name = 'Binding',app_name='catalogue')
+		model_name = 'PublicationType',app_name='catalogue')
 
 
 def make_publishers(filename= 'data/Publication.xlsx',column_name='Publisher'):
@@ -137,15 +137,18 @@ def make_publications(filename_text = ''):
 		l,g =None,None
 		p_id,title,binding,publisher,date,location,npub,dedication= line
 		p = load_model_instance(publisher,'Publisher','catalogue')
-		b = load_model_instance(binding,'Binding','catalogue')
+		b = load_model_instance(binding,'PublicationType','catalogue')
 		l = load_model_instance(location,'UserLoc','locations')
 		o=Publication(publication_id=p_id,title=title,form=b,
-			date=intornone(date),location=l)
+			year=intornone(date))
 		s,a,e = save_model([o],'publication',verbose = False)
 		if len(s) != 1: continue
 		if p == None: continue
 		elif type(p) == list: [o.publisher.add(pub) for pub in p]
 		else: o.publisher.add(p)
+		if l == None: continue
+		elif type(l) == list: [o.location.add(loc) for loc in l]
+		else: o.location.add(l)
 	return o
 	
 def make_function(filename= 'data/Person.xlsx', column_name = 'Function'):
