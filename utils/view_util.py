@@ -181,7 +181,7 @@ class Event:
 		self.event = e
 		self.type = e.get_event_type_display()
 		self.changed = True if e.changed_fields not in ['null',None] else False
-		self.username = e.user.username
+		self.username = e.user.username if e.user else ''
 		self.set_time()
 		if self.changed: self.set_changes()
 
