@@ -133,7 +133,7 @@ class Book(models.Model, info):
 
 class Publisher(models.Model, info):
 	'''Company that publishes works.'''
-	name = models.CharField(max_length=300)
+	name = models.CharField(max_length=300, unique=True)
 	location= models.ManyToManyField(UserLoc,blank=True)
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 

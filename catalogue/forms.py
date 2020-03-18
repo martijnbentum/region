@@ -179,9 +179,9 @@ class PublisherForm(ModelForm):
 	name = forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	founded = forms.IntegerField(widget=forms.NumberInput(
-		attrs={'style':'width:100%'}))
+		attrs={'style':'width:100%'}),required=False)
 	closure = forms.IntegerField(widget=forms.NumberInput(
-		attrs={'style':'width:100%'}))
+		attrs={'style':'width:100%'}),required=False)
 	notes = forms.CharField(widget=forms.Textarea(
 		attrs={'style':'width:100%','rows':3}),
 		required=False)
