@@ -238,7 +238,7 @@ class PersonForm(ModelForm):
 
 
 class LiteraryMovementForm(ModelForm):
-	location= forms.ModelMultipleChoiceField(
+	location= forms.ModelChoiceField(
 		queryset=UserLoc.objects.all().order_by('name'),
 		widget=LocationWidget(attrs={'data-placeholder':'Select a location...',
 			'style':'width:100%;','class':'searching'}),
