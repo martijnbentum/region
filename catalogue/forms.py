@@ -6,7 +6,11 @@ from .models import IllustrationCategory, IllustrationPublicationRelation
 from .models import TextPublicationRelation, TextTextRelation,PublicationType
 from .models import TextTextRelationType 
 from locations.models import UserLoc
-from persons.models import Person, PersonLocationRelation
+from persons.models import Person, PersonLocationRelation, PersonTextRelation
+from persons.models import PersonTextRelationRole, PersonIllustrationRelation
+from persons.models import PersonIllustrationRelationRole
+from persons.widgets import PersonTextRelationRoleWidget, PersonWidget 
+from persons.widgets import PersonIllustrationRelationRoleWidget
 from utilities.models import Language 
 from utilities.forms import LanguageWidget 
 from locations.forms import LocationWidget, LocationsWidget
@@ -14,6 +18,53 @@ from .widgets import GenreWidget, PublicationTypeWidget, PublishersWidget
 from .widgets import IllustrationCategoryWidget,IllustrationWidget,TextWidget
 from .widgets import TextTextRelationTypeWidget
 
+
+class PersonIllustrationRelationForm(ModelForm):
+	'''Form to add a person location relation'''
+	person = forms.ModelChoiceField(
+		queryset=Person.objects.all(),
+		widget=PersonWidget(
+			attrs={'data-placeholder':'Select person by name...',
+			'style':'width:100%;','class':'searching'}))
+	role = forms.ModelChoiceField(
+		queryset=PersonIllustrationRelationRole.objects.all(),
+		widget=PersonIllustrationRelationRoleWidget(
+			attrs={'data-placeholder':'Select role... e.g., illustrator',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}))
+
+	class Meta:
+		model = PersonIllustrationRelation
+		fields = 'person,role'
+		fields = fields.split(',')
+
+personillustration_formset = inlineformset_factory(
+	Illustration,PersonIllustrationRelation,
+	form = PersonIllustrationRelationForm, extra=1)
+
+
+class PersonTextRelationForm(ModelForm):
+	'''Form to add a person location relation'''
+	person = forms.ModelChoiceField(
+		queryset=Person.objects.all(),
+		widget=PersonWidget(
+			attrs={'data-placeholder':'Select person by name...',
+			'style':'width:100%;','class':'searching'}))
+	role = forms.ModelChoiceField(
+		queryset=PersonTextRelationRole.objects.all(),
+		widget=PersonTextRelationRoleWidget(
+			attrs={'data-placeholder':'Select role... e.g., author',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}))
+
+	class Meta:
+		model = PersonTextRelation
+		fields = 'person,role'
+		fields = fields.split(',')
+
+persontext_formset = inlineformset_factory(
+	Text,PersonTextRelation,
+	form = PersonTextRelationForm, extra=1)
 
 
 class IllustrationPublicationRelationForm(ModelForm):
