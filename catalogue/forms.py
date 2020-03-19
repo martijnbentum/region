@@ -82,7 +82,7 @@ class IllustrationPublicationRelationForm(ModelForm):
 
 illustration_formset = inlineformset_factory(
 	Publication,IllustrationPublicationRelation,
-	form = IllustrationPublicationRelationForm, extra=2)
+	form = IllustrationPublicationRelationForm, extra=1)
 
 class TextPublicationRelationForm(ModelForm):
 	'''Form to add a person location relation'''
@@ -99,30 +99,31 @@ class TextPublicationRelationForm(ModelForm):
 
 text_formset = inlineformset_factory(
 	Publication,TextPublicationRelation,
-	form = TextPublicationRelationForm, extra=2)
+	form = TextPublicationRelationForm, extra=1)
 
 
 class TextTextRelationForm(ModelForm):
 	'''Form to add a person location relation'''
-	text = forms.ModelChoiceField(
+	secondary = forms.ModelChoiceField(
 		queryset=Text.objects.all(),
 		widget=TextWidget(
 			attrs={'data-placeholder':'Select text by title...',
 			'style':'width:100%;','class':'searching'}))
-	relation = forms.ModelChoiceField(
+	relation_type = forms.ModelChoiceField(
 		queryset=TextTextRelationType.objects.all(),
 		widget=TextTextRelationTypeWidget(
 			attrs={'data-placeholder':'Select a relation...',
-			'style':'width:100%;','class':'searching'}))
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}))
 
 	class Meta:
 		model = TextTextRelation
-		fields = 'text,relation_type'
+		fields = 'secondary,relation_type'
 		fields = fields.split(',')
 
 texttext_formset = inlineformset_factory(
 	Text,TextTextRelation,fk_name = 'primary',
-	form = TextTextRelationForm, extra=2)
+	form = TextTextRelationForm, extra=1)
 
 class TextTextRelationTypeForm(ModelForm):
 	'''Form to add a text'''
