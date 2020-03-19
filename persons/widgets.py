@@ -16,13 +16,13 @@ class LocationRelationWidget(ModelSelect2Widget):
 
 class PersonWidget(ModelSelect2Widget):
 	model = Person
-	search_fields = ['name__icontains']
+	search_fields = ['first_name__icontains','last_name__icontains']
 
 	def label_from_instance(self,obj):
 		return obj.name
 
 	def get_queryset(self):
-		return Person.objects.all().order_by('name')
+		return Person.objects.all().order_by('last_name')
 
 
 class PersonIllustrationRelationRoleWidget(ModelSelect2Widget):
