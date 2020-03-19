@@ -7,6 +7,7 @@ app_name = 'persons'
 urlpatterns = [
 	path('', views.PersonView.as_view(), name='person_list'),
 	path('add_person/', views.edit_person, name='add_person'),
+	path('add_person/<str:view>', views.edit_person, name='add_person'),
 	path('edit_person/<int:person_id>', views.edit_person, name='edit_person'),
 	path('edit_person/<int:person_id>/<str:focus>', 
 		views.edit_person, name='edit_person'),
