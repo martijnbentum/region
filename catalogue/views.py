@@ -9,7 +9,7 @@ from .models import Publication, Publisher, Text, Illustration
 from .forms import TextForm, PublicationForm, PublisherForm 
 from .forms import IllustrationForm, IllustrationCategoryForm
 from .forms import text_formset, illustration_formset, PublicationTypeForm
-from .forms import texttext_formset
+from .forms import texttext_formset, persontext_formset, personillustration_formset
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
 from utils import view_util
@@ -89,7 +89,7 @@ class PublisherView(generic.ListView):
 def add_text(request, view = 'complete',focus = ''):
 	# if this is a post request we need to process the form data
 	ffm, form = None, None
-	names='texttext_formset'
+	names='texttext_formset,persontext_formset'
 	if request.method == 'POST':
 		print(request.FILES)
 		form = TextForm(request.POST, request.FILES)
@@ -149,18 +149,26 @@ def add_publisher(request,view='complete'):
 	return render(request, 'catalogue/add_publisher.html', var)
 
 
-def add_illustration(request,view='complete'):
+def add_illustration(request,view='complete', focus = ''):
 	# if this is a post request we need to process the form data
+	names = 'personillustration_formset'
+	ffm, form = None, None
 	if request.method == 'POST':
 		form = IllustrationForm(request.POST, request.FILES)
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
-			form.save()
+			illustration = form.save()
 			if view == 'complete':
-				return HttpResponseRedirect('/catalogue/illustration/')
-			return HttpResponseRedirect('/utilities/close/')
-	form = IllustrationForm()
-	var = {'form':form,'page_name':'Add Illustration','view':view}
+				ffm = FormsetFactoryManager(__name__,names, request, illustration)
+				valid = ffm.save()
+				if valid:
+					return HttpResponseRedirect('/catalogue/illustration/')
+			else: return HttpResponseRedirect('/utilities/close/')
+	if not form: form = IllustrationForm()
+	if not ffm: ffm = FormsetFactoryManager(__name__,names)
+	tabs = make_tabs('illustration',focus_names = focus)
+	var = {'form':form,'page_name':'Add Illustration','view':view,'tabs':tabs}
+	var.update(ffm.dict)
 	return render(request, 'catalogue/add_illustration.html', var)
 
 
