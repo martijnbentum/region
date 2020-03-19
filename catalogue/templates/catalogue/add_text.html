@@ -27,15 +27,14 @@
 {% endif %}
 </div>
 
-<hr class="mt-0 mb-0">
 {% if page_name == "Edit text" and 'unknown' not in crud.last_update %}
 	{% include 'utilities/change_log.html' %}
-	{% else %} <p class="mb-4"></p>
+	{% else %} <p class="mb-2"></p>
 {% endif %}
 
 
 
-<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();>
+<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();">
 {% csrf_token %}
 {% include 'utilities/edit_minimize_tab.html' %}
 
@@ -51,11 +50,8 @@
     <div class="tab-pane fade" id="Minimize">
 		<!-- you can minimize the text form -->
 		<br>
-		<div class="col-md-12 d-flex">
         <h5 class="mb-1">{{form.instance.title}} </h5> 
-		<p class="text-small ml-auto text-secondary mb-1">{{form.instance.form}} 
-			{{form.instance.year}}</p> 
-		</div>
+		<br>
     </div>
 </div>
 
@@ -73,15 +69,15 @@
 			</th>
 		<th class="col-3">relation
 			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_text' 'inline' %}" role="button">
+				href ="{% url 'catalogue:add_texttext_relation_type'  %}" role="button">
 				 <i class="fa fa-plus"></i></a>
 			</th>
 		<th><i class="fa fa-times text-danger"></i></th>
 		</tr>
 		{% for f in texttext_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.text}} {{f.text.errors}}</td>
-			<td class="col-3">{{f.relation}} {{f.relation.errors}}</td>
+			<td class="col-5">{{f.secondary}} {{f.secondary.errors}}</td>
+			<td class="col-3">{{f.relation_type}} {{f.relation_type.errors}}</td>
 			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
 			</tr>
 		{% endfor %}
@@ -118,10 +114,7 @@
 <input type="hidden" name="navbar" id="navbar" value="" />
 <input type="hidden" name="navcontent" id="navcontent" value="" />
 <input type="hidden" name="focus" id="focus" value="" />
-<input type="submit" value="Save" class="btn btn-success">
-
-
-    <button type="submit" value="Submit" class ="btn btn-success">Save</button>
+<button type="submit" value="Submit" class ="btn btn-success">Save</button>
 	{% if view == "inline" %}
 		<a type="reset" value="Cancel" class ="btn btn-light"
 		href="{% url 'utilities:close' %}">Cancel</a>
