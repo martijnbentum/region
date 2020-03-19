@@ -9,8 +9,8 @@ from utils.loc_util import _save_locations as save_model
 from utils.loc_util import UserLoc
 from utilities.models import Language
 
-def delete_all(name):
-	model = apps.get_model('catalogue',name)
+def delete_all(name,app_name):
+	model = apps.get_model(app_name,name)
 	instances = model.objects.all()
 	[i.delete() for i in instances]
 
@@ -18,12 +18,19 @@ def make_all(delete_current = False):
 	'''Create model instances for several models based on excel files.'''
 	if delete_current: 
 		names = 'Genre,PublicationType,Publisher,Text,Publication'.split(',')
-		[delete_all(name) for name in names]
+		[delete_all(name,'catalogue') for name in names]
+		names = 'Pseudonym,PersonTextRelationRole,PersonIllustrationRelationRole,Person'.split(',')
+		[delete_all(name,'persons') for name in names]
 	make_genres()
 	make_bindings()
 	make_publishers()
 	make_texts()
 	make_publications()
+	make_pseudonym()
+	make_persontextrelationroles()
+	make_personillustrationrelationroles()
+	make_persons()
+
 
 
 def load_model_instance(name, model_name, app_name, field_name = 'name'):
@@ -151,9 +158,6 @@ def make_publications(filename_text = ''):
 		else: o.location.add(l)
 	return o
 	
-def make_function(filename= 'data/Person.xlsx', column_name = 'Function'):
-	return make_simple_model(filename=filename,column_name=column_name,
-		model_name = 'Function',app_name='persons')
 
 def make_pseudonym(filename= 'data/Person.xlsx', column_name = 'Pseudonym(s)'):
 	return make_simple_model(filename=filename,column_name=column_name,
@@ -188,8 +192,7 @@ def make_persons(filename_text = 'data/Person.xlsx'):
 	for line in d.values:
 		p_id,lname,fname,func,pseud,sex,dob,dod,pob,pod,res,trav,ac,notes = line
 		if type(lname) == type(fname) == float: continue
-		print([type(lname), type(fname),float])
-		print(type(lname) == type(fname) == float)
+		print(lname,fname)
 		pseud = extract_names(pseud)
 		pseuds = [load_model_instance(x,'Pseudonym','persons') for x in pseud]
 		by, dy = extract_number(dob), extract_number(dod)
