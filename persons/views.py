@@ -36,7 +36,7 @@ def person_detail(request, person_id):
 	return render(request,'persons/person_detail.html',var)
 
 
-def edit_person(request, person_id = None, focus = ''):
+def edit_person(request, person_id = None, focus = '', view = 'complete'):
 	'''add or edit a person instance and person location relation
 	navbar and navcontent set the active tab (last used one)
 	'''
@@ -59,7 +59,7 @@ def edit_person(request, person_id = None, focus = ''):
 	page_name = 'Edit Person' if person_id else 'Add Person'
 	tabs = make_tabs('person',focus_names = focus)
 	crud = Crud(person) if person_id else None
-	var = {'form':form,'page_name':page_name, 'tabs':tabs,'crud':crud}
+	var = {'form':form,'page_name':page_name, 'tabs':tabs,'crud':crud, 'view':view}
 	var.update(ffm.dict)
 	return render(request, 'persons/add_person.html',var)
 
