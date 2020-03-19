@@ -30,6 +30,8 @@ class Person(models.Model, info):
 
 	@property
 	def name(self):
+		if self.first_name == None: return self.last_name
+		if self.last_name == None: return self.first_name
 		return str(self.first_name) + ' ' + str(self.last_name)
 	
 	def __str__(self):
