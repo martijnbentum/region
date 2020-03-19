@@ -1,4 +1,12 @@
 {% extends "utilities/base.html" %}
+
+{% block navbar%}
+	{% if view == "inline" %}
+	{% else %}
+        {% include 'utilities/navbar.html' %}
+	{% endif %}
+{% endblock %}
+
 {% block head %}
 	{{form.media.css}}
 {% endblock %}
@@ -18,6 +26,7 @@ role="button">add person</a>
     {% csrf_token %}
 
 <!-- adding or editing a person -->
+
 {% include 'utilities/edit_minimize_tab.html' %}
 
 <div class="tab-content">
@@ -36,6 +45,10 @@ role="button">add person</a>
     </div>
 </div>
 <hr>
+
+
+{% if view == "inline" %}
+{% else %}
 
 <!-- Inline formsets to linking persons to other items -->
 {% include 'utilities/relation_tabs.html' %}
@@ -157,14 +170,21 @@ role="button">add person</a>
 
 </div>
 <hr> 
+{% endif %}
+
 <input type="hidden" name="navbar" id="navbar" value="" />
 <input type="hidden" name="navcontent" id="navcontent" value="" />
 <input type="hidden" name="focus" id="focus" value="" />
 <input type="submit" value="Save" class="btn btn-success">
+
+{% if view == "inline" %}
+	<a type="reset" value="Cancel" class ="btn btn-light"
+	href="{% url 'utilities:close' %}">Cancel</a>
+{% endif %}
+
 </form>
 
 {{form.media.js}}
-
 
 {% include 'utilities/tab_selector.html' %}
 
