@@ -12,12 +12,7 @@
 	<title>{{page_name}}</title>
 {% endblock %}
 
-
-
-
 {% block content %}
-
-
 
 <div class="col-md-12 d-flex">
 <h4 class="mt-2">{{page_name}}</h4>
@@ -31,9 +26,8 @@
 	role="button">illustration list</a>
 {% endif %}
 </div>
-<hr class="mt-0 mb-0">
 
-<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();>
+<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();">
     {% csrf_token %}
 
 {% include 'utilities/edit_minimize_tab.html' %}
@@ -107,7 +101,7 @@
 			</th>
 		<th><i class="fa fa-times text-danger"></i></th>
 		</tr>
-		{% for f in persontext_formset.forms %}
+		{% for f in personillustration_formset.forms %}
 			<tr class ="d-flex">
 			<td class="col-5">{{f.person}} {{f.person.errors}}</td>
 			<td class="col-3">{{f.role}} {{f.role.errors}}</td>
@@ -125,7 +119,6 @@
 <input type="hidden" name="focus" id="focus" value="" />
 <input type="submit" value="Save" class="btn btn-success">
 
-    <button type="submit" value="Submit" class ="btn btn-success">Save</button>
 	{% if view == "inline" %}
 		<a type="reset" value="Cancel" class ="btn btn-light"
 		href="{% url 'utilities:close' %}">Cancel</a>
