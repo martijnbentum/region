@@ -10,7 +10,7 @@ def add_simple_model(request, name_space,model_name,app_name, page_name):
 	if request.method == 'POST':
 		if form.is_valid():
 			form.save()
-			return HttpResponseRedirect('/catalogue/close/')
+			return HttpResponseRedirect('/utilities/close/')
 	model = apps.get_model(app_name,model_name)
 	instances = model.objects.all().order_by('name')
 	var = {'form':form, 'page_name':page_name, 'instances':instances}
