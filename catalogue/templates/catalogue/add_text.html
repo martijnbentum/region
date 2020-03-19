@@ -35,7 +35,7 @@
 
 
 
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();>
 {% csrf_token %}
 {% include 'utilities/edit_minimize_tab.html' %}
 
@@ -87,8 +87,38 @@
 		{% endfor %}
 		</table>
 	</div>
+
+	<div class="tab-pane fade" id="Persons">
+		{{persontext_formset.management_form}}
+		<table class="table table-borderless">
+		<tr class ="d-flex">
+		<th class="col-5">Person
+			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'persons:add_person' 'inline' %}" role="button">
+				 <i class="fa fa-plus"></i></a>
+			</th>
+		<th class="col-3">Role
+			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'persons:add_person_text_relation_role'  %}" role="button">
+				 <i class="fa fa-plus"></i></a>
+			</th>
+		<th><i class="fa fa-times text-danger"></i></th>
+		</tr>
+		{% for f in persontext_formset.forms %}
+			<tr class ="d-flex">
+			<td class="col-5">{{f.person}} {{f.person.errors}}</td>
+			<td class="col-3">{{f.role}} {{f.role.errors}}</td>
+			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
 <div>
 
+<input type="hidden" name="navbar" id="navbar" value="" />
+<input type="hidden" name="navcontent" id="navcontent" value="" />
+<input type="hidden" name="focus" id="focus" value="" />
+<input type="submit" value="Save" class="btn btn-success">
 
 
     <button type="submit" value="Submit" class ="btn btn-success">Save</button>
