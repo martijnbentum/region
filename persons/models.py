@@ -190,4 +190,29 @@ class PersonIllustrationRelation(models.Model, info):
 		unique_together = ['role','person','illustration']
 
 
+class LiteraryMovement(models.Model, info):
+	name = models.CharField(max_length=200, null=True, blank=True)
+	location= models.ForeignKey(UserLoc,blank=True, null=True,on_delete=models.SET_NULL)
+	founded = models.PositiveIntegerField(null=True,blank=True) 
+	closure = models.PositiveIntegerField(null=True,blank=True) 
+	notes = models.TextField(null=True,blank=True) # many to many
+
+	def __str__(self):
+		return self.name
+
+class PersonLiteraryMovementRelationRole(models.Model, info):
+	name = models.CharField(max_length = 100,unique=True)
+	notes = models.TextField(null=True,blank=True)
+
+	def __str__(self):
+		return self.name
+
+class PersonLiteraryMovementRelation(models.Model, info):
+	literary_movement = models.ForeignKey(LiteraryMovement, on_delete=models.CASCADE)
+	person = models.ForeignKey(Person, on_delete=models.CASCADE)
+	role = models.ForeignKey(PersonLiteraryMovementRelationRole, on_delete=models.CASCADE)
+
+
+	
+	
 # Create your models here.

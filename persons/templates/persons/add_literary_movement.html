@@ -1,0 +1,120 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+	{{form.media.css}}
+{% endblock %}
+
+{% block content %}
+<div class="col-md-12 d-flex">
+<h4 class="mt-2">{{page_name}}</h4> 
+{% if page_name == "Edit Literary movement"%}
+<a class ="btn btn-link ml-auto" href="{% url 'persons:add_literary_movement' %}"
+role="button">add literary movement</a>
+{% endif %}
+<a class ="btn btn-link ml-auto" href="{% url 'persons:literary_movement_list' %}" 
+role="button">literary movement list</a>
+</div>
+
+
+<form name="myform" id="myform" method = "post" onsubmit="dosubmit();">
+    {% csrf_token %}
+
+{% include 'utilities/edit_minimize_tab.html' %}
+
+<div class="tab-content">
+
+    <div class="tab-pane fade" id="Edit">
+		<!-- person form is defined in a seperate template -->
+		{% if page_name == "Edit literary movement" and 'unknown' not in crud.last_update %}
+			{% include 'utilities/change_log.html' %}
+			{% else %} <p class="mb-4"></p>
+		{% endif %}
+
+		<table class="table table-borderless" >
+		<tr class="d-flex">
+			<th class="col-2">Name</th>
+			<td class="col-8">{{form.name}}</td>
+		</tr>
+		<tr class="d-flex">
+			<th class="col-2">Locations</th>
+			<td class="col-8">{{form.location}}</td>
+		</tr>
+		<tr class="d-flex">
+			<th class="col-2">Founded</th>
+			<td class="col-8">{{form.founded}}</td>
+		</tr>
+		<tr class="d-flex">
+			<th class="col-2">Closure</th>
+			<td class="col-8">{{form.closure}}</td>
+		</tr>
+		<tr class="d-flex">
+			<th class="col-2">Notes</th>
+			<td class="col-8">{{form.notes}}</td>
+		</tr>
+		</table>
+
+    </div>
+    <div class="tab-pane fade" id="Minimize">
+		<!-- you can minimize the person form -->
+		<br>
+        <h5>{{form.instance.name}}</h5>
+    </div>
+</div>
+<hr>
+
+
+{% if view == "inline" %}
+{% else %}
+
+<!-- Inline formsets to linking persons to other items -->
+{% include 'utilities/relation_tabs.html' %}
+
+<div class="tab-content">
+    <div class="tab-pane fade" id="Persons">
+
+	{{movementperson_formset.management_form}}
+	<table class="table table-borderless">
+	<tr class ="d-flex">
+	<th class="col-4">Person
+		<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+			href ="{% url 'persons:add_person' 'inline'%}" role="button">
+			 <i class="fa fa-plus"></i></a>
+		</th>
+	<th class="col-4">Role
+		<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+			href ="{% url 'persons:add_person_literary_movement_relation_role' %}" role="button">
+			 <i class="fa fa-plus"></i></a>
+		</th>
+	<th><i class="fa fa-times text-danger"></i></th>
+	</tr>
+	{% for f in movementperson_formset.forms %}
+		<tr class ="d-flex">
+		<td class="col-4">{{f.person}} {{f.person.errors}}</td>
+		<td class="col-4">{{f.role}} {{f.role.errors}}</td>
+		<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+		</tr>
+	{% endfor %}
+	</table>
+	</div>
+
+</div>
+<hr> 
+{% endif %}
+
+<input type="hidden" name="navbar" id="navbar" value="" />
+<input type="hidden" name="navcontent" id="navcontent" value="" />
+<input type="hidden" name="focus" id="focus" value="" />
+<input type="submit" value="Save" class="btn btn-success">
+
+{% if view == "inline" %}
+	<a type="reset" value="Cancel" class ="btn btn-light"
+	href="{% url 'utilities:close' %}">Cancel</a>
+{% endif %}
+
+</form>
+
+{{form.media.js}}
+
+{% include 'utilities/tab_selector.html' %}
+
+{% endblock content %}

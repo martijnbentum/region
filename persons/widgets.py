@@ -1,5 +1,6 @@
 from .models import Person, LocationRelation, Pseudonym
 from .models import PersonIllustrationRelationRole, PersonTextRelationRole
+from .models import PersonLiteraryMovementRelationRole,LiteraryMovement
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
 
@@ -56,3 +57,24 @@ class PseudonymsWidget(ModelSelect2MultipleWidget):
 
 	def get_queryset(self):
 		return Pseudonym.objects.all().order_by('name')
+
+
+class PersonLiteraryMovementRelationRoleWidget(ModelSelect2Widget):
+	model = PersonLiteraryMovementRelationRole
+	search_fields = ['name__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.name
+
+	def get_queryset(self):
+		return PersonLiteraryMovementRelationRole.objects.all().order_by('name')
+
+class LiteraryMovementWidget(ModelSelect2Widget):
+	model = LiteraryMovement
+	search_fields = ['name__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.name
+
+	def get_queryset(self):
+		return LiteraryMovement.objects.all().order_by('name')

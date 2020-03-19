@@ -4,13 +4,15 @@ from django.template.loader import render_to_string
 from .models import Person, PersonLocationRelation, LocationRelation
 from .models import PersonTextRelation, PersonTextRelationRole 
 from .models import PersonIllustrationRelation, PersonIllustrationRelationRole
-from .models import PublisherManager, Pseudonym
+from .models import PublisherManager, Pseudonym, PersonLiteraryMovementRelation
+from .models import PersonLiteraryMovementRelationRole, LiteraryMovement
 from catalogue.models import Text, Illustration, Publisher 
 from catalogue.widgets import TextWidget, PublisherWidget, IllustrationWidget
 from locations.models import UserLoc
 from locations.forms import LocationWidget, LocationsWidget
 from .widgets import PersonIllustrationRelationRoleWidget, LocationRelationWidget
 from .widgets import PersonTextRelationRoleWidget, PersonWidget, PseudonymsWidget
+from .widgets import PersonLiteraryMovementRelationRoleWidget, LiteraryMovementWidget
 
 
 class PseudonymForm(ModelForm):
@@ -18,6 +20,14 @@ class PseudonymForm(ModelForm):
 		attrs={'style':'width:100%'}))
 	class Meta:
 		model = Pseudonym
+		fields = ['name']
+
+
+class PersonLiteraryMovementRelationRoleForm(ModelForm):
+	name= forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	class Meta:
+		model = PersonLiteraryMovementRelationRole
 		fields = ['name']
 
 
@@ -34,6 +44,49 @@ class PersonIllustrationRelationRoleForm(ModelForm):
 	class Meta:
 		model = PersonIllustrationRelationRole
 		fields = ['name']
+
+
+class LiteraryMovementPersonRelationForm(ModelForm):
+	person = forms.ModelChoiceField(
+		queryset=Person.objects.all(),
+		widget=PersonWidget(
+			attrs={'data-placeholder':'Select a person...',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'1'}))
+	role = forms.ModelChoiceField(
+		queryset=PersonLiteraryMovementRelationRole.objects.all(),
+		widget=PersonLiteraryMovementRelationRoleWidget(
+			attrs={'data-placeholder':'Select role... e.g., founder',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}))
+	
+	class Meta:
+		model = PersonLiteraryMovementRelation
+		fields = ['person','role']
+
+movementperson_formset = inlineformset_factory(
+	LiteraryMovement,PersonLiteraryMovementRelation,
+	form = LiteraryMovementPersonRelationForm, extra=1)
+
+class PersonLiteraryMovementRelationForm(ModelForm):
+	literary_movement= forms.ModelChoiceField(
+		queryset=Publisher.objects.all().order_by('name'),
+		widget=LiteraryMovementWidget(attrs={'data-placeholder':'Select movement...',
+			'style':'width:100%;','class':'searching'}))
+	role = forms.ModelChoiceField(
+		queryset=PersonLiteraryMovementRelationRole.objects.all(),
+		widget=PersonLiteraryMovementRelationRoleWidget(
+			attrs={'data-placeholder':'Select role... e.g., author',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}))
+
+	class Meta:
+		model = PersonLiteraryMovementRelation
+		fields = ['literary_movement','role']
+
+personmovement_formset = inlineformset_factory(
+	Person,PersonLiteraryMovementRelation,
+	form = PersonLiteraryMovementRelationForm, extra=1)
 
 
 class PublisherManagerForm(ModelForm):
@@ -182,6 +235,33 @@ class PersonForm(ModelForm):
 		m = 'first_name,last_name,sex,birth_year,death_year'
 		m +=',birth_place,death_place,pseudonym'
 		fields = m.split(',')
+
+
+class LiteraryMovementForm(ModelForm):
+	location= forms.ModelMultipleChoiceField(
+		queryset=UserLoc.objects.all().order_by('name'),
+		widget=LocationWidget(attrs={'data-placeholder':'Select a location...',
+			'style':'width:100%;','class':'searching'}),
+		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
+		required = False
+		)
+	name= forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	founded= forms.IntegerField(widget=forms.NumberInput(
+		attrs={'style':'width:100%'}),
+		required = False)
+	closure= forms.IntegerField(widget=forms.NumberInput(
+		attrs={'style':'width:100%'}),
+		required = False)
+	notes = forms.CharField(widget=forms.Textarea(
+		attrs={'style':'width:100%','rows':3}),
+		required=False)
+
+	class Meta:
+		model = LiteraryMovement
+		m = 'name,location,founded,closure,notes'
+		fields = m.split(',')
+
 
 def bound_form(request, id):
 	person = get_object_or_404(Person, id=id)

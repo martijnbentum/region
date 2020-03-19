@@ -1,12 +1,5 @@
 {% extends "utilities/base.html" %}
 
-{% block navbar%}
-	{% if view == "inline" %}
-	{% else %}
-        {% include 'utilities/navbar.html' %}
-	{% endif %}
-{% endblock %}
-
 {% block head %}
 	{{form.media.css}}
 {% endblock %}
