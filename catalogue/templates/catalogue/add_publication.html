@@ -103,13 +103,14 @@
 	</table>
 	</div>
 
-
+	<input type="hidden" name="navbar" id="navbar" value="" />
+	<input type="hidden" name="navcontent" id="navcontent" value="" />
+	<input type="hidden" name="focus" id="focus" value="a" />
     <button type="submit" value="Submit" class ="btn btn-success">Save</button>
 	{% if view == "inline" %}
 		<a type="reset" value="Cancel" class ="btn btn-light"
 		href="{% url 'utilties:close' %}">Cancel</a>
 	{% endif %}
-	<input type="hidden" name="focus" id="focus" value="" />
 </form>
 
 {{form.media.js}}
