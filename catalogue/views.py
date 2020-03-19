@@ -10,11 +10,12 @@ from .forms import TextForm, PublicationForm, PublisherForm
 from .forms import IllustrationForm, IllustrationCategoryForm
 from .forms import text_formset, illustration_formset, PublicationTypeForm
 from .forms import texttext_formset, persontext_formset, personillustration_formset
+from .forms import TextTextRelationTypeForm
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
 from utils import view_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
-from utilities.views import add_simple_model 
+from utilities.views import add_simple_model, getfocus
 
 
 @login_required
@@ -30,6 +31,7 @@ def _edit_model(request, instance_id, model_name, formset_names='', focus=''):
 	crud = Crud(instance)
 	ffm, form = None, None
 	if request.method == 'POST':
+		focus = getfocus(request)
 		form = modelform(request.POST, request.FILES, instance=instance)
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
@@ -39,7 +41,8 @@ def _edit_model(request, instance_id, model_name, formset_names='', focus=''):
 			if valid:
 				return HttpResponseRedirect(reverse(
 					'catalogue:edit_'+model_name.lower(), 
-					args = [instance.pk]))
+					kwargs={'pk':instance.pk,'focus':focus}))
+			else: print('ERROR',ffm.errors)
 	if not form: form = modelform(instance=instance)
 	if not ffm: ffm = FormsetFactoryManager(__name__,names,instance=instance)
 	tabs = make_tabs(model_name.lower(), focus_names = focus)
@@ -95,12 +98,12 @@ def add_text(request, view = 'complete',focus = ''):
 		form = TextForm(request.POST, request.FILES)
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
-			form.save()
+			text = form.save()
 			if view == 'complete':
-				ffm = FormsetFactoryManager(__name__,names,request,publication)
+				ffm = FormsetFactoryManager(__name__,names,request,text)
 				valid = ffm.save()
 				if valid:
-					return httpresponseredirect('/catalogue/text/')
+					return HttpResponseRedirect('/catalogue/text/')
 			else: return HttpResponseRedirect('/utilities/close/')
 	if not form: form = TextForm()
 	if not ffm: ffm = FormsetFactoryManager(__name__,names)
@@ -180,21 +183,25 @@ def add_type(request):
 	return add_simple_model(request,__name__,'PublicationType','catalogue',
 		'add publication type')
 
-def edit_text(request, pk):
-	names='texttext_formset'
-	return _edit_model(request, pk, 'Text',formset_names=names)
+def edit_text(request, pk, focus = ''):
+	names='texttext_formset,persontext_formset'
+	return _edit_model(request, pk, 'Text',formset_names=names, focus = focus)
 
 def edit_publisher(request, pk):
 	return _edit_model(request, pk, 'Publisher')
 
-def edit_publication(request, pk):
+def edit_publication(request, pk, focus = ''):
 	names='text_formset,illustration_formset'
-	return _edit_model(request, pk, 'Publication',formset_names=names)
+	return _edit_model(request, pk, 'Publication',formset_names=names, focus = focus)
 
-def edit_illustration(request, pk):
-	return _edit_model(request, pk, 'Illustration')
+def edit_illustration(request, pk, focus = ''):
+	names = 'personillustration_formset'
+	return _edit_model(request, pk, 'Illustration', formset_names=names, focus = focus)
 
 
+def add_texttext_relation_type(request):
+	return add_simple_model(request,__name__,'TextTextRelationType','catalogue',
+		'text - text relation type')
 
 
 
