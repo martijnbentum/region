@@ -72,8 +72,8 @@ class TextTextRelation(models.Model, info):
 									on_delete=models.CASCADE, default=None)
 
 	def __str__(self):
-		m =  self.secondary.name + ' is a ' + self.relation_type.name +' of '
-		m += self.primary.name
+		m =  self.secondary.title+ ' is a ' + self.relation_type.name +' of '
+		m += self.primary.title
 		return m
 
 
