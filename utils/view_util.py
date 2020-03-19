@@ -63,10 +63,12 @@ class FormsetFactoryManager:
 		return ' '.join(self.names)
 		
 	def save(self):
-		self.valid = True
+		self.valid,self.errors = True,[]
 		for formset in self.formsets:
 			if formset.is_valid(): formset.save()
-			else: self.valid = false
+			else: 
+				self.valid = False
+				self.errors.append(formset.errors)
 		return self.valid
 
 
