@@ -261,7 +261,7 @@ class Tabs:
 def make_tabs(tab_type,focus=0,focus_names = ''):
 	minimize = Tab('Edit,Minimize',focus)
 	if tab_type == 'person':
-		t = 'Locations,Texts,Illustrations,Publisher-Manager,Pseudonym'
+		t = 'Locations,Texts,Illustrations,Publisher-Manager,Pseudonym,Literary-Movement'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'publication':
