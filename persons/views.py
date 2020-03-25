@@ -52,6 +52,7 @@ def edit_person(request, person_id = None, focus = '', view = 'complete'):
 	navbar and navcontent set the active tab (last used one)
 	'''
 	names='location_formset,text_formset,illustration_formset,publisher_formset'
+	names+=',personmovement_formset'
 	person = Person.objects.get(pk=person_id) if person_id else None
 	ffm, form = None, None
 	if request.method == 'POST':
@@ -59,6 +60,7 @@ def edit_person(request, person_id = None, focus = '', view = 'complete'):
 		form = PersonForm(request.POST,instance=person)
 		if form.is_valid(): 
 			person = form.save()
+			if view == 'inline': return HttpResponseRedirect('/utilities/close/')
 			ffm = FormsetFactoryManager(__name__,names,request,person)
 			valid = ffm.save()
 			if valid: 
@@ -87,6 +89,7 @@ def edit_literary_movement(request, pk = None, focus = '', view = 'complete'):
 		form = LiteraryMovementForm(request.POST,instance=literary_movement)
 		if form.is_valid(): 
 			literary_movement = form.save()
+			if view == 'inline': return HttpResponseRedirect('/utilities/close/')
 			ffm = FormsetFactoryManager(__name__,names,request,literary_movement)
 			valid = ffm.save()
 			if valid: 
