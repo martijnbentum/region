@@ -86,7 +86,7 @@
 
 <div class="tab-content">
 	<div class="tab-pane fade" id="Persons">
-		{{personillustration_formset.management_form}}
+		{{illustrationperson_formset.management_form}}
 		<table class="table table-borderless">
 		<tr class ="d-flex">
 		<th class="col-5">Person
@@ -101,10 +101,32 @@
 			</th>
 		<th><i class="fa fa-times text-danger"></i></th>
 		</tr>
-		{% for f in personillustration_formset.forms %}
+		{% for f in illustrationperson_formset.forms %}
 			<tr class ="d-flex">
 			<td class="col-5">{{f.person}} {{f.person.errors}}</td>
 			<td class="col-3">{{f.role}} {{f.role.errors}}</td>
+			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+
+	<div class="tab-pane fade" id="Publications">
+		{{illustrationpublication_formset.management_form}}
+		<table class="table table-borderless">
+		<tr class ="d-flex">
+		<th class="col-5">Publication
+			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_publication' 'inline' %}" role="button">
+				 <i class="fa fa-plus"></i></a>
+			</th>
+		<th class="col-3">Page</th>
+		<th><i class="fa fa-times text-danger"></i></th>
+		</tr>
+		{% for f in illustrationpublication_formset.forms %}
+			<tr class ="d-flex">
+			<td class="col-5">{{f.publication}} {{f.publication.errors}}</td>
+			<td class="col-3">{{f.page}} {{f.page.errors}}</td>
 			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
 			</tr>
 		{% endfor %}

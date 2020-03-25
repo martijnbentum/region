@@ -16,59 +16,17 @@ from utilities.forms import LanguageWidget
 from locations.forms import LocationWidget, LocationsWidget
 from .widgets import GenreWidget, PublicationTypeWidget, PublishersWidget 
 from .widgets import IllustrationCategoryWidget,IllustrationWidget,TextWidget
-from .widgets import TextTextRelationTypeWidget
+from .widgets import TextTextRelationTypeWidget, PublicationWidget
 
-
-class PersonIllustrationRelationForm(ModelForm):
-	'''Form to add a person location relation'''
-	person = forms.ModelChoiceField(
-		queryset=Person.objects.all(),
-		widget=PersonWidget(
-			attrs={'data-placeholder':'Select person by name...',
-			'style':'width:100%;','class':'searching'}))
-	role = forms.ModelChoiceField(
-		queryset=PersonIllustrationRelationRole.objects.all(),
-		widget=PersonIllustrationRelationRoleWidget(
-			attrs={'data-placeholder':'Select role... e.g., illustrator',
-			'style':'width:100%;','class':'searching',
-			'data-minimum-input-length':'0'}))
-
-	class Meta:
-		model = PersonIllustrationRelation
-		fields = 'person,role'
-		fields = fields.split(',')
-
-personillustration_formset = inlineformset_factory(
-	Illustration,PersonIllustrationRelation,
-	form = PersonIllustrationRelationForm, extra=1)
-
-
-class PersonTextRelationForm(ModelForm):
-	'''Form to add a person location relation'''
-	person = forms.ModelChoiceField(
-		queryset=Person.objects.all(),
-		widget=PersonWidget(
-			attrs={'data-placeholder':'Select person by name...',
-			'style':'width:100%;','class':'searching'}))
-	role = forms.ModelChoiceField(
-		queryset=PersonTextRelationRole.objects.all(),
-		widget=PersonTextRelationRoleWidget(
-			attrs={'data-placeholder':'Select role... e.g., author',
-			'style':'width:100%;','class':'searching',
-			'data-minimum-input-length':'0'}))
-
-	class Meta:
-		model = PersonTextRelation
-		fields = 'person,role'
-		fields = fields.split(',')
-
-persontext_formset = inlineformset_factory(
-	Text,PersonTextRelation,
-	form = PersonTextRelationForm, extra=1)
 
 
 class IllustrationPublicationRelationForm(ModelForm):
 	'''Form to add a person location relation'''
+	publication = forms.ModelChoiceField(
+		queryset=Publication.objects.all(),
+		widget=PublicationWidget(
+			attrs={'data-placeholder':'Select publication by title...',
+			'style':'width:100%;','class':'searching'}))
 	illustration = forms.ModelChoiceField(
 		queryset=Illustration.objects.all(),
 		widget=IllustrationWidget(
@@ -77,15 +35,23 @@ class IllustrationPublicationRelationForm(ModelForm):
 
 	class Meta:
 		model = IllustrationPublicationRelation
-		fields = 'illustration,page'
+		fields = 'publication,illustration,page'
 		fields = fields.split(',')
 
-illustration_formset = inlineformset_factory(
+publicationillustration_formset = inlineformset_factory(
 	Publication,IllustrationPublicationRelation,
+	form = IllustrationPublicationRelationForm, extra=1)
+illustrationpublication_formset = inlineformset_factory(
+	Illustration,IllustrationPublicationRelation,
 	form = IllustrationPublicationRelationForm, extra=1)
 
 class TextPublicationRelationForm(ModelForm):
 	'''Form to add a person location relation'''
+	publication = forms.ModelChoiceField(
+		queryset=Publication.objects.all(),
+		widget=PublicationWidget(
+			attrs={'data-placeholder':'Select publication by title...',
+			'style':'width:100%;','class':'searching'}))
 	text = forms.ModelChoiceField(
 		queryset=Text.objects.all(),
 		widget=TextWidget(
@@ -94,11 +60,14 @@ class TextPublicationRelationForm(ModelForm):
 
 	class Meta:
 		model = TextPublicationRelation
-		fields = 'text,start_page,end_page'
+		fields = 'publication,text,start_page,end_page'
 		fields = fields.split(',')
 
-text_formset = inlineformset_factory(
+publicationtext_formset = inlineformset_factory(
 	Publication,TextPublicationRelation,
+	form = TextPublicationRelationForm, extra=1)
+textpublication_formset = inlineformset_factory(
+	Text,TextPublicationRelation,
 	form = TextPublicationRelationForm, extra=1)
 
 

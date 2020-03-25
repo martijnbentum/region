@@ -46,46 +46,33 @@ class PersonIllustrationRelationRoleForm(ModelForm):
 		fields = ['name']
 
 
-class LiteraryMovementPersonRelationForm(ModelForm):
+class PersonLiteraryMovementRelationForm(ModelForm):
 	person = forms.ModelChoiceField(
 		queryset=Person.objects.all(),
 		widget=PersonWidget(
 			attrs={'data-placeholder':'Select a person...',
 			'style':'width:100%;','class':'searching',
 			'data-minimum-input-length':'1'}))
+	literary_movement= forms.ModelChoiceField(
+		queryset=LiteraryMovement.objects.all().order_by('name'),
+		widget=LiteraryMovementWidget(attrs={'data-placeholder':'Select movement...',
+			'style':'width:100%;','class':'searching'}))
 	role = forms.ModelChoiceField(
 		queryset=PersonLiteraryMovementRelationRole.objects.all(),
 		widget=PersonLiteraryMovementRelationRoleWidget(
 			attrs={'data-placeholder':'Select role... e.g., founder',
 			'style':'width:100%;','class':'searching',
 			'data-minimum-input-length':'0'}))
-	
-	class Meta:
-		model = PersonLiteraryMovementRelation
-		fields = ['person','role']
-
-movementperson_formset = inlineformset_factory(
-	LiteraryMovement,PersonLiteraryMovementRelation,
-	form = LiteraryMovementPersonRelationForm, extra=1)
-
-class PersonLiteraryMovementRelationForm(ModelForm):
-	literary_movement= forms.ModelChoiceField(
-		queryset=Publisher.objects.all().order_by('name'),
-		widget=LiteraryMovementWidget(attrs={'data-placeholder':'Select movement...',
-			'style':'width:100%;','class':'searching'}))
-	role = forms.ModelChoiceField(
-		queryset=PersonLiteraryMovementRelationRole.objects.all(),
-		widget=PersonLiteraryMovementRelationRoleWidget(
-			attrs={'data-placeholder':'Select role... e.g., author',
-			'style':'width:100%;','class':'searching',
-			'data-minimum-input-length':'0'}))
 
 	class Meta:
 		model = PersonLiteraryMovementRelation
-		fields = ['literary_movement','role']
+		fields = ['person','literary_movement','role']
 
 personmovement_formset = inlineformset_factory(
 	Person,PersonLiteraryMovementRelation,
+	form = PersonLiteraryMovementRelationForm, extra=1)
+movementperson_formset = inlineformset_factory(
+	LiteraryMovement,PersonLiteraryMovementRelation,
 	form = PersonLiteraryMovementRelationForm, extra=1)
 
 
@@ -93,7 +80,7 @@ class PublisherManagerForm(ModelForm):
 	manager = forms.ModelChoiceField(
 		queryset=Person.objects.all(),
 		widget=PersonWidget(
-			attrs={'data-placeholder':'Select role... e.g., author',
+			attrs={'data-placeholder':'Select a person',
 			'style':'width:100%;','class':'searching',
 			'data-minimum-input-length':'1'}))
 	publisher = forms.ModelChoiceField(
@@ -106,13 +93,22 @@ class PublisherManagerForm(ModelForm):
 		model = PublisherManager
 		fields = ['manager','publisher']
 
-publisher_formset = inlineformset_factory(
+personpublisher_formset = inlineformset_factory(
 	Person,PublisherManager,
+	form = PublisherManagerForm, extra=1)
+publisherperson_formset = inlineformset_factory(
+	Publisher,PublisherManager,
 	form = PublisherManagerForm, extra=1)
 
 
 class PersonTextRelationForm(ModelForm):
 	'''Form to add a person location relation'''
+	person = forms.ModelChoiceField(
+		queryset=Person.objects.all(),
+		widget=PersonWidget(
+			attrs={'data-placeholder':'Select a person',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'1'}))
 	text = forms.ModelChoiceField(
 		queryset=Text.objects.all(),
 		widget=TextWidget(
@@ -127,16 +123,25 @@ class PersonTextRelationForm(ModelForm):
 
 	class Meta:
 		model = PersonTextRelation
-		fields = 'text,role'
+		fields = 'person,text,role'
 		fields = fields.split(',')
 
-text_formset = inlineformset_factory(
+persontext_formset = inlineformset_factory(
 	Person,PersonTextRelation,
+	form = PersonTextRelationForm, extra=1)
+textperson_formset = inlineformset_factory(
+	Text,PersonTextRelation,
 	form = PersonTextRelationForm, extra=1)
 
 
 class PersonIllustrationRelationForm(ModelForm):
 	'''Form to add a person location relation'''
+	person = forms.ModelChoiceField(
+		queryset=Person.objects.all(),
+		widget=PersonWidget(
+			attrs={'data-placeholder':'Select a person',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'1'}))
 	illustration = forms.ModelChoiceField(
 		queryset=Illustration.objects.all(),
 		widget=IllustrationWidget(
@@ -151,11 +156,14 @@ class PersonIllustrationRelationForm(ModelForm):
 
 	class Meta:
 		model = PersonIllustrationRelation
-		fields = 'illustration,role'
+		fields = 'person,illustration,role'
 		fields = fields.split(',')
 
-illustration_formset = inlineformset_factory(
+personillustration_formset = inlineformset_factory(
 	Person,PersonIllustrationRelation,
+	form = PersonIllustrationRelationForm, extra=1)
+illustrationperson_formset = inlineformset_factory(
+	Illustration,PersonIllustrationRelation,
 	form = PersonIllustrationRelationForm, extra=1)
 
 

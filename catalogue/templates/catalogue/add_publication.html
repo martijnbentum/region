@@ -53,11 +53,15 @@
 </div>
 <hr>
 
+
+{% if view == "inline" %}
+{% else %}
+
 {% include 'utilities/relation_tabs.html' %}
 
 <div class="tab-content">
 	<div class="tab-pane fade" id="Texts">
-		{{text_formset.management_form}}
+		{{publicationtext_formset.management_form}}
 		<table class="table table-borderless">
 		<tr class ="d-flex">
 		<th class="col-5">Text
@@ -69,7 +73,7 @@
 		<th class="col-3">end page</th>
 		<th><i class="fa fa-times text-danger"></i></th>
 		</tr>
-		{% for f in text_formset.forms %}
+		{% for f in publicationtext_formset.forms %}
 			<tr class ="d-flex">
 			<td class="col-5">{{f.text}} {{f.text.errors}}</td>
 			<td class="col-3">{{f.start_page}} {{f.start_page.errors}}</td>
@@ -81,7 +85,7 @@
 	</div>
 
 	<div class="tab-pane fade" id="Illustrations">
-		{{illustration_formset.management_form}}
+		{{publicationillustration_formset.management_form}}
 		<table class="table table-borderless">
 		<tr class ="d-flex">
 		<th class="col-5">Illustration
@@ -93,7 +97,7 @@
 			</th>
 		<th><i class="fa fa-times text-danger"></i></th>
 		</tr>
-		{% for f in illustration_formset.forms %}
+		{% for f in publicationillustration_formset.forms %}
 			<tr class ="d-flex">
 			<td class="col-5">{{f.illustration}} {{f.illustration.errors}}</td>
 			<td class="col-4">{{f.page}} {{f.page.errors}}</td>
@@ -102,6 +106,7 @@
 		{% endfor %}
 	</table>
 	</div>
+{% endif %}
 
 	<input type="hidden" name="navbar" id="navbar" value="" />
 	<input type="hidden" name="navcontent" id="navcontent" value="" />
@@ -109,7 +114,7 @@
     <button type="submit" value="Submit" class ="btn btn-success">Save</button>
 	{% if view == "inline" %}
 		<a type="reset" value="Cancel" class ="btn btn-light"
-		href="{% url 'utilties:close' %}">Cancel</a>
+		href="{% url 'utilities:close' %}">Cancel</a>
 	{% endif %}
 </form>
 

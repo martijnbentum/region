@@ -7,8 +7,8 @@ from django.urls import reverse
 # from utilities.models import Date 
 from .models import Person, PersonLocationRelation, LocationRelation, LiteraryMovement
 from .forms import PersonForm, PersonLocationRelationForm, LocationRelationForm
-from .forms import location_formset, text_formset, illustration_formset
-from .forms import publisher_formset, PseudonymForm, LiteraryMovementForm
+from .forms import location_formset, persontext_formset, personillustration_formset
+from .forms import personpublisher_formset, PseudonymForm, LiteraryMovementForm
 from .forms import PersonTextRelationRoleForm, PersonIllustrationRelationRoleForm
 from .forms import movementperson_formset, personmovement_formset
 from .forms import PersonLiteraryMovementRelationRoleForm
@@ -51,8 +51,8 @@ def edit_person(request, person_id = None, focus = '', view = 'complete'):
 	'''add or edit a person instance and person location relation
 	navbar and navcontent set the active tab (last used one)
 	'''
-	names='location_formset,text_formset,illustration_formset,publisher_formset'
-	names+=',personmovement_formset'
+	names='location_formset,persontext_formset,personillustration_formset'
+	names+=',personmovement_formset,personpublisher_formset'
 	person = Person.objects.get(pk=person_id) if person_id else None
 	ffm, form = None, None
 	if request.method == 'POST':

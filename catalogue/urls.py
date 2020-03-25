@@ -27,6 +27,7 @@ urlpatterns = [
 	path('edit_publication/<int:pk>/<str:focus>', views.edit_publication, 
 		name='edit_publication'),
 	path('edit_publisher/<int:pk>', views.edit_publisher, name='edit_publisher'),
+	path('edit_publisher/<int:pk>/<str:focus>', views.edit_publisher, name='edit_publisher'),
 	path('edit_illustration/<int:pk>', views.edit_illustration, 
 		name='edit_illustration'),
 	path('edit_illustration/<int:pk>/<str:focus>', 

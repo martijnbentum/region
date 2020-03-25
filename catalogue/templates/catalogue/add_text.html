@@ -55,6 +55,9 @@
     </div>
 </div>
 
+
+{% if view == "inline" %}
+{% else %}
 {% include 'utilities/relation_tabs.html' %}
 
 <div class="tab-content">
@@ -85,7 +88,7 @@
 	</div>
 
 	<div class="tab-pane fade" id="Persons">
-		{{persontext_formset.management_form}}
+		{{textperson_formset.management_form}}
 		<table class="table table-borderless">
 		<tr class ="d-flex">
 		<th class="col-5">Person
@@ -100,7 +103,7 @@
 			</th>
 		<th><i class="fa fa-times text-danger"></i></th>
 		</tr>
-		{% for f in persontext_formset.forms %}
+		{% for f in textperson_formset.forms %}
 			<tr class ="d-flex">
 			<td class="col-5">{{f.person}} {{f.person.errors}}</td>
 			<td class="col-3">{{f.role}} {{f.role.errors}}</td>
@@ -109,7 +112,32 @@
 		{% endfor %}
 		</table>
 	</div>
+
+	<div class="tab-pane fade" id="Publications">
+		{{textpublication_formset.management_form}}
+		<table class="table table-borderless">
+		<tr class ="d-flex">
+		<th class="col-5">Publication
+			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_publication' 'inline' %}" role="button">
+				 <i class="fa fa-plus"></i></a>
+			</th>
+		<th class="col-3">start page</th>
+		<th class="col-3">end page</th>
+		<th><i class="fa fa-times text-danger"></i></th>
+		</tr>
+		{% for f in textpublication_formset.forms %}
+			<tr class ="d-flex">
+			<td class="col-5">{{f.publication}} {{f.publication.errors}}</td>
+			<td class="col-3">{{f.start_page}} {{f.start_page.errors}}</td>
+			<td class="col-3">{{f.end_page}} {{f.end_page.errors}}</td>
+			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
 <div>
+{% endif %}
 
 <input type="hidden" name="navbar" id="navbar" value="" />
 <input type="hidden" name="navcontent" id="navcontent" value="" />

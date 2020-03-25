@@ -20,7 +20,7 @@ def add_simple_model(request, name_space,model_name,app_name, page_name):
 def getfocus(request):
 	if 'focus' in request.POST.keys():
 		return request.POST['focus']
-	else: return ''
+	else: return 'default'
 # Create your views here.
 
 def close(request):

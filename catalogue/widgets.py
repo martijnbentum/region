@@ -1,4 +1,4 @@
-from .models import Text, Illustration, Genre, Publisher, PublicationType 
+from .models import Text, Illustration, Genre, Publisher, PublicationType, Publication
 from .models import IllustrationCategory, TextTextRelationType
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
@@ -63,6 +63,14 @@ class PublicationTypeWidget(ModelSelect2Widget):
 		return obj.name
 	def get_queryset(self):
 		return PublicationType.objects.all().order_by('name')
+
+class PublicationWidget(ModelSelect2Widget):
+	model = Publication
+	search_fields = ['title__icontains']
+	def label_from_instance(self,obj):
+		return obj.title
+	def get_queryset(self):
+		return Publication.objects.all().order_by('title')
 
 
 class TextTextRelationTypeWidget(ModelSelect2Widget):
