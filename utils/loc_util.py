@@ -211,6 +211,8 @@ default_countries += ',Portugal,Austria,Denmark,Norway,Sweden,Finland,Belgium'
 default_countries += ',Luxembourg,Ireland,Poland,slovenia'
 default_countries = default_countries.split(',')
 
+all_countries = [c.country for c in make_countries()]
+
 def _save_locations(locations,loctype = 'unk', verbose=True):
 	saved, already_exists, error = [],[],[]
 	for l in locations:
@@ -226,6 +228,7 @@ def _save_locations(locations,loctype = 'unk', verbose=True):
 
 def make_geolocations(countries='default', min_size_cities = 5000, save = True):
 	if countries == 'default':countries = default_countries
+	if countries == 'all':countries = all_countries
 	assert type(countries) == list
 	cities = make_cities()
 	cities = [c for c in cities
