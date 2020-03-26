@@ -77,6 +77,14 @@
 			</th>
 		<th><i class="fa fa-times text-danger"></i></th>
 		</tr>
+		{{texttextr_formset.management_form}}
+		{% for f in texttextr_formset.forms %}
+			<tr class ="d-flex">
+			<td class="col-5">{{f.primary}} {{f.primary.errors}}</td>
+			<td class="col-3">{{f.relation_type}} {{f.relation_type.errors}}</td>
+			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
 		{% for f in texttext_formset.forms %}
 			<tr class ="d-flex">
 			<td class="col-5">{{f.secondary}} {{f.secondary.errors}}</td>

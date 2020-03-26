@@ -11,7 +11,7 @@ from .forms import IllustrationForm, IllustrationCategoryForm
 from .forms import TextTextRelationTypeForm
 from .forms import publicationtext_formset, publicationillustration_formset
 from .forms import textpublication_formset, illustrationpublication_formset
-from .forms import texttext_formset, publicationperiodical_formset
+from .forms import texttext_formset, texttextr_formset, publicationperiodical_formset
 from .forms import periodicalpublication_formset
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
@@ -104,7 +104,7 @@ class PublisherView(generic.ListView):
 def add_text(request, view = 'complete',focus = ''):
 	# if this is a post request we need to process the form data
 	ffm, form = None, None
-	names='texttext_formset,textperson_formset,textpublication_formset'
+	names='texttext_formset,texttextr_formset,textperson_formset,textpublication_formset'
 	if request.method == 'POST':
 		print(request.FILES)
 		form = TextForm(request.POST, request.FILES)
@@ -218,7 +218,7 @@ def add_type(request):
 		'add publication type')
 
 def edit_text(request, pk, focus = ''):
-	names='texttext_formset,textperson_formset,textpublication_formset'
+	names='texttext_formset,texttextr_formset,textperson_formset,textpublication_formset'
 	return _edit_model(request, pk, 'Text',formset_names=names, focus = focus)
 
 def edit_periodical(request, pk, focus = ''):

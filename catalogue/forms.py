@@ -8,7 +8,7 @@ from .models import TextTextRelationType, PeriodicalPublicationRelation
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation, PersonTextRelation
 from persons.models import PersonTextRelationRole, PersonIllustrationRelation
-from persons.models import PersonIllustrationRelationRole
+from persons.models import PersonIllustrationRelationRole 
 from persons.widgets import PersonTextRelationRoleWidget, PersonWidget 
 from persons.widgets import PersonIllustrationRelationRoleWidget
 from utilities.models import Language 
@@ -98,6 +98,11 @@ textpublication_formset = inlineformset_factory(
 
 class TextTextRelationForm(ModelForm):
 	'''Form to add a person location relation'''
+	primary = forms.ModelChoiceField(
+		queryset=Text.objects.all(),
+		widget=TextWidget(
+			attrs={'data-placeholder':'Select text by title...',
+			'style':'width:100%;','class':'searching'}))
 	secondary = forms.ModelChoiceField(
 		queryset=Text.objects.all(),
 		widget=TextWidget(
@@ -118,6 +123,9 @@ class TextTextRelationForm(ModelForm):
 texttext_formset = inlineformset_factory(
 	Text,TextTextRelation,fk_name = 'primary',
 	form = TextTextRelationForm, extra=1)
+texttextr_formset = inlineformset_factory(
+	Text,TextTextRelation,fk_name = 'secondary',
+	form = TextTextRelationForm, extra=0)
 
 class TextTextRelationTypeForm(ModelForm):
 	'''Form to add a text'''
