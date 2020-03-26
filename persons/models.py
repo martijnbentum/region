@@ -217,7 +217,7 @@ class PersonMovementRelationRole(models.Model, info):
 		return self.name
 
 class PersonMovementRelation(models.Model, info):
-	movement = models.ForeignKey(Movement, on_delete=models.CASCADE, null=True,blank=True)
+	movement = models.ForeignKey(Movement, on_delete=models.CASCADE)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	role = models.ForeignKey(PersonMovementRelationRole, on_delete=models.CASCADE)
 
