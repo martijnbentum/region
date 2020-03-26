@@ -20,6 +20,12 @@ from utils import view_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
 from utilities.views import add_simple_model, getfocus
 
+#todo
+#the general edit function should also handle add case, will significantly reduce code
+#the general add/edit should also generalize across apps will further reduce code
+#the Crud shows edits of a model, 
+#  Crud system  will only work in functions not in classes (throws an error)
+#  the view classes defined below will not work
 
 @login_required
 def _edit_model(request, instance_id, model_name, formset_names='', focus=''):
@@ -56,6 +62,7 @@ def _edit_model(request, instance_id, model_name, formset_names='', focus=''):
 
 
 class PeriodicalView(generic.ListView):
+	'''list view of periodicals.'''
 	template_name = 'catalogue/periodical_list.html'
 	context_object_name = 'periodical_list'
 	# paginate_by = 10 # http://127.0.0.1:8000/catalogue/text/?page=2
@@ -66,6 +73,7 @@ class PeriodicalView(generic.ListView):
 		return Periodical.objects.order_by('title')
 
 class IllustrationView(generic.ListView):
+	'''list view of illustrations.'''
 	template_name = 'catalogue/illustration_list.html'
 	context_object_name = 'illustration_list'
 	# paginate_by = 10 # http://127.0.0.1:8000/catalogue/text/?page=2
@@ -76,6 +84,7 @@ class IllustrationView(generic.ListView):
 		return Illustration.objects.order_by('caption')
 
 class TextView(generic.ListView):
+	'''list view of texts.'''
 	template_name = 'catalogue/text_list.html'
 	context_object_name = 'text_list'
 	# paginate_by = 10 # http://127.0.0.1:8000/catalogue/text/?page=2
@@ -85,6 +94,7 @@ class TextView(generic.ListView):
 		return Text.objects.order_by('title')
 
 class PublicationView(generic.ListView):
+	'''list view of publications.'''
 	template_name = 'catalogue/publication_list.html'
 	context_object_name = 'publication_list'
 	extra_context={'page_name':'Publication'}
@@ -93,6 +103,7 @@ class PublicationView(generic.ListView):
 		return Publication.objects.order_by('title')
 
 class PublisherView(generic.ListView):
+	'''list view of publishers.'''
 	template_name = 'catalogue/publisher_list.html'
 	context_object_name = 'publisher_list'
 	extra_context={'page_name':'Publisher'}
@@ -102,7 +113,6 @@ class PublisherView(generic.ListView):
 
 
 def add_text(request, view = 'complete',focus = ''):
-	# if this is a post request we need to process the form data
 	ffm, form = None, None
 	names='texttext_formset,texttextr_formset,textperson_formset,textpublication_formset'
 	if request.method == 'POST':
@@ -127,7 +137,6 @@ def add_text(request, view = 'complete',focus = ''):
 
 
 def add_publication(request, view='complete', focus = ''):
-	# if this is a post request we need to process the form data
 	names='publicationtext_formset,publicationillustration_formset,publicationperiodical_formset'
 	ffm, form = None, None
 	if request.method == 'POST':
@@ -150,7 +159,6 @@ def add_publication(request, view='complete', focus = ''):
 
 
 def add_publisher(request,view='complete'):
-	# if this is a post request we need to process the form data
 	if request.method == 'POST':
 		form = PublisherForm(request.POST)
 		if form.is_valid():
@@ -165,7 +173,6 @@ def add_publisher(request,view='complete'):
 
 
 def add_illustration(request,view='complete', focus = ''):
-	# if this is a post request we need to process the form data
 	names = 'illustrationperson_formset,illustrationpublication_formset'
 	ffm, form = None, None
 	if request.method == 'POST':

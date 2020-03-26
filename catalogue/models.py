@@ -85,6 +85,7 @@ class Fragment(models.Model):
 
 
 class IllustrationCategory(models.Model):
+	'''The type of illustration e.g painting.'''
 	name = models.CharField(max_length=200,unique=True)
 	notes = models.TextField(null=True,blank=True)
 	
@@ -93,7 +94,7 @@ class IllustrationCategory(models.Model):
 
 
 class Illustration(models.Model, info):
-	'''a picture, should the picture itself be saveable?, illustration format?'''
+	'''a illustration typically part of publication'''
 	caption =  models.CharField(max_length=300,null=True,blank=True)
 	category= models.ForeignKey(IllustrationCategory, on_delete=models.SET_NULL,
 		blank=True,null=True)
@@ -108,6 +109,7 @@ class Illustration(models.Model, info):
 
 
 class Audience(models.Model, info): # only usefull for periodical not book?
+	'''audience for a periodical'''
 	name = models.CharField(max_length=100, null=True,blank=True)
 	description = models.TextField(null=True,blank=True)
 
@@ -115,6 +117,7 @@ class Audience(models.Model, info): # only usefull for periodical not book?
 		return self.name
 
 class Book(models.Model, info):
+	'''Redundant?'''
 	title = models.CharField(max_length=300) 
 	language = models.CharField(max_length=100,null=True,blank=True) 
 
@@ -140,6 +143,7 @@ class Publisher(models.Model, info):
 
 
 class PublicationType(models.Model):
+	'''the type of pubilication eg. novel newspaper etc.'''
 	name = models.CharField(max_length=100,unique=True)
 	notes = models.TextField(null=True,blank=True) 
 
@@ -173,6 +177,7 @@ class Publication(models.Model, info):
 
 @receiver(m2m_changed, sender = Publication.publisher.through)
 def verify_uniqueness(sender, **kwargs):
+	'''Checks whether a publication with the same title and publisher was already in the database.'''
 	publication = kwargs.get('instance',None)
 	action = kwargs.get('action',None)
 	publishers = kwargs.get('pk_set',None)
@@ -186,14 +191,14 @@ def verify_uniqueness(sender, **kwargs):
 
 
 class TextPublicationRelation(models.Model): #many to many
-	'''Links a work with a publication.'''
+	'''Links a text with a publication.'''
 	text = models.ForeignKey(Text, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 	start_page = models.PositiveIntegerField(null=True,blank=True)
 	end_page = models.PositiveIntegerField(null=True,blank=True)
 
 class IllustrationPublicationRelation(models.Model): #many to many
-	'''Links a work with a publication.'''
+	'''Links a illustration with a publication.'''
 	illustration = models.ForeignKey(Illustration, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 	page = models.PositiveIntegerField(null=True,blank=True)
@@ -209,7 +214,7 @@ class Periodical(models.Model, info):
 		return self.title
 
 class PeriodicalPublicationRelation(models.Model, info):
-	'''Recurrent publication.'''
+	'''linking a periodical to a publication (a specific issue of a periodical).'''
 	periodical= models.ForeignKey(Periodical, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 	volume= models.PositiveIntegerField(null=True,blank=True)

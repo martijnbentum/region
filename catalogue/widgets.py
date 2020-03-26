@@ -3,6 +3,12 @@ from .models import Periodical
 from .models import IllustrationCategory, TextTextRelationType
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
+#all select2 widgets related to catalogue models are defined here
+#select2 handles type searching for model instances
+#use of these widgets enables delayed loading of the options (without this
+# approach all instances of a model would be coded in the html, now it is send via
+# ajax calls with json)
+
 class IllustrationCategoryWidget(ModelSelect2Widget):
 	model = IllustrationCategory
 	search_fields = ['name__icontains']

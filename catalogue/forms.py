@@ -20,7 +20,7 @@ from .widgets import TextTextRelationTypeWidget, PublicationWidget, PeriodicalWi
 
 
 class PeriodicalPublicationRelationForm(ModelForm):
-	'''Form to add a person location relation'''
+	'''Form to add a periodical publication relation'''
 	publication = forms.ModelChoiceField(
 		queryset=Publication.objects.all(),
 		widget=PublicationWidget(
@@ -37,6 +37,7 @@ class PeriodicalPublicationRelationForm(ModelForm):
 		fields = 'publication,periodical,volume,issue'
 		fields = fields.split(',')
 
+#fromsets are symmetrically defined to be able to add the relation from both sides
 publicationperiodical_formset = inlineformset_factory(
 	Publication,PeriodicalPublicationRelation,
 	form = PeriodicalPublicationRelationForm, extra=1)
@@ -46,7 +47,7 @@ periodicalpublication_formset = inlineformset_factory(
 
 
 class IllustrationPublicationRelationForm(ModelForm):
-	'''Form to add a person location relation'''
+	'''Form to add a illustration publication relation'''
 	publication = forms.ModelChoiceField(
 		queryset=Publication.objects.all(),
 		widget=PublicationWidget(
@@ -63,6 +64,7 @@ class IllustrationPublicationRelationForm(ModelForm):
 		fields = 'publication,illustration,page'
 		fields = fields.split(',')
 
+#fromsets are symmetrically defined to be able to add the relation from both sides
 publicationillustration_formset = inlineformset_factory(
 	Publication,IllustrationPublicationRelation,
 	form = IllustrationPublicationRelationForm, extra=1)
@@ -71,7 +73,7 @@ illustrationpublication_formset = inlineformset_factory(
 	form = IllustrationPublicationRelationForm, extra=1)
 
 class TextPublicationRelationForm(ModelForm):
-	'''Form to add a person location relation'''
+	'''Form to add a text publication relation'''
 	publication = forms.ModelChoiceField(
 		queryset=Publication.objects.all(),
 		widget=PublicationWidget(
@@ -88,6 +90,7 @@ class TextPublicationRelationForm(ModelForm):
 		fields = 'publication,text,start_page,end_page'
 		fields = fields.split(',')
 
+#fromsets are symmetrically defined to be able to add the relation from both sides
 publicationtext_formset = inlineformset_factory(
 	Publication,TextPublicationRelation,
 	form = TextPublicationRelationForm, extra=1)
@@ -97,7 +100,9 @@ textpublication_formset = inlineformset_factory(
 
 
 class TextTextRelationForm(ModelForm):
-	'''Form to add a person location relation'''
+	'''Form to add a text relation.
+	the relation is directional however on the front end we show it as if it is symmetrical
+	review/reviewed translation/translated is not symmetrical but non trivial to implement'''
 	primary = forms.ModelChoiceField(
 		queryset=Text.objects.all(),
 		widget=TextWidget(
@@ -120,6 +125,8 @@ class TextTextRelationForm(ModelForm):
 		fields = 'secondary,relation_type'
 		fields = fields.split(',')
 
+#fromsets are symmetrically defined to be able to add the relation from both sides
+#for relations between the same model the relation is asymmetrical
 texttext_formset = inlineformset_factory(
 	Text,TextTextRelation,fk_name = 'primary',
 	form = TextTextRelationForm, extra=1)
@@ -128,7 +135,7 @@ texttextr_formset = inlineformset_factory(
 	form = TextTextRelationForm, extra=0)
 
 class TextTextRelationTypeForm(ModelForm):
-	'''Form to add a text'''
+	'''Form to add a textrelationtype e.g. translation'''
 	name = forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	notes = forms.CharField(widget=forms.Textarea(
@@ -141,7 +148,7 @@ class TextTextRelationTypeForm(ModelForm):
 		fields = m.split(',')
 
 class PublicationTypeForm(ModelForm):
-	'''Form to add a text'''
+	'''Form to add a publication type e.g. novel'''
 	name = forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	notes = forms.CharField(widget=forms.Textarea(
@@ -185,7 +192,7 @@ class TextForm(ModelForm):
 
 
 class PublicationForm(ModelForm):
-	'''Form to add a text'''
+	'''Form to add a publication'''
 	form = forms.ModelChoiceField(
 		queryset=PublicationType.objects.all().order_by('name'),
 		widget=PublicationTypeWidget(
@@ -222,7 +229,7 @@ class PublicationForm(ModelForm):
 
 
 class PublisherForm(ModelForm):
-	'''Company that publishes works.'''
+	'''form to add publisher.'''
 	location= forms.ModelMultipleChoiceField(
 		queryset=UserLoc.objects.all().order_by('name'),
 		widget=LocationsWidget(attrs={'data-placeholder':'Select location(s)...',
@@ -247,6 +254,7 @@ class PublisherForm(ModelForm):
 
 
 class IllustrationCategoryForm(ModelForm):
+	'''form to add an illustration category.'''
 	name = forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	notes = forms.CharField(widget=forms.Textarea(
@@ -259,6 +267,7 @@ class IllustrationCategoryForm(ModelForm):
 	
 
 class IllustrationForm(ModelForm):
+	'''Form to add an illustration.'''
 	caption = forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	category = forms.ModelChoiceField(
@@ -281,6 +290,7 @@ class IllustrationForm(ModelForm):
 		fields = 'caption,category,page_number,notes,upload'.split(',')
 
 class PeriodicalForm(ModelForm):
+	'''Form to add an periodical.'''
 	title= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	founded= forms.IntegerField(widget=forms.NumberInput(

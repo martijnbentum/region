@@ -18,6 +18,7 @@ from .widgets import PersonPersonRelationTypeWidget
 
 
 class PersonPersonRelationTypeForm(ModelForm):
+	'''from to add a person person relation type.'''
 	name= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	class Meta:
@@ -25,7 +26,7 @@ class PersonPersonRelationTypeForm(ModelForm):
 		fields = ['name']
 
 class PersonPersonRelationForm(ModelForm):
-	'''Form to add a person location relation'''
+	'''Form to add a person person relation'''
 	person1 = forms.ModelChoiceField(
 		queryset=Person.objects.all(),
 		widget=PersonWidget(
@@ -48,6 +49,8 @@ class PersonPersonRelationForm(ModelForm):
 		fields = 'person2,relation_type'
 		fields = fields.split(',')
 
+#formsets are defined symmetrically to show relation on both sides of the relation
+#relation between instances of same model are not really symmetrical
 personperson_formset = inlineformset_factory(
 	Person,PersonPersonRelation,fk_name = 'person1',
 	form = PersonPersonRelationForm, extra=1)
@@ -56,6 +59,7 @@ personpersonr_formset = inlineformset_factory(
 	form = PersonPersonRelationForm, extra=0)
 
 class PseudonymForm(ModelForm):
+	'''Form to add pseudonyms.'''
 	name= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	class Meta:
@@ -64,6 +68,7 @@ class PseudonymForm(ModelForm):
 
 
 class PersonMovementRelationRoleForm(ModelForm):
+	'''form to add a person movement relation (movement as in literary or cultural movement).'''
 	name= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	class Meta:
@@ -71,6 +76,7 @@ class PersonMovementRelationRoleForm(ModelForm):
 		fields = ['name']
 
 class MovementTypeForm(ModelForm):
+	'''Form to add a movement type eg. cultural or political.'''
 	name= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	class Meta:
