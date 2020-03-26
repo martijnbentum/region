@@ -190,8 +190,17 @@ class PersonIllustrationRelation(models.Model, info):
 		unique_together = ['role','person','illustration']
 
 
-class LiteraryMovement(models.Model, info):
+class MovementType(models.Model, info):
+	name = models.CharField(max_length = 100,unique=True)
+	notes = models.TextField(null=True,blank=True)
+
+	def __str__(self):
+		return self.name
+
+
+class Movement(models.Model, info):
 	name = models.CharField(max_length=200, null=True, blank=True)
+	movement_type = models.ForeignKey(MovementType,blank=True, null=True,on_delete=models.SET_NULL)
 	location= models.ForeignKey(UserLoc,blank=True, null=True,on_delete=models.SET_NULL)
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 
@@ -200,17 +209,17 @@ class LiteraryMovement(models.Model, info):
 	def __str__(self):
 		return self.name
 
-class PersonLiteraryMovementRelationRole(models.Model, info):
+class PersonMovementRelationRole(models.Model, info):
 	name = models.CharField(max_length = 100,unique=True)
 	notes = models.TextField(null=True,blank=True)
 
 	def __str__(self):
 		return self.name
 
-class PersonLiteraryMovementRelation(models.Model, info):
-	literary_movement = models.ForeignKey(LiteraryMovement, on_delete=models.CASCADE)
+class PersonMovementRelation(models.Model, info):
+	movement = models.ForeignKey(Movement, on_delete=models.CASCADE, null=True,blank=True)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
-	role = models.ForeignKey(PersonLiteraryMovementRelationRole, on_delete=models.CASCADE)
+	role = models.ForeignKey(PersonMovementRelationRole, on_delete=models.CASCADE)
 
 
 	

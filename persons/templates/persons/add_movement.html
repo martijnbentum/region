@@ -7,12 +7,12 @@
 {% block content %}
 <div class="col-md-12 d-flex">
 <h4 class="mt-2">{{page_name}}</h4> 
-{% if page_name == "Edit Literary movement"%}
-<a class ="btn btn-link ml-auto" href="{% url 'persons:add_literary_movement' %}"
-role="button">add literary movement</a>
+{% if page_name == "Edit movement"%}
+<a class ="btn btn-link ml-auto" href="{% url 'persons:add_movement' %}"
+role="button">add movement</a>
 {% endif %}
-<a class ="btn btn-link ml-auto" href="{% url 'persons:literary_movement_list' %}" 
-role="button">literary movement list</a>
+<a class ="btn btn-link ml-auto" href="{% url 'persons:movement_list' %}" 
+role="button">movement list</a>
 </div>
 
 
@@ -25,7 +25,7 @@ role="button">literary movement list</a>
 
     <div class="tab-pane fade" id="Edit">
 		<!-- person form is defined in a seperate template -->
-		{% if page_name == "Edit literary movement" and 'unknown' not in crud.last_update %}
+		{% if page_name == "Edit movement" and 'unknown' not in crud.last_update %}
 			{% include 'utilities/change_log.html' %}
 			{% else %} <p class="mb-4"></p>
 		{% endif %}
@@ -36,7 +36,15 @@ role="button">literary movement list</a>
 			<td class="col-8">{{form.name}}</td>
 		</tr>
 		<tr class="d-flex">
-			<th class="col-2">Locations</th>
+			<th class="col-2">Type</th>
+			<td class="col-8">{{form.movement_type}}</td>
+			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'persons:add_movement_type'%}"
+				role="button"><i class="fa fa-plus"></i></a>
+			</td>
+		</tr>
+		<tr class="d-flex">
+			<th class="col-2">Location</th>
 			<td class="col-8">{{form.location}}</td>
 		</tr>
 		<tr class="d-flex">
@@ -82,7 +90,7 @@ role="button">literary movement list</a>
 		</th>
 	<th class="col-4">Role
 		<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-			href ="{% url 'persons:add_person_literary_movement_relation_role' %}" role="button">
+			href ="{% url 'persons:add_person_movement_relation_role' %}" role="button">
 			 <i class="fa fa-plus"></i></a>
 		</th>
 	<th><i class="fa fa-times text-danger"></i></th>

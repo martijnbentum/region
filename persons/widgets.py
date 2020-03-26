@@ -1,6 +1,6 @@
 from .models import Person, LocationRelation, Pseudonym
 from .models import PersonIllustrationRelationRole, PersonTextRelationRole
-from .models import PersonLiteraryMovementRelationRole,LiteraryMovement
+from .models import PersonMovementRelationRole,Movement, MovementType
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
 
@@ -59,22 +59,33 @@ class PseudonymsWidget(ModelSelect2MultipleWidget):
 		return Pseudonym.objects.all().order_by('name')
 
 
-class PersonLiteraryMovementRelationRoleWidget(ModelSelect2Widget):
-	model = PersonLiteraryMovementRelationRole
+class PersonMovementRelationRoleWidget(ModelSelect2Widget):
+	model = PersonMovementRelationRole
 	search_fields = ['name__icontains']
 
 	def label_from_instance(self,obj):
 		return obj.name
 
 	def get_queryset(self):
-		return PersonLiteraryMovementRelationRole.objects.all().order_by('name')
+		return PersonMovementRelationRole.objects.all().order_by('name')
 
-class LiteraryMovementWidget(ModelSelect2Widget):
-	model = LiteraryMovement
+class MovementWidget(ModelSelect2Widget):
+	model = Movement
 	search_fields = ['name__icontains']
 
 	def label_from_instance(self,obj):
 		return obj.name
 
 	def get_queryset(self):
-		return LiteraryMovement.objects.all().order_by('name')
+		return Movement.objects.all().order_by('name')
+
+
+class MovementTypeWidget(ModelSelect2Widget):
+	model = MovementType
+	search_fields = ['name__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.name
+
+	def get_queryset(self):
+		return MovementType.objects.all().order_by('name')

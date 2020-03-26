@@ -4,15 +4,15 @@ from django.template.loader import render_to_string
 from .models import Person, PersonLocationRelation, LocationRelation
 from .models import PersonTextRelation, PersonTextRelationRole 
 from .models import PersonIllustrationRelation, PersonIllustrationRelationRole
-from .models import PublisherManager, Pseudonym, PersonLiteraryMovementRelation
-from .models import PersonLiteraryMovementRelationRole, LiteraryMovement
+from .models import PublisherManager, Pseudonym, PersonMovementRelation
+from .models import PersonMovementRelationRole, Movement, MovementType
 from catalogue.models import Text, Illustration, Publisher 
 from catalogue.widgets import TextWidget, PublisherWidget, IllustrationWidget
 from locations.models import UserLoc
 from locations.forms import LocationWidget, LocationsWidget
 from .widgets import PersonIllustrationRelationRoleWidget, LocationRelationWidget
 from .widgets import PersonTextRelationRoleWidget, PersonWidget, PseudonymsWidget
-from .widgets import PersonLiteraryMovementRelationRoleWidget, LiteraryMovementWidget
+from .widgets import PersonMovementRelationRoleWidget, MovementWidget, MovementTypeWidget
 
 
 class PseudonymForm(ModelForm):
@@ -23,11 +23,18 @@ class PseudonymForm(ModelForm):
 		fields = ['name']
 
 
-class PersonLiteraryMovementRelationRoleForm(ModelForm):
+class PersonMovementRelationRoleForm(ModelForm):
 	name= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	class Meta:
-		model = PersonLiteraryMovementRelationRole
+		model = PersonMovementRelationRole
+		fields = ['name']
+
+class MovementTypeForm(ModelForm):
+	name= forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	class Meta:
+		model = MovementType
 		fields = ['name']
 
 
@@ -46,34 +53,34 @@ class PersonIllustrationRelationRoleForm(ModelForm):
 		fields = ['name']
 
 
-class PersonLiteraryMovementRelationForm(ModelForm):
+class PersonMovementRelationForm(ModelForm):
 	person = forms.ModelChoiceField(
 		queryset=Person.objects.all(),
 		widget=PersonWidget(
 			attrs={'data-placeholder':'Select a person...',
 			'style':'width:100%;','class':'searching',
 			'data-minimum-input-length':'1'}))
-	literary_movement= forms.ModelChoiceField(
-		queryset=LiteraryMovement.objects.all().order_by('name'),
-		widget=LiteraryMovementWidget(attrs={'data-placeholder':'Select movement...',
+	movement= forms.ModelChoiceField(
+		queryset=Movement.objects.all().order_by('name'),
+		widget=MovementWidget(attrs={'data-placeholder':'Select movement...',
 			'style':'width:100%;','class':'searching'}))
 	role = forms.ModelChoiceField(
-		queryset=PersonLiteraryMovementRelationRole.objects.all(),
-		widget=PersonLiteraryMovementRelationRoleWidget(
+		queryset=PersonMovementRelationRole.objects.all(),
+		widget=PersonMovementRelationRoleWidget(
 			attrs={'data-placeholder':'Select role... e.g., founder',
 			'style':'width:100%;','class':'searching',
 			'data-minimum-input-length':'0'}))
 
 	class Meta:
-		model = PersonLiteraryMovementRelation
-		fields = ['person','literary_movement','role']
+		model = PersonMovementRelation
+		fields = ['person','movement','role']
 
 personmovement_formset = inlineformset_factory(
-	Person,PersonLiteraryMovementRelation,
-	form = PersonLiteraryMovementRelationForm, extra=1)
+	Person,PersonMovementRelation,
+	form = PersonMovementRelationForm, extra=1)
 movementperson_formset = inlineformset_factory(
-	LiteraryMovement,PersonLiteraryMovementRelation,
-	form = PersonLiteraryMovementRelationForm, extra=1)
+	Movement,PersonMovementRelation,
+	form = PersonMovementRelationForm, extra=1)
 
 
 class PublisherManagerForm(ModelForm):
@@ -245,14 +252,18 @@ class PersonForm(ModelForm):
 		fields = m.split(',')
 
 
-class LiteraryMovementForm(ModelForm):
+class MovementForm(ModelForm):
 	location= forms.ModelChoiceField(
 		queryset=UserLoc.objects.all().order_by('name'),
 		widget=LocationWidget(attrs={'data-placeholder':'Select a location...',
 			'style':'width:100%;','class':'searching'}),
-		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
 		required = False
 		)
+	movement_type= forms.ModelChoiceField(
+		queryset=MovementType.objects.all().order_by('name'),
+		widget=MovementTypeWidget(attrs={'data-placeholder':'Select a movement type...',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}))
 	name= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	founded= forms.IntegerField(widget=forms.NumberInput(
@@ -266,8 +277,8 @@ class LiteraryMovementForm(ModelForm):
 		required=False)
 
 	class Meta:
-		model = LiteraryMovement
-		m = 'name,location,founded,closure,notes'
+		model = Movement
+		m = 'name,movement_type,location,founded,closure,notes'
 		fields = m.split(',')
 
 

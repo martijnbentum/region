@@ -5,13 +5,13 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
 # from utilities.models import Date 
-from .models import Person, PersonLocationRelation, LocationRelation, LiteraryMovement
+from .models import Person, PersonLocationRelation, LocationRelation, Movement, MovementType
 from .forms import PersonForm, PersonLocationRelationForm, LocationRelationForm
 from .forms import location_formset, persontext_formset, personillustration_formset
-from .forms import personpublisher_formset, PseudonymForm, LiteraryMovementForm
+from .forms import personpublisher_formset, PseudonymForm, MovementForm
 from .forms import PersonTextRelationRoleForm, PersonIllustrationRelationRoleForm
 from .forms import movementperson_formset, personmovement_formset
-from .forms import PersonLiteraryMovementRelationRoleForm
+from .forms import PersonMovementRelationRoleForm, MovementTypeForm
 from django.forms import inlineformset_factory
 import json
 from locations.models import UserLoc
@@ -28,12 +28,12 @@ class PersonView(generic.ListView):
 		return Person.objects.order_by('last_name')
 
 
-class LiteraryMovementView(generic.ListView):
-	template_name = 'persons/literary_movement_list.html'
-	context_object_name = 'literary_movement_list'
+class MovementView(generic.ListView):
+	template_name = 'persons/movement_list.html'
+	context_object_name = 'movement_list'
 
 	def get_queryset(self):
-		return LiteraryMovement.objects.order_by('name')
+		return Movement.objects.order_by('name')
 
 
 def make_ffm(names):
@@ -77,33 +77,33 @@ def edit_person(request, person_id = None, focus = '', view = 'complete'):
 	return render(request, 'persons/add_person.html',var)
 
 
-def edit_literary_movement(request, pk = None, focus = '', view = 'complete'):
-	'''add or edit a literary movement instance 
+def edit_movement(request, pk = None, focus = '', view = 'complete'):
+	'''add or edit a movement instance 
 	'''
 	names='movementperson_formset'
-	literary_movement = LiteraryMovement.objects.get(pk=pk) if pk else None
+	movement = Movement.objects.get(pk=pk) if pk else None
 	ffm, form = None, None
 	if request.method == 'POST':
 		focus = getfocus(request)
 		print(focus,99)
-		form = LiteraryMovementForm(request.POST,instance=literary_movement)
+		form = MovementForm(request.POST,instance=movement)
 		if form.is_valid(): 
-			literary_movement = form.save()
+			movement = form.save()
 			if view == 'inline': return HttpResponseRedirect('/utilities/close/')
-			ffm = FormsetFactoryManager(__name__,names,request,literary_movement)
+			ffm = FormsetFactoryManager(__name__,names,request,movement)
 			valid = ffm.save()
 			if valid: 
-				return HttpResponseRedirect(reverse('persons:edit_literary_movement', 
-					args = [literary_movement.pk, focus]))
+				return HttpResponseRedirect(reverse('persons:edit_movement', 
+					args = [movement.pk, focus]))
 		else:  print('form invalid', form.errors)
-	if not form: form = LiteraryMovementForm(instance=literary_movement)
-	if not ffm: ffm = FormsetFactoryManager(__name__,names,instance=literary_movement)
-	page_name = 'Edit literary movement' if pk else 'Add literary movement'
-	tabs = make_tabs('literary_movement',focus_names = focus)
-	crud = Crud(literary_movement) if pk else None
+	if not form: form = MovementForm(instance=movement)
+	if not ffm: ffm = FormsetFactoryManager(__name__,names,instance=movement)
+	page_name = 'Edit movement' if pk else 'Add movement'
+	tabs = make_tabs('movement',focus_names = focus)
+	crud = Crud(movement) if pk else None
 	var = {'form':form,'page_name':page_name, 'tabs':tabs,'crud':crud, 'view':view}
 	var.update(ffm.dict)
-	return render(request, 'persons/add_literary_movement.html',var)
+	return render(request, 'persons/add_movement.html',var)
 
 
 def add_person_location_relation(request):
@@ -118,9 +118,13 @@ def add_person_illustration_relation_role(request):
 	return add_simple_model(request,__name__,'PersonIllustrationRelationRole',
 		'persons','person - illustration relation role')
 
-def add_person_literary_movement_relation_role(request):
-	return add_simple_model(request,__name__,'PersonLiteraryMovementRelationRole',
-		'persons','person - literary movement relation role')
+def add_person_movement_relation_role(request):
+	return add_simple_model(request,__name__,'PersonMovementRelationRole',
+		'persons','person - movement relation role')
+
+def add_movement_type(request):
+	return add_simple_model(request,__name__,'MovementType',
+		'persons','movement type')
 
 def add_pseudonym(request):
 	return add_simple_model(request,__name__,'Pseudonym',

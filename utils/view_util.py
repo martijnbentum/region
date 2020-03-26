@@ -262,7 +262,7 @@ def make_tabs(tab_type,focus=0,focus_names = ''):
 	minimize = Tab('Edit,Minimize',focus)
 	if focus_names == 'default': focus_names=''
 	if tab_type == 'person':
-		t = 'Locations,Texts,Illustrations,Publisher-Manager,Pseudonym,Literary-Movement'
+		t = 'Locations,Texts,Illustrations,Publisher-Manager,Pseudonym,Movement'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'publication':
@@ -277,7 +277,7 @@ def make_tabs(tab_type,focus=0,focus_names = ''):
 		t = 'Persons,Publications'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
-	if tab_type == 'literary_movement':
+	if tab_type == 'movement':
 		t = 'Persons'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)

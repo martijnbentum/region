@@ -1,6 +1,6 @@
 <!-- test view to print data in a table from model --> 
 {% extends "utilities/base.html" %}
-{% if literary_movement_list %}
+{% if movement_list %}
 
 {% block content %}
 
@@ -11,21 +11,21 @@
 	<th>Name</th>
 	<th>Location</th>
 	</tr>
-	{% for movement in literary_movement_list %}
-	<tr onclick='window.location="{% url 'persons:edit_literary_movement' movement.pk %}"'>
+	{% for movement in movement_list %}
+	<tr onclick='window.location="{% url 'persons:edit_movement' movement.pk %}"'>
 		<td>{{movement.name}}</td>
 		<td>{{movement.location_string}}</td>
 	</tr>
 	{% endfor %}
 </table>
 
-<a class ="btn btn-link ml-auto" href="{% url 'persons:add_literary_movement' %}" role="button">Add literary movement</a>
+<a class ="btn btn-link ml-auto" href="{% url 'persons:add_movement' %}" role="button">Add movement</a>
 </div>
 
 {% endblock content %}
 
 {% else %}
-	<p>no persons are available</p>
+	<p>no movements are available</p>
 {% endif %}
 
 <!-- minimal style to make the table more readable -->
