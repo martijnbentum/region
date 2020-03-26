@@ -1,4 +1,5 @@
 from .models import Text, Illustration, Genre, Publisher, PublicationType, Publication
+from .models import Periodical
 from .models import IllustrationCategory, TextTextRelationType
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
@@ -71,6 +72,14 @@ class PublicationWidget(ModelSelect2Widget):
 		return obj.title
 	def get_queryset(self):
 		return Publication.objects.all().order_by('title')
+
+class PeriodicalWidget(ModelSelect2Widget):
+	model = Periodical
+	search_fields = ['title__icontains']
+	def label_from_instance(self,obj):
+		return obj.title
+	def get_queryset(self):
+		return Periodical.objects.all().order_by('title')
 
 
 class TextTextRelationTypeWidget(ModelSelect2Widget):

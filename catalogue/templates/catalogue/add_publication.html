@@ -1,11 +1,5 @@
 {% extends "utilities/base.html" %}
 
-{% block navbar%}
-	{% if view == "inline" %}
-	{% else %}
-        {% include 'utilities/navbar.html' %}
-	{% endif %}
-{% endblock %}
 
 {% block head %}
 	{{form.media.css}}
@@ -101,6 +95,31 @@
 			<tr class ="d-flex">
 			<td class="col-5">{{f.illustration}} {{f.illustration.errors}}</td>
 			<td class="col-4">{{f.page}} {{f.page.errors}}</td>
+			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
+	</table>
+	</div>
+
+	<div class="tab-pane fade" id="Periodical">
+		{{publicationperiodical_formset.management_form}}
+		<table class="table table-borderless">
+		<tr class ="d-flex">
+		<th class="col-5">Periodical
+			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_periodical' 'inline' %}" 
+				role="button"><i class="fa fa-plus"></i></a>
+			</th>
+		<th class="col-3">Volume</th>
+		<th class="col-3">Issue</th>
+			</th>
+		<th><i class="fa fa-times text-danger"></i></th>
+		</tr>
+		{% for f in publicationperiodical_formset.forms %}
+			<tr class ="d-flex">
+			<td class="col-5">{{f.periodical}} {{f.periodical.errors}}</td>
+			<td class="col-3">{{f.volume}} {{f.volume.errors}}</td>
+			<td class="col-3">{{f.issue}} {{f.issue.errors}}</td>
 			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
 			</tr>
 		{% endfor %}

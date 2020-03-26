@@ -1,10 +1,10 @@
 from django import forms
 from django.forms import ModelForm, inlineformset_factory
 from django.template.loader import render_to_string
-from .models import Genre, Text, Publisher, Publication, Illustration 
+from .models import Genre, Text, Publisher, Publication, Illustration, Periodical
 from .models import IllustrationCategory, IllustrationPublicationRelation
 from .models import TextPublicationRelation, TextTextRelation,PublicationType
-from .models import TextTextRelationType 
+from .models import TextTextRelationType, PeriodicalPublicationRelation
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation, PersonTextRelation
 from persons.models import PersonTextRelationRole, PersonIllustrationRelation
@@ -16,8 +16,33 @@ from utilities.forms import LanguageWidget
 from locations.forms import LocationWidget, LocationsWidget
 from .widgets import GenreWidget, PublicationTypeWidget, PublishersWidget 
 from .widgets import IllustrationCategoryWidget,IllustrationWidget,TextWidget
-from .widgets import TextTextRelationTypeWidget, PublicationWidget
+from .widgets import TextTextRelationTypeWidget, PublicationWidget, PeriodicalWidget
 
+
+class PeriodicalPublicationRelationForm(ModelForm):
+	'''Form to add a person location relation'''
+	publication = forms.ModelChoiceField(
+		queryset=Publication.objects.all(),
+		widget=PublicationWidget(
+			attrs={'data-placeholder':'Select publication by title...',
+			'style':'width:100%;','class':'searching'}))
+	periodical= forms.ModelChoiceField(
+		queryset=Periodical.objects.all(),
+		widget=PeriodicalWidget(
+			attrs={'data-placeholder':'Select periodical by title...',
+			'style':'width:100%;','class':'searching'}))
+
+	class Meta:
+		model = PeriodicalPublicationRelation
+		fields = 'publication,periodical,volume,issue'
+		fields = fields.split(',')
+
+publicationperiodical_formset = inlineformset_factory(
+	Publication,PeriodicalPublicationRelation,
+	form = PeriodicalPublicationRelationForm, extra=1)
+periodicalpublication_formset = inlineformset_factory(
+	Periodical,PeriodicalPublicationRelation,
+	form = PeriodicalPublicationRelationForm, extra=1)
 
 
 class IllustrationPublicationRelationForm(ModelForm):
@@ -184,7 +209,7 @@ class PublicationForm(ModelForm):
 		
 	class Meta:
 		model = Publication
-		m = 'title,form,publisher,year,volume,issue,location,notes,pdf,cover'
+		m = 'title,form,publisher,year,location,notes,pdf,cover'
 		fields = m.split(',')
 
 
@@ -246,5 +271,20 @@ class IllustrationForm(ModelForm):
 	class Meta:
 		model = Illustration
 		fields = 'caption,category,page_number,notes,upload'.split(',')
+
+class PeriodicalForm(ModelForm):
+	title= forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	founded= forms.IntegerField(widget=forms.NumberInput(
+		attrs={'style':'width:100%'}),
+		required=False)
+	closure= forms.IntegerField(widget=forms.NumberInput(
+		attrs={'style':'width:100%'}),
+		required=False)
+
+	class Meta:
+		model = Periodical
+		fields = 'title,founded,closure'.split(',')
+
 
 

@@ -1,0 +1,39 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+
+{% block content %}
+{% if periodical_list %}
+{% include 'utilities/change_log_list.html' %}
+
+<div class="d-flex">
+
+<table class="table table-hover">
+	<tr> 
+	<th>Title</th>
+	<th>Founded</th>
+	<th>Closue</th>
+	</tr>
+	{% for periodical in periodical_list %}
+	<tr onclick='window.location="{% url 'catalogue:edit_periodical' periodical.pk %}"'>
+		<td>{{periodical.title}}</td>
+		<td>{{periodical.founded}}</td>
+		<td>{{periodical.closue}}</td>
+	</tr>
+	{% endfor %}
+</table>
+<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_periodical' %}"
+role="button">Add periodical</a>
+</div>
+
+{% else %}
+	<p>no periodicals are available</p>
+{% endif %}
+
+{% endblock content %}
+
+
+	<!-- <td>{{ attr|truncatechars:40}}</td> -->

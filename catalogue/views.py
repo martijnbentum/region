@@ -5,13 +5,14 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
-from .models import Publication, Publisher, Text, Illustration
-from .forms import TextForm, PublicationForm, PublisherForm 
+from .models import Publication, Publisher, Text, Illustration, Periodical
+from .forms import TextForm, PublicationForm, PublisherForm, PeriodicalForm
 from .forms import IllustrationForm, IllustrationCategoryForm
 from .forms import TextTextRelationTypeForm
 from .forms import publicationtext_formset, publicationillustration_formset
 from .forms import textpublication_formset, illustrationpublication_formset
-from .forms import texttext_formset 
+from .forms import texttext_formset, publicationperiodical_formset
+from .forms import periodicalpublication_formset
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
 from persons.forms import textperson_formset, illustrationperson_formset
@@ -54,6 +55,15 @@ def _edit_model(request, instance_id, model_name, formset_names='', focus=''):
 	return render(request,'catalogue/add_' + model_name.lower() + '.html',args)
 
 
+class PeriodicalView(generic.ListView):
+	template_name = 'catalogue/periodical_list.html'
+	context_object_name = 'periodical_list'
+	# paginate_by = 10 # http://127.0.0.1:8000/catalogue/text/?page=2
+	# cruds = Cruds('catalogue','Illustration')
+	extra_context={'page_name':'periodical'}#,'cruds':cruds}
+
+	def get_queryset(self):
+		return Periodical.objects.order_by('title')
 
 class IllustrationView(generic.ListView):
 	template_name = 'catalogue/illustration_list.html'
@@ -118,7 +128,7 @@ def add_text(request, view = 'complete',focus = ''):
 
 def add_publication(request, view='complete', focus = ''):
 	# if this is a post request we need to process the form data
-	names='publicationtext_formset,publicationillustration_formset'
+	names='publicationtext_formset,publicationillustration_formset,publicationperiodical_formset'
 	ffm, form = None, None
 	if request.method == 'POST':
 		form = PublicationForm(request.POST, request.FILES)
@@ -176,6 +186,28 @@ def add_illustration(request,view='complete', focus = ''):
 	var.update(ffm.dict)
 	return render(request, 'catalogue/add_illustration.html', var)
 
+def add_periodical(request, view='complete', focus='default'):
+	names = 'periodicalpublication_formset'
+	ffm, form = None, None
+	if request.method == 'POST':
+		form = PeriodicalForm(request.POST, request.FILES)
+		if form.is_valid():
+			print('form is valid: ',form.cleaned_data,type(form))
+			periodical= form.save()
+			if view == 'complete':
+				ffm = FormsetFactoryManager(__name__,names, request, periodical)
+				valid = ffm.save()
+				if valid:
+					return HttpResponseRedirect(reverse('catalogue:edit_periodical', 
+						args = [periodical.pk, focus]))
+			else: return HttpResponseRedirect('/utilities/close/')
+	if not form: form = PeriodicalForm()
+	if not ffm: ffm = FormsetFactoryManager(__name__,names)
+	tabs = make_tabs('periodical',focus_names = focus)
+	var = {'form':form,'page_name':'Add Periodical','view':view,'tabs':tabs}
+	var.update(ffm.dict)
+	return render(request, 'catalogue/add_periodical.html', var)
+
 
 def add_illustration_category(request):
 	return add_simple_model(request,__name__,'IllustrationCategory','catalogue',
@@ -189,11 +221,15 @@ def edit_text(request, pk, focus = ''):
 	names='texttext_formset,textperson_formset,textpublication_formset'
 	return _edit_model(request, pk, 'Text',formset_names=names, focus = focus)
 
+def edit_periodical(request, pk, focus = ''):
+	names='periodicalpublication_formset'
+	return _edit_model(request, pk, 'Periodical',formset_names=names, focus = focus)
+
 def edit_publisher(request, pk, focus = ''):
 	return _edit_model(request, pk, 'Publisher',focus = focus)
 
 def edit_publication(request, pk, focus = ''):
-	names='publicationtext_formset,publicationillustration_formset'
+	names='publicationtext_formset,publicationillustration_formset,publicationperiodical_formset'
 	return _edit_model(request, pk, 'Publication',formset_names=names, focus = focus)
 
 def edit_illustration(request, pk, focus = ''):

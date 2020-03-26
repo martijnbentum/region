@@ -105,16 +105,7 @@ class Illustration(models.Model, info):
 		return self.caption
 
 
-class Periodical(models.Model, info):
-	'''Recurrent publication.'''
-	title = models.CharField(max_length=300)
-	language = models.CharField(max_length=100)
-	start_date = models.DateField()
-	end_date = models.DateField()
-	location = models.ForeignKey(UserLoc, null=True,on_delete=models.SET_NULL)
 
-	def __str__(self):
-		return self.title
 
 class Audience(models.Model, info): # only usefull for periodical not book?
 	name = models.CharField(max_length=100, null=True,blank=True)
@@ -208,6 +199,21 @@ class IllustrationPublicationRelation(models.Model): #many to many
 	page = models.PositiveIntegerField(null=True,blank=True)
 
 
+class Periodical(models.Model, info):
+	'''Recurrent publication.'''
+	title = models.CharField(max_length=300)
+	founded = models.PositiveIntegerField(null=True,blank=True) 
+	closure = models.PositiveIntegerField(null=True,blank=True) 
+
+	def __str__(self):
+		return self.title
+
+class PeriodicalPublicationRelation(models.Model, info):
+	'''Recurrent publication.'''
+	periodical= models.ForeignKey(Periodical, on_delete=models.CASCADE)
+	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
+	volume= models.PositiveIntegerField(null=True,blank=True)
+	issue= models.PositiveIntegerField(null=True,blank=True)
 
 
 

@@ -266,7 +266,7 @@ def make_tabs(tab_type,focus=0,focus_names = ''):
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'publication':
-		t = 'Texts,Illustrations'
+		t = 'Texts,Illustrations,Periodical'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'text':
@@ -279,6 +279,10 @@ def make_tabs(tab_type,focus=0,focus_names = ''):
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'literary_movement':
 		t = 'Persons'
+		relations = Tab(t,focus)
+		return Tabs([minimize,relations],'minimize,relations',focus_names)
+	if tab_type == 'periodical':
+		t = 'Publications'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 		

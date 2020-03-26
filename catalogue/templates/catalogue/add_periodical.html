@@ -1,0 +1,122 @@
+{% extends "utilities/base.html" %}
+
+{% block navbar%}
+	{% if view == "inline" %}
+	{% else %}
+        {% include 'utilities/navbar.html' %}
+	{% endif %}
+{% endblock %}
+
+{% block head %}
+	{{form.media.css}}
+	{{periodicalpublication_formset.forms.0.media.css}}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+{% block content %}
+
+<div class="col-md-12 d-flex">
+<h4 class="mt-2">{{page_name}}</h4>
+
+{% if view != "inline" %}
+	{% if page_name == "Edit periodical"%}
+	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_periodical' %}"
+	role="button">add periodical</a>
+	{% endif %}
+	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:periodical_list' %}" 
+	role="button">periodical list</a>
+{% endif %}
+</div>
+
+<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();">
+    {% csrf_token %}
+
+{% include 'utilities/edit_minimize_tab.html' %}
+
+<div class="tab-content">
+    <div class="tab-pane fade" id="Edit">
+	{% if page_name == "Edit periodical" and 'unknown' not in crud.last_update %}
+		{% include 'utilities/change_log.html' %}
+		{% else %} <p class="mb-4"></p>
+	{% endif %}
+
+	<table class="table table-borderless" >
+	<tr class="d-flex">
+		<th class="col-2">Title</th>
+		<td class="col-8">{{form.title}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">founded</th>
+		<td class="col-8">{{form.founded}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">closure</th>
+		<td class="col-8">{{form.closure}}</td>
+	</tr>
+	</table>
+    </div>
+
+    <div class="tab-pane fade" id="Minimize">
+		<!-- you can minimize the illustration form -->
+		<br>
+		<div class="col-md-12 d-flex">
+        <h5 class="mb-1">{{form.instance.title}} </h5> 
+		</div>
+    </div>
+</div>
+
+
+{% if view == "inline" %}
+{% else %}
+{% include 'utilities/relation_tabs.html' %}
+
+<div class="tab-content">
+
+	<div class="tab-pane fade" id="Publications">
+		{{periodicalpublication_formset.management_form}}
+		<table class="table table-borderless">
+		<tr class ="d-flex">
+		<th class="col-5">Publication
+			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_publication' 'inline' %}" role="button">
+				 <i class="fa fa-plus"></i></a>
+			</th>
+		<th class="col-3">Volume</th>
+		<th class="col-3">Issue</th>
+		<th><i class="fa fa-times text-danger"></i></th>
+		</tr>
+		{% for f in periodicalpublication_formset.forms %}
+			<tr class ="d-flex">
+			<td class="col-5">{{f.publication}} {{f.publication.errors}}</td>
+			<td class="col-3">{{f.volume}} {{f.volume.errors}}</td>
+			<td class="col-3">{{f.issue}} {{f.issue.errors}}</td>
+			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+
+<div>
+
+{% endif %}
+
+<input type="hidden" name="navbar" id="navbar" value="" />
+<input type="hidden" name="navcontent" id="navcontent" value="" />
+<input type="hidden" name="focus" id="focus" value="" />
+<input type="submit" value="Save" class="btn btn-success">
+
+	{% if view == "inline" %}
+		<a type="reset" value="Cancel" class ="btn btn-light"
+		href="{% url 'utilities:close' %}">Cancel</a>
+	{% endif %}
+</form>
+
+{{form.media.js}}
+{{periodicalpublication_formset.forms.0.media.js}}
+
+{% include 'utilities/tab_selector.html' %}
+
+
+{% endblock content %}
+
+
