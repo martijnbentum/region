@@ -21,7 +21,7 @@
 {% endif %}
 </div>
 
-<form name="myform" id="myform" method = "post" onsubmit="dosubmit();">
+<form name="myform" id="myform" enctype="multipart/form-data" method = "post" onsubmit="dosubmit();">
     {% csrf_token %}
 
 <!-- adding or editing a publication-->
