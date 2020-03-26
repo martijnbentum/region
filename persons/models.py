@@ -92,6 +92,23 @@ class Person(models.Model, info):
 		return [self.name,self.age,sex,born,died,birthplace,deathplace]
 
 
+class PersonPersonRelationType(models.Model, info):
+	name = models.CharField(max_length=200,unique=True)
+	notes = models.TextField(null=True,blank=True)
+
+	def __str__(self):
+		return self.name
+	
+
+class PersonPersonRelation(models.Model, info):
+	person1 = models.ForeignKey(Person, on_delete=models.CASCADE,related_name='person1')
+	person2 = models.ForeignKey(Person, on_delete=models.CASCADE,related_name='person2')
+	relation_type = models.ForeignKey(PersonPersonRelationType, on_delete=models.CASCADE)
+
+	class Meta:
+		constraints = [models.UniqueConstraint(
+			fields='person1,person2,relation_type'.split(','), 
+			name = 'unique_personpersonrelation')]
 
 
 class LocationRelation(models.Model, info):

@@ -12,6 +12,7 @@ from .forms import personpublisher_formset, PseudonymForm, MovementForm
 from .forms import PersonTextRelationRoleForm, PersonIllustrationRelationRoleForm
 from .forms import movementperson_formset, personmovement_formset
 from .forms import PersonMovementRelationRoleForm, MovementTypeForm
+from .forms import personperson_formset, personpersonr_formset, PersonPersonRelationTypeForm
 from django.forms import inlineformset_factory
 import json
 from locations.models import UserLoc
@@ -52,7 +53,8 @@ def edit_person(request, person_id = None, focus = '', view = 'complete'):
 	navbar and navcontent set the active tab (last used one)
 	'''
 	names='location_formset,persontext_formset,personillustration_formset'
-	names+=',personmovement_formset,personpublisher_formset'
+	names+=',personmovement_formset,personpublisher_formset,personperson_formset'
+	names+=',personpersonr_formset'
 	person = Person.objects.get(pk=person_id) if person_id else None
 	ffm, form = None, None
 	if request.method == 'POST':
@@ -105,6 +107,10 @@ def edit_movement(request, pk = None, focus = '', view = 'complete'):
 	var.update(ffm.dict)
 	return render(request, 'persons/add_movement.html',var)
 
+
+def add_person_person_relation_type(request):
+	return add_simple_model(request,__name__,'PersonPersonRelationType',
+		'persons','person - person relation type')
 
 def add_person_location_relation(request):
 	return add_simple_model(request,__name__,'LocationRelation','persons',

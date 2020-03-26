@@ -32,6 +32,8 @@ urlpatterns = [
 		views.add_person_movement_relation_role,
 		name='add_person_movement_relation_role'),
 	path('person/add_movement_type', views.add_movement_type,name='add_movement_type'),
+	path('person/add_person_person_relation_type', views.add_person_person_relation_type,
+		name='add_person_person_relation_type'),
 	path('person/add_pseudonym',views.add_pseudonym,
 		name='add_pseudonym'),
 ]

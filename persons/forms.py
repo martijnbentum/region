@@ -6,6 +6,7 @@ from .models import PersonTextRelation, PersonTextRelationRole
 from .models import PersonIllustrationRelation, PersonIllustrationRelationRole
 from .models import PublisherManager, Pseudonym, PersonMovementRelation
 from .models import PersonMovementRelationRole, Movement, MovementType
+from persons.models import PersonPersonRelation, PersonPersonRelationType
 from catalogue.models import Text, Illustration, Publisher 
 from catalogue.widgets import TextWidget, PublisherWidget, IllustrationWidget
 from locations.models import UserLoc
@@ -13,7 +14,46 @@ from locations.forms import LocationWidget, LocationsWidget
 from .widgets import PersonIllustrationRelationRoleWidget, LocationRelationWidget
 from .widgets import PersonTextRelationRoleWidget, PersonWidget, PseudonymsWidget
 from .widgets import PersonMovementRelationRoleWidget, MovementWidget, MovementTypeWidget
+from .widgets import PersonPersonRelationTypeWidget
 
+
+class PersonPersonRelationTypeForm(ModelForm):
+	name= forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	class Meta:
+		model = PersonPersonRelationType
+		fields = ['name']
+
+class PersonPersonRelationForm(ModelForm):
+	'''Form to add a person location relation'''
+	person1 = forms.ModelChoiceField(
+		queryset=Person.objects.all(),
+		widget=PersonWidget(
+			attrs={'data-placeholder':'Select a person...',
+			'style':'width:100%;','class':'searching'}))
+	person2 = forms.ModelChoiceField(
+		queryset=Person.objects.all(),
+		widget=PersonWidget(
+			attrs={'data-placeholder':'Select a person...',
+			'style':'width:100%;','class':'searching'}))
+	relation_type = forms.ModelChoiceField(
+		queryset=PersonPersonRelationType.objects.all(),
+		widget=PersonPersonRelationTypeWidget(
+			attrs={'data-placeholder':'Select a relation...',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}))
+
+	class Meta:
+		model = PersonPersonRelation
+		fields = 'person2,relation_type'
+		fields = fields.split(',')
+
+personperson_formset = inlineformset_factory(
+	Person,PersonPersonRelation,fk_name = 'person1',
+	form = PersonPersonRelationForm, extra=1)
+personpersonr_formset = inlineformset_factory(
+	Person,PersonPersonRelation,fk_name = 'person2',
+	form = PersonPersonRelationForm, extra=0)
 
 class PseudonymForm(ModelForm):
 	name= forms.CharField(widget=forms.TextInput(
