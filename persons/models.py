@@ -7,6 +7,7 @@ from utils.model_util import id_generator, info
 
 
 class Pseudonym(models.Model, info):
+	'''An alternate name for a person.'''
 	name = models.CharField(max_length=300, unique= True)
 
 	def __str__(self):
@@ -93,6 +94,7 @@ class Person(models.Model, info):
 
 
 class PersonPersonRelationType(models.Model, info):
+	'''Relation type between persons e.g. friends.'''
 	name = models.CharField(max_length=200,unique=True)
 	notes = models.TextField(null=True,blank=True)
 
@@ -101,6 +103,7 @@ class PersonPersonRelationType(models.Model, info):
 	
 
 class PersonPersonRelation(models.Model, info):
+	'''Relation between persons. Assumed to be symmetrical.'''
 	person1 = models.ForeignKey(Person, on_delete=models.CASCADE,related_name='person1')
 	person2 = models.ForeignKey(Person, on_delete=models.CASCADE,related_name='person2')
 	relation_type = models.ForeignKey(PersonPersonRelationType, on_delete=models.CASCADE)
@@ -112,6 +115,7 @@ class PersonPersonRelation(models.Model, info):
 
 
 class LocationRelation(models.Model, info):
+	'''Relation type between person and location e.g. travel, residence.'''
 	name = models.CharField(max_length=200,unique=True)
 	notes = models.TextField(null=True,blank=True)
 
@@ -119,7 +123,7 @@ class LocationRelation(models.Model, info):
 		return self.name
 
 class PersonLocationRelation(models.Model,info):
-	'''location function for a person e.g. residence, work, travel.'''
+	'''relation between person and location.'''
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	location = models.ForeignKey(UserLoc, on_delete=models.CASCADE)
 	# RELATION= [('R','residence'),('T','travel'),('W','work'),('U','unknown')]
@@ -148,7 +152,7 @@ class PersonLocationRelation(models.Model,info):
 
 
 class PersonTextRelationRole(models.Model, info):
-	'''e.g author | translator | editor | subject | ... '''
+	'''relation type between person and text e.g author | translator | editor | subject.'''
 	# how to initialize with above values
 	name = models.CharField(max_length = 100,unique=True)
 	notes = models.TextField(null=True,blank=True)
@@ -158,7 +162,7 @@ class PersonTextRelationRole(models.Model, info):
 
 
 class PersonIllustrationRelationRole(models.Model, info):
-	'''e.g illustrator | subject | ... '''
+	'''relation type between person and an illustration e.g illustrator | subject. '''
 	# how to initialize with above values
 	name = models.CharField(max_length = 100,unique=True)
 	notes = models.TextField(null=True,blank=True)
@@ -168,7 +172,7 @@ class PersonIllustrationRelationRole(models.Model, info):
 
 
 class PublisherManager(models.Model): #or broker
-	'''Person that manages writers, should be linked to texts and creators?'''
+	'''Person that manages writers.'''
 	# Publisher= apps.get_model('catalogue','Publisher')
 	publisher = models.ForeignKey('catalogue.Publisher', 
 		on_delete=models.CASCADE, related_name='publisher')
@@ -177,6 +181,7 @@ class PublisherManager(models.Model): #or broker
 
 
 class PersonTextRelation(models.Model, info):
+	'''Relation between a person and a text.'''
 	role = models.ForeignKey(PersonTextRelationRole, on_delete=models.CASCADE)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	text = models.ForeignKey('catalogue.Text', null=True, blank=True, 
@@ -192,6 +197,7 @@ class PersonTextRelation(models.Model, info):
 
 
 class PersonIllustrationRelation(models.Model, info):
+	'''Relation between a person and an illustration.'''
 	role = models.ForeignKey(PersonIllustrationRelationRole, 
 		on_delete=models.CASCADE)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
@@ -208,6 +214,7 @@ class PersonIllustrationRelation(models.Model, info):
 
 
 class MovementType(models.Model, info):
+	'''The type of movement e.g. cultural literary political.'''
 	name = models.CharField(max_length = 100,unique=True)
 	notes = models.TextField(null=True,blank=True)
 
@@ -216,6 +223,7 @@ class MovementType(models.Model, info):
 
 
 class Movement(models.Model, info):
+	'''A movement (e.g. literary) a collection of persons.'''
 	name = models.CharField(max_length=200, null=True, blank=True)
 	movement_type = models.ForeignKey(MovementType,blank=True, null=True,on_delete=models.SET_NULL)
 	location= models.ForeignKey(UserLoc,blank=True, null=True,on_delete=models.SET_NULL)
@@ -227,6 +235,7 @@ class Movement(models.Model, info):
 		return self.name
 
 class PersonMovementRelationRole(models.Model, info):
+	'''Relation type between person and movement (e.g. founder, follower).'''
 	name = models.CharField(max_length = 100,unique=True)
 	notes = models.TextField(null=True,blank=True)
 
@@ -234,6 +243,7 @@ class PersonMovementRelationRole(models.Model, info):
 		return self.name
 
 class PersonMovementRelation(models.Model, info):
+	'''Relation between a movement and a person.'''
 	movement = models.ForeignKey(Movement, on_delete=models.CASCADE)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	role = models.ForeignKey(PersonMovementRelationRole, on_delete=models.CASCADE)

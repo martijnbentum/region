@@ -85,6 +85,7 @@ class MovementTypeForm(ModelForm):
 
 
 class PersonTextRelationRoleForm(ModelForm):
+	'''Form to add a relation role between a person and a text e.g. editor, writer, translator.'''
 	name= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	class Meta:
@@ -92,6 +93,7 @@ class PersonTextRelationRoleForm(ModelForm):
 		fields = ['name']
 
 class PersonIllustrationRelationRoleForm(ModelForm):
+	'''Form to add a relation role between a person and a illustration e.g. subject, illustrator.'''
 	name= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	class Meta:
@@ -100,6 +102,7 @@ class PersonIllustrationRelationRoleForm(ModelForm):
 
 
 class PersonMovementRelationForm(ModelForm):
+	'''Form to add a relation between a person and a movement.'''
 	person = forms.ModelChoiceField(
 		queryset=Person.objects.all(),
 		widget=PersonWidget(
@@ -130,6 +133,7 @@ movementperson_formset = inlineformset_factory(
 
 
 class PublisherManagerForm(ModelForm):
+	'''Form to add a relation (i.e. manage) between a person and a publisher.'''
 	manager = forms.ModelChoiceField(
 		queryset=Person.objects.all(),
 		widget=PersonWidget(
@@ -188,7 +192,7 @@ textperson_formset = inlineformset_factory(
 
 
 class PersonIllustrationRelationForm(ModelForm):
-	'''Form to add a person location relation'''
+	'''Form to add a person illustration relation'''
 	person = forms.ModelChoiceField(
 		queryset=Person.objects.all(),
 		widget=PersonWidget(
@@ -221,6 +225,7 @@ illustrationperson_formset = inlineformset_factory(
 
 
 class LocationRelationForm(ModelForm):
+	'''Form to add the type of person location relation.'''
 	name= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	class Meta:
@@ -299,6 +304,7 @@ class PersonForm(ModelForm):
 
 
 class MovementForm(ModelForm):
+	'''Form to add a movement (e.g. cultural literary political).'''
 	location= forms.ModelChoiceField(
 		queryset=UserLoc.objects.all().order_by('name'),
 		widget=LocationWidget(attrs={'data-placeholder':'Select a location...',
@@ -329,6 +335,7 @@ class MovementForm(ModelForm):
 
 
 def bound_form(request, id):
+	'''obsolete???'''
 	person = get_object_or_404(Person, id=id)
 	form = PersonForm(instance=person) 
 	return render_to_response('edit_person.html', {'form':form})
