@@ -120,7 +120,10 @@ class GeoLoc(models.Model, info):
 	# country = CountryField()
 
 	def save(self):
-		self.geonameid = id_generator(length = 27)
+		if self.info != '':
+			try: geonameid = eval(self.info)['geonameid']
+			except: geonameid = id_generator(length = 27)
+		self.geonameid = geonameid
 		super(GeoLoc, self).save()
 
 	def __str__(self):
