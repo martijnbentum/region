@@ -13,7 +13,7 @@ from persons.widgets import PersonTextRelationRoleWidget, PersonWidget
 from persons.widgets import PersonIllustrationRelationRoleWidget
 from utilities.models import Language 
 from utilities.forms import LanguageWidget 
-from locations.forms import LocationWidget, LocationsWidget
+from locations.widgets import LocationWidget, LocationsWidget
 from .widgets import GenreWidget, PublicationTypeWidget, PublishersWidget 
 from .widgets import IllustrationCategoryWidget,IllustrationWidget,TextWidget
 from .widgets import TextTextRelationTypeWidget, PublicationWidget, PeriodicalWidget
