@@ -25,7 +25,6 @@ class UserLoc(models.Model, info):
 	NON_FICTION = 'NF'
 	STATUS = [(FICTION,'fiction'), (NON_FICTION,'non-fiction')]
 	status = models.CharField(max_length=2,choices=STATUS,default = 'NF')
-
 	notes = models.TextField(default='', blank=True)
 
 	def __str__(self):
@@ -115,6 +114,7 @@ class GeoLoc(models.Model, info):
 		max_digits=8,
 		decimal_places=5
 	)
+	info = models.TextField(default='',blank=True)
 	notes = models.TextField(default='',blank=True)
 	user_locs = models.ManyToManyField(UserLoc)
 	# country = CountryField()

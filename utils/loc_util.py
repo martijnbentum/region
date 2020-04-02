@@ -45,9 +45,12 @@ class city_info(info):
 			latitude = self.latitude,
 			longitude = self.longitude,
 			name = self.name,
-			location_type = 'CITY'
+			location_type = 'CITY',
+			info = str(self.__dict__)
 		)
 		return self.location
+
+
 
 
 class country_info(info):
@@ -74,7 +77,8 @@ class country_info(info):
 		self.location = Location(
 			geonameid = self.geonameid,
 			name = self.country,
-			location_type = 'COUNTRY'
+			location_type = 'COUNTRY',
+			info = str(self.__dict__)
 		)
 		return self.location
 
@@ -213,6 +217,42 @@ default_countries = default_countries.split(',')
 
 all_countries = [c.country for c in make_countries()]
 
+def make_country2city_dict(countries,cities):
+	cd,cld = {},{}
+	city_locations = GeoLoc.objects.filter(location_type='CITY')
+	for country in countries:
+		if country.country not in cd.keys(): cd[country.country]=[]
+		for c in cities:
+			if c.country == country.country: cd[country.country].append(c.name)
+	for country in cd.keys():
+		if country not in cld.keys(): cld[country]=[]
+		for cl in city_locations:
+			if cl.name in cd[country]: cld[country].append(cl)
+	return cd, cld
+
+def make_location_dict(cities,countries):
+	ld = {}
+	for c in cities:
+		ld[c.geonameid] = c
+	for c in countries:
+		ld[c.geonameid] = c
+	return ld
+
+
+
+def add_info2locations(cities, countries, save = True, overwrite_info = False):
+	gl = GeoLoc.objects.all()
+	ld = make_location_dict(cities,countries)
+	for location in gl:
+		if location.info != '': continue
+		try: location.info = str(ld[location.geonameid].__dict__)
+		except: 
+			print(location)
+			continue
+		if save: location.save()
+
+
+
 def _save_locations(locations,loctype = 'unk', verbose=True):
 	saved, already_exists, error = [],[],[]
 	for l in locations:
@@ -238,13 +278,23 @@ def make_geolocations(countries='default', min_size_cities = 5000, save = True):
 		if c.country in countries]
 	city_results = _save_locations(city_locations,'cities')
 	country_results = _save_locations(country_locations,'countries')
-	glr = []
+	glr = make_georelations()
+	return cities, city_results, country_results, glr
+
+def make_georelations():
+	glr = [] 
+	country_locations = GeoLoc.objects.filter(location_type='COUNTRY')
+	city_locations = GeoLoc.objects.filter(location_type='CITY')
 	for country in country_locations:
-		cloc = [c for c in cities if c.country == country.name]
-		glr.extend([GeoLocsRelation(container=country,contained=city.location)
+		cloc = []
+		for c in city_locations:
+			try: ccountry = eval(c.info)['country']
+			except: continue
+			if country.name == ccountry: cloc.append(c)
+		glr.extend([GeoLocsRelation(container=country,contained=city)
 			for city in cloc])
 	_save_locations(glr,'locationrelation')
-	return cities, city_results, country_results, glr
+	return glr
 
 def make_userlocations():
 	gl = GeoLoc.objects.all()
