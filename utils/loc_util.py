@@ -216,7 +216,7 @@ default_countries += ',Luxembourg,Ireland,Poland,slovenia'
 default_countries = default_countries.split(',')
 
 exclud_countries = 'Antigua and Barbuda,Anguilla,Antartica,American Samoa,Aland Islands'
-exclud_countries += ',Saint Barthelemy,Bonaire, Saint Eustatius and Saba ,Bouvet Island'
+exclud_countries += ',Saint Barthelemy,Bouvet Island,Seychelles,French Polynesia'
 exclud_countries += ',Cocos Islands,Cabo Verde,Christmas Island,Fiji,Falkland Islands'
 exclud_countries += ',Micronesia,FaroeIslands,South Georgia and the South Sandwich Islands'
 exclud_countries += ',Heard Island and McDonald Islands,British Indian Ocean Territory'
@@ -228,7 +228,9 @@ exclud_countries += ',Sao Tome and Principe,Eswatini,Turks and Caicos Islands'
 exclud_countries += ',French Southern Territories,Tokelau,Timor Leste,Tonga,Trinidad and Tobago'
 exclud_countries += ',Tuvalu,United States Minor Outlying Islands,Saint Vincent and the Grenadines'
 exclud_countries += ',Vanuatu,Wallis and Futuna,Samoa,Mayotte,Netherlands Antilles'
+exclud_countries += ',Puerto Rico,British Virgin Islands,U.S. Virgin Islands,Saint Lucia'
 exclud_countries = exclud_countries.split(',')
+exclud_countries.append('Bonaire, Saint Eustatius and Saba ')
 
 all_countries = [c.country for c in make_countries() if c.country not in exclud_countries]
 
