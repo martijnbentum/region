@@ -10,7 +10,7 @@ from persons.models import PersonPersonRelation, PersonPersonRelationType
 from catalogue.models import Text, Illustration, Publisher 
 from catalogue.widgets import TextWidget, PublisherWidget, IllustrationWidget
 from locations.models import UserLoc
-from locations.forms import LocationWidget, LocationsWidget
+from locations.widgets import LocationWidget, LocationsWidget
 from .widgets import PersonIllustrationRelationRoleWidget, LocationRelationWidget
 from .widgets import PersonTextRelationRoleWidget, PersonWidget, PseudonymsWidget
 from .widgets import PersonMovementRelationRoleWidget, MovementWidget, MovementTypeWidget
