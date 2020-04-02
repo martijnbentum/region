@@ -293,9 +293,10 @@ def make_geolocations(countries='default', min_size_cities = 5000, save = True):
 	city_locations = [c.make_location() for c in cities]
 	country_locations = [c.make_location() for c in make_countries()
 		if c.country in countries]
-	city_results = _save_locations(city_locations,'cities')
-	country_results = _save_locations(country_locations,'countries')
-	glr = make_georelations()
+	if save:
+		city_results = _save_locations(city_locations,'cities')
+		country_results = _save_locations(country_locations,'countries')
+		glr = make_georelations()
 	return cities, city_results, country_results, glr
 
 def make_georelations():
