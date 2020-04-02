@@ -1,23 +1,93 @@
-from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
-from .models import UserLoc
+from django import forms
+from django.forms import ModelForm, inlineformset_factory, Form
+from django.db.utils import IntegrityError
+from .models import GeoLoc, UserLoc,LocType
+from .widgets import GeoLocationWidget, GeoLocationsWidget, CountryWidget
 
-class LocationWidget(ModelSelect2Widget):
-	model = UserLoc 
-	search_fields = ['name__icontains']
+class UserLocForm(ModelForm):
+	name = forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	geolocs= forms.ModelMultipleChoiceField(
+		queryset=GeoLoc.objects.all().order_by('name'),
+		widget=GeoLocationsWidget(attrs={'data-placeholder':'Select location...',
+			'style':'width:100%;','class':'searching'}),
+		required = False)
+	notes = forms.CharField(widget=forms.Textarea(
+		attrs={'style':'width:100%','rows':3}),
+		required=False)
 
-	def label_from_instance(self,obj):
-		return obj.name
+	# saving m2m on the other model (that does not define the m2m field)
+	# source: https://stackoverflow.com/questions/2216974/django-modelform-for-many-to-many-fields
+	def __init__(self, *args, **kwargs):
+		if kwargs.get('instance'):
+			initial = kwargs.setdefault('initial',{})
+			initial['geolocs'] = [gl.pk for gl in kwargs['instance'].geoloc_set.all()]
+		forms.ModelForm.__init__(self, *args, **kwargs)
 
-	def get_queryset(self):
-		return UserLoc.objects.all().order_by('name')
+	def save(self, commit=True):
+		instance = forms.ModelForm.save(self,False)
+		osm = self.save_m2m
+		def save_m2m():
+			osm()
+			instance.geoloc_set.clear()
+			instance.geoloc_set.add(*self.cleaned_data['geolocs'])
+		self.save_m2m = save_m2m
+		if commit:
+			instance.save()
+			self.save_m2m()
+		return instance
+	#---
 
+	class Meta:
+		model = UserLoc
+		fields = 'name,geolocs,loc_type,loc_precision,status,notes'.split(',')
 
-class LocationsWidget(ModelSelect2MultipleWidget):
-	model = UserLoc 
-	search_fields = ['name__icontains']
+class GeoLocForm(ModelForm):
+	name = forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	latitude = forms.DecimalField(widget=forms.NumberInput(
+		attrs={'style':'width:100%','placeholder':'latitude coordinate'}),
+		required = False)
+	longitude = forms.DecimalField(widget=forms.NumberInput(
+		attrs={'style':'width:100%','placeholder':'longitude coordinate'}),
+		required = False)
+	contained_by_country= forms.ModelChoiceField(
+		queryset= GeoLoc.objects.filter(location_type='COUNTRY'),
+		widget=CountryWidget(attrs={
+			'data-placeholder':'select the country containing this location...',
+			'style':'width:100%;','class':'searching'}),
+		required = False)
+	notes = forms.CharField(widget=forms.Textarea(
+		attrs={'style':'width:100%','rows':3}),
+		required=False)
 
-	def label_from_instance(self,obj):
-		return obj.name
+	class Meta:
+		model = GeoLoc
+		fields = 'name,location_type,latitude,longitude,contained_by_country,notes'.split(',')
 
-	def get_queryset(self):
-		return UserLoc.objects.all().order_by('name')
+class FastLocForm(Form):
+	location = forms.ModelChoiceField(
+		queryset=GeoLoc.objects.all().order_by('name'),
+		widget=GeoLocationWidget(attrs={'data-placeholder':'Select location...',
+			'style':'width:100%;','class':'searching'}))
+	
+	def save(self):
+		data = self.cleaned_data
+		print(data)
+		l = data['location']
+		print(l,l.location_type)
+		lt_dict = dict([(lt.name,lt) for lt in LocType.objects.all()])
+		ul = UserLoc(name=l.name,loc_precision='E',status='NF',
+			loc_type= lt_dict[l.location_type.lower()])
+		if userloc_exists: raise IntegrityError('location with name %s already exists' %
+			(ul.name))
+		ul.save()
+		l.user_locs.add(ul)
+
+def userloc_exists(loc):
+	ul = UserLoc.objects.filter(name = loc.name)
+	for l in ul:
+		if list(l.geoloc_set.all()) == list(loc.geoloc_set.all()):
+			if l.loc_type == loc.loc_type: return True
+	return False
+	

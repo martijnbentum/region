@@ -285,6 +285,10 @@ def make_tabs(tab_type,focus=0,focus_names = ''):
 		t = 'Publications'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
+	if tab_type == 'location':
+		t = 'Add-from-database,GeoLocation,UserLocation,Help'
+		relations = Tab(t,focus)
+		return Tabs([relations],'relations',focus_names)
 		
 
 		

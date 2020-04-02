@@ -1,8 +1,6 @@
 <script>
 function set_active(){
 	{% for name in tabs.focus %}
-		console.log(document.getElementById('{{name}}a'))
-		console.log(document.getElementById('{{name}}'))
 		if (document.getElementById('{{name}}a') !== null) {
 		document.getElementById('{{name}}a').className="nav-link active"; }
 		if (document.getElementById('{{name}}') !== null) {
@@ -25,9 +23,9 @@ function get_ids(classname){
 }
 
 function dosubmit(){
-	document.getElementById('navbar').value = get_ids("nav-link active");
-	document.getElementById('navcontent').value = get_ids("show active");
 	document.getElementById('focus').value = get_ids("tab-pane fade show active");
+	document.getElementById('focus1').value = get_ids("tab-pane fade show active");
+	document.getElementById('focus2').value = get_ids("tab-pane fade show active");
 	return true;
 }
 

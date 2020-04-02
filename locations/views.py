@@ -4,10 +4,12 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
 from .models import GeoLoc 
-# from .forms import LocationForm 
+from .forms import GeoLocForm, FastLocForm ,UserLocForm
 # from .forms import location_formset, helper
 from django.forms import inlineformset_factory
 import json
+from utils.view_util import make_tabs
+from utilities.views import getfocus
 
 
 class LocationView(generic.ListView):
@@ -19,17 +21,37 @@ class LocationView(generic.ListView):
 		return GeoLoc.objects.order_by('name')[:100]
 
 
-def add_location(request):
+def add_location(request, focus = '', view = 'complete'):
 	# if this is a post request we need to process the form data
-	if request.method == 'POST':
-		form = LocationForm(request.POST)
-		if form.is_valid():
+	focus = getfocus(request)
+	print('focus',focus)
+	if request.method == 'POST' and focus != 'Help':
+		form = GeoLocForm(request.POST)
+		fastform = FastLocForm(request.POST)
+		userform = UserLocForm(request.POST)
+		print(userform)
+		if form.is_valid() and focus == 'GeoLocation':
 			print('form is valid: ',form.cleaned_data)
 			form.save()
+			if view == 'inline': return HttpResponseRedirect('/utilities/close/')
+			return HttpResponseRedirect('/locations/')
+		if fastform.is_valid() and focus == 'Add-from-database':
+			print('form is valid: ',fastform.cleaned_data)
+			fastform.save()
+			if view == 'inline': return HttpResponseRedirect('/utilities/close/')
+			return HttpResponseRedirect('/locations/')
+		if userform.is_valid() and focus == 'UserLocation':
+			print('form is valid: ',userform.cleaned_data)
+			userform.save()
+			if view == 'inline': return HttpResponseRedirect('/utilities/close/')
 			return HttpResponseRedirect('/locations/')
 	else:
-		form = LocationForm()
-	var = {'form':form,'page_name':'Add location'}
+		form = GeoLocForm()
+		fastform = FastLocForm()
+		userform = UserLocForm()
+	tabs = make_tabs('location',focus_names = focus)
+	var = {'form':form,'fastform':fastform,'userform':userform,
+		'page_name':'Add location','tabs':tabs}
 	return render(request, 'locations/add_location.html', var)
 
 
