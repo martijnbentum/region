@@ -215,7 +215,22 @@ default_countries += ',Portugal,Austria,Denmark,Norway,Sweden,Finland,Belgium'
 default_countries += ',Luxembourg,Ireland,Poland,slovenia'
 default_countries = default_countries.split(',')
 
-all_countries = [c.country for c in make_countries()]
+exclud_countries = 'Antigua and Barbuda,Anguilla,Antartica,American Samoa,Aland Islands'
+exclud_countries += ',Saint Barthelemy,Bonaire, Saint Eustatius and Saba ,Bouvet Island'
+exclud_countries += ',Cocos Islands,Cabo Verde,Christmas Island,Fiji,Falkland Islands'
+exclud_countries += ',Micronesia,FaroeIslands,South Georgia and the South Sandwich Islands'
+exclud_countries += ',Heard Island and McDonald Islands,British Indian Ocean Territory'
+exclud_countries += ',Kiribati,Comoros,Saint Kitts and Nevis,Saint Martin,Marshall Islands'
+exclud_countries += ',Northern Mariana Islands,Martinique,Montserrat,Mauritius,Maldives'
+exclud_countries += ',New Caledonia,Norfolk Island,Nauru,Niue,Saint Pierre and Miquelon'
+exclud_countries += ',Reunion,Solomon Islands,Saint Helena,Svalbard and Jan Mayen,San Marino'
+exclud_countries += ',Sao Tome and Principe,Eswatini,Turks and Caicos Islands'
+exclud_countries += ',French Southern Territories,Tokelau,Timor Leste,Tonga,Trinidad and Tobago'
+exclud_countries += ',Tuvalu,United States Minor Outlying Islands,Saint Vincent and the Grenadines'
+exclud_countries += ',Vanuatu,Wallis and Futuna,Samoa,Mayotte,Netherlands Antilles'
+exclud_countries = exclud_countries.split(',')
+
+all_countries = [c.country for c in make_countries() if c.country not in exclud_countries]
 
 def make_country2city_dict(countries,cities):
 	cd,cld = {},{}
