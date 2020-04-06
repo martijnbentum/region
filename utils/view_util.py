@@ -263,6 +263,7 @@ def make_tabs(tab_type,focus=0,focus_names = ''):
 	if focus_names == 'default': focus_names=''
 	if tab_type == 'person':
 		t = 'Locations,Texts,Illustrations,Publisher-Manager,Pseudonym,Movements,Persons'
+		t += ',Periodicals'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'publication':
@@ -282,7 +283,7 @@ def make_tabs(tab_type,focus=0,focus_names = ''):
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'periodical':
-		t = 'Publications'
+		t = 'Publications,Persons'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'location':

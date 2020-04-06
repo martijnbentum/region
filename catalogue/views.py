@@ -15,7 +15,7 @@ from .forms import texttext_formset, texttextr_formset, publicationperiodical_fo
 from .forms import periodicalpublication_formset
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
-from persons.forms import textperson_formset, illustrationperson_formset
+from persons.forms import textperson_formset, illustrationperson_formset, periodicalperson_formset
 from utils import view_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
 from utilities.views import add_simple_model, getfocus
@@ -194,7 +194,7 @@ def add_illustration(request,view='complete', focus = ''):
 	return render(request, 'catalogue/add_illustration.html', var)
 
 def add_periodical(request, view='complete', focus='default'):
-	names = 'periodicalpublication_formset'
+	names = 'periodicalpublication_formset,periodicalperson_formset'
 	ffm, form = None, None
 	if request.method == 'POST':
 		form = PeriodicalForm(request.POST, request.FILES)

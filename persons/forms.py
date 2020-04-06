@@ -6,15 +6,16 @@ from .models import PersonTextRelation, PersonTextRelationRole
 from .models import PersonIllustrationRelation, PersonIllustrationRelationRole
 from .models import PublisherManager, Pseudonym, PersonMovementRelation
 from .models import PersonMovementRelationRole, Movement, MovementType
+from .models import PersonPeriodicalRelationRole,PersonPeriodicalRelation
 from persons.models import PersonPersonRelation, PersonPersonRelationType
-from catalogue.models import Text, Illustration, Publisher 
-from catalogue.widgets import TextWidget, PublisherWidget, IllustrationWidget
+from catalogue.models import Text, Illustration, Publisher, Periodical
+from catalogue.widgets import TextWidget, PublisherWidget, IllustrationWidget, PeriodicalWidget
 from locations.models import UserLoc
 from locations.widgets import LocationWidget, LocationsWidget
 from .widgets import PersonIllustrationRelationRoleWidget, LocationRelationWidget
 from .widgets import PersonTextRelationRoleWidget, PersonWidget, PseudonymsWidget
 from .widgets import PersonMovementRelationRoleWidget, MovementWidget, MovementTypeWidget
-from .widgets import PersonPersonRelationTypeWidget
+from .widgets import PersonPersonRelationTypeWidget, PersonPeriodicalRelationRoleWidget 
 
 
 class PersonPersonRelationTypeForm(ModelForm):
@@ -332,6 +333,48 @@ class MovementForm(ModelForm):
 		model = Movement
 		m = 'name,movement_type,location,founded,closure,notes'
 		fields = m.split(',')
+
+
+
+class PersonPeriodicalRelationRoleForm(ModelForm):
+	'''form to add a person periodical relation role such as editor.'''
+	name= forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+	class Meta:
+		model = PersonPeriodicalRelationRole
+		fields = ['name']
+
+
+class PersonPeriodicalRelationForm(ModelForm):
+	'''Form to add a relation between a person and a periodical.'''
+	person = forms.ModelChoiceField(
+		queryset=Person.objects.all(),
+		widget=PersonWidget(
+			attrs={'data-placeholder':'Select a person...',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'1'}))
+	periodical = forms.ModelChoiceField(
+		queryset=Periodical.objects.all().order_by('title'),
+		widget=PeriodicalWidget(attrs={'data-placeholder':'Select periodical...',
+			'style':'width:100%;','class':'searching'}))
+	role = forms.ModelChoiceField(
+		queryset=PersonPeriodicalRelationRole.objects.all(),
+		widget=PersonPeriodicalRelationRoleWidget(
+			attrs={'data-placeholder':'Select role... e.g., editor',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}))
+
+	class Meta:
+		model = PersonPeriodicalRelation
+		fields = ['person','periodical','role']
+
+personperiodical_formset = inlineformset_factory(
+	Person,PersonPeriodicalRelation,
+	form = PersonPeriodicalRelationForm, extra=1)
+periodicalperson_formset = inlineformset_factory(
+	Periodical,PersonPeriodicalRelation,
+	form = PersonPeriodicalRelationForm, extra=1)
+
 
 
 def bound_form(request, id):

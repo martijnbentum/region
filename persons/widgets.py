@@ -1,7 +1,8 @@
 from .models import Person, LocationRelation, Pseudonym
 from .models import PersonIllustrationRelationRole, PersonTextRelationRole
 from .models import PersonMovementRelationRole,Movement, MovementType
-from .models import PersonPersonRelationType
+from .models import PersonPersonRelationType,PersonPeriodicalRelationRole
+from .models import PersonPeriodicalRelation
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
 #all select2 widgets related to person models are defined here
@@ -103,3 +104,16 @@ class PersonPersonRelationTypeWidget(ModelSelect2Widget):
 		return obj.name
 	def get_queryset(self):
 		return PersonPersonRelationType.objects.all().order_by('name')
+
+
+
+class PersonPeriodicalRelationRoleWidget(ModelSelect2Widget):
+	model = PersonPeriodicalRelationRole
+	search_fields = ['name__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.name
+
+	def get_queryset(self):
+		return PersonPeriodicalRelationRole.objects.all().order_by('name')
+

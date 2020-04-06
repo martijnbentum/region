@@ -249,6 +249,21 @@ class PersonMovementRelation(models.Model, info):
 	role = models.ForeignKey(PersonMovementRelationRole, on_delete=models.CASCADE)
 
 
+class PersonPeriodicalRelationRole(models.Model, info):
+	'''Relation type between person and periodical (e.g. editor).'''
+	name = models.CharField(max_length = 100,unique=True)
+	notes = models.TextField(null=True,blank=True)
+
+	def __str__(self):
+		return self.name
+
+class PersonPeriodicalRelation(models.Model, info):
+	'''Relation between a movement and a person.'''
+	periodical = models.ForeignKey('catalogue.Periodical', on_delete=models.CASCADE)
+	person = models.ForeignKey(Person, on_delete=models.CASCADE)
+	role = models.ForeignKey(PersonPeriodicalRelationRole, on_delete=models.CASCADE)
+
+
 	
 	
 # Create your models here.

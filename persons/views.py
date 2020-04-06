@@ -13,6 +13,7 @@ from .forms import PersonTextRelationRoleForm, PersonIllustrationRelationRoleFor
 from .forms import movementperson_formset, personmovement_formset
 from .forms import PersonMovementRelationRoleForm, MovementTypeForm
 from .forms import personperson_formset, personpersonr_formset, PersonPersonRelationTypeForm
+from .forms import PersonPeriodicalRelationRoleForm, personperiodical_formset
 from django.forms import inlineformset_factory
 import json
 from locations.models import UserLoc
@@ -54,7 +55,7 @@ def edit_person(request, person_id = None, focus = '', view = 'complete'):
 	'''
 	names='location_formset,persontext_formset,personillustration_formset'
 	names+=',personmovement_formset,personpublisher_formset,personperson_formset'
-	names+=',personpersonr_formset'
+	names+=',personpersonr_formset,personperiodical_formset'
 	person = Person.objects.get(pk=person_id) if person_id else None
 	ffm, form = None, None
 	if request.method == 'POST':
@@ -127,6 +128,10 @@ def add_person_illustration_relation_role(request):
 def add_person_movement_relation_role(request):
 	return add_simple_model(request,__name__,'PersonMovementRelationRole',
 		'persons','person - movement relation role')
+
+def add_person_periodical_relation_role(request):
+	return add_simple_model(request,__name__,'PersonPeriodicalRelationRole',
+		'persons','person - periodical relation role')
 
 def add_movement_type(request):
 	return add_simple_model(request,__name__,'MovementType',
