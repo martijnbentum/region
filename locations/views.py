@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
-from .models import GeoLoc 
+from .models import GeoLoc, UserLoc
 from .forms import GeoLocForm, FastLocForm ,UserLocForm
 # from .forms import location_formset, helper
 from django.forms import inlineformset_factory
@@ -18,7 +18,7 @@ class LocationView(generic.ListView):
 	extra_context={'page_name':'Location'}
 
 	def get_queryset(self):
-		return GeoLoc.objects.order_by('name')[:100]
+		return UserLoc.objects.order_by('name')[:100]
 
 
 def add_location(request, focus = '', view = 'complete'):
@@ -29,10 +29,10 @@ def add_location(request, focus = '', view = 'complete'):
 		form = GeoLocForm(request.POST)
 		fastform = FastLocForm(request.POST)
 		userform = UserLocForm(request.POST)
-		print(userform)
+		# print(userform)
 		if form.is_valid() and focus == 'GeoLocation':
-			print('form is valid: ',form.cleaned_data)
-			form.save()
+			print('form is valid: ',form.cleaned_data, 111)
+			l = form.save()
 			if view == 'inline': return HttpResponseRedirect('/utilities/close/')
 			return HttpResponseRedirect('/locations/')
 		if fastform.is_valid() and focus == 'Add-from-database':
@@ -45,6 +45,7 @@ def add_location(request, focus = '', view = 'complete'):
 			userform.save()
 			if view == 'inline': return HttpResponseRedirect('/utilities/close/')
 			return HttpResponseRedirect('/locations/')
+		print(fastform)
 	else:
 		form = GeoLocForm()
 		fastform = FastLocForm()
