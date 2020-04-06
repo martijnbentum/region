@@ -91,16 +91,18 @@ class FastLocForm(Form):
 		lt_dict = dict([(lt.name,lt) for lt in LocType.objects.all()])
 		ul = UserLoc(name=l.name,loc_precision='E',status='NF',
 			loc_type= lt_dict[l.location_type.lower()])
-		if userloc_exists(ul): raise IntegrityError('location with name %s already exists' %
+		if userloc_exists(ul,l): raise IntegrityError('location with name %s already exists' %
 			(ul.name))
 		if commit:
 			ul.save()
 			l.user_locs.add(ul)
 
-def userloc_exists(loc):
-	ul = UserLoc.objects.filter(name = loc.name)
-	for l in ul:
-		if list(l.geoloc_set.all()) == list(loc.geoloc_set.all()):
-			if l.loc_type == loc.loc_type: return True
+def userloc_exists(ul,l):
+	existing_ul = UserLoc.objects.filter(name = ul.name)
+	for location in existing_ul:
+		gl =location.geoloc_set.all()
+		if gl.count() == 0: return False
+		if location.geoloc_set.all()[0] == l:
+			if location.loc_type == ul.loc_type: return True
 	return False
 	
