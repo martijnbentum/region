@@ -60,8 +60,17 @@ class UserLoc(models.Model, info):
 		if len(gl) == 0: return ''
 		gr = flatten_lol([GeoLocsRelation.objects.filter(contained__geonameid= x.geonameid) 
 			for x in gl])
-		countries = [x.container.name for x in gr if x.container.location_type == 'COUNTRY']
+		countries = list(set(
+			[x.container.name for x in gr if x.container.location_type == 'COUNTRY']))
 		return ','.join(countries)
+
+	@property
+	def region(self):
+		if self.country == '':return ''
+		try: region = eval(self.info)['admin1_name']
+		except: region = ''
+		if region == 'NA': region = ''
+		return region
 
 class GeoLocsRelation(models.Model, info):
 	'''defines a hierarchy of locations, e.g. a city is in a province.'''
@@ -157,7 +166,7 @@ class GeoLoc(models.Model, info):
 		for location in self.contained.all():
 			container= location.container
 			if container.location_type == 'COUNTRY': output.append(container.name)
-		return ','.join(output)
+		return ','.join(list(set(output)))
 
 	@property
 	def contained_by_region(self):
@@ -171,6 +180,14 @@ class GeoLoc(models.Model, info):
 	@property
 	def country(self):
 		return self.contained_by_country
+
+	@property
+	def region(self):
+		if self.country == '':return ''
+		try: region = eval(self.info)['admin1_name']
+		except: region = ''
+		if region == 'NA': region = ''
+		return region
 
 	def table_header(self):
 		return 'name,type,region,country'.split(',')
