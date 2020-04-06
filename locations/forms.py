@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm, inlineformset_factory, Form
 from django.db.utils import IntegrityError
-from .models import GeoLoc, UserLoc,LocType
+from .models import GeoLoc, UserLoc,LocType, GeoLocsRelation
 from .widgets import GeoLocationWidget, GeoLocationsWidget, CountryWidget
 
 class UserLocForm(ModelForm):
@@ -65,24 +65,37 @@ class GeoLocForm(ModelForm):
 		model = GeoLoc
 		fields = 'name,location_type,latitude,longitude,contained_by_country,notes'.split(',')
 
+	def save(self, commit=True):
+		country = self.cleaned_data['contained_by_country']
+		print(self.cleaned_data, 1999)
+		l = forms.ModelForm.save(self,commit)
+		lt_dict = dict([(lt.name,lt) for lt in LocType.objects.all()])
+		ul = UserLoc(name=l.name,loc_precision='E',status='NF',
+			loc_type= lt_dict[l.location_type.lower()])
+		glr = GeoLocsRelation(container=country,contained=l)
+		if commit:
+			ul.save()
+			l.user_locs.add(ul)
+			glr.save()
+		return ul
+
 class FastLocForm(Form):
 	location = forms.ModelChoiceField(
 		queryset=GeoLoc.objects.all().order_by('name'),
 		widget=GeoLocationWidget(attrs={'data-placeholder':'Select location...',
 			'style':'width:100%;','class':'searching'}))
 	
-	def save(self):
+	def save(self, commit = True):
 		data = self.cleaned_data
-		print(data)
 		l = data['location']
-		print(l,l.location_type)
 		lt_dict = dict([(lt.name,lt) for lt in LocType.objects.all()])
 		ul = UserLoc(name=l.name,loc_precision='E',status='NF',
 			loc_type= lt_dict[l.location_type.lower()])
-		if userloc_exists: raise IntegrityError('location with name %s already exists' %
+		if userloc_exists(ul): raise IntegrityError('location with name %s already exists' %
 			(ul.name))
-		ul.save()
-		l.user_locs.add(ul)
+		if commit:
+			ul.save()
+			l.user_locs.add(ul)
 
 def userloc_exists(loc):
 	ul = UserLoc.objects.filter(name = loc.name)
