@@ -10,27 +10,20 @@
 {% if location_list %}
 
 <div class="d-flex">
-
 <table class="table table-hover">
 	<tr> 
-	<!-- create header -->
-	{% for attr in location_list.0.table_header%}
-		<th> {{ attr }} </th>
-	{% endfor %}
+	<th>name</th>
+	<th>country</th>
+	<th>status</th>
 	</tr>
 	{% for location in location_list %}
-	<tr>
-		{% for attr in location.table %}
-			{% if attr|length > 18 %}
-				<!-- truncate long strings -->
-				<td>{{ attr|truncatechars:12}}</td>
-			{% else %}
-				<td>{{ attr }}</td>
-			{% endif %}
-		{% endfor %}
+		<td>{{location.name}}</td>
+		<td>{{location.country}}</td>
+		<td>{{location.status}}</td>
 	</tr>
 	{% endfor %}
 </table>
+
 <a class ="btn btn-link ml-auto" href="{% url 'locations:add_location' %}" 
 role="button">Add location</a>
 </div>
