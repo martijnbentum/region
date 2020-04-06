@@ -7,8 +7,11 @@ class LocationWidget(ModelSelect2Widget):
 
 	def label_from_instance(self,obj):
 		if obj.country != '':
-			return obj.name + ' | ' + obj.country
-		else: return obj.name
+			m = obj.name + ' | ' + obj.country
+			if obj.region != '':
+				m += ' | ' +obj.region
+		else: m = obj.name
+		return m
 
 	def get_queryset(self):
 		return UserLoc.objects.all().order_by('name')
@@ -20,8 +23,11 @@ class LocationsWidget(ModelSelect2MultipleWidget):
 
 	def label_from_instance(self,obj):
 		if obj.country != '':
-			return obj.name + ' | ' + obj.country
-		else: return obj.name
+			m = obj.name + ' | ' + obj.country
+			if obj.region != '':
+				m += ' | ' + obj.region
+		else: m = obj.name
+		return m
 
 	def get_queryset(self):
 		return UserLoc.objects.all().order_by('name')
@@ -33,8 +39,11 @@ class GeoLocationWidget(ModelSelect2Widget):
 
 	def label_from_instance(self,obj):
 		if obj.country != '':
-			return obj.name + ' | ' + obj.country
-		else: return obj.name
+			m = obj.name + ' | ' + obj.country
+			if obj.region != '':
+				m += ' | ' + obj.region
+		else: m = obj.name
+		return m
 
 	def get_queryset(self):
 		return GeoLoc.objects.all().order_by('name')
@@ -45,8 +54,11 @@ class GeoLocationsWidget(ModelSelect2MultipleWidget):
 
 	def label_from_instance(self,obj):
 		if obj.country != '':
-			return obj.name + ' | ' + obj.country
-		else: return obj.name
+			m = obj.name + ' | ' + obj.country
+			if obj.region != '':
+				m += ' | ' +obj.region
+		else: m = obj.name
+		return m
 
 	def get_queryset(self):
 		return GeoLoc.objects.all().order_by('name')
