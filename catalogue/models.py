@@ -7,7 +7,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 import json
 from locations.models import UserLoc
-from persons.models import Person
 from utilities.models import Language
 from utils.model_util import id_generator, info
 			
