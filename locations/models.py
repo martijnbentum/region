@@ -67,10 +67,13 @@ class UserLoc(models.Model, info):
 	@property
 	def region(self):
 		if self.country == '':return ''
-		try: region = eval(self.info)['admin1_name']
-		except: region = ''
-		if region == 'NA': region = ''
-		return region
+		regions = []
+		for gl in self.geoloc_set.all():
+			try: regions.append( eval(gl.info)['admin1_name'] )
+			except: pass
+		regions = list(set(regions))
+		if 'NA' in regions: regions.remove('NA')
+		return ','.join(regions)
 
 class GeoLocsRelation(models.Model, info):
 	'''defines a hierarchy of locations, e.g. a city is in a province.'''
