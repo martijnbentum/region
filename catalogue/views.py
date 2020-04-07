@@ -1,5 +1,6 @@
 from django.apps import apps
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic
@@ -48,6 +49,7 @@ def _edit_model(request, instance_id, model_name, formset_names='', focus=''):
 			ffm = FormsetFactoryManager(__name__,names,request,instance)
 			valid = ffm.save()
 			if valid:
+				messages.success(request, model_name + ' saved')
 				return HttpResponseRedirect(reverse(
 					'catalogue:edit_'+model_name.lower(), 
 					kwargs={'pk':instance.pk,'focus':focus}))

@@ -21,22 +21,43 @@
         {% include 'utilities/navbar.html' %}
 	{% endif %}
     {% endblock %}
-    <br>
-	<div class='row'><div class='col-1'></div><div class='col-10'>
+
+	{% block messages %}
+		{% if messages %}
+			{% for message in messages %}
+			<div class="alert {{ message.tags }} alert-dismissible mb-0" role="alert"
+			style="height:0;line-height:0">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"> 
+				</button>
+				<p class= "mb-0 mt-0"><small>{{ message | safe }}</small></p>
+			</div>
+			{% endfor %}
+		{% else %}
+			<div class="alert alert-light mb-0" role="alert" style="height:0;line-height:0">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"> 
+				</button>
+				<p class= "mb-0 mt-0"><small></small></p>
+			</div>
+		{% endif %}
+    {% endblock %}
+
     {% block login %}
     {% endblock %}
-	</div></div>
+
 
 	{% if user.username == '' %}
 	{% else %}
 		<div class="row">
 		<div class="col-1">
 			{% block left %}
+
+
 			{% endblock %}
 		</div>
 
 		<div class="col-10">
 			{% block content %}
+
 			{% endblock %}
 		</div>
 
@@ -51,7 +72,16 @@
 		{% endblock %}
 	
 	{% endif %}
-    <footer>
-        <!-- <p>made by: humanities lab, radboud university</p> -->
-    </footer>
+
+<script>
+    $(document).ready(function(){
+		window.setTimeout(function() {
+		  $(".alert").fadeTo(500, 0)
+		}, 3000);
+})
+</script>
+
+<footer>
+	<!-- <p>made by: humanities lab, radboud university</p> -->
+</footer>
 </html>
