@@ -19,7 +19,7 @@ import json
 from locations.models import UserLoc
 from utils import view_util
 from utils.view_util import Crud, make_tabs, get_modelform, FormsetFactoryManager
-from utilities.views import add_simple_model, getfocus
+from utilities.views import add_simple_model, getfocus, edit_model
 	
 
 class PersonView(generic.ListView):
@@ -38,75 +38,10 @@ class MovementView(generic.ListView):
 		return Movement.objects.order_by('name')
 
 
-def make_ffm(names):
-	print(names,type(names))
-	return FormsetFactoryManager(__name__,names)
-	
-
 def person_detail(request, person_id):
 	p = Person.objects.get(pk=person_id)
 	var = {'person':p,'map_name':'europe.js','location_name':'europe'}
 	return render(request,'persons/person_detail.html',var)
-
-
-def edit_person(request, person_id = None, focus = '', view = 'complete'):
-	'''add or edit a person instance and person location relation
-	navbar and navcontent set the active tab (last used one)
-	'''
-	names='location_formset,persontext_formset,personillustration_formset'
-	names+=',personmovement_formset,personpublisher_formset,personperson_formset'
-	names+=',personpersonr_formset,personperiodical_formset'
-	person = Person.objects.get(pk=person_id) if person_id else None
-	ffm, form = None, None
-	if request.method == 'POST':
-		focus = getfocus(request)
-		form = PersonForm(request.POST,instance=person)
-		if form.is_valid(): 
-			person = form.save()
-			if view == 'inline': return HttpResponseRedirect('/utilities/close/')
-			ffm = FormsetFactoryManager(__name__,names,request,person)
-			valid = ffm.save()
-			if valid: 
-				return HttpResponseRedirect(reverse('persons:edit_person', 
-					args = [person.pk, focus]))
-		else:  print('form invalid', form.errors)
-	if not form: form = PersonForm(instance=person)
-	if not ffm: ffm = FormsetFactoryManager(__name__,names,instance=person)
-	page_name = 'Edit Person' if person_id else 'Add Person'
-	tabs = make_tabs('person',focus_names = focus)
-	crud = Crud(person) if person_id else None
-	var = {'form':form,'page_name':page_name, 'tabs':tabs,'crud':crud, 'view':view}
-	var.update(ffm.dict)
-	return render(request, 'persons/add_person.html',var)
-
-
-def edit_movement(request, pk = None, focus = '', view = 'complete'):
-	'''add or edit a movement instance 
-	'''
-	names='movementperson_formset'
-	movement = Movement.objects.get(pk=pk) if pk else None
-	ffm, form = None, None
-	if request.method == 'POST':
-		focus = getfocus(request)
-		print(focus,99)
-		form = MovementForm(request.POST,instance=movement)
-		if form.is_valid(): 
-			movement = form.save()
-			if view == 'inline': return HttpResponseRedirect('/utilities/close/')
-			ffm = FormsetFactoryManager(__name__,names,request,movement)
-			valid = ffm.save()
-			if valid: 
-				return HttpResponseRedirect(reverse('persons:edit_movement', 
-					args = [movement.pk, focus]))
-		else:  print('form invalid', form.errors)
-	if not form: form = MovementForm(instance=movement)
-	if not ffm: ffm = FormsetFactoryManager(__name__,names,instance=movement)
-	page_name = 'Edit movement' if pk else 'Add movement'
-	tabs = make_tabs('movement',focus_names = focus)
-	crud = Crud(movement) if pk else None
-	var = {'form':form,'page_name':page_name, 'tabs':tabs,'crud':crud, 'view':view}
-	var.update(ffm.dict)
-	return render(request, 'persons/add_movement.html',var)
 
 
 def add_person_person_relation_type(request):
@@ -142,5 +77,21 @@ def add_pseudonym(request):
 		'persons','add pseudonym')
 		
 		
+def edit_person(request, pk=None, focus = '', view='complete'):
+	'''add or edit a person instance and person location relation
+	navbar and navcontent set the active tab (last used one)
+	'''
+	names='location_formset,persontext_formset,personillustration_formset'
+	names+=',personmovement_formset,personpublisher_formset,personperson_formset'
+	names+=',personpersonr_formset,personperiodical_formset'
+	return edit_model(request, __name__, 'Person', 'persons', pk, 
+		formset_names=names, focus = focus, view=view)
+
+
+def edit_movement(request, pk=None, focus = '', view='complete'):
+	'''add or edit a movement instance.'''
+	names='movementperson_formset'
+	return edit_model(request, __name__, 'Movement', 'persons', pk, 
+		formset_names=names, focus = focus, view=view)
 
 # Create your views here.
