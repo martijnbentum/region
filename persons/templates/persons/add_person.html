@@ -52,7 +52,11 @@ role="button">add person</a>
 	{{location_formset.management_form}}
 	<table class="table table-borderless">
 	<tr class ="d-flex">
-	<th class="col-4">Location</th>
+	<th class="col-4">Location
+		<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+			href ="{% url 'locations:add_location' 'inline' %}" 
+			role="button"><i class="fa fa-plus"></i></a>
+		</th>
 	<th class="col-2">Type
 		<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
 			href ="{% url 'persons:add_person_location_relation' %}" role="button">

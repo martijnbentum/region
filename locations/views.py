@@ -52,7 +52,7 @@ def add_location(request, focus = '', view = 'complete'):
 		userform = UserLocForm()
 	tabs = make_tabs('location',focus_names = focus)
 	var = {'form':form,'fastform':fastform,'userform':userform,
-		'page_name':'Add location','tabs':tabs}
+		'page_name':'Add location','tabs':tabs, 'view':view}
 	return render(request, 'locations/add_location.html', var)
 
 

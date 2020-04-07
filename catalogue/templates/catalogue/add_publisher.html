@@ -1,11 +1,5 @@
 {% extends "utilities/base.html" %}
 
-{% block navbar%}
-	{% if view == "inline" %}
-	{% else %}
-        {% include 'utilities/navbar.html' %}
-	{% endif %}
-{% endblock %}
 
 {% block head %}
 	{{form.media.css}}
@@ -44,6 +38,10 @@
 	<tr class="d-flex">
 		<th class="col-2">Locations</th>
 		<td class="col-8">{{form.location}}</td>
+			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'locations:add_location' 'inline' %}" 
+				role="button"><i class="fa fa-plus"></i></a>
+			</td>
 	</tr>
 	<tr class="d-flex">
 		<th class="col-2">Founded</th>

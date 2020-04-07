@@ -19,6 +19,10 @@
 	<tr class="d-flex">
 		<th class="col-2">birth place</th>
 		<td class="col-8">{{form.birth_place}} {{form.birth_place.errors}}</td>
+			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'locations:add_location' 'inline' %}" 
+				role="button"><i class="fa fa-plus"></i></a>
+			</td>
 	</tr>
 	<tr class="d-flex">
 		<th class="col-2">died</th>
@@ -27,5 +31,9 @@
 	<tr class="d-flex">
 		<th class="col-2">death place</th>
 		<td class="col-8">{{form.death_place}} {{form.death_place.errors}}</td>
+			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'locations:add_location' 'inline' %}" 
+				role="button"><i class="fa fa-plus"></i></a>
+			</td>
 	</tr>
 </table>
