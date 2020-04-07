@@ -27,12 +27,6 @@
 {% endif %}
 </div>
 
-{% if page_name == "Edit text" and 'unknown' not in crud.last_update %}
-	{% include 'utilities/change_log.html' %}
-	{% else %} <p class="mb-2"></p>
-{% endif %}
-
-
 
 <form method="post" enctype="multipart/form-data" onsubmit="dosubmit();">
 {% csrf_token %}
