@@ -93,7 +93,7 @@ def edit_text(request, pk=None, focus = '', view='complete'):
 		focus = focus, view=view)
 
 def edit_periodical(request, pk=None, focus = '', view='complete'):
-	names='periodicalpublication_formset'
+	names='periodicalpublication_formset,periodicalperson_formset'
 	return edit_model(request, __name__,'Periodical','catalogue', pk,formset_names=names, 
 		focus = focus, view=view)
 
