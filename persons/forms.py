@@ -178,9 +178,10 @@ class PersonTextRelationForm(ModelForm):
 			attrs={'data-placeholder':'Select role... e.g., author',
 			'style':'width:100%;','class':'searching',
 			'data-minimum-input-length':'0'}))
-	published_under= forms.IntegerField(widget=forms.NumberInput(
+
+	published_under = forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}),
-		required = False)
+		required=False)
 
 	class Meta:
 		model = PersonTextRelation
