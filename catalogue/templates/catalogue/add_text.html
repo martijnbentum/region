@@ -148,6 +148,9 @@
 	{% if view == "inline" %}
 		<a type="reset" value="Cancel" class ="btn btn-light"
 		href="{% url 'utilities:close' %}">Cancel</a>
+	{% else %}
+		<button type="submit" name="save" value="add_another"
+			 class ="btn btn-outline-success">Save | add another</button>
 	{% endif %}
 </form>
 
