@@ -174,23 +174,6 @@ class Publication(models.Model, info):
 		return ' | '.join([pu.name for pu in self.publisher.all()])
 
 
-'''
-@receiver(m2m_changed, sender = Publication.publisher.through)
-def verify_uniqueness(sender, **kwargs):
-	'Checks whether a publication with the same title and publisher was already in the database.'
-	publication = kwargs.get('instance',None)
-	action = kwargs.get('action',None)
-	publishers = kwargs.get('pk_set',None)
-
-	if action == 'pre_add':
-		for pub in publishers:
-			if Publication.objects.filter(title=publication.title).filter(publisher=pub).filter(year=publication.year).filter(issue=publication.issue).filter(volume=publication.volume):
-				raise IntegrityError('publication with title %s already exists for publisher %s' %
-					(publication.title, Publisher.objects.get(pk=pub)))
-'''
-			
-
-
 class TextPublicationRelation(models.Model): #many to many
 	'''Links a text with a publication.'''
 	text = models.ForeignKey(Text, on_delete=models.CASCADE)
