@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from utils import view_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
+from .models import copy_complete
 
 
 @login_required
@@ -22,7 +23,8 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 	crud = Crud(instance) if instance else None
 	ffm, form = None, None
 	if request.method == 'POST':
-		focus = getfocus(request)
+		focus, button = getfocus(request), getbutton(request)
+		if button == 'saveas' and instance: instance = copy_complete(instance)
 		form = modelform(request.POST, request.FILES, instance=instance)
 		if form.is_valid():
 			print('form is valid: ',form.cleaned_data,type(form))
@@ -31,7 +33,9 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 				ffm = FormsetFactoryManager(name_space,names,request,instance)
 				valid = ffm.save()
 				if valid:
-					messages.success(request, model_name + ' saved')
+					show_messages(request,button, model_name)
+					if button== 'add_another':
+						return HttpResponseRedirect(reverse(app_name+':add_'+model_name.lower()))
 					return HttpResponseRedirect(reverse(
 						app_name+':edit_'+model_name.lower(), 
 						kwargs={'pk':instance.pk,'focus':focus}))
@@ -75,6 +79,16 @@ def getfocus(request):
 		return request.POST['focus']
 	else: return 'default'
 # Create your views here.
+def getbutton(request):
+	if 'save' in request.POST.keys():
+		return request.POST['save']
+	else: return 'default'
+
+def show_messages(request,button,model_name):
+	'''provide user feedback on submitting a form.'''
+	if button == 'saveas':messages.warning(request,
+		'saved a copy of '+model_name+' use "save" to store edits to this copy')
+	else: messages.success(request, model_name + ' saved')
 
 def close(request):
 	'''page that closes itself for on the fly creation of model instances (loaded in a new tab).'''
