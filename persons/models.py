@@ -186,6 +186,7 @@ class PersonTextRelation(models.Model, info):
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	text = models.ForeignKey('catalogue.Text', null=True, blank=True, 
 		on_delete=models.CASCADE)
+	published_under = models.CharField(max_length = 100,null=True,blank=True)
 	
 	def __str__(self):
 		m = self.person.__str__() + ' | ' + self.role.__str__() 

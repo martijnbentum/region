@@ -178,10 +178,13 @@ class PersonTextRelationForm(ModelForm):
 			attrs={'data-placeholder':'Select role... e.g., author',
 			'style':'width:100%;','class':'searching',
 			'data-minimum-input-length':'0'}))
+	published_under= forms.IntegerField(widget=forms.NumberInput(
+		attrs={'style':'width:100%'}),
+		required = False)
 
 	class Meta:
 		model = PersonTextRelation
-		fields = 'person,text,role'
+		fields = 'person,text,role,published_under'
 		fields = fields.split(',')
 
 persontext_formset = inlineformset_factory(
