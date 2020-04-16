@@ -6,6 +6,9 @@ from . import views
 app_name = 'persons'
 urlpatterns = [
 	path('', views.PersonView.as_view(), name='person_list'),
+	path('person', views.PersonView.as_view(), name='person_list'),
+	path('movement', views.MovementView.as_view(), 
+		name='movement_list'),
 	path('movement_list', views.MovementView.as_view(), 
 		name='movement_list'),
 	path('add_person/', views.edit_person, name='add_person'),
@@ -39,5 +42,5 @@ urlpatterns = [
 		name='add_person_person_relation_type'),
 	path('person/add_pseudonym',views.add_pseudonym,
 		name='add_pseudonym'),
-	path('delete/<int:pk><str:model_name>', views.delete, name='delete'),
+	path('delete/<int:pk>/<str:model_name>', views.delete, name='delete'),
 ]
