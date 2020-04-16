@@ -11,7 +11,7 @@
 
 <div class="d-flex">
 
-<table class="table table-hover">
+<table class="table">
 	<tr> 
 	<th>Title</th>
 	<th>Form</th>
@@ -19,11 +19,16 @@
 	<th>Location</th>
 	</tr>
 	{% for publication in publication_list %}
-	<tr onclick='window.location="{% url 'catalogue:edit_publication' publication.pk %}"'>
 		<td>{{publication.title}}</td>
 		<td>{{publication.form.name}}</td>
 		<td>{{publication.publisher_str}}</td>
 		<td>{{publication.location.name}}</td>
+		<td><a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'catalogue:delete' publication.pk 'Publication' %}"
+        role="button"><i class="fa fa-trash text-secondary"></i></a></td>
+		<td><a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'catalogue:edit_publication' publication.pk %}"
+        role="button"><i class="far fa-edit text-secondary"></i></a></td>
 	</tr>
 	{% endfor %}
 </table>

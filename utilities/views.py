@@ -1,15 +1,15 @@
 from django.apps import apps
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from utils import view_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
 from .models import copy_complete
 
 
-@login_required
+@permission_required('utilities.add_generic')
 def edit_model(request, name_space, model_name, app_name, instance_id = None, 
 	formset_names='', focus='', view ='complete'):
 	'''edit view generalized over models.
@@ -24,6 +24,8 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 	ffm, form = None, None
 	if request.method == 'POST':
 		focus, button = getfocus(request), getbutton(request)
+		if button in 'delete,cancel,confirm_delete': 
+			return delete_model(request,name_space,model_name,app_name,instance_id)
 		if button == 'saveas' and instance: instance = copy_complete(instance)
 		form = modelform(request.POST, request.FILES, instance=instance)
 		if form.is_valid():
@@ -51,6 +53,7 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 	return render(request,app_name+'/add_' + model_name.lower() + '.html',args)
 		
 
+@permission_required('utilities.add_generic')
 def add_simple_model(request, name_space,model_name,app_name, page_name):
 	'''Function to add simple models with only a form could be extended.
 	request 	django object
@@ -72,6 +75,30 @@ def add_simple_model(request, name_space,model_name,app_name, page_name):
 	var = {'form':form, 'page_name':page_name, 'instances':instances}
 	return render(request, 'utilities/add_simple_model.html',var)
 
+@permission_required('utilities.delete_generic')
+def delete_model(request, name_space, model_name, app_name, pk):
+	model = apps.get_model(app_name,model_name)
+	instance= get_object_or_404(model,id =pk)
+	focus, button = getfocus(request), getbutton(request)
+	print(request.POST.keys())
+	print(99,instance.view(),instance,888)
+	print(button)
+	if request.method == 'POST':
+		if button == 'cancel': 
+			show_messages(request,button, model_name)
+			return HttpResponseRedirect(reverse(
+				app_name+':edit_'+model_name.lower(), 
+				kwargs={'pk':instance.pk,'focus':focus}))
+		if button == 'confirm_delete':
+			instance.delete()
+			show_messages(request,button, model_name)
+			return HttpResponseRedirect('/'+app_name+'/'+model_name.lower())
+	info = instance.info
+	print(1,info,instance,pk)
+	var = {'info':info,'page_name':'Delete '+model_name.lower()}
+	print(2)
+	return render(request, 'utilities/delete_model.html',var)
+	
 
 def getfocus(request):
 	'''extracts focus variable from the request object to correctly set the active tabs.'''
@@ -87,7 +114,9 @@ def getbutton(request):
 def show_messages(request,button,model_name):
 	'''provide user feedback on submitting a form.'''
 	if button == 'saveas':messages.warning(request,
-		'saved a copy of '+model_name+' use "save" to store edits to this copy')
+		'saved a copy of '+model_name+'. Use "save" button to store edits to this copy')
+	elif button == 'confirm_delete':messages.success(request, model_name + ' deleted')
+	elif button == 'cancel':messages.warning(request,'delete aborted')
 	else: messages.success(request, model_name + ' saved')
 
 def close(request):

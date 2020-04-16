@@ -42,4 +42,5 @@ urlpatterns = [
 	path('periodical/',views.PeriodicalView.as_view(),name='periodical_list'),
 	path('illustration/',views.IllustrationView.as_view(),
 		name='illustration_list'),
+	path('delete/<int:pk><str:model_name>', views.delete, name='delete'),
 ]

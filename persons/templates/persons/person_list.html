@@ -6,7 +6,7 @@
 
 <div class="d-flex">
 
-<table class="table table-hover">
+<table class="table">
 	<tr class="table-primary">
 	<!-- create header -->
 	{% for attr in person_list.0.attribute_names_hr%}
@@ -14,8 +14,6 @@
 	{% endfor %}
 	</tr>
 	{% for person in person_list %}
-	<!-- <tr onclick='window.location="{% url 'persons:person_detail' person.pk %}"'> -->
-	<tr onclick='window.location="{% url 'persons:edit_person' person.pk %}"'>
 		{% for attr in person.listify %}
 			{% if attr|length > 12 %}
 				<!-- truncate long strings -->
@@ -24,6 +22,12 @@
 				<td>{{ attr }}</td>
 			{% endif %}
 		{% endfor %}
+		<td><a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'persons:delete' person.pk 'Person' %}"
+        role="button"><i class="fa fa-trash text-secondary"></i></a></td>
+		<td><a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'persons:edit_person' person.pk %}"
+        role="button"><i class="far fa-edit text-secondary"></i></a></td>
 	</tr>
 	{% endfor %}
 </table>

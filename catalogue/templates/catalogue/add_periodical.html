@@ -21,10 +21,10 @@
 {% if view != "inline" %}
 	{% if page_name == "Edit periodical"%}
 	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_periodical' %}"
-	role="button">add periodical</a>
+	role="button"><i class="fa fa-plus"></i></a>
 	{% endif %}
 	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:periodical_list' %}" 
-	role="button">periodical list</a>
+	role="button"><i class="fas fa-list"></i></a>
 {% endif %}
 </div>
 
@@ -136,6 +136,10 @@
 	{% else %}
 		<button type="submit" name="save" value="add_another"
 			 class ="btn btn-outline-success">Save | add another</button>
+	{% endif %}
+	{% if page_name == "Edit periodical"%}
+    <button type="submit" name="save" value="delete"
+		 class ="btn btn-outline-danger">delete</button>
 	{% endif %}
 </form>
 

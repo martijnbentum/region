@@ -4,6 +4,9 @@ from django.utils import timezone
 from utils.model_util import id_generator, info
 
 
+class generic(models.Model):
+	pass
+
 
 class Language(models.Model, info):
 	name = models.CharField(max_length=100, unique = True)
@@ -16,11 +19,12 @@ class Language(models.Model, info):
 def copy_complete(instance, commit = True):
 	'''copy a model instance completely with all relations.'''
 	copy = simple_copy(instance, commit)
+	app_name, model_name = instance2names(instance)
 	for f in copy._meta.get_fields():
 		if f.one_to_many:
 			for r in list(getattr(instance,f.name+'_set').all()):
 				rcopy = simple_copy(r,False)
-				rcopy.publication = copy
+				setattr(rcopy,model_name.lower(), copy)
 				rcopy.save()
 		if f.many_to_many:
 			getattr(copy,f.name).set(getattr(instance,f.name).all())

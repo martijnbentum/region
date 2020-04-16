@@ -1,0 +1,33 @@
+{% extends "utilities/base.html" %}
+
+{% block navbar%}
+{% endblock %}
+
+{% block head %}
+	{{form.media.css}}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+{% block content %}
+<div class="col-md-12 d-flex">
+<h4 class="mt-2">{{page_name}}</h4>
+</div>
+<hr class="mt-0 mb-4">
+<h5 class="text-danger">Are you sure you want to delete:</h5>
+{{info|safe}}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="save" value="confirm_delete"
+		 class ="btn btn-outline-danger">delete</button>
+    <button type="submit" name="save" value="cancel"
+		 class ="btn btn-outline-warning">cancel</button>
+</form>
+<br>
+<br>
+<hr class="mt-0 mb-4">
+{% for instance in instances %}
+	<p class="text-secondary">{{instance.name}}</p>
+{% endfor %}
+
+{{form.media.js}}
+{% endblock content %}

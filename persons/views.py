@@ -19,7 +19,7 @@ import json
 from locations.models import UserLoc
 from utils import view_util
 from utils.view_util import Crud, make_tabs, get_modelform, FormsetFactoryManager
-from utilities.views import add_simple_model, getfocus, edit_model
+from utilities.views import add_simple_model, getfocus, edit_model, delete_model
 	
 
 class PersonView(generic.ListView):
@@ -94,4 +94,6 @@ def edit_movement(request, pk=None, focus = '', view='complete'):
 	return edit_model(request, __name__, 'Movement', 'persons', pk, 
 		formset_names=names, focus = focus, view=view)
 
-# Create your views here.
+
+def delete(request, pk, model_name):
+	return delete_model(request, __name__,model_name,'persons',pk)

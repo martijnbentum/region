@@ -7,11 +7,12 @@
 {% block content %}
 <div class="col-md-12 d-flex">
 <h4 class="mt-2">{{page_name}}</h4> 
-{% if page_name == "Edit Person"%}
+{% if page_name == "Edit person"%}
 <a class ="btn btn-link ml-auto" href="{% url 'persons:add_person' %}"
-role="button">add person</a>
+role="button"><i class="fa fa-plus"></i></a>
 {% endif %}
-<a class ="btn btn-link ml-auto" href="{% url 'persons:person_list' %}" role="button">person list</a>
+<a class ="btn btn-link ml-auto" href="{% url 'persons:person_list' %}" role="button">
+<i class="fas fa-list"></i></a>
 </div>
 
 
@@ -267,6 +268,10 @@ role="button">add person</a>
 	{% else %}
 		<button type="submit" name="save" value="add_another"
 			 class ="btn btn-outline-success">Save | add another</button>
+{% endif %}
+{% if page_name == "Edit person"%}
+<button type="submit" name="save" value="delete"
+	 class ="btn btn-outline-danger">delete</button>
 {% endif %}
 
 </form>

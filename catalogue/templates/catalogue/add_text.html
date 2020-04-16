@@ -20,10 +20,10 @@
 {% if view != "inline" %}
 	{% if page_name == "Edit text"%}
 	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_text' %}"
-	role="button">add Text</a>
+	role="button"><i class="fa fa-plus"></i></a>
 	{% endif %}
 	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:text_list' %}"
-	role="button">Text list</a>
+	role="button"><i class="fas fa-list"></i></a>
 {% endif %}
 </div>
 
@@ -153,6 +153,10 @@
 	{% else %}
 		<button type="submit" name="save" value="add_another"
 			 class ="btn btn-outline-success">Save | add another</button>
+	{% endif %}
+	{% if page_name == "Edit text"%}
+    <button type="submit" name="save" value="delete"
+		 class ="btn btn-outline-danger">delete</button>
 	{% endif %}
 </form>
 

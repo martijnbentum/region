@@ -11,15 +11,20 @@
 
 <div class="d-flex">
 
-<table class="table table-hover">
+<table class="table">
 	<tr> 
 	<th>Name</th>
 	<th>Location</th>
 	</tr>
 	{% for publisher in publisher_list %}
-	<tr onclick='window.location="{% url 'catalogue:edit_publisher' publisher.pk %}"'>
 		<td>{{publisher.name}}</td>
 		<td>{{publisher.location_string}}</td>
+		<td><a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'catalogue:delete' publisher.pk 'Publisher' %}"
+        role="button"><i class="fa fa-trash text-secondary"></i></a></td>
+		<td><a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'catalogue:edit_publisher' publisher.pk %}"
+        role="button"><i class="far fa-edit text-secondary"></i></a></td>
 	</tr>
 	{% endfor %}
 </table>

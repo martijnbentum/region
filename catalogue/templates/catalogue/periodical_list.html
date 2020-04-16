@@ -11,17 +11,22 @@
 
 <div class="d-flex">
 
-<table class="table table-hover">
+<table class="table">
 	<tr> 
 	<th>Title</th>
 	<th>Founded</th>
 	<th>Closure</th>
 	</tr>
 	{% for periodical in periodical_list %}
-	<tr onclick='window.location="{% url 'catalogue:edit_periodical' periodical.pk %}"'>
 		<td>{{periodical.title}}</td>
 		<td>{{periodical.founded}}</td>
 		<td>{{periodical.closue}}</td>
+		<td><a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'catalogue:delete' periodical.pk 'Periodical' %}"
+        role="button"><i class="fa fa-trash text-secondary"></i></a></td>
+		<td><a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'catalogue:edit_periodical' periodical.pk %}"
+        role="button"><i class="far fa-edit text-secondary"></i></a></td>
 	</tr>
 	{% endfor %}
 </table>

@@ -12,7 +12,7 @@
 
 <div class="d-flex">
 
-<table class="table table-hover">
+<table class="table">
 	<tr> 
 	<th>Title</th>
 	<th>Language</th>
@@ -20,11 +20,16 @@
 	<th>Setting</th>
 	</tr>
 	{% for text in text_list %}
-	<tr onclick='window.location="{% url 'catalogue:edit_text' text.pk %}"'>
 		<td>{{text.title}}</td>
 		<td>{{text.language}}</td>
 		<td>{{text.genre}}</td>
 		<td>{{text.setting}}</td>
+		<td><a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'catalogue:delete' text.pk 'Text' %}"
+        role="button"><i class="fa fa-trash text-secondary"></i></a></td>
+		<td><a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'catalogue:edit_text' text.pk %}"
+        role="button"><i class="far fa-edit text-secondary"></i></a></td>
 	</tr>
 	{% endfor %}
 </table>

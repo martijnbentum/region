@@ -19,7 +19,7 @@ from persons.models import Person, PersonLocationRelation
 from persons.forms import textperson_formset, illustrationperson_formset, periodicalperson_formset
 from utils import view_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
-from utilities.views import add_simple_model, edit_model, getfocus
+from utilities.views import add_simple_model, edit_model, getfocus, delete_model
 
 
 
@@ -111,6 +111,10 @@ def edit_illustration(request, pk=None, focus = '', view='complete'):
 		formset_names=names, focus = focus, view=view)
 
 
+def delete(request, pk, model_name):
+	return delete_model(request, __name__,model_name,'catalogue',pk)
+
+		
 
 
 

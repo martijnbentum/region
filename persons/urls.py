@@ -39,4 +39,5 @@ urlpatterns = [
 		name='add_person_person_relation_type'),
 	path('person/add_pseudonym',views.add_pseudonym,
 		name='add_pseudonym'),
+	path('delete/<int:pk><str:model_name>', views.delete, name='delete'),
 ]

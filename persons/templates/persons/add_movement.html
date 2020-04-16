@@ -9,10 +9,10 @@
 <h4 class="mt-2">{{page_name}}</h4> 
 {% if page_name == "Edit movement"%}
 <a class ="btn btn-link ml-auto" href="{% url 'persons:add_movement' %}"
-role="button">add movement</a>
+role="button"><i class="fa fa-plus"></i></a>
 {% endif %}
 <a class ="btn btn-link ml-auto" href="{% url 'persons:movement_list' %}" 
-role="button">movement list</a>
+role="button"><i class="fas fa-list"></i></a>
 </div>
 
 
@@ -124,6 +124,10 @@ role="button">movement list</a>
 	{% else %}
 		<button type="submit" name="save" value="add_another"
 			 class ="btn btn-outline-success">Save | add another</button>
+{% endif %}
+{% if page_name == "Edit movement"%}
+<button type="submit" name="save" value="delete"
+	 class ="btn btn-outline-danger">delete</button>
 {% endif %}
 
 </form>
