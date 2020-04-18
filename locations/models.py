@@ -57,7 +57,9 @@ class UserLoc(models.Model, info):
 	@property
 	def country(self):
 		gl = self.geoloc_set.all()
-		if len(gl) == 0: return ''
+		self.view()
+		print(self)
+		# if len(gl) == 0: return ''
 		gr = flatten_lol([GeoLocsRelation.objects.filter(contained__geonameid= x.geonameid) 
 			for x in gl])
 		countries = list(set(
@@ -126,7 +128,7 @@ class GeoLoc(models.Model, info):
 		max_digits=8,
 		decimal_places=5
 	)
-	info = models.TextField(default='',blank=True)
+	information = models.TextField(default='',blank=True)
 	notes = models.TextField(default='',blank=True)
 	user_locs = models.ManyToManyField(UserLoc)
 	# country = CountryField()
