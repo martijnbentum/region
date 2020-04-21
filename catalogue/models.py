@@ -195,6 +195,7 @@ class Periodical(models.Model, info):
 	title = models.CharField(max_length=300)
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 
+	location= models.ManyToManyField(UserLoc,blank=True)
 
 	def __str__(self):
 		return self.title
