@@ -220,6 +220,16 @@ def make_persontextrelationroles():
 		)
 	
 
+def move_volume_issue_to_publication():
+	pubs = Publication.objects.all()
+	for p in pubs:
+		for ppr in p.periodicalpublicationrelation_set.all():
+			if ppr.volume or ppr.issue:
+				p.view()
+				print(ppr.volume,ppr.issue)
+				if p.volume == None: p.volume = ppr.volume
+				if p.issue== None: p.issue= ppr.issue
+				p.save()
 		
 			
 

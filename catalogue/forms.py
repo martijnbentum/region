@@ -231,7 +231,7 @@ class PublicationForm(ModelForm):
 		
 	class Meta:
 		model = Publication
-		m = 'title,form,publisher,year,location,notes,pdf,cover,complete,approved'
+		m = 'title,form,publisher,year,location,notes,pdf,cover,complete,approved,volume,issue'
 		fields = m.split(',')
 
 
