@@ -285,7 +285,7 @@ class IllustrationForm(ModelForm):
 			'data-minimum-input-length':'0'}),
 		required = False
 		)
-	page_number= forms.IntegerField(widget=forms.NumberInput(
+	page_number= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}),
 		required=False)
 	notes = forms.CharField(widget=forms.Textarea(
