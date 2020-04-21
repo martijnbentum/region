@@ -23,7 +23,7 @@ class Genre(models.Model, info):
 class Text(models.Model, info):
 	'''a text can be an entire book or article or a subsection thereof.'''
 	title = models.CharField(max_length=300)
-	text_id = models.IntegerField(default = id_generator('numbers',length=18))
+	text_id= models.IntegerField(default = id_generator('numbers',length=18))
 	setting = models.CharField(max_length=300,blank=True)
 	language = models.ForeignKey(Language, on_delete=models.SET_NULL,
 		blank=True,null=True)
@@ -32,6 +32,7 @@ class Text(models.Model, info):
 	# upload = models.FileField(upload_to='texts/',blank=True,null=True) # ?
 	relations = models.ManyToManyField('self',
 		through='TextTextRelation',symmetrical=False, default=None)
+	location= models.ManyToManyField(UserLoc,blank=True)
 	notes = models.TextField(default='',blank=True, null=True)
 
 	def __str__(self):
@@ -153,7 +154,7 @@ class Publication(models.Model, info):
 	'''The publication of a text or collection of texts and illustrations'''
 	title = models.CharField(max_length=300,null=True)
 	publisher = models.ManyToManyField(Publisher,blank=True)
-	publication_id = models.IntegerField(
+	publication_id= models.IntegerField(
 		default = id_generator('numbers',length=12))
 	form = models.ForeignKey(PublicationType,on_delete=models.SET_NULL,null=True)
 	# FK periodical | FK book

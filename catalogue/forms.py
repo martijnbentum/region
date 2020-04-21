@@ -178,6 +178,13 @@ class TextForm(ModelForm):
 		)
 	title = forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
+	location= forms.ModelMultipleChoiceField(
+		queryset=UserLoc.objects.all().order_by('name'),
+		widget=LocationsWidget(attrs={'data-placeholder':'Select location(s)...',
+			'style':'width:100%;','class':'searching'}),
+		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
+		required = False
+		)
 	setting= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}),
 		required=False)
@@ -187,7 +194,7 @@ class TextForm(ModelForm):
 
 	class Meta:
 		model = Text
-		m = 'title,setting,language,genre,notes'
+		m = 'title,setting,language,genre,notes,location'
 		fields = m.split(',')
 
 
