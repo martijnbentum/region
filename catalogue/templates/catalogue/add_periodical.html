@@ -96,8 +96,6 @@
 		{% for f in periodicalpublication_formset.forms %}
 			<tr class ="d-flex">
 			<td class="col-5">{{f.publication}} {{f.publication.errors}}</td>
-			<td class="col-3">{{f.volume}} {{f.volume.errors}}</td>
-			<td class="col-3">{{f.issue}} {{f.issue.errors}}</td>
 			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
 			</tr>
 		{% endfor %}
