@@ -112,7 +112,7 @@ class GeoLoc(models.Model, info):
 		through='GeoLocsRelation',symmetrical=False, default=None)
 	geonameid = models.CharField(
 		max_length=12, 
-		default= id_generator(length = 12),
+		default= '',
 		unique = True,
 	)
 	coordinates_polygon = models.CharField(max_length=3000, blank=True ,null=True)
@@ -134,9 +134,10 @@ class GeoLoc(models.Model, info):
 	# country = CountryField()
 
 	def save(self):
-		try: geonameid = eval(self.info)['geonameid']
-		except: geonameid = id_generator(length = 27)
-		self.geonameid = geonameid
+		if not self.pk:
+			try: geonameid = eval(self.info)['geonameid']
+			except: geonameid = id_generator(length = 27)
+			self.geonameid = geonameid
 		super(GeoLoc, self).save()
 
 	def __str__(self):
