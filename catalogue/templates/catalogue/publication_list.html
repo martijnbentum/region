@@ -13,16 +13,22 @@
 
 <table class="table">
 	<tr> 
-	<th>Title</th>
-	<th>Form</th>
-	<th>Publisher</th>
-	<th>Location</th>
+	<th>Title <a class="fas fa-sort text-dark" href="?order_by=title,{{order}},{{direction}}" 
+		style="text-decoration:none;"></a></th>
+	<th>Form<a class="fas fa-sort text-dark ml-1" href="?order_by=form__name,{{order}},{{direction}}" 
+		style="text-decoration:none;"></a></th>
+	<th>Publisher
+		<a class="fas fa-sort text-dark" href="?order_by=publisher__name,{{order}},{{direction}}"
+		style="text-decoration:none;"></a></th>
+	<th>Location
+		<a class="fas fa-sort text-dark" href="?order_by=location__name,{{order}},{{direction}}"
+		style="text-decoration:none;"></a></th>
 	</tr>
 	{% for publication in publication_list %}
 		<td>{{publication.title}}</td>
 		<td>{{publication.form.name}}</td>
 		<td>{{publication.publisher_str}}</td>
-		<td>{{publication.location.name}}</td>
+		<td>{{publication.location_str}}</td>
 		<td><a class = "btn btn-link btn-sm ml-auto"
         href ="{% url 'catalogue:delete' publication.pk 'Publication' %}"
         role="button"><i class="fa fa-trash text-secondary"></i></a></td>
@@ -33,7 +39,7 @@
 	{% endfor %}
 </table>
 <a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publication' %}" 
-role="button">Add publication</a>
+role="button"><i class="fa fa-plus"></i></a>
 </div>
 
 {% else %}
