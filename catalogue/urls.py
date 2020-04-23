@@ -37,7 +37,7 @@ urlpatterns = [
 	path('edit_illustration/<int:pk>/<str:focus>', 
 		views.edit_illustration, name='edit_illustration'),
 	path('text/',views.TextView.as_view(),name='text_list'),
-	path('publication/',views.PublicationView.as_view(),name='publication_list'),
+	path('publication/',views.publication_list,name='publication_list'),
 	path('publisher/',views.PublisherView.as_view(),name='publisher_list'),
 	path('periodical/',views.PeriodicalView.as_view(),name='periodical_list'),
 	path('illustration/',views.IllustrationView.as_view(),

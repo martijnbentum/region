@@ -1,6 +1,7 @@
 from django.apps import apps
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models.functions import Lower
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic
@@ -63,6 +64,24 @@ class PublicationView(generic.ListView):
 
 	def get_queryset(self):
 		return Publication.objects.order_by('title')
+
+def publication_list(request):
+	'''list view of publications.'''
+	temp = request.GET.get('order_by')
+	if temp == None: order_by,old_order,old_direction = 'title,,ascending'.split(',')
+	else: order_by,old_order,old_direction = temp.split(',')
+	if order_by == old_order:
+		direction = 'descending' if old_direction == 'ascending' else 'ascending'
+	else: direction = 'ascending'
+	print(Lower(order_by),order_by)
+	# order_by = Lower(order_by)
+	# o = '-{}'.format(order_by) if direction == 'descending' else order_by
+	print(order_by,direction)
+	publications = Publication.objects.all().order_by(Lower(order_by))
+	if direction == 'descending': publications = publications.reverse()
+	var = {'publication_list':publications,'page_name':'Publication','order':order_by,
+		'direction':direction}
+	return render(request, 'catalogue/publication_list.html',var)
 
 class PublisherView(generic.ListView):
 	'''list view of publishers.'''
