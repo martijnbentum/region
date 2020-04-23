@@ -145,6 +145,9 @@ class Publisher(models.Model, info):
 	def location_string(self):
 		return ', '.join([l.name for l in self.location.all()])
 
+	class Meta:
+		ordering = ['name']
+
 
 
 class PublicationType(models.Model):
@@ -184,6 +187,10 @@ class Publication(models.Model, info):
 	@property
 	def publisher_str(self):
 		return ' | '.join([pu.name for pu in self.publisher.all()])
+
+	@property
+	def location_str(self):
+		return ' | '.join([loc.name for loc in self.location.all()])
 
 
 class TextPublicationRelation(models.Model): #many to many
