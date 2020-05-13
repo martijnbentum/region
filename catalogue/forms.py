@@ -194,7 +194,7 @@ class TextForm(ModelForm):
 
 	class Meta:
 		model = Text
-		m = 'title,setting,language,genre,notes,location'
+		m = 'title,setting,language,genre,notes,location,complete,approved'
 		fields = m.split(',')
 
 
@@ -256,7 +256,7 @@ class PublisherForm(ModelForm):
 
 	class Meta:
 		model = Publisher
-		m = 'name,location,founded,closure,notes'
+		m = 'name,location,founded,closure,notes,complete,approved'
 		fields = m.split(',')
 
 
@@ -294,7 +294,7 @@ class IllustrationForm(ModelForm):
 
 	class Meta:
 		model = Illustration
-		fields = 'caption,category,page_number,notes,upload'.split(',')
+		fields = 'caption,category,page_number,notes,upload,complete,approved'.split(',')
 
 class PeriodicalForm(ModelForm):
 	'''Form to add an periodical.'''
@@ -316,7 +316,7 @@ class PeriodicalForm(ModelForm):
 
 	class Meta:
 		model = Periodical
-		fields = 'title,founded,closure,location'.split(',')
+		fields = 'title,founded,closure,location,complete,approved'.split(',')
 
 
 

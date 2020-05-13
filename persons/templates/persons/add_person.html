@@ -274,7 +274,6 @@ role="button"><i class="fa fa-plus"></i></a>
 	 class ="btn btn-outline-danger">delete</button>
 {% endif %}
 
-</form>
 
 {{form.media.js}}
 
@@ -282,5 +281,8 @@ role="button"><i class="fa fa-plus"></i></a>
 
 {% endblock content %}
 
+{% block right %}
+{% include 'utilities/complete_approved.html' %}
+{% endblock %}
 
  

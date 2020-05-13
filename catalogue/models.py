@@ -39,6 +39,8 @@ class Text(models.Model, info):
 		through='TextTextRelation',symmetrical=False, default=None)
 	location= models.ManyToManyField(UserLoc,blank=True)
 	notes = models.TextField(default='',blank=True, null=True)
+	complete = models.BooleanField(default=False)
+	approved = models.BooleanField(default=False)
 
 	def save(self):
 		if not self.pk:
@@ -111,6 +113,8 @@ class Illustration(models.Model, info):
 	page_number = models.CharField(max_length=50, null=True, blank=True)
 	notes = models.TextField(null=True,blank=True)
 	upload= models.ImageField(upload_to='illustrations/',null=True,blank=True)
+	complete = models.BooleanField(default=False)
+	approved = models.BooleanField(default=False)
 	
 	def __str__(self):
 		return self.caption
@@ -142,6 +146,8 @@ class Publisher(models.Model, info):
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 
 	notes = models.TextField(null=True,blank=True) # many to many
+	complete = models.BooleanField(default=False)
+	approved = models.BooleanField(default=False)
 
 	def __str__(self):
 		return self.name
@@ -218,6 +224,8 @@ class Periodical(models.Model, info):
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 
 	location= models.ManyToManyField(UserLoc,blank=True)
+	complete = models.BooleanField(default=False)
+	approved = models.BooleanField(default=False)
 
 	def __str__(self):
 		return self.title

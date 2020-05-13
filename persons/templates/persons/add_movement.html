@@ -130,10 +130,13 @@ role="button"><i class="fas fa-list"></i></a>
 	 class ="btn btn-outline-danger">delete</button>
 {% endif %}
 
-</form>
 
 {{form.media.js}}
 
 {% include 'utilities/tab_selector.html' %}
 
 {% endblock content %}
+
+{% block right %}
+{% include 'utilities/complete_approved.html' %}
+{% endblock %}

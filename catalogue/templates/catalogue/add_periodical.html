@@ -124,8 +124,7 @@
 		{% endfor %}
 		</table>
 	</div>
-
-<div>
+</div>
 
 {% endif %}
 
@@ -145,7 +144,6 @@
     <button type="submit" name="save" value="delete"
 		 class ="btn btn-outline-danger">delete</button>
 	{% endif %}
-</form>
 
 {{form.media.js}}
 {{periodicalpublication_formset.forms.0.media.js}}
@@ -155,4 +153,8 @@
 
 {% endblock content %}
 
+
+{% block right %}
+{% include 'utilities/complete_approved.html' %}
+{% endblock %}
 

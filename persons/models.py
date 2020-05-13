@@ -28,6 +28,8 @@ class Person(models.Model, info):
 	death_place= models.ForeignKey(UserLoc, on_delete=models.SET_NULL,
 		related_name = 'died', default = None, null = True)
 	notes = models.TextField(blank=True,null=True) 
+	complete = models.BooleanField(default=False)
+	approved = models.BooleanField(default=False)
 
 	@property
 	def name(self):
@@ -231,6 +233,8 @@ class Movement(models.Model, info):
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 
 	notes = models.TextField(null=True,blank=True) # many to many
+	complete = models.BooleanField(default=False)
+	approved = models.BooleanField(default=False)
 
 	def __str__(self):
 		return self.name

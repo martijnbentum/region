@@ -1,11 +1,5 @@
 {% extends "utilities/base.html" %}
 
-{% block navbar%}
-	{% if view == "inline" %}
-	{% else %}
-        {% include 'utilities/navbar.html' %}
-	{% endif %}
-{% endblock %}
 
 {% block head %}
 	{{form.media.css}}
@@ -13,6 +7,8 @@
 {% endblock %}
 
 {% block content %}
+<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();">
+    {% csrf_token %}
 
 <div class="col-md-12 d-flex">
 <h4 class="mt-2">{{page_name}}</h4>
@@ -27,8 +23,6 @@
 {% endif %}
 </div>
 
-<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();">
-    {% csrf_token %}
 
 {% include 'utilities/edit_minimize_tab.html' %}
 
@@ -132,7 +126,7 @@
 		{% endfor %}
 		</table>
 	</div>
-<div>
+</div>
 
 {% endif %}
 
@@ -152,7 +146,6 @@
     <button type="submit" name="save" value="delete"
 		 class ="btn btn-outline-danger">delete</button>
 	{% endif %}
-</form>
 
 {{form.media.js}}
 
@@ -166,3 +159,6 @@
 {% endblock content %}
 
 
+{% block right %}
+{% include 'utilities/complete_approved.html' %}
+{% endblock %}
