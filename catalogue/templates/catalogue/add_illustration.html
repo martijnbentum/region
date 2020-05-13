@@ -39,14 +39,6 @@
 		<td class="col-8">{{form.caption}} {{from.caption.error}}</td>
 	</tr>
 	<tr class="d-flex">
-		<th class="col-2">Category</th>
-		<td class="col-8">{{form.category}} {{form.category.error}}</td>
-			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_illustration_category'%}"
-				role="button"><i class="fa fa-plus"></i></a>
-			</td>
-	</tr>
-	<tr class="d-flex">
 		<th class="col-2">Categories</th>
 		<td class="col-8">{{form.categories}} {{form.categories.error}}</td>
 			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
