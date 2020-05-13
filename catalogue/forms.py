@@ -16,6 +16,7 @@ from utilities.forms import LanguageWidget
 from locations.widgets import LocationWidget, LocationsWidget
 from .widgets import GenreWidget, PublicationTypeWidget, PublishersWidget 
 from .widgets import IllustrationCategoryWidget,IllustrationWidget,TextWidget
+from .widgets import IllustrationCategoriesWidget
 from .widgets import TextTextRelationTypeWidget, PublicationWidget, PeriodicalWidget
 
 
@@ -285,6 +286,14 @@ class IllustrationForm(ModelForm):
 			'data-minimum-input-length':'0'}),
 		required = False
 		)
+	categories = forms.ModelMultipleChoiceField(
+		queryset=IllustrationCategory.objects.all().order_by('name'),
+		widget=IllustrationCategoriesWidget(
+			attrs={'data-placeholder':'Select categories...',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}),
+		required = False
+		)
 	page_number= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}),
 		required=False)
@@ -294,7 +303,7 @@ class IllustrationForm(ModelForm):
 
 	class Meta:
 		model = Illustration
-		fields = 'caption,category,page_number,notes,upload,complete,approved'.split(',')
+		fields = 'caption,category,categories,page_number,notes,upload,complete,approved'.split(',')
 
 class PeriodicalForm(ModelForm):
 	'''Form to add an periodical.'''

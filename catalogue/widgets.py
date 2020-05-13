@@ -17,6 +17,13 @@ class IllustrationCategoryWidget(ModelSelect2Widget):
 	def get_queryset(self):
 		return IllustrationCategory.objects.all().order_by('name')
 
+class IllustrationCategoriesWidget(ModelSelect2MultipleWidget):
+	model = IllustrationCategory
+	search_fields = ['name__icontains']
+	def label_from_instance(self,obj):
+		return obj.name
+	def get_queryset(self):
+		return IllustrationCategory.objects.all().order_by('name')
 
 class GenreWidget(ModelSelect2Widget):
 	model = Genre 

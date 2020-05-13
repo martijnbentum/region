@@ -109,7 +109,8 @@ class Illustration(models.Model, info):
 	'''a illustration typically part of publication'''
 	caption =  models.CharField(max_length=300,null=True,blank=True)
 	category= models.ForeignKey(IllustrationCategory, on_delete=models.SET_NULL,
-		blank=True,null=True)
+		blank=True,null=True, related_name='Illustration',)
+	categories= models.ManyToManyField(IllustrationCategory, blank=True, related_name='Illustrations') 
 	page_number = models.CharField(max_length=50, null=True, blank=True)
 	notes = models.TextField(null=True,blank=True)
 	upload= models.ImageField(upload_to='illustrations/',null=True,blank=True)
