@@ -9,7 +9,12 @@ import json
 from locations.models import UserLoc
 from utilities.models import Language
 from utils.model_util import id_generator, info
+from partial_date import PartialDateField
 			
+
+class test(models.Model, info):
+	name = models.CharField(max_length =9)
+	pd = PartialDateField()
 
 class Genre(models.Model, info):
 	'''category for texts (and maybe illustrations?) needs a relation as well?'''
@@ -103,7 +108,7 @@ class Illustration(models.Model, info):
 	caption =  models.CharField(max_length=300,null=True,blank=True)
 	category= models.ForeignKey(IllustrationCategory, on_delete=models.SET_NULL,
 		blank=True,null=True)
-	page_number = models.CharField(max_length=5,null=True,blank=True)
+	page_number = models.CharField(max_length=5, null=True, blank=True)
 	notes = models.TextField(null=True,blank=True)
 	upload= models.ImageField(upload_to='illustrations/',null=True,blank=True)
 	
