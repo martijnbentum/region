@@ -182,6 +182,7 @@ class Publication(models.Model, info):
 	identifier = models.CharField(max_length=100,null=True,blank=True,unique=True)
 	# ISBN
 	year = models.PositiveIntegerField(null=True,blank=True)
+	date = PartialDateField(null=True,blank=True)
 	location = models.ManyToManyField(UserLoc,blank=True) 
 	pdf = models.FileField(upload_to='publication/',null=True,blank=True) # ?
 	cover = models.ImageField(upload_to='publication/',null=True,blank=True)

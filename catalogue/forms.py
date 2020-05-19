@@ -229,10 +229,12 @@ class PublicationForm(ModelForm):
 	notes = forms.CharField(widget=forms.Textarea(
 		attrs={'style':'width:100%','rows':3}),
 		required=False)
+	date = forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
 		
 	class Meta:
 		model = Publication
-		m = 'title,form,publisher,year,location,notes,pdf,cover,complete,approved,volume,issue'
+		m = 'title,form,publisher,year,date,location,notes,pdf,cover,complete,approved,volume,issue'
 		fields = m.split(',')
 
 
