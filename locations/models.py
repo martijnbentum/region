@@ -77,6 +77,12 @@ class UserLoc(models.Model, info):
 		if 'NA' in regions: regions.remove('NA')
 		return ','.join(regions)
 
+	@property
+	def gps(self):
+		gps = [gl.gps for gl in self.geoloc_set.all()]
+		if gps: return '; '.join(gps)
+		else: return '' 
+
 class GeoLocsRelation(models.Model, info):
 	'''defines a hierarchy of locations, e.g. a city is in a province.'''
 	container = models.ForeignKey('GeoLoc', related_name='container',
@@ -194,6 +200,10 @@ class GeoLoc(models.Model, info):
 		except: region = ''
 		if region == 'NA': region = ''
 		return region
+
+	@property
+	def gps(self):
+		return str(round(self.latitude,2)) + ', ' + str(round(self.longitude,2))
 
 	def table_header(self):
 		return 'name,type,region,country'.split(',')

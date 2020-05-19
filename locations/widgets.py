@@ -43,6 +43,7 @@ class GeoLocationWidget(ModelSelect2Widget):
 			if obj.region != '':
 				m += ' | ' + obj.region
 		else: m = obj.name
+		m += ' | ' + obj.gps
 		return m
 
 	def get_queryset(self):
@@ -58,6 +59,7 @@ class GeoLocationsWidget(ModelSelect2MultipleWidget):
 			if obj.region != '':
 				m += ' | ' +obj.region
 		else: m = obj.name
+		m += ' | ' + obj.gps
 		return m
 
 	def get_queryset(self):
