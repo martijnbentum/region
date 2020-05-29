@@ -44,7 +44,7 @@ class Search:
 			self.result = self.result.filter(complete=self.query.completeness)
 			self.notes += '\ncompleteness: ' + str(self.query.completeness)
 		if self.query.approval != None: 
-			self.result = self.result.filter(approval=self.query.approval)
+			self.result = self.result.filter(approved=self.query.approval)
 			self.notes += '\napproval: ' + str(self.query.approval)
 
 	def set_ordering_and_direction(self):
