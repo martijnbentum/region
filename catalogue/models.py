@@ -232,6 +232,10 @@ class Periodical(models.Model, info):
 	def __str__(self):
 		return self.title
 
+	@property
+	def location_str(self):
+		return ' | '.join([loc.name for loc in self.location.all()])
+
 class PeriodicalPublicationRelation(models.Model, info):
 	'''linking a periodical to a publication (a specific issue of a periodical).'''
 	periodical= models.ForeignKey(Periodical, on_delete=models.CASCADE)

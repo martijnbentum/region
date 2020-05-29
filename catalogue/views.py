@@ -21,13 +21,11 @@ from persons.models import Person, PersonLocationRelation
 from persons.forms import textperson_formset, illustrationperson_formset, periodicalperson_formset
 from utils import view_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
-from utilities.views import add_simple_model, edit_model, getfocus, delete_model
-from utilities.search import Search, Query 
+from utilities.views import add_simple_model, edit_model, getfocus, delete_model,list_view
 
 
-
+'''
 class PeriodicalView(generic.ListView):
-	'''list view of periodicals.'''
 	template_name = 'catalogue/periodical_list.html'
 	context_object_name = 'periodical_list'
 	# paginate_by = 10 # http://127.0.0.1:8000/catalogue/text/?page=2
@@ -36,62 +34,28 @@ class PeriodicalView(generic.ListView):
 
 	def get_queryset(self):
 		return Periodical.objects.order_by('title')
+'''
 
-class IllustrationView(generic.ListView):
-	'''list view of illustrations.'''
-	template_name = 'catalogue/illustration_list.html'
-	context_object_name = 'illustration_list'
-	# paginate_by = 10 # http://127.0.0.1:8000/catalogue/text/?page=2
-	# cruds = Cruds('catalogue','Illustration')
-	extra_context={'page_name':'illustration'}#,'cruds':cruds}
-
-	def get_queryset(self):
-		return Illustration.objects.order_by('caption')
-
-class TextView(generic.ListView):
-	'''list view of texts.'''
-	template_name = 'catalogue/text_list.html'
-	context_object_name = 'text_list'
-	# paginate_by = 10 # http://127.0.0.1:8000/catalogue/text/?page=2
-	extra_context={'page_name':'Text'}
-
-	def get_queryset(self):
-		return Text.objects.order_by('title')
-
-class PublicationView(generic.ListView):
-	'''list view of publications.'''
-	template_name = 'catalogue/publication_list.html'
-	context_object_name = 'publication_list'
-	extra_context={'page_name':'Publication'}
-
-	def get_queryset(self):
-		return Publication.objects.order_by('title')
+def text_list(request):
+	'''list view of text.'''
+	return list_view(request, 'Text', 'catalogue')
 
 def publication_list(request):
 	'''list view of publications.'''
-	'''
-	publications = Publication.objects.filter(
-		Q(title__icontains=query) | eval('Q(form__name__icontains=query)') |
-		Q(publisher__name__icontains=query) | Q(location__name__icontains=query)).order_by(Lower(order_by))
-	'''
-	s = Search(request,'Publication','catalogue')
-	publications = s.filter()
-	# if direction == 'descending': publications = publications.reverse()
-	var = {'publication_list':publications,'page_name':'Publication','order':s.order.order_by,
-		'direction':s.order.direction,'query':s.query.query,'nentries':publications.count()}
-	print(s.notes)
-	return render(request, 'catalogue/publication_list.html',var)
+	return list_view(request, 'Publication', 'catalogue')
 
-		
-
-class PublisherView(generic.ListView):
+def publisher_list(request):
 	'''list view of publishers.'''
-	template_name = 'catalogue/publisher_list.html'
-	context_object_name = 'publisher_list'
-	extra_context={'page_name':'Publisher'}
+	return list_view(request, 'Publisher', 'catalogue')
 
-	def get_queryset(self):
-		return Publisher.objects.order_by('name')
+def periodical_list(request):
+	'''list view of periodicals.'''
+	return list_view(request, 'Periodical', 'catalogue')
+
+def illustration_list(request):
+	'''list view of illustrations.'''
+	return list_view(request, 'Illustration', 'catalogue')
+
 
 
 def add_illustration_category(request):

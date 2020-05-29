@@ -7,6 +7,18 @@ from django.urls import reverse
 from utils import view_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
 from .models import copy_complete
+from utilities.search import Search
+
+def list_view(request, model_name, app_name):
+	'''list view of a model.'''
+	s = Search(request,model_name,app_name)
+	instances= s.filter()
+	if model_name == 'UserLoc': model_name = 'location'
+	var = {model_name.lower() +'_list':instances,'page_name':model_name,
+		'order':s.order.order_by,'direction':s.order.direction,
+		'query':s.query.query,'nentries':instances.count()}
+	print(s.notes,000)
+	return render(request, app_name+'/'+model_name.lower()+'_list.html',var)
 
 
 @permission_required('utilities.add_generic')

@@ -9,8 +9,12 @@ from .forms import GeoLocForm, FastLocForm ,UserLocForm
 from django.forms import inlineformset_factory
 import json
 from utils.view_util import make_tabs
-from utilities.views import getfocus
+from utilities.views import getfocus, list_view
 
+
+def location_list(request):
+	'''list view of userlocs.'''
+	return list_view(request, 'UserLoc', 'locations')
 
 class LocationView(generic.ListView):
 	template_name = 'locations/location_list.html'

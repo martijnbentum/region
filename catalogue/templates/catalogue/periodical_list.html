@@ -6,25 +6,33 @@
 
 
 {% block content %}
+{% include 'utilities/list_search_bar.html' %}
+
 {% if periodical_list %}
-{% include 'utilities/change_log_list.html' %}
 
 <div class="d-flex">
 
 <table class="table">
 	<tr> 
-	<th>Title</th>
-	<th>Founded</th>
-	<th>Closure</th>
+	<th><a href="?order_by=title,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">title</a></th>
+	<th><a href="?order_by=founded,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">founded</a></th>
+	<th><a href="?order_by=closure,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">closure</a></th>
+	<th><a href="?order_by=location,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">location</a></th>
+	<th></th>
 	</tr>
 	{% for periodical in periodical_list %}
 		<td>{{periodical.title}}</td>
 		<td>{{periodical.founded}}</td>
 		<td>{{periodical.closue}}</td>
-		<td><a class = "btn btn-link btn-sm ml-auto"
+		<td>{{periodical.location_str}}</td>
+		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
         href ="{% url 'catalogue:delete' periodical.pk 'Periodical' %}"
-        role="button"><i class="fa fa-trash text-secondary"></i></a></td>
-		<td><a class = "btn btn-link btn-sm ml-auto"
+        role="button"><i class="fa fa-trash text-secondary"></i></a>
+		<a class = "btn btn-link btn-sm ml-auto"
         href ="{% url 'catalogue:edit_periodical' periodical.pk %}"
         role="button"><i class="far fa-edit text-secondary"></i></a></td>
 	</tr>

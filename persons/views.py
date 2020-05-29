@@ -19,7 +19,16 @@ import json
 from locations.models import UserLoc
 from utils import view_util
 from utils.view_util import Crud, make_tabs, get_modelform, FormsetFactoryManager
-from utilities.views import add_simple_model, getfocus, edit_model, delete_model
+from utilities.views import add_simple_model, getfocus, edit_model, delete_model,list_view
+	
+
+def person_list(request):
+	'''list view of person.'''
+	return list_view(request, 'Person', 'persons')
+
+def movement_list(request):
+	'''list view of movement.'''
+	return list_view(request, 'Movement', 'persons')
 	
 
 class PersonView(generic.ListView):

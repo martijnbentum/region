@@ -5,7 +5,7 @@ from . import views
 
 app_name = 'catalogue'
 urlpatterns = [
-	path('',views.TextView.as_view(),name='text_view'),
+	path('',views.text_list,name='text_view'),
 	path('add_illustration/', views.edit_illustration, name='add_illustration'),
 	path('add_illustration_category/', views.add_illustration_category, 
 		name='add_illustration_category'),
@@ -36,11 +36,11 @@ urlpatterns = [
 		name='edit_illustration'),
 	path('edit_illustration/<int:pk>/<str:focus>', 
 		views.edit_illustration, name='edit_illustration'),
-	path('text/',views.TextView.as_view(),name='text_list'),
+	path('text/',views.text_list, name='text_list'),
 	path('publication/',views.publication_list,name='publication_list'),
-	path('publisher/',views.PublisherView.as_view(),name='publisher_list'),
-	path('periodical/',views.PeriodicalView.as_view(),name='periodical_list'),
-	path('illustration/',views.IllustrationView.as_view(),
+	path('publisher/',views.publisher_list,name='publisher_list'),
+	path('periodical/',views.periodical_list,name='periodical_list'),
+	path('illustration/',views.illustration_list,
 		name='illustration_list'),
 	path('delete/<int:pk>/<str:model_name>', views.delete, name='delete'),
 ]

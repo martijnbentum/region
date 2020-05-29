@@ -7,27 +7,35 @@
 
 
 {% block content %}
-{% include 'utilities/change_log_list.html' %}
+
+
+{% include 'utilities/list_search_bar.html' %}
+
 {% if text_list %}
 
 <div class="d-flex">
 
 <table class="table">
 	<tr> 
-	<th>Title</th>
-	<th>Language</th>
-	<th>Genre</th>
-	<th>Setting</th>
+	<th><a href="?order_by=title,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">Title</a></th>
+	<th><a href="?order_by=language,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">Language</a></th>
+	<th><a href="?order_by=genre,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">Genre</a></th>
+	<th><a href="?order_by=setting,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">Setting</a></th>
+	<th></th>
 	</tr>
 	{% for text in text_list %}
 		<td>{{text.title}}</td>
 		<td>{{text.language}}</td>
 		<td>{{text.genre}}</td>
 		<td>{{text.setting}}</td>
-		<td><a class = "btn btn-link btn-sm ml-auto"
+		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
         href ="{% url 'catalogue:delete' text.pk 'Text' %}"
-        role="button"><i class="fa fa-trash text-secondary"></i></a></td>
-		<td><a class = "btn btn-link btn-sm ml-auto"
+        role="button"><i class="fa fa-trash text-secondary"></i></a>
+		<a class = "btn btn-link btn-sm ml-auto"
         href ="{% url 'catalogue:edit_text' text.pk %}"
         role="button"><i class="far fa-edit text-secondary"></i></a></td>
 	</tr>

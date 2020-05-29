@@ -15,16 +15,16 @@ class UserLoc(models.Model, info):
 	'''User defined location linked to zero or more geoloc.'''
 	name = models.CharField(max_length=200) 
 	loc_type = models.ForeignKey(LocType, on_delete=models.CASCADE)
-	EXACT = 'E'
-	APPROXIMATE = 'A'
-	ROUGH = 'R'
+	EXACT = 'exact'
+	APPROXIMATE = 'approximate'
+	ROUGH = 'rough'
 	LOC_PRECISION = [(EXACT,'exact'),(APPROXIMATE,'approximate'),(ROUGH,'rough')]
-	loc_precision=models.CharField(max_length=1,choices=LOC_PRECISION,default='A')
+	loc_precision=models.CharField(max_length=15,choices=LOC_PRECISION,default='A')
 
-	FICTION = 'F'
-	NON_FICTION = 'NF'
+	FICTION = 'fiction'
+	NON_FICTION = 'non-fiction'
 	STATUS = [(FICTION,'fiction'), (NON_FICTION,'non-fiction')]
-	status = models.CharField(max_length=2,choices=STATUS,default = 'NF')
+	status = models.CharField(max_length=15,choices=STATUS,default = 'NF')
 	notes = models.TextField(default='', blank=True)
 
 	def __str__(self):
@@ -57,8 +57,6 @@ class UserLoc(models.Model, info):
 	@property
 	def country(self):
 		gl = self.geoloc_set.all()
-		self.view()
-		print(self)
 		# if len(gl) == 0: return ''
 		gr = flatten_lol([GeoLocsRelation.objects.filter(contained__geonameid= x.geonameid) 
 			for x in gl])

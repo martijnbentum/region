@@ -4,16 +4,20 @@ from django.db.models import Q
 
 class Search:
 	'''search a django model on all fields or a subset with Q objects'''
-	def __init__(self,request, model_name='',app_name=''):
+	def __init__(self,request=None, model_name='',app_name='',query=None):
 		'''search object to filter django models
 		query 				search terms provided by user
 		search_fields 		field set to restrict search (obsolete?)
 		model_name 			name of the django model
 		app_name 			name of the app of the model
 		'''
-		self.request = request
-		self.query = Query(request,model_name)
-		self.order = self.query.order
+		if query:
+			self.query = Query(query=query)
+			self.order = Order(order=get_foreign_keydict()[model_name.lower()])
+		else:
+			self.request = request
+			self.query = Query(request,model_name)
+			self.order = self.query.order
 		self.model_name = model_name
 		self.app_name = app_name
 		self.model = apps.get_model(app_name,model_name)
@@ -89,14 +93,17 @@ class Search:
 
 class Query:
 	'''class to parse a http request extract query and extract relevant information.'''
-	def __init__(self,request, model_name=''):
+	def __init__(self,request=None, model_name='',query=''):
 		'''individual words and special terms are extracted from the query.
 		a clean version of the query (without special terms) is constructed.
 		$ 	symbol prepended to field names
 		* 	symbol prepended to special terms such as and/or
 		'''
-		self.order = Order(request,model_name)
-		self.query = self.order.query
+		if query:
+			self.query = query
+		else:
+			self.order = Order(request,model_name)
+			self.query = self.order.query
 		self.query_words = self.query.split(' ')
 		self.words = self.query_words
 		self.query_terms = [w for w in self.words if w and w[0] not in ['*','$']]
@@ -128,8 +135,8 @@ class Field:
 		self.name = name
 		self.description = description
 		self.set_field_type()
-		self.check_relation()
 		self.set_include()
+		self.check_relation()
 
 	def __repr__(self):
 		return self.name
@@ -170,12 +177,18 @@ class Field:
 		
 
 class Order:
-	def __init__(self,request, model_name):
-		self.request = request
-		self.model_name = model_name
+	def __init__(self,request=None, model_name=None,order=''):
+		if order:
+			self.order_by = order
+			self.direction = 'ascending'
+		else:
+			self.request = request
+			self.model_name = model_name
+			self.set_values()
 
-		temp = request.GET.get('order_by')
-		tquery = request.GET.get('query')
+	def set_values(self):
+		temp = self.request.GET.get('order_by')
+		tquery = self.request.GET.get('query')
 		if temp: 
 			order_by,old_order,old_direction,tquery = temp.split(',')
 			if order_by == old_order:
@@ -220,7 +233,7 @@ def get_field_typesdict():
 def get_foreign_keydict():
 	m = 'publication:title,text:title,illustration:caption,publisher:name,location:name'
 	m += ',person:first_name,movement:name,periodical:title,language:name,genre:name'
-	m+= ',category:name,movement_type:name,form:name'
+	m+= ',category:name,movement_type:name,form:name,userloc:name'
 	return make_dict(m)
 
 

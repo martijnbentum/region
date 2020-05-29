@@ -3,21 +3,25 @@
 {% if movement_list %}
 
 {% block content %}
+{% include 'utilities/list_search_bar.html' %}
 
 <div class="d-flex">
 
 <table class="table">
 	<tr> 
-	<th>Name</th>
-	<th>Location</th>
+	<th><a href="?order_by=name,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">Name</a></th>
+	<th><a href="?order_by=location,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">Location</a></th>
+	<th></th>
 	</tr>
 	{% for movement in movement_list %}
 		<td>{{movement.name}}</td>
 		<td>{{movement.location_string}}</td>
-		<td><a class = "btn btn-link btn-sm ml-auto"
+		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
         href ="{% url 'persons:delete' movement.pk 'Movement' %}"
-        role="button"><i class="fa fa-trash text-secondary"></i></a></td>
-		<td><a class = "btn btn-link btn-sm ml-auto"
+        role="button"><i class="fa fa-trash text-secondary"></i></a>
+		<a class = "btn btn-link btn-sm ml-auto"
         href ="{% url 'persons:edit_movement' movement.pk %}"
         role="button"><i class="far fa-edit text-secondary"></i></a></td>
 	</tr>

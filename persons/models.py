@@ -18,8 +18,8 @@ class Person(models.Model, info):
 	'''A person with a specific role e.g. author, writer, etc.'''
 	first_name = models.CharField(max_length=200, null=True, blank=True)
 	last_name = models.CharField(max_length=200, null=True, blank=True)
-	SEX = [('F','female'),('M','male'),('O','other'),('U','unknown')]
-	sex = models.CharField(max_length=1,choices=SEX)
+	SEX = [('female','female'),('male','male'),('other','other'),('unknown','unknown')]
+	sex = models.CharField(max_length=15,choices=SEX)
 	pseudonym= models.ManyToManyField(Pseudonym,blank=True)
 	birth_year = models.PositiveIntegerField(null=True,blank=True)
 	death_year = models.PositiveIntegerField(null=True,blank=True)
@@ -85,6 +85,12 @@ class Person(models.Model, info):
 			elif value == None: m.append('')
 			else: m.append(str(getattr(self,attr)))
 		return m
+
+	@property
+	def gender(self):
+		return dict(self.SEX)[self.sex]
+		
+
 
 	@property
 	def table_header(self):
