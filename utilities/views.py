@@ -16,7 +16,7 @@ def list_view(request, model_name, app_name):
 	if model_name == 'UserLoc': model_name = 'location'
 	var = {model_name.lower() +'_list':instances,'page_name':model_name,
 		'order':s.order.order_by,'direction':s.order.direction,
-		'query':s.query.query,'nentries':instances.count()}
+		'query':s.query.query,'nentries':s.nentries}
 	print(s.notes,000)
 	return render(request, app_name+'/'+model_name.lower()+'_list.html',var)
 

@@ -4,7 +4,7 @@ from django.db.models import Q
 
 class Search:
 	'''search a django model on all fields or a subset with Q objects'''
-	def __init__(self,request=None, model_name='',app_name='',query=None):
+	def __init__(self,request=None, model_name='',app_name='',query=None, max_entries=500):
 		'''search object to filter django models
 		query 				search terms provided by user
 		search_fields 		field set to restrict search (obsolete?)
@@ -18,6 +18,7 @@ class Search:
 			self.request = request
 			self.query = Query(request,model_name)
 			self.order = self.query.order
+		self.max_entries = max_entries
 		self.model_name = model_name
 		self.app_name = app_name
 		self.model = apps.get_model(app_name,model_name)
@@ -83,7 +84,11 @@ class Search:
 		self.result = self.model.objects.filter(self.q)
 		self.check_completeness_approval()
 		self.set_ordering_and_direction()
-		return self.result
+		self.nentries_found = self.result.count()
+		self.nentries = '# Entries: ' + str(self.nentries_found) 
+		if self.nentries_found > self.max_entries:
+			self.entries += ' (truncated at ' + str(self.max_entries) + ' entries)'
+		return self.result[:self.max_entries]
 
 	@property
 	def n(self):
