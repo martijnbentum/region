@@ -2,6 +2,7 @@ from django.apps import apps
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models.functions import Lower
+from django.db.models import Q
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import generic
@@ -21,6 +22,7 @@ from persons.forms import textperson_formset, illustrationperson_formset, period
 from utils import view_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
 from utilities.views import add_simple_model, edit_model, getfocus, delete_model
+from utilities.search import Search, Query 
 
 
 
@@ -67,21 +69,20 @@ class PublicationView(generic.ListView):
 
 def publication_list(request):
 	'''list view of publications.'''
-	temp = request.GET.get('order_by')
-	if temp == None: order_by,old_order,old_direction = 'title,,ascending'.split(',')
-	else: order_by,old_order,old_direction = temp.split(',')
-	if order_by == old_order:
-		direction = 'descending' if old_direction == 'ascending' else 'ascending'
-	else: direction = 'ascending'
-	print(Lower(order_by),order_by)
-	# order_by = Lower(order_by)
-	# o = '-{}'.format(order_by) if direction == 'descending' else order_by
-	print(order_by,direction)
-	publications = Publication.objects.all().order_by(Lower(order_by))
-	if direction == 'descending': publications = publications.reverse()
-	var = {'publication_list':publications,'page_name':'Publication','order':order_by,
-		'direction':direction}
+	'''
+	publications = Publication.objects.filter(
+		Q(title__icontains=query) | eval('Q(form__name__icontains=query)') |
+		Q(publisher__name__icontains=query) | Q(location__name__icontains=query)).order_by(Lower(order_by))
+	'''
+	s = Search(request,'Publication','catalogue')
+	publications = s.filter()
+	# if direction == 'descending': publications = publications.reverse()
+	var = {'publication_list':publications,'page_name':'Publication','order':s.order.order_by,
+		'direction':s.order.direction,'query':s.query.query,'nentries':publications.count()}
+	print(s.notes)
 	return render(request, 'catalogue/publication_list.html',var)
+
+		
 
 class PublisherView(generic.ListView):
 	'''list view of publishers.'''

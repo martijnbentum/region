@@ -6,40 +6,52 @@
 
 
 {% block content %}
+
+<form>
+  <div class="d-flex">
+	<button class="btn btn-link mb-0"  type="submit"><i class="fas fa-search"></i></button>
+	<input id="exampleFormControlInput1" type="text" name="query" placeholder=Search
+		class="col-9 mb-1" style="border-width:0;border-bottom-width:1px;" 
+		value="{{query}}">
+	<input type="hidden" name="order" id="order" value="{{order}}" />
+	<input type="hidden" name="direction" id="direction" value="{{direction}}" />
+  </div>
+	<p class="text-secondary small ml-3" ># Entries: {{nentries}}<p>
+</form>
+
 {% if publication_list %}
-{% include 'utilities/change_log_list.html' %}
+
 
 <div class="d-flex">
 
 <table class="table">
 	<tr> 
-	<th>Title <a class="fas fa-sort text-dark" href="?order_by=title,{{order}},{{direction}}" 
-		style="text-decoration:none;"></a></th>
-	<th>Form<a class="fas fa-sort text-dark ml-1" href="?order_by=form__name,{{order}},{{direction}}" 
-		style="text-decoration:none;"></a></th>
-	<th>Publisher
-		<a class="fas fa-sort text-dark" href="?order_by=publisher__name,{{order}},{{direction}}"
-		style="text-decoration:none;"></a></th>
-	<th>Location
-		<a class="fas fa-sort text-dark" href="?order_by=location__name,{{order}},{{direction}}"
-		style="text-decoration:none;"></a></th>
+	<th><a href="?order_by=title,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">Title</a></th>
+	<th><a href="?order_by=form__name,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">Form</a></th>
+	<th>
+		<a href="?order_by=publisher__name,{{order}},{{direction}},{{query}}"
+		style="text-decoration:none;">Publisher</a></th>
+	<th>
+		<a href="?order_by=location__name,{{order}},{{direction}},{{query}}"
+		style="text-decoration:none;">Location</a></th>
+	<th></th>
 	</tr>
 	{% for publication in publication_list %}
 		<td>{{publication.title}}</td>
 		<td>{{publication.form.name}}</td>
 		<td>{{publication.publisher_str}}</td>
 		<td>{{publication.location_str}}</td>
-		<td><a class = "btn btn-link btn-sm ml-auto"
+		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
         href ="{% url 'catalogue:delete' publication.pk 'Publication' %}"
-        role="button"><i class="fa fa-trash text-secondary"></i></a></td>
-		<td><a class = "btn btn-link btn-sm ml-auto"
+        role="button"><i class="fa fa-trash text-secondary"></i></a>
+		<a class = "btn btn-link btn-sm ml-auto"
         href ="{% url 'catalogue:edit_publication' publication.pk %}"
         role="button"><i class="far fa-edit text-secondary"></i></a></td>
 	</tr>
 	{% endfor %}
 </table>
-<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publication' %}" 
-role="button"><i class="fa fa-plus"></i></a>
 </div>
 
 {% else %}
@@ -47,6 +59,11 @@ role="button"><i class="fa fa-plus"></i></a>
 {% endif %}
 
 {% endblock content %}
+
+{% block right %}
+<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publication' %}" 
+role="button"><i class="fa fa-plus"></i></a>
+{% endblock right %}
 
 
 	<!-- <td>{{ attr|truncatechars:40}}</td> -->
