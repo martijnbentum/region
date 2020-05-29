@@ -93,13 +93,13 @@ class Query:
 		'''individual words and special terms are extracted from the query.
 		a clean version of the query (without special terms) is constructed.
 		$ 	symbol prepended to field names
-		# 	symbol prepended to special terms such as and/or
+		* 	symbol prepended to special terms such as and/or
 		'''
 		self.order = Order(request,model_name)
 		self.query = self.order.query
 		self.query_words = self.query.split(' ')
 		self.words = self.query_words
-		self.query_terms = [w for w in self.words if w and w[0] not in ['#','$']]
+		self.query_terms = [w for w in self.words if w and w[0] not in ['*','$']]
 		self.clean_query = ' '.join(self.query_terms)
 		self.extract_field_names()
 		self.extract_special_terms()
@@ -112,7 +112,7 @@ class Query:
 			else: self.fields.append(term.lower())
 
 	def extract_special_terms(self):
-		self.special_terms = [w[1:].lower() for w in self.words if len(w) > 1 and w[0] == '#']
+		self.special_terms = [w[1:].lower() for w in self.words if len(w) > 1 and w[0] == '*']
 		if 'complete' in self.special_terms: self.completeness = True
 		elif 'incomplete' in self.special_terms: self.completeness = False
 		else: self.completeness = None
