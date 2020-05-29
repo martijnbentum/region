@@ -87,7 +87,7 @@ class Search:
 		self.nentries_found = self.result.count()
 		self.nentries = '# Entries: ' + str(self.nentries_found) 
 		if self.nentries_found > self.max_entries:
-			self.entries += ' (truncated at ' + str(self.max_entries) + ' entries)'
+			self.nentries += ' (truncated at ' + str(self.max_entries) + ' entries)'
 		return self.result[:self.max_entries]
 
 	@property
