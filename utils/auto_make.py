@@ -9,6 +9,12 @@ from utils.loc_util import _save_locations as save_model
 from utils.loc_util import UserLoc
 from utilities.models import Language
 
+#fix choice fields
+person_sex_dict = {'F':'female','M':'male','O':'other','U':'unknown'} 
+location_loc_precision = {'E':'exact','A':'approximate','R':'rough'}
+location_status= {'F':'fiction','NF':'non-fiction'}
+#---
+
 def delete_all(name,app_name):
 	model = apps.get_model(app_name,name)
 	instances = model.objects.all()
