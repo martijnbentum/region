@@ -202,7 +202,8 @@ class TextForm(ModelForm):
 		required = False
 		)
 	source_link= forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
+		attrs={'style':'width:100%'}),
+		required = False)
 
 
 	class Meta:
@@ -253,7 +254,8 @@ class PublicationForm(ModelForm):
 		required = False
 		)
 	source_link= forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
+		attrs={'style':'width:100%'}),
+		required = False)
 
 		
 	class Meta:
@@ -340,7 +342,8 @@ class IllustrationForm(ModelForm):
 		required = False
 		)
 	source_link= forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
+		attrs={'style':'width:100%'}),
+		required = False)
 	page_number= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}),
 		required=False)
