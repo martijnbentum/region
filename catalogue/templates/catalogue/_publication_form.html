@@ -39,10 +39,25 @@
 	</tr>
 	<tr class="d-flex">
 		<th class="col-2">pdf</th>
-		<td class="col-8">{{form.pdf}}</td>
+		<td class="col-3">{{form.pdf}}</td>
+		<th class="col-2">Cover</th>
+		<td class="col-3">{{form.cover}}</td>
 	</tr>
 	<tr class="d-flex">
-		<th class="col-2">Cover</th>
-		<td class="col-8">{{form.cover}}</td>
+		<th class="col-2">Source link</th>
+		<td class="col-8">{{form.source_link}} {{form.source_link.error}}</td>
 	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Copy right</th>
+		<td class="col-8">{{form.copyright}} {{form.copyright.error}}</td>
+			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_copy_right' %}" 
+				role="button"><i class="fa fa-plus"></i></a>
+			</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Notes</th>
+		<td class="col-8">{{form.notes}} {{form.notes.error}}</td>
+	</tr>
+	</table>
 	</table>

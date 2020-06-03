@@ -16,8 +16,14 @@ class test(models.Model, info):
 	name = models.CharField(max_length =9)
 	pd = PartialDateField()
 
+class CopyRight(models.Model, info):
+	name = models.CharField(max_length=100,unique=True)
+
+	def __str__(self):
+		return self.name
+
 class Genre(models.Model, info):
-	'''category for texts (and maybe illustrations?) needs a relation as well?'''
+	'''category for texts. '''
 	name = models.CharField(max_length=100,unique=True)
 	description = models.TextField(blank=True)
 	
@@ -41,6 +47,8 @@ class Text(models.Model, info):
 	notes = models.TextField(default='',blank=True, null=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
+	source_link= models.CharField(max_length=1000,blank=True,null=True)
+	copyright = models.ForeignKey(CopyRight,on_delete=models.SET_NULL,blank=True,null=True)
 
 	def save(self):
 		if not self.pk:
@@ -116,6 +124,8 @@ class Illustration(models.Model, info):
 	upload= models.ImageField(upload_to='illustrations/',null=True,blank=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
+	source_link= models.CharField(max_length=1000,blank=True,null=True)
+	copyright = models.ForeignKey(CopyRight,on_delete=models.SET_NULL,blank=True,null=True)
 	
 	def __str__(self):
 		return self.caption
@@ -176,18 +186,19 @@ class Publication(models.Model, info):
 	publisher = models.ManyToManyField(Publisher,blank=True)
 	publication_id= models.CharField(max_length=30, default = '')
 	form = models.ForeignKey(PublicationType,on_delete=models.SET_NULL,null=True)
-	# FK periodical | FK book
 	issue = models.PositiveIntegerField(null=True,blank=True) 
 	volume = models.PositiveIntegerField(null=True,blank=True) 
-	identifier = models.CharField(max_length=100,null=True,blank=True,unique=True)
-	# ISBN
-	year = models.PositiveIntegerField(null=True,blank=True)
+	identifier = models.CharField(max_length=100,null=True,blank=True,unique=True) # not shown in form
+	year = models.PositiveIntegerField(null=True,blank=True) # obsolete, replace by date
 	date = PartialDateField(null=True,blank=True)
 	location = models.ManyToManyField(UserLoc,blank=True) 
 	pdf = models.FileField(upload_to='publication/',null=True,blank=True) # ?
 	cover = models.ImageField(upload_to='publication/',null=True,blank=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
+	notes = models.TextField(default='',blank=True, null=True)
+	source_link= models.CharField(max_length=1000,blank=True,null=True)
+	copyright = models.ForeignKey(CopyRight,on_delete=models.SET_NULL,blank=True,null=True)
 
 	def save(self):
 		if not self.pk:

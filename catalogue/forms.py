@@ -5,6 +5,7 @@ from .models import Genre, Text, Publisher, Publication, Illustration, Periodica
 from .models import IllustrationCategory, IllustrationPublicationRelation
 from .models import TextPublicationRelation, TextTextRelation,PublicationType
 from .models import TextTextRelationType, PeriodicalPublicationRelation
+from .models import CopyRight
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation, PersonTextRelation
 from persons.models import PersonTextRelationRole, PersonIllustrationRelation
@@ -16,7 +17,7 @@ from utilities.forms import LanguageWidget
 from locations.widgets import LocationWidget, LocationsWidget
 from .widgets import GenreWidget, PublicationTypeWidget, PublishersWidget 
 from .widgets import IllustrationCategoryWidget,IllustrationWidget,TextWidget
-from .widgets import IllustrationCategoriesWidget
+from .widgets import IllustrationCategoriesWidget,CopyRightWidget
 from .widgets import TextTextRelationTypeWidget, PublicationWidget, PeriodicalWidget
 
 
@@ -192,10 +193,22 @@ class TextForm(ModelForm):
 	notes = forms.CharField(widget=forms.Textarea(
 		attrs={'style':'width:100%','rows':3}),
 		required=False)
+	copyright= forms.ModelChoiceField(
+		queryset=CopyRight.objects.all().order_by('name'),
+		widget=CopyRightWidget(
+			attrs={'data-placeholder':'Select licence...',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}),
+		required = False
+		)
+	source_link= forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+
 
 	class Meta:
 		model = Text
 		m = 'title,setting,language,genre,notes,location,complete,approved'
+		m += ',copyright,source_link'
 		fields = m.split(',')
 
 
@@ -231,10 +244,22 @@ class PublicationForm(ModelForm):
 		required=False)
 	date = forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
+	copyright= forms.ModelChoiceField(
+		queryset=CopyRight.objects.all().order_by('name'),
+		widget=CopyRightWidget(
+			attrs={'data-placeholder':'Select licence...',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}),
+		required = False
+		)
+	source_link= forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+
 		
 	class Meta:
 		model = Publication
-		m = 'title,form,publisher,year,date,location,notes,pdf,cover,complete,approved,volume,issue'
+		m = 'title,form,publisher,year,date,location,notes,pdf,cover,complete'
+		m += ',approved,volume,issue,copyright,source_link'
 		fields = m.split(',')
 
 
@@ -263,6 +288,24 @@ class PublisherForm(ModelForm):
 		fields = m.split(',')
 
 
+class GenreForm(ModelForm):
+	'''form to add an illustration category.'''
+	name = forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+
+	class Meta:
+		model = CopyRight
+		fields = ['name']
+
+class CopyRightForm(ModelForm):
+	'''form to add an illustration category.'''
+	name = forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+
+	class Meta:
+		model = CopyRight
+		fields = ['name']
+
 class IllustrationCategoryForm(ModelForm):
 	'''form to add an illustration category.'''
 	name = forms.CharField(widget=forms.TextInput(
@@ -288,6 +331,16 @@ class IllustrationForm(ModelForm):
 			'data-minimum-input-length':'0'}),
 		required = False
 		)
+	copyright= forms.ModelChoiceField(
+		queryset=CopyRight.objects.all().order_by('name'),
+		widget=CopyRightWidget(
+			attrs={'data-placeholder':'Select licence...',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}),
+		required = False
+		)
+	source_link= forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
 	page_number= forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}),
 		required=False)
@@ -297,7 +350,9 @@ class IllustrationForm(ModelForm):
 
 	class Meta:
 		model = Illustration
-		fields = 'caption,categories,page_number,notes,upload,complete,approved'.split(',')
+		fields = 'caption,categories,page_number,notes,upload,complete,approved'
+		fields += ',copyright,source_link'
+		fields = fields.split(',')
 
 class PeriodicalForm(ModelForm):
 	'''Form to add an periodical.'''

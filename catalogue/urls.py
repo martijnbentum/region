@@ -14,6 +14,8 @@ urlpatterns = [
 	path('add_publication/', views.edit_publication, name='add_publication'),
 	path('add_publisher/', views.edit_publisher, name='add_publisher'),
 	path('add_publication_type/', views.add_type, name='add_publication_type'),
+	path('add_copy_right/', views.add_copy_right, name='add_copy_right'),
+	path('add_genre/', views.add_genre, name='add_genre'),
 	path('add_illustration/<str:view>', views.edit_illustration, 
 		name='add_illustration'),
 	path('add_text/<str:view>', views.edit_text, name='add_text'),

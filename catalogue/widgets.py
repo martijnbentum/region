@@ -1,5 +1,5 @@
 from .models import Text, Illustration, Genre, Publisher, PublicationType, Publication
-from .models import Periodical
+from .models import Periodical, CopyRight
 from .models import IllustrationCategory, TextTextRelationType
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
@@ -8,6 +8,14 @@ from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 #use of these widgets enables delayed loading of the options (without this
 # approach all instances of a model would be coded in the html, now it is send via
 # ajax calls with json)
+
+class CopyRightWidget(ModelSelect2Widget):
+	model = CopyRight
+	search_fields = ['name__icontains']
+	def label_from_instance(self,obj):
+		return obj.name
+	def get_queryset(self):
+		return CopyRight.objects.all().order_by('name')
 
 class IllustrationCategoryWidget(ModelSelect2Widget):
 	model = IllustrationCategory

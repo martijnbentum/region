@@ -10,6 +10,10 @@
 <tr class="d-flex">
 	<th class="col-2">Genre</th>
 	<td class="col-8">{{form.genre}}</td>
+	<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+		href ="{% url 'catalogue:add_genre' %}" 
+		role="button"><i class="fa fa-plus"></i></a>
+	</td>
 </tr>
 <tr class="d-flex">
 	<th class="col-2">Setting</th>
@@ -22,6 +26,18 @@
 			href ="{% url 'locations:add_location' 'inline' %}" 
 			role="button"><i class="fa fa-plus"></i></a>
 		</td>
+</tr>
+<tr class="d-flex">
+	<th class="col-2">Source link</th>
+	<td class="col-8">{{form.source_link}} {{form.source_link.error}}</td>
+</tr>
+<tr class="d-flex">
+	<th class="col-2">Copy right</th>
+	<td class="col-8">{{form.copyright}} {{form.copyright.error}}</td>
+	<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+		href ="{% url 'catalogue:add_copy_right' %}" 
+		role="button"><i class="fa fa-plus"></i></a>
+	</td>
 </tr>
 <tr class="d-flex">
 	<th class="col-2">Notes</th>

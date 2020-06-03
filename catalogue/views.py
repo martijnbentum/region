@@ -11,11 +11,11 @@ from django.urls import reverse
 from .models import Publication, Publisher, Text, Illustration, Periodical
 from .forms import TextForm, PublicationForm, PublisherForm, PeriodicalForm
 from .forms import IllustrationForm, IllustrationCategoryForm
-from .forms import TextTextRelationTypeForm
+from .forms import TextTextRelationTypeForm, CopyRightForm, GenreForm
 from .forms import publicationtext_formset, publicationillustration_formset
 from .forms import textpublication_formset, illustrationpublication_formset
 from .forms import texttext_formset, texttextr_formset, publicationperiodical_formset
-from .forms import periodicalpublication_formset
+from .forms import periodicalpublication_formset 
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
 from persons.forms import textperson_formset, illustrationperson_formset, periodicalperson_formset
@@ -57,6 +57,14 @@ def illustration_list(request):
 	return list_view(request, 'Illustration', 'catalogue')
 
 
+
+def add_genre(request):
+	return add_simple_model(request,__name__,'Genre','catalogue',
+		'add genre')
+
+def add_copy_right(request):
+	return add_simple_model(request,__name__,'CopyRight','catalogue',
+		'add license')
 
 def add_illustration_category(request):
 	return add_simple_model(request,__name__,'IllustrationCategory','catalogue',
