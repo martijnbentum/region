@@ -30,6 +30,8 @@ class Genre(models.Model, info):
 	def __str__(self):
 		return self.name
 
+	
+
 
 class Text(models.Model, info):
 	'''a text can be an entire book or article or a subsection thereof.'''
@@ -81,27 +83,6 @@ class TextTextRelationType(models.Model, info):
 		return self.name
 
 	
-class TextTextRelation(models.Model, info):
-	'''connects two texts with a specific type of relation e.g. original 
-	and translation (primary, secondary).'''
-	primary = models.ForeignKey('Text', related_name='primary',
-									on_delete=models.CASCADE, default=None)
-	secondary = models.ForeignKey('Text', related_name='secondary',
-									on_delete=models.CASCADE, default=None)
-	relation_type = models.ForeignKey(TextTextRelationType, 
-									on_delete=models.CASCADE, default=None)
-
-	def __str__(self):
-		m =  self.secondary.title+ ' is a ' + self.relation_type.name +' of '
-		m += self.primary.title
-		return m
-
-
-class Fragment(models.Model):
-	'''What is the function of fragment, could be a binary flag on text'''
-	#fk text
-	#contents
-	pass
 
 
 class IllustrationCategory(models.Model):
@@ -223,6 +204,7 @@ class TextPublicationRelation(models.Model): #many to many
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 	start_page = models.CharField(max_length=5,null=True,blank=True)
 	end_page = models.CharField(max_length=5,null=True,blank=True)
+	review = models.BooleanField(blank=True,null=True)
 
 class IllustrationPublicationRelation(models.Model): #many to many
 	'''Links a illustration with a publication.'''
@@ -255,12 +237,19 @@ class PeriodicalPublicationRelation(models.Model, info):
 	issue= models.PositiveIntegerField(null=True,blank=True)
 
 
+class TextTextRelation(models.Model, info):
+	'''connects two texts with a specific type of relation e.g. original 
+	and translation (primary, secondary).'''
+	primary = models.ForeignKey('Text', related_name='primary',
+									on_delete=models.CASCADE, default=None)
+	secondary = models.ForeignKey('Text', related_name='secondary',
+									on_delete=models.CASCADE, default=None)
+	relation_type = models.ForeignKey(TextTextRelationType, 
+									on_delete=models.CASCADE, default=None)
 
-
-
-
-
-
-
+	def __str__(self):
+		m =  self.secondary.title+ ' is a ' + self.relation_type.name +' of '
+		m += self.primary.title
+		return m
 
 	
