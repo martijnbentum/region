@@ -296,7 +296,7 @@ class GenreForm(ModelForm):
 		attrs={'style':'width:100%'}))
 
 	class Meta:
-		model = CopyRight
+		model = Genre
 		fields = ['name']
 
 class CopyRightForm(ModelForm):
