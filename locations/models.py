@@ -201,7 +201,8 @@ class GeoLoc(models.Model, info):
 
 	@property
 	def gps(self):
-		return str(round(self.latitude,2)) + ', ' + str(round(self.longitude,2))
+		try: return str(round(self.latitude,2)) + ', ' + str(round(self.longitude,2))
+		except: return ''
 
 	def table_header(self):
 		return 'name,type,region,country'.split(',')
