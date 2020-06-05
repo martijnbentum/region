@@ -70,7 +70,7 @@ class GeoLocForm(ModelForm):
 		print(self.cleaned_data, 1999)
 		l = forms.ModelForm.save(self,commit)
 		lt_dict = dict([(lt.name,lt) for lt in LocType.objects.all()])
-		ul = UserLoc(name=l.name,loc_precision='E',status='NF',
+		ul = UserLoc(name=l.name,loc_precision='exact',status='non-fiction',
 			loc_type= lt_dict[l.location_type.lower()])
 		glr = GeoLocsRelation(container=country,contained=l)
 		if commit:
