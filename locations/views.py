@@ -9,7 +9,7 @@ from .forms import GeoLocForm, FastLocForm ,UserLocForm
 from django.forms import inlineformset_factory
 import json
 from utils.view_util import make_tabs
-from utilities.views import getfocus, list_view
+from utilities.views import getfocus, list_view, delete_model
 
 
 def location_list(request):
@@ -25,14 +25,15 @@ class LocationView(generic.ListView):
 		return UserLoc.objects.order_by('name')[:100]
 
 
-def add_location(request, focus = '', view = 'complete'):
-	# if this is a post request we need to process the form data
-	focus = getfocus(request)
+def add_location(request, focus = '', view = 'complete', pk= None):
+	if focus == '': focus = getfocus(request)
 	print('focus',focus)
+	geoloc=GeoLoc.objects.get(pk=pk) if pk and focus == 'GeoLocation' else None
+	userloc=UserLoc.objects.get(pk=pk) if pk and focus == 'UserLocation' else None
 	if request.method == 'POST' and focus != 'Help':
-		form = GeoLocForm(request.POST)
+		form = GeoLocForm(request.POST, instance =geoloc)
 		fastform = FastLocForm(request.POST)
-		userform = UserLocForm(request.POST)
+		userform = UserLocForm(request.POST, instance =userloc)
 		# print(userform)
 		if form.is_valid() and focus == 'GeoLocation':
 			print('form is valid: ',form.cleaned_data, 111)
@@ -51,12 +52,13 @@ def add_location(request, focus = '', view = 'complete'):
 			return HttpResponseRedirect('/locations/')
 		print(fastform)
 	else:
-		form = GeoLocForm()
+		form = GeoLocForm(instance=geoloc)
 		fastform = FastLocForm()
-		userform = UserLocForm()
+		userform = UserLocForm(instance=userloc)
 	tabs = make_tabs('location',focus_names = focus)
+	page_name = 'Edit location' if pk else 'Add location'
 	var = {'form':form,'fastform':fastform,'userform':userform,
-		'page_name':'Add location','tabs':tabs, 'view':view}
+		'page_name':page_name,'tabs':tabs, 'view':view}
 	return render(request, 'locations/add_location.html', var)
 
 
@@ -90,6 +92,8 @@ def add_userloc(request, location_name = ''):
 
 
 
+def delete(request, pk, model_name):
+	return delete_model(request, __name__,model_name,'locations',pk)
 # Create your views here.
 
 # Create your views here.
