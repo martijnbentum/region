@@ -25,6 +25,12 @@
 		<td>{{location.name}}</td>
 		<td>{{location.country}}</td>
 		<td>{{location.status}}</td>
+		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'locations:delete' location.pk 'UserLoc' %}"
+        role="button"><i class="fa fa-trash text-secondary"></i></a>
+		<a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'locations:edit_location' 'UserLocation' location.pk %}"
+        role="button"><i class="far fa-edit text-secondary"></i></a></td>
 	</tr>
 	{% endfor %}
 </table>
