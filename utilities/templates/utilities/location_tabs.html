@@ -1,0 +1,8 @@
+<ul class="nav nav-tabs">
+	{% for name in tabs.location.tab_names%}
+		<li class="nav-item">
+			<a href="#{{name}}" id='{{name}}a' class="nav-link" data-toggle="tab">
+			{{name}}</a>
+		</li>
+	{% endfor %}
+</ul>

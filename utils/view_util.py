@@ -287,9 +287,16 @@ def make_tabs(tab_type,focus=0,focus_names = ''):
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'location':
-		t = 'Add-from-database,GeoLocation,UserLocation,Help'
+		t = 'Add-from-database,Help'
+		location= Tab(t,focus)
+		relations = Tab('countries,regions',focus)
+		return Tabs([location,relations],'location,relations',focus_names)
+	if tab_type == 'geoloc':
+		t = 'Contained by'
 		relations = Tab(t,focus)
-		return Tabs([relations],'relations',focus_names)
+		return Tabs([minimize,relations],'minimize,relations',focus_names)
+	if tab_type == 'userloc':
+		return Tabs([minimize],'minimize,relations',focus_names)
 		
 
 		

@@ -24,7 +24,7 @@ class UserLoc(models.Model, info):
 	FICTION = 'fiction'
 	NON_FICTION = 'non-fiction'
 	STATUS = [(FICTION,'fiction'), (NON_FICTION,'non-fiction')]
-	status = models.CharField(max_length=15,choices=STATUS,default = 'NF')
+	status = models.CharField(max_length=15,choices=STATUS,default = 'non-fiction')
 	notes = models.TextField(default='', blank=True)
 
 	def __str__(self):
@@ -69,8 +69,11 @@ class UserLoc(models.Model, info):
 		if self.country == '':return ''
 		regions = []
 		for gl in self.geoloc_set.all():
-			try: regions.append( eval(gl.information)['admin1_name'] )
-			except: pass
+			region = gl.region
+			if region: regions.extend(region.split(','))
+			else:
+				try: regions.append( eval(gl.information)['admin1_name'] )
+				except: pass
 		regions = list(set(regions))
 		if 'NA' in regions: regions.remove('NA')
 		return ','.join(regions)
@@ -193,10 +196,12 @@ class GeoLoc(models.Model, info):
 
 	@property
 	def region(self):
-		if self.country == '':return ''
-		try: region = eval(self.information)['admin1_name']
-		except: region = ''
-		if region == 'NA': region = ''
+		region = self.contained_by_region
+		if region == '':
+			if self.country == '':return ''
+			try: region = eval(self.information)['admin1_name']
+			except: region = ''
+			if region == 'NA': region = ''
 		return region
 
 	@property

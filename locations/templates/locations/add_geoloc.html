@@ -1,0 +1,124 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+	{{form.media.css}}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();">
+{% csrf_token %}
+
+<div class="col-md-12 d-flex">
+<h4 class="mt-2">{{page_name}}</h4>
+<a class ="btn btn-link ml-auto" href="{% url 'locations:add_location' %}"
+	role="button">location</i></a>
+{% if view != "inline" %}
+	{% if page_name == "Edit geoloc"%}
+	<a class ="btn btn-link ml-auto" href="{% url 'locations:add_geoloc' %}"
+	role="button"><i class="fa fa-plus"></i></a>
+	{% endif %}
+	<a class ="btn btn-link ml-auto" href="{% url 'locations:geoloc_list' %}"
+	role="button"><i class="fas fa-list"></i></a>
+{% endif %}
+</div>
+
+
+{% include 'utilities/edit_minimize_tab.html' %}
+
+<div class="tab-content">
+    <div class="tab-pane fade" id="Edit">
+	{%if page_name == "Edit text" and 'unknown' not in crud.last_update %}
+		{% include 'utilities/change_log.html' %}
+		{% else %} <p class="mb-4"></p>
+	{% endif %}
+	<!-- text form is defined in a seperate template -->
+		<table class="table table-borderless" >
+			<tr class="d-flex">
+				<th class="col-2">name</th>
+				<td class="col-8">{{form.name}} {{form.name.errors}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">location type</th>
+				<td class="col-8">{{form.location_type}} {{form.location_type.errors}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">latitude</th>
+				<td class="col-8">{{form.latitude}} {{form.latitude.errors}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">longitude</th>
+				<td class="col-8">{{form.longitude}} {{form.longitude.errors}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">notes</th>
+				<td class="col-8">{{form.notes}} {{form.notes.errors}}</td>
+			</tr>
+		</table>
+    </div>
+
+
+    <div class="tab-pane fade" id="Minimize">
+		<!-- you can minimize the text form -->
+		<br>
+        <h5 class="mb-1">{{form.instance.title}} </h5> 
+		<br>
+    </div>
+</div>
+
+
+{% if view == "inline" %}
+{% else %}
+{% include 'utilities/relation_tabs.html' %}
+
+	<div class="tab-content">
+
+		<div class="tab-pane fade" id="Contained by">
+			{{geoloc_relation_formset.management_form}}
+			<table class="table table-borderless">
+			<tr class ="d-flex">
+			<th class="col-8">Location
+				<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+					href ="{% url 'locations:add_geoloc' 'inline' %}" role="button">
+					 <i class="fa fa-plus"></i></a>
+				</th>
+			<th><i class="fa fa-times text-danger"></i></th>
+			</tr>
+			{% for f in geoloc_relation_formset.forms %}
+				<tr class ="d-flex">
+				<td class="col-8">{{f.container}} {{f.container.errors}}</td>
+				<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
+			</table>
+		</div>
+
+	</div>
+
+{% endif %}
+
+<input type="hidden" name="navbar" id="navbar" value="" />
+<input type="hidden" name="navcontent" id="navcontent" value="" />
+<input type="hidden" name="focus" id="focus" value="" />
+<button type="submit" value="Submit" class ="btn btn-success">Save</button>
+	{% if view == "inline" %}
+		<a type="reset" value="Cancel" class ="btn btn-light"
+		href="{% url 'utilities:close' %}">Cancel</a>
+	{% else %}
+		<button type="submit" name="save" value="add_another"
+			 class ="btn btn-outline-success">Save | add another</button>
+	{% endif %}
+	{% if page_name == "Edit text"%}
+    <button type="submit" name="save" value="delete"
+		 class ="btn btn-outline-danger">delete</button>
+	{% endif %}
+
+{% include 'utilities/tab_selector.html' %}
+{{form.media.js}}
+{% endblock content %}
+ 
+
+{% block right %}
+{% include 'utilities/complete_approved.html' %}
+{% endblock %}

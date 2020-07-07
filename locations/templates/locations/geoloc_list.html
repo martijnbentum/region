@@ -1,4 +1,5 @@
 
+
 <!-- test view to print data in a table from model --> 
 {% extends "utilities/base.html" %}
 
@@ -8,7 +9,7 @@
 
 {% block content %}
 {% include 'utilities/list_search_bar.html' %}
-{% if location_list %}
+{% if geoloc_list %}
 
 <div class="d-flex">
 <table class="table table-hover">
@@ -17,26 +18,24 @@
 		style="text-decoration:none;">Name</a></th>
 	<th class="text-primary">Country</th>
 	<th class="text-primary">Region</th>
-	<th class="text-primary">Status</th>
 	<th></th>
 	</tr>
-	{% for location in location_list %}
+	{% for location in geoloc_list %}
 		<td>{{location.name}}</td>
 		<td>{{location.country}}</td>
-		<td>{{location.status}}</td>
 		<td>{{location.region}}</td>
 		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'locations:delete' location.pk 'UserLoc' %}"
+        href ="{% url 'locations:delete' location.pk 'GeoLoc' %}"
         role="button"><i class="fa fa-trash text-secondary"></i></a>
 		<a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'locations:edit_userloc' location.pk %}"
+        href ="{% url 'locations:edit_geoloc' location.pk %}"
         role="button"><i class="far fa-edit text-secondary"></i></a></td>
 	</tr>
 	{% endfor %}
 </table>
 
-<a class ="btn btn-link ml-auto" href="{% url 'locations:add_userloc' %}" 
-role="button">Add user location</a>
+<a class ="btn btn-link ml-auto" href="{% url 'locations:add_geoloc' %}" 
+role="button">Add geo location</a>
 </div>
 
 

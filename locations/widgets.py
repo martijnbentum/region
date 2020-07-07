@@ -75,3 +75,33 @@ class CountryWidget(ModelSelect2Widget):
 
 	def get_queryset(self):
 		return GeoLoc.objects.filter(location_type='COUNTRY').order_by('name')
+
+class RegionWidget(ModelSelect2Widget):
+	model = GeoLoc 
+	search_fields = ['name__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.name 
+
+	def get_queryset(self):
+		return GeoLoc.objects.filter(location_type='REGION').order_by('name')
+
+class GeoLocWidget(ModelSelect2Widget):
+	model = GeoLoc 
+	search_fields = ['name__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.name 
+
+	def get_queryset(self):
+		return GeoLoc.objects.all().order_by('name')
+
+class GeoLocVerboseWidget(ModelSelect2Widget):
+	model = GeoLoc 
+	search_fields = ['name__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.name + ' | ' + obj.location_type.lower()
+
+	def get_queryset(self):
+		return GeoLoc.objects.all().order_by('name')

@@ -1,0 +1,101 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+	{{form.media.css}}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();">
+{% csrf_token %}
+
+<div class="col-md-12 d-flex">
+<h4 class="mt-2">{{page_name}}</h4>
+<a class ="btn btn-link ml-auto" href="{% url 'locations:add_location' %}"
+	role="button">location</i></a>
+{% if view != "inline" %}
+	{% if page_name == "Edit geoloc"%}
+	<a class ="btn btn-link ml-auto" href="{% url 'locations:add_userloc' %}"
+	role="button"><i class="fa fa-plus"></i></a>
+	{% endif %}
+	<a class ="btn btn-link ml-auto" href="{% url 'locations:location_list' %}"
+	role="button"><i class="fas fa-list"></i></a>
+{% endif %}
+</div>
+
+
+{% include 'utilities/edit_minimize_tab.html' %}
+
+<div class="tab-content">
+    <div class="tab-pane fade" id="Edit">
+	{%if page_name == "Edit text" and 'unknown' not in crud.last_update %}
+		{% include 'utilities/change_log.html' %}
+		{% else %} <p class="mb-4"></p>
+	{% endif %}
+	<!-- text form is defined in a seperate template -->
+		<table class="table table-borderless" >
+			<tr class="d-flex">
+				<th class="col-2">name</th>
+				<td class="col-8">{{form.name}} {{form.name.errors}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">locations</th>
+				<td class="col-8">{{form.geolocs}} {{form.geolocs.errors}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">type</th>
+				<td class="col-8">{{form.loc_type}} {{form.loc_type.errors}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">status</th>
+				<td class="col-8">{{form.status}} {{form.status.errors}}</td>
+			
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">precision</th>
+				<td class="col-8">{{form.loc_precision}} 
+					{{form.loc_precision.errors}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">notes</th>
+				<td class="col-8">{{form.notes}} {{form.notes.errors}}</td>
+			</tr>
+		</table>
+    </div>
+
+
+    <div class="tab-pane fade" id="Minimize">
+		<!-- you can minimize the text form -->
+		<br>
+        <h5 class="mb-1">{{form.instance.title}} </h5> 
+		<br>
+    </div>
+</div>
+
+
+
+<input type="hidden" name="navbar" id="navbar" value="" />
+<input type="hidden" name="navcontent" id="navcontent" value="" />
+<input type="hidden" name="focus" id="focus" value="" />
+<button type="submit" value="Submit" class ="btn btn-success">Save</button>
+	{% if view == "inline" %}
+		<a type="reset" value="Cancel" class ="btn btn-light"
+		href="{% url 'utilities:close' %}">Cancel</a>
+	{% else %}
+		<button type="submit" name="save" value="add_another"
+			 class ="btn btn-outline-success">Save | add another</button>
+	{% endif %}
+	{% if page_name == "Edit text"%}
+    <button type="submit" name="save" value="delete"
+		 class ="btn btn-outline-danger">delete</button>
+	{% endif %}
+
+{% include 'utilities/tab_selector.html' %}
+{{form.media.js}}
+{% endblock content %}
+ 
+
+{% block right %}
+{% include 'utilities/complete_approved.html' %}
+{% endblock %}
