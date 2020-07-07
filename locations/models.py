@@ -92,7 +92,11 @@ class GeoLocsRelation(models.Model, info):
 									on_delete=models.CASCADE, default=None)
 
 	def __str__(self):
-		return self.contained.name + ' is located in: ' + self.container.name
+		'''deleting a GeoLoc resulted in an error due to the easy audit app.
+		it needed the string representation of this model, while the GeoLoc instance
+		did not exist anymore '''
+		try:return self.contained.name + ' is located in: ' + self.container.name
+		except:return ''
 
 	class Meta:
 		unique_together = ('container','contained')
