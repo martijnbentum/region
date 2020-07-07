@@ -267,11 +267,11 @@ def make_tabs(tab_type,focus=0,focus_names = ''):
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'publication':
-		t = 'Texts,Illustrations,Periodical'
+		t = 'Texts,Illustrations,Periodical,ReviewedByText'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'text':
-		t = 'Texts,Persons,Publications'
+		t = 'Texts,Persons,Publications,PublicationReview'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'illustration':

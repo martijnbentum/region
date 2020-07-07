@@ -5,7 +5,7 @@ from .models import Genre, Text, Publisher, Publication, Illustration, Periodica
 from .models import IllustrationCategory, IllustrationPublicationRelation
 from .models import TextPublicationRelation, TextTextRelation,PublicationType
 from .models import TextTextRelationType, PeriodicalPublicationRelation
-from .models import CopyRight, TextType
+from .models import CopyRight, TextType, TextReviewPublicationRelation
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation, PersonTextRelation
 from persons.models import PersonTextRelationRole, PersonIllustrationRelation
@@ -106,6 +106,31 @@ publicationtext_formset = inlineformset_factory(
 textpublication_formset = inlineformset_factory(
 	Text,TextPublicationRelation,
 	form = TextPublicationRelationForm, extra=1)
+
+class TextReviewPublicationRelationForm(ModelForm):
+	'''Form to add a text publication relation'''
+	publication = forms.ModelChoiceField(
+		queryset=Publication.objects.all(),
+		widget=PublicationWidget(
+			attrs={'data-placeholder':'Select publication by title...',
+			'style':'width:100%;','class':'searching'}))
+	text = forms.ModelChoiceField(
+		queryset=Text.objects.all(),
+		widget=TextWidget(
+			attrs={'data-placeholder':'Select text by title...',
+			'style':'width:100%;','class':'searching'}))
+
+	class Meta:
+		model = TextReviewPublicationRelation
+		fields = 'publication,text'
+		fields = fields.split(',')
+
+publicationreviewedbytext_formset = inlineformset_factory(
+	Publication,TextReviewPublicationRelation,
+	form = TextReviewPublicationRelationForm, extra=1)
+textreviewpublication_formset = inlineformset_factory(
+	Text,TextReviewPublicationRelation,
+	form = TextReviewPublicationRelationForm, extra=1)
 
 
 class TextTextRelationForm(ModelForm):

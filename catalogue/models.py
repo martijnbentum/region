@@ -211,7 +211,11 @@ class TextPublicationRelation(models.Model): #many to many
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 	start_page = models.CharField(max_length=5,null=True,blank=True)
 	end_page = models.CharField(max_length=5,null=True,blank=True)
-	review = models.BooleanField(blank=True,null=True)
+
+class TextReviewPublicationRelation(models.Model): #many to many
+	'''Links a text with a publication.'''
+	text = models.ForeignKey(Text, on_delete=models.CASCADE)
+	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 
 class IllustrationPublicationRelation(models.Model): #many to many
 	'''Links a illustration with a publication.'''

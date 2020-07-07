@@ -116,7 +116,7 @@
 		{{textpublication_formset.management_form}}
 		<table class="table table-borderless">
 		<tr class ="d-flex">
-		<th class="col-5">Publication
+		<th class="col-4">Publication
 			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
 				href ="{% url 'catalogue:add_publication' 'inline' %}" role="button">
 				 <i class="fa fa-plus"></i></a>
@@ -127,9 +127,28 @@
 		</tr>
 		{% for f in textpublication_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.publication}} {{f.publication.errors}}</td>
+			<td class="col-4">{{f.publication}} {{f.publication.errors}}</td>
 			<td class="col-3">{{f.start_page}} {{f.start_page.errors}}</td>
 			<td class="col-3">{{f.end_page}} {{f.end_page.errors}}</td>
+			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+	<div class="tab-pane fade" id="PublicationReview">
+		{{textreviewpublication_formset.management_form}}
+		<table class="table table-borderless">
+		<tr class ="d-flex">
+		<th class="col-4">Publication
+			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_publication' 'inline' %}" role="button">
+				 <i class="fa fa-plus"></i></a>
+			</th>
+		<th><i class="fa fa-times text-danger"></i></th>
+		</tr>
+		{% for f in textreviewpublication_formset.forms %}
+			<tr class ="d-flex">
+			<td class="col-4">{{f.publication}} {{f.publication.errors}}</td>
 			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
 			</tr>
 		{% endfor %}

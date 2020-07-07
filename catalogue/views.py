@@ -15,7 +15,8 @@ from .forms import TextTextRelationTypeForm, CopyRightForm, GenreForm
 from .forms import publicationtext_formset, publicationillustration_formset
 from .forms import textpublication_formset, illustrationpublication_formset
 from .forms import texttext_formset, texttextr_formset, publicationperiodical_formset
-from .forms import periodicalpublication_formset, TextTypeForm
+from .forms import periodicalpublication_formset, TextTypeForm, textreviewpublication_formset
+from .forms import publicationreviewedbytext_formset
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
 from persons.forms import textperson_formset, illustrationperson_formset, periodicalperson_formset
@@ -85,6 +86,7 @@ def add_texttext_relation_type(request):
 
 def edit_text(request, pk=None, focus = '', view='complete'):
 	names='texttext_formset,texttextr_formset,textperson_formset,textpublication_formset'
+	names+=',textreviewpublication_formset'
 	return edit_model(request, __name__,'Text','catalogue',pk,formset_names=names, 
 		focus = focus, view=view)
 
@@ -98,6 +100,8 @@ def edit_publisher(request, pk=None, focus = '', view='complete'):
 
 def edit_publication(request, pk=None, focus = '', view='complete'):
 	names='publicationtext_formset,publicationillustration_formset,publicationperiodical_formset'
+	names+=',publicationreviewedbytext_formset'
+
 	return edit_model(request, __name__,'Publication','catalogue',pk,
 		formset_names=names, focus = focus, view=view)
 
