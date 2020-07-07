@@ -1,5 +1,5 @@
 from .models import Text, Illustration, Genre, Publisher, PublicationType, Publication
-from .models import Periodical, CopyRight
+from .models import Periodical, CopyRight, TextType
 from .models import IllustrationCategory, TextTextRelationType
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
@@ -16,6 +16,15 @@ class CopyRightWidget(ModelSelect2Widget):
 		return obj.name
 	def get_queryset(self):
 		return CopyRight.objects.all().order_by('name')
+
+
+class TextTypeWidget(ModelSelect2Widget):
+	model = TextType
+	search_fields = ['name__icontains']
+	def label_from_instance(self,obj):
+		return obj.name
+	def get_queryset(self):
+		return TextType.objects.all().order_by('name')
 
 class IllustrationCategoryWidget(ModelSelect2Widget):
 	model = IllustrationCategory

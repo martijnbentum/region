@@ -15,7 +15,7 @@ from .forms import TextTextRelationTypeForm, CopyRightForm, GenreForm
 from .forms import publicationtext_formset, publicationillustration_formset
 from .forms import textpublication_formset, illustrationpublication_formset
 from .forms import texttext_formset, texttextr_formset, publicationperiodical_formset
-from .forms import periodicalpublication_formset 
+from .forms import periodicalpublication_formset, TextTypeForm
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
 from persons.forms import textperson_formset, illustrationperson_formset, periodicalperson_formset
@@ -61,6 +61,10 @@ def illustration_list(request):
 def add_genre(request):
 	return add_simple_model(request,__name__,'Genre','catalogue',
 		'add genre')
+
+def add_text_type(request):
+	return add_simple_model(request,__name__,'TextType','catalogue',
+		'add text type')
 
 def add_copy_right(request):
 	return add_simple_model(request,__name__,'CopyRight','catalogue',

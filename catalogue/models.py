@@ -30,18 +30,25 @@ class Genre(models.Model, info):
 	def __str__(self):
 		return self.name
 
+class TextType(models.Model, info):
+	'''category for text model to indicate text text relation . '''
+	name = models.CharField(max_length=100,unique=True)
+	description = models.TextField(blank=True)
+	
+	def __str__(self):
+		return self.name
 	
 
 
 class Text(models.Model, info):
 	'''a text can be an entire book or article or a subsection thereof.'''
+	dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
 	title = models.CharField(max_length=300)
 	text_id= models.CharField(max_length=30,default = '')
 	setting = models.CharField(max_length=300,blank=True)
-	language = models.ForeignKey(Language, on_delete=models.SET_NULL,
-		blank=True,null=True)
-	genre = models.ForeignKey(Genre, on_delete=models.SET_NULL,
-		blank=True,null=True)
+	language = models.ForeignKey(Language, **dargs)
+	genre = models.ForeignKey(Genre, **dargs)
+	text_type = models.ForeignKey(TextType, **dargs)
 	# upload = models.FileField(upload_to='texts/',blank=True,null=True) # ?
 	relations = models.ManyToManyField('self',
 		through='TextTextRelation',symmetrical=False, default=None)
@@ -50,7 +57,7 @@ class Text(models.Model, info):
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
 	source_link= models.CharField(max_length=1000,blank=True,null=True)
-	copyright = models.ForeignKey(CopyRight,on_delete=models.SET_NULL,blank=True,null=True)
+	copyright = models.ForeignKey(CopyRight,**dargs)
 
 	def save(self):
 		if not self.pk:

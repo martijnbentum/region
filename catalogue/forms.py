@@ -5,7 +5,7 @@ from .models import Genre, Text, Publisher, Publication, Illustration, Periodica
 from .models import IllustrationCategory, IllustrationPublicationRelation
 from .models import TextPublicationRelation, TextTextRelation,PublicationType
 from .models import TextTextRelationType, PeriodicalPublicationRelation
-from .models import CopyRight
+from .models import CopyRight, TextType
 from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation, PersonTextRelation
 from persons.models import PersonTextRelationRole, PersonIllustrationRelation
@@ -19,7 +19,14 @@ from .widgets import GenreWidget, PublicationTypeWidget, PublishersWidget
 from .widgets import IllustrationCategoryWidget,IllustrationWidget,TextWidget
 from .widgets import IllustrationCategoriesWidget,CopyRightWidget
 from .widgets import TextTextRelationTypeWidget, PublicationWidget, PeriodicalWidget
+from .widgets import TextTypeWidget
 
+
+def make_select2_attr(field_name,input_length=2):
+	attr= {'attrs':{'data-placeholder':'Select by '+field_name+' ...',
+	'style':'width:100%','class':'searching','data-minimum-input-length':str(input_length)}}
+	return attr
+		
 
 class PeriodicalPublicationRelationForm(ModelForm):
 	'''Form to add a periodical publication relation'''
@@ -178,6 +185,11 @@ class TextForm(ModelForm):
 			'data-minimum-input-length':'0'}),
 		required = False
 		)
+	text_type= forms.ModelChoiceField(
+		queryset=TextType.objects.all().order_by('name'),
+		widget=TextTypeWidget(**make_select2_attr('name',0)),
+		required = False
+		)
 	title = forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	location= forms.ModelMultipleChoiceField(
@@ -209,7 +221,7 @@ class TextForm(ModelForm):
 	class Meta:
 		model = Text
 		m = 'title,setting,language,genre,notes,location,complete,approved'
-		m += ',copyright,source_link'
+		m += ',copyright,source_link,text_type'
 		fields = m.split(',')
 
 
@@ -297,6 +309,15 @@ class GenreForm(ModelForm):
 
 	class Meta:
 		model = Genre
+		fields = ['name']
+
+class TextTypeForm(ModelForm):
+	'''form to add an illustration category.'''
+	name = forms.CharField(widget=forms.TextInput(
+		attrs={'style':'width:100%'}))
+
+	class Meta:
+		model = TextType 
 		fields = ['name']
 
 class CopyRightForm(ModelForm):

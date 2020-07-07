@@ -16,6 +16,14 @@
 	</td>
 </tr>
 <tr class="d-flex">
+	<th class="col-2">Text type</th>
+	<td class="col-8">{{form.text_type}} {{form.text_type.error}}</td>
+	<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+		href ="{% url 'catalogue:add_text_type' %}" 
+		role="button"><i class="fa fa-plus"></i></a>
+	</td>
+</tr>
+<tr class="d-flex">
 	<th class="col-2">Setting</th>
 	<td class="col-8">{{form.setting}}</td>
 </tr>
