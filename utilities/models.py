@@ -4,6 +4,15 @@ from django.utils import timezone
 from utils.model_util import id_generator, info
 
 
+class SimpleModel(models.Model):
+    name = models.CharField(max_length=300,default='',unique=True)
+
+    def __str__(self): 
+        return self.name
+                     
+    class Meta:        
+        abstract=True 
+
 class generic(models.Model):
 	pass
 
