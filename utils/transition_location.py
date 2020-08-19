@@ -17,6 +17,8 @@ def geoloc2location(gl, save = False):
 	kw = dict([[n,getattr(gl,n)] for n in names])
 	l = Location(**kw)
 	l.location_type = LocationType.objects.get(name=gl.location_type.lower())
+	l.location_status= LocationStatus.objects.get(name='non-fiction')
+	l.location_precision= LocationPrecision.objects.get(name='exact')
 	ul = gl.user_locs.all()
 	l.active = True if ul.count() > 0 else False
 	if save: l.save()
