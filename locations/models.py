@@ -51,7 +51,7 @@ class Location(models.Model, info):
 	notes = models.TextField(default='',blank=True)
 
 	def save(self):
-		if not self.pk:
+		if not self.pk and not self.geonameid:
 			try: geonameid = eval(self.information)['geonameid']
 			except: 
 				geonameid = id_generator(length = 27)
