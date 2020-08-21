@@ -53,7 +53,7 @@ class Text(models.Model, info):
 	relations = models.ManyToManyField('self',
 		through='TextTextRelation',symmetrical=False, default=None)
 	location= models.ManyToManyField(UserLoc,blank=True)
-	hlocation= models.ManyToManyField(Location,blank=True)
+	hlocation= models.ManyToManyField(Location,blank=True, default= None)
 	notes = models.TextField(default='',blank=True, null=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
@@ -144,7 +144,7 @@ class Publisher(models.Model, info):
 	'''Company that publishes works.'''
 	name = models.CharField(max_length=300, unique=True)
 	location= models.ManyToManyField(UserLoc,blank=True)
-	hlocation= models.ManyToManyField(Location,blank=True)
+	hlocation= models.ManyToManyField(Location,blank=True,default=None)
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 
 	notes = models.TextField(null=True,blank=True) # many to many
@@ -184,7 +184,7 @@ class Publication(models.Model, info):
 	year = models.PositiveIntegerField(null=True,blank=True) # obsolete, replace by date
 	date = PartialDateField(null=True,blank=True)
 	location = models.ManyToManyField(UserLoc,blank=True) 
-	hlocation = models.ManyToManyField(Location,blank=True) 
+	hlocation = models.ManyToManyField(Location,blank=True,default=None) 
 	pdf = models.FileField(upload_to='publication/',null=True,blank=True) # ?
 	cover = models.ImageField(upload_to='publication/',null=True,blank=True)
 	complete = models.BooleanField(default=False)
@@ -236,7 +236,7 @@ class Periodical(models.Model, info):
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 
 	location= models.ManyToManyField(UserLoc,blank=True)
-	hlocation= models.ManyToManyField(Location,blank=True)
+	hlocation= models.ManyToManyField(Location,blank=True,default =None)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
 	location_field = 'location'

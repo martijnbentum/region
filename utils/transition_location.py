@@ -26,11 +26,21 @@ def geoloc2location(gl, save = False):
 	if save: l.save()
 	return l
 
+def _fix_precision(precision):
+	dprecision = {'E':'exact','A':'approximate','R':'rough'}
+	if precision in dprecision.keys():return dprecision[precision]
+	return precision
+
+def _fix_status(status):
+	dstatus = {'F':'fiction','NF':'non-fiction'}
+	if status in dstatus.keys():return dstatus[status]
+	return status
+
 
 def _handle_ul(ul,fd,field_name):
 	location_type = ul.loc_type.name
-	location_precision = ul.loc_precision
-	location_status = ul.status
+	location_precision = _fix_precision(ul.loc_precision)
+	location_status = _fix_status(ul.status)
 	geonameids = '|'.join([gl.geonameid for gl in ul.geoloc_set.all()])
 	n = str(len(geonameids.split('|')))
 	information = [location_type,location_precision,location_status,geonameids,ul.name,n]
@@ -97,6 +107,7 @@ def _get_locations(ul_info):
 		locations = [_set_related_instances(Location(name= ul_info[-2]),*ul_info[:3]) ]
 	else: locations = [Location.objects.get(geonameid=geonameid) for geonameid in geonameids]
 	return locations
+
 
 def add_hlocation(key,value,not_handled):
 	print(key)
