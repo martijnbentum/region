@@ -109,29 +109,33 @@ def _get_locations(ul_info):
 	return locations
 
 
+def _set_location(instance,field,locations,key,ul_info,clear =False):
+	hloc_field = getattr(instance,'h'+field)
+	if hasattr(hloc_field,'add'): hloc_field.clear()
+	for location in locations:
+		print(hloc_field,type(hloc_field))
+		if hasattr(hloc_field,'add'):
+			hloc_field.add(location)
+		elif field == 'location': 
+			instance.hlocation = location
+		elif field == 'birth_place': 
+			instance.hbirth_place= location
+		elif field == 'death_place': 
+			instance.hdeath_place= location
+		else: not_handled.append([key,ul_info])
+		print(key,field,ul_info,'handling location:',location,'ul name:',ul_info[-2])
+
 def add_hlocation(key,value,not_handled):
 	print(key)
 	instance = get_instance(*key.split(','))
 	for field in value.keys():
-		hloc_field = getattr(instance,'h'+field)
 		for ul_info in value[field]:
 			if ul_info[1] != 'exact' or ul_info[2] != 'non-fiction':
 				print(key,field,ul_info,'not handled')
-				not_handled.append([key,ul_info])
+				not_handled.append([key,ul_info,field])
 				continue
 			locations = _get_locations(ul_info)
-			for location in locations:
-				print(hloc_field,type(hloc_field))
-				if hasattr(hloc_field,'add'):
-					hloc_field.add(location)
-				elif field == 'location': 
-					instance.hlocation = location
-				elif field == 'birth_place': 
-					instance.hbirth_place= location
-				elif field == 'death_place': 
-					instance.hdeath_place= location
-				else: not_handled.append([key,ul_info])
-				print(key,field,ul_info,'handling location:',location,'ul name:',ul_info[-2])
+			_set_location(instance,field,locations,key,ul_info)
 		print('---')
 	instance.save()
 		
@@ -143,6 +147,67 @@ def add_all_hlocations():
 		add_hlocation(key,value,not_handled)
 	return not_handled, all_userloc_information
 	
+	
+def handle_not_handled(nh):
+	userlocs = []
+	locs = []
+	pks = []
+	for line in nh:
+		key,ul_info,field = line
+		pk = int(ul_info[-3])
+		instance = get_instance(*key.split(','))
+		if pk not in pks:
+			pks.append(pk)
+			ul =UserLoc.objects.get(pk=pk)
+			print(ul)
+			try: l = Location.objects.get(geonameid = ul.name)
+			except:
+				l = Location(name = ul.name,geonameid = ul.name)
+				l.location_type= LocationType.objects.get(name= ul.loc_type.name)
+				l.location_precision= LocationPrecision.objects.get(name= ul.loc_precision)
+				l.location_status = LocationStatus.objects.get(name=ul.status)
+				l.active = True
+				l.save()
+				print('made',l)
+			else: print(l,'already made')
+			for geonameid in ul_info[3].split('|'):
+				print('geonameid',geonameid)
+				if not geonameid: continue
+				rl = Location.objects.get(geonameid = geonameid)
+				if rl.pk == l.pk: continue
+				print('adding location:',rl)
+				l.relations.add(rl)
+			userlocs.append(ul)
+			locs.append(l)
+			print('---')
+		locations = [Location.objects.get(geonameid = ul_info[-2])]
+		_set_location(instance,field,locations,key,ul_info)
+	return (userlocs,locs)
+
+def check_all_hlocation(userloc_information= None):
+	if userloc_information == None: userloc_information = get_all_userloc_information()
+	for key, value in userloc_information.items():
+		instance = get_instance(*key.split(','))
+		for field in value.keys():
+			f,fh = getattr(instance,field), getattr(instance,'h'+field)
+			if hasattr(f,'add'):
+				ok = True
+				fall,fhall = f.all(),fh.all()
+				falln, fhalln = [l.name for l in fall], [l.name for l in fhall]
+				if len(falln) != len(fhalln): ok = False
+				else:
+					for word in falln:
+						if word not in fhalln: ok = False
+				if not ok:
+					print(instance,'\n***\n',fall,'\n***\n',fhall)
+					print('-'*50)
+			else:
+				if not hasattr(fh,'name'):pass 
+				elif f.name==fh.name: continue
+				print(instance,'\n***\n',f,'\n***\n',fh)
+				print('-'*50)
+	return userloc_information
+			
 	
 
 
