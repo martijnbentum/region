@@ -43,7 +43,7 @@ def _handle_ul(ul,fd,field_name):
 	location_status = _fix_status(ul.status)
 	geonameids = '|'.join([gl.geonameid for gl in ul.geoloc_set.all()])
 	n = str(len(geonameids.split('|')))
-	information = [location_type,location_precision,location_status,geonameids,ul.name,n]
+	information = [location_type,location_precision,location_status,geonameids,str(ul.pk),ul.name,n]
 	if field_name not in fd.keys(): fd[field_name] = []
 	fd[field_name].append(information)
 	return fd
