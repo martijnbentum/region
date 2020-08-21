@@ -30,6 +30,7 @@ class Person(models.Model, info):
 	notes = models.TextField(blank=True,null=True) 
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
+	location_field = 'birth_place'
 
 	@property
 	def name(self):
@@ -141,6 +142,7 @@ class PersonLocationRelation(models.Model,info):
 	end_year = models.PositiveIntegerField(null=True,blank=True)
 	location_name = models.CharField(max_length=200, default='',null=True)
 	person_name = models.CharField(max_length=200, default='',null=True)
+	location_field = 'location'
 
 	@property
 	def relation_name(self):

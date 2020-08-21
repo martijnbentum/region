@@ -58,6 +58,7 @@ class Text(models.Model, info):
 	approved = models.BooleanField(default=False)
 	source_link= models.CharField(max_length=1000,blank=True,null=True)
 	copyright = models.ForeignKey(CopyRight,**dargs)
+	location_field = 'location'
 
 	def save(self):
 		if not self.pk:
@@ -147,6 +148,7 @@ class Publisher(models.Model, info):
 	notes = models.TextField(null=True,blank=True) # many to many
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
+	location_field = 'location'
 
 	def __str__(self):
 		return self.name
@@ -187,6 +189,7 @@ class Publication(models.Model, info):
 	notes = models.TextField(default='',blank=True, null=True)
 	source_link= models.CharField(max_length=1000,blank=True,null=True)
 	copyright = models.ForeignKey(CopyRight,on_delete=models.SET_NULL,blank=True,null=True)
+	location_field = 'location'
 
 	def save(self):
 		if not self.pk:
@@ -232,6 +235,7 @@ class Periodical(models.Model, info):
 	location= models.ManyToManyField(UserLoc,blank=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
+	location_field = 'location'
 
 	def __str__(self):
 		return self.title
