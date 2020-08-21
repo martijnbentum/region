@@ -33,7 +33,7 @@ def _handle_ul(ul,fd,field_name):
 	location_status = ul.status
 	geonameids = '|'.join([gl.geonameid for gl in ul.geoloc_set.all()])
 	n = str(len(geonameids.split('|')))
-	information = [location_type,location_precision,location_status,geonameids,n]
+	information = [location_type,location_precision,location_status,geonameids,ul.name,n]
 	if field_name not in fd.keys(): fd[field_name] = []
 	fd[field_name].append(information)
 	return fd
@@ -79,7 +79,60 @@ def get_all_userloc_information():
 		od.update(model2userloc_information(*model))
 	return od
 		
+def get_instance(app_name,model_name,pk):
+	model = apps.get_model(app_name,model_name)
+	return model.objects.get(pk = pk)
 
+def _set_related_instances(l,location_type,location_precision,location_status):
+	l.location_type = LocationType.objects.get(name = location_type)
+	l.location_precision= LocationPrecision.objects.get(name=location_precision)
+	l.location_status= LocationStatus.objects.get(name = location_status)
+	l.save()
+	return l
+
+def _get_locations(ul_info):
+	geonameids = ul_info[3].split('|')
+	print(geonameids,ul_info)
+	if geonameids == ['']:
+		locations = [_set_related_instances(Location(name= ul_info[-2]),*ul_info[:3]) ]
+	else: locations = [Location.objects.get(geonameid=geonameid) for geonameid in geonameids]
+	return locations
+
+def add_hlocation(key,value,not_handled):
+	print(key)
+	instance = get_instance(*key.split(','))
+	for field in value.keys():
+		hloc_field = getattr(instance,'h'+field)
+		for ul_info in value[field]:
+			if ul_info[1] != 'exact' or ul_info[2] != 'non-fiction':
+				print(key,field,ul_info,'not handled')
+				not_handled.append([key,ul_info])
+				continue
+			locations = _get_locations(ul_info)
+			for location in locations:
+				print(hloc_field,type(hloc_field))
+				if hasattr(hloc_field,'add'):
+					hloc_field.add(location)
+				elif field == 'location': 
+					instance.hlocation = location
+				elif field == 'birth_place': 
+					instance.hbirth_place= location
+				elif field == 'death_place': 
+					instance.hdeath_place= location
+				else: not_handled.append([key,ul_info])
+				print(key,field,ul_info,'handling location:',location,'ul name:',ul_info[-2])
+		print('---')
+	instance.save()
+		
+		
+def add_all_hlocations():
+	all_userloc_information = get_all_userloc_information()
+	not_handled = []
+	for key, value in all_userloc_information.items():
+		add_hlocation(key,value,not_handled)
+	return not_handled, all_userloc_information
+	
+	
 
 
 
