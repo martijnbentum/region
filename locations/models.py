@@ -104,7 +104,12 @@ class Location(models.Model, info):
 
 	@property
 	def country(self):
-		return self.contained_by_country
+		country = self.contained_by_country
+		if country == '':
+			try: country = eval(self.information)['country']
+			except: pass
+			if country == 'NA':country = ''
+		return country
 
 	@property
 	def region(self):
