@@ -6,7 +6,7 @@ from .models import IllustrationCategory, IllustrationPublicationRelation
 from .models import TextPublicationRelation, TextTextRelation,PublicationType
 from .models import TextTextRelationType, PeriodicalPublicationRelation
 from .models import CopyRight, TextType, TextReviewPublicationRelation
-from locations.models import UserLoc
+from locations.models import Location
 from persons.models import Person, PersonLocationRelation, PersonTextRelation
 from persons.models import PersonTextRelationRole, PersonIllustrationRelation
 from persons.models import PersonIllustrationRelationRole 
@@ -218,7 +218,7 @@ class TextForm(ModelForm):
 	title = forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
 	location= forms.ModelMultipleChoiceField(
-		queryset=UserLoc.objects.all().order_by('name'),
+		queryset=Location.objects.all().order_by('name'),
 		widget=LocationsWidget(attrs={'data-placeholder':'Select location(s)...',
 			'style':'width:100%;','class':'searching'}),
 		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
@@ -267,7 +267,7 @@ class PublicationForm(ModelForm):
 		required = False
 		)
 	location= forms.ModelMultipleChoiceField(
-		queryset=UserLoc.objects.all().order_by('name'),
+		queryset=Location.objects.all().order_by('name'),
 		widget=LocationsWidget(attrs={'data-placeholder':'Select location(s)...',
 			'style':'width:100%;','class':'searching'}),
 		required = False
@@ -305,7 +305,7 @@ class PublicationForm(ModelForm):
 class PublisherForm(ModelForm):
 	'''form to add publisher.'''
 	location= forms.ModelMultipleChoiceField(
-		queryset=UserLoc.objects.all().order_by('name'),
+		queryset=Location.objects.all().order_by('name'),
 		widget=LocationsWidget(attrs={'data-placeholder':'Select location(s)...',
 			'style':'width:100%;','class':'searching'}),
 		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
@@ -414,7 +414,7 @@ class PeriodicalForm(ModelForm):
 		attrs={'style':'width:100%'}),
 		required=False)
 	location= forms.ModelMultipleChoiceField(
-		queryset=UserLoc.objects.all().order_by('name'),
+		queryset=Location.objects.all().order_by('name'),
 		widget=LocationsWidget(attrs={'data-placeholder':'Select location(s)...',
 			'style':'width:100%;','class':'searching'}),
 		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),

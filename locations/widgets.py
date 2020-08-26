@@ -1,8 +1,8 @@
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
-from .models import UserLoc, GeoLoc
+from .models import UserLoc, GeoLoc,Location
 
 class LocationWidget(ModelSelect2Widget):
-	model = UserLoc 
+	model = Location
 	search_fields = ['name__icontains']
 
 	def label_from_instance(self,obj):
@@ -14,11 +14,11 @@ class LocationWidget(ModelSelect2Widget):
 		return m
 
 	def get_queryset(self):
-		return UserLoc.objects.all().order_by('name')
+		return Location.objects.all().order_by('name')
 
 
 class LocationsWidget(ModelSelect2MultipleWidget):
-	model = UserLoc 
+	model = Location
 	search_fields = ['name__icontains']
 
 	def label_from_instance(self,obj):
@@ -30,7 +30,7 @@ class LocationsWidget(ModelSelect2MultipleWidget):
 		return m
 
 	def get_queryset(self):
-		return UserLoc.objects.all().order_by('name')
+		return Location.objects.all().order_by('name')
 
 
 class GeoLocationWidget(ModelSelect2Widget):
