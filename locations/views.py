@@ -39,6 +39,8 @@ def edit_userloc(request, pk=None, focus = '', view='complete'):
 		focus = focus, view=view)
 
 def add_location(request, focus = '', view = 'complete', pk= None):
+	return list_view(request, 'UserLoc', 'locations')
+	'''
 	request_focus = getfocus(request)
 	names = 'geolocrelation_country_formset,geolocrelation_region_formset'
 	ffm,l = None,None
@@ -90,6 +92,7 @@ def add_location(request, focus = '', view = 'complete', pk= None):
 		'page_name':page_name,'tabs':tabs, 'view':view}
 	var.update(ffm.dict)
 	return render(request, 'locations/add_location.html', var)
+	'''
 
 
 def mapp(request, location_name = ''):
