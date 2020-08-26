@@ -1,80 +1,69 @@
+
 {% extends "utilities/base.html" %}
 
 {% block head %}
 	{{form.media.css}}
+	<title>{{page_name}}</title>
 {% endblock %}
+
 
 {% block content %}
-{% endblock %}
+<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();">
+{% csrf_token %}
+
 <div class="col-md-12 d-flex">
-<h4 class="mt-2">{{page_name}}</h4> 
-<a class ="btn btn-link ml-auto" href="{% url 'locations:add_geoloc' %}"
-	role="button">add geo location</i></a>
-<a class ="btn btn-link ml-auto" href="{% url 'locations:add_userloc' %}"
-	role="button">add user location</i></a>
-<a class ="btn btn-link ml-auto" href="{% url 'locations:geoloc_list' %}" role="button">geoloc list</a>
-<a class ="btn btn-link ml-auto" href="{% url 'locations:location_list' %}" role="button">userloc list</a>
+<h4 class="mt-2">{{page_name}}</h4>
+<a class ="btn btn-link ml-auto" href="{% url 'locations:add_location' %}"
+	role="button">location</i></a>
+{% if view != "inline" %}
+	{% if page_name == "Edit geoloc"%}
+	<a class ="btn btn-link ml-auto" href="{% url 'locations:add_geoloc' %}"
+	role="button"><i class="fa fa-plus"></i></a>
+	{% endif %}
+	<a class ="btn btn-link ml-auto" href="{% url 'locations:geoloc_list' %}"
+	role="button"><i class="fas fa-list"></i></a>
+{% endif %}
 </div>
 
-<p class="text-warning">Please check the help tab</p>
 
-
-<!-- adding or editing a person -->
-
-{% include 'utilities/location_tabs.html' %}
+{% include 'utilities/edit_minimize_tab.html' %}
 
 <div class="tab-content">
+    <div class="tab-pane fade" id="Edit">
+	{%if page_name == "Edit text" and 'unknown' not in crud.last_update %}
+		{% include 'utilities/change_log.html' %}
+		{% else %} <p class="mb-4"></p>
+	{% endif %}
+	<!-- text form is defined in a seperate template -->
+		<table class="table table-borderless" >
+			<tr class="d-flex">
+				<th class="col-2">name</th>
+				<td class="col-8">{{form.name}} {{form.name.errors}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">location type</th>
+				<td class="col-8">{{form.location_type}} {{form.location_type.errors}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">latitude</th>
+				<td class="col-8">{{form.latitude}} {{form.latitude.errors}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">longitude</th>
+				<td class="col-8">{{form.longitude}} {{form.longitude.errors}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">notes</th>
+				<td class="col-8">{{form.notes}} {{form.notes.errors}}</td>
+			</tr>
+		</table>
+    </div>
 
-    <div class="tab-pane fade" id="Add-from-database">
 
-	<form name="myform" id="myform" method = "post" onsubmit="dosubmit();">
-		{% csrf_token %}
-	<table class="table table-borderless">
-	<tr class ="d-flex">
-		<th class="col-2">Location</th>
-		<td class="col-8">{{fastform.location}} {{fastform.location.errors}}</td>
-	</tr>
-	</table>
-	<input type="hidden" name="navbar" id="navbar" value="" />
-	<input type="hidden" name="navcontent" id="navcontent" value="" />
-	<input type="hidden" name="focus" id="focus" value="" />
-	<input type="submit" value="Save" class="btn btn-success">
-	</form>
-	</div>
-
-
-    <div class="tab-pane fade" id="Help">
-	<p>If you want to add a location you can fist check the extended database 
-	(with Add-from-database) to see whether you can add it from there.</p>
-	<p>If the location is not available in the extended database you can create a new location:</p>
-	<ul>
-	<li>A real geographic location can be added to the database with 'add geo location'. 
-	If a city location is added it is important to add latitude and longitude information
-	(can be found on wikipedia or google maps). Once the geolocation is created you
-	should use Add-from-database to add it to the available locations.</li>
- 	<li>A fictional location or a combination of multiple (geographic) locations 
-	 can be added with add user location.</li>
- 	<li>You can edit locations by searching them in the geoloc (geolocations) or userloc (user location)
-	list and clicking the edit button.
-	 </li>
-	</ul>
-	
-	
+    <div class="tab-pane fade" id="Minimize">
+		<!-- you can minimize the text form -->
+		<br>
+        <h5 class="mb-1">{{form.instance.title}} </h5> 
+		<br>
     </div>
 </div>
-<hr> 
-
-
-{% if view == "inline" %}
-	<a type="reset" value="Cancel" class ="btn btn-light"
-	href="{% url 'utilities:close' %}">Cancel</a>
-{% endif %}
-
-
-{{form.media.js}}
-
-{% include 'utilities/tab_selector.html' %}
-
-
-
- 

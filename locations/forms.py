@@ -5,49 +5,26 @@ from .models import GeoLoc, UserLoc,LocType, GeoLocsRelation
 from .widgets import GeoLocationWidget, GeoLocationsWidget, CountryWidget, RegionWidget
 from .widgets import GeoLocWidget, GeoLocVerboseWidget
 
-class UserLocForm(ModelForm):
-	'''form to add a userloc.'''
-	name = forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
-	geolocs= forms.ModelMultipleChoiceField(
-		queryset=GeoLoc.objects.all().order_by('name'),
-		widget=GeoLocationsWidget(attrs={'data-placeholder':'Select location...',
-			'style':'width:100%;','class':'searching'}),
-		required = False)
-	notes = forms.CharField(widget=forms.Textarea(
-		attrs={'style':'width:100%','rows':3}),
-		required=False)
 
-	# saving m2m on the other model (that does not define the m2m field)
-	# source: https://stackoverflow.com/questions/2216974/django-modelform-for-many-to-many-fields
-	def __init__(self, *args, **kwargs):
-		if kwargs.get('instance'):
-			initial = kwargs.setdefault('initial',{})
-			initial['geolocs'] = [gl.pk for gl in kwargs['instance'].geoloc_set.all()]
-		forms.ModelForm.__init__(self, *args, **kwargs)
+	name = models.CharField(max_length=200)
+	location_type= models.ForeignKey(LocationType,**dargs)
+	location_status = models.ForeignKey(LocationStatus,**dargs)
+	location_precision = models.ForeignKey(LocationPrecision,**dargs)
+	relations = models.ManyToManyField('self',
+		through='LocationRelation',symmetrical=False, default=None)
+	geonameid = models.CharField(max_length=12,default= '',unique = True)
+	coordinates_polygon = models.CharField(max_length=3000, blank=True ,null=True)
+	latitude=models.DecimalField(**gpsargs)
+	longitude=models.DecimalField(**gpsargs)
+	information = models.TextField(default='',blank=True)
+	active = models.BooleanField(default=False)
+	notes = models.TextField(default='',blank=True)
 
-	def save(self, commit=True):
-		instance = forms.ModelForm.save(self,False)
-		osm = self.save_m2m
-		def save_m2m():
-			osm()
-			instance.geoloc_set.clear()
-			instance.geoloc_set.add(*self.cleaned_data['geolocs'])
-		self.save_m2m = save_m2m
-		if commit:
-			instance.save()
-			self.save_m2m()
-		return instance
-	#---
-
-	class Meta:
-		model = UserLoc
-		fields = 'name,geolocs,loc_type,loc_precision,status,notes'.split(',')
-
-class GeoLocForm(ModelForm):
+class LocationForm(ModelForm):
 	'''form to add or edit a geoloc.'''
 	name = forms.CharField(widget=forms.TextInput(
 		attrs={'style':'width:100%'}))
+	location_type = 
 	latitude = forms.DecimalField(widget=forms.NumberInput(
 		attrs={'style':'width:100%','placeholder':'latitude coordinate'}),
 		required = False)
