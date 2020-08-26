@@ -52,7 +52,7 @@ class Text(models.Model, info):
 	# upload = models.FileField(upload_to='texts/',blank=True,null=True) # ?
 	relations = models.ManyToManyField('self',
 		through='TextTextRelation',symmetrical=False, default=None)
-	hlocation= models.ManyToManyField(Location,blank=True, default= None)
+	location= models.ManyToManyField(Location,blank=True, default= None)
 	notes = models.TextField(default='',blank=True, null=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
@@ -142,7 +142,7 @@ class Book(models.Model, info):
 class Publisher(models.Model, info):
 	'''Company that publishes works.'''
 	name = models.CharField(max_length=300, unique=True)
-	hlocation= models.ManyToManyField(Location,blank=True,default=None)
+	location= models.ManyToManyField(Location,blank=True,default=None)
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 
 	notes = models.TextField(null=True,blank=True) # many to many
@@ -181,7 +181,7 @@ class Publication(models.Model, info):
 	identifier = models.CharField(max_length=100,null=True,blank=True,unique=True) # not shown in form
 	year = models.PositiveIntegerField(null=True,blank=True) # obsolete, replace by date
 	date = PartialDateField(null=True,blank=True)
-	hlocation = models.ManyToManyField(Location,blank=True,default=None) 
+	location = models.ManyToManyField(Location,blank=True,default=None) 
 	pdf = models.FileField(upload_to='publication/',null=True,blank=True) # ?
 	cover = models.ImageField(upload_to='publication/',null=True,blank=True)
 	complete = models.BooleanField(default=False)
@@ -232,7 +232,7 @@ class Periodical(models.Model, info):
 	title = models.CharField(max_length=300)
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 
-	hlocation= models.ManyToManyField(Location,blank=True,default =None)
+	location= models.ManyToManyField(Location,blank=True,default =None)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
 	location_field = 'location'
