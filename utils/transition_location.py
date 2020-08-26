@@ -186,10 +186,18 @@ def handle_not_handled(nh):
 
 def check_all_hlocation(userloc_information= None):
 	if userloc_information == None: userloc_information = get_all_userloc_information()
+	total,ok_count,bad = 0,0,0
+	bad_instances = []
+	deleted = [] 
 	for key, value in userloc_information.items():
-		instance = get_instance(*key.split(','))
+		try:instance = get_instance(*key.split(','))
+		except:deleted.append([key,value])
 		for field in value.keys():
-			f,fh = getattr(instance,field), getattr(instance,'h'+field)
+			total +=1
+			try:f,fh = getattr(instance,field), getattr(instance,'h'+field)
+			except:
+				print(instance,field)
+				break
 			if hasattr(f,'add'):
 				ok = True
 				fall,fhall = f.all(),fh.all()
@@ -201,12 +209,20 @@ def check_all_hlocation(userloc_information= None):
 				if not ok:
 					print(instance,'\n***\n',fall,'\n***\n',fhall)
 					print('-'*50)
+					bad +=1
+					bad_instances.append(instance)
+				else: ok_count += 1
 			else:
 				if not hasattr(fh,'name'):pass 
-				elif f.name==fh.name: continue
+				elif f.name==fh.name: 
+					ok_count += 1
+					continue
+				bad +=1
+				bad_instances.append(instance)
 				print(instance,'\n***\n',f,'\n***\n',fh)
 				print('-'*50)
-	return userloc_information
+	print(total,ok_count,bad)
+	return userloc_information, bad_instances, deleted
 			
 	
 
