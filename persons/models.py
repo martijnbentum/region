@@ -23,13 +23,9 @@ class Person(models.Model, info):
 	pseudonym= models.ManyToManyField(Pseudonym,blank=True)
 	birth_year = models.PositiveIntegerField(null=True,blank=True)
 	death_year = models.PositiveIntegerField(null=True,blank=True)
-	birth_place= models.ForeignKey(UserLoc, on_delete=models.SET_NULL,
-		related_name = 'born', default = None, null = True)
-	hbirth_place= models.ForeignKey(Location, on_delete=models.SET_NULL,
+	birth_place= models.ForeignKey(Location, on_delete=models.SET_NULL,
 		related_name = 'hborn', default = None, null = True)
-	death_place= models.ForeignKey(UserLoc, on_delete=models.SET_NULL,
-		related_name = 'died', default = None, null = True)
-	hdeath_place= models.ForeignKey(Location, on_delete=models.SET_NULL,
+	death_place= models.ForeignKey(Location, on_delete=models.SET_NULL,
 		related_name = 'hdied', default = None, null = True)
 	notes = models.TextField(blank=True,null=True) 
 	complete = models.BooleanField(default=False)
@@ -138,8 +134,7 @@ class LocationRelation(models.Model, info):
 class PersonLocationRelation(models.Model,info):
 	'''relation between person and location.'''
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
-	location = models.ForeignKey(UserLoc, on_delete=models.CASCADE)
-	hlocation = models.ForeignKey(Location, on_delete=models.CASCADE,default=None,null=True)
+	location = models.ForeignKey(Location, on_delete=models.CASCADE,default=None,null=True)
 	# RELATION= [('R','residence'),('T','travel'),('W','work'),('U','unknown')]
 	# relation= models.CharField(max_length=1,choices= RELATION,null= None)
 	relation = models.ForeignKey(LocationRelation, null=True, on_delete=models.SET_NULL)
@@ -242,8 +237,7 @@ class Movement(models.Model, info):
 	'''A movement (e.g. literary) a collection of persons.'''
 	name = models.CharField(max_length=200, null=True, blank=True)
 	movement_type = models.ForeignKey(MovementType,blank=True, null=True,on_delete=models.SET_NULL)
-	location= models.ForeignKey(UserLoc,blank=True, null=True,on_delete=models.SET_NULL)
-	hlocation= models.ForeignKey(Location,blank=True, null=True,on_delete=models.SET_NULL,default=None)
+	location= models.ForeignKey(Location,blank=True, null=True,on_delete=models.SET_NULL,default=None)
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 
 	notes = models.TextField(null=True,blank=True) # many to many

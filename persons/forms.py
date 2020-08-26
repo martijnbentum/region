@@ -10,7 +10,7 @@ from .models import PersonPeriodicalRelationRole,PersonPeriodicalRelation
 from persons.models import PersonPersonRelation, PersonPersonRelationType
 from catalogue.models import Text, Illustration, Publisher, Periodical
 from catalogue.widgets import TextWidget, PublisherWidget, IllustrationWidget, PeriodicalWidget
-from locations.models import UserLoc
+from locations.models import Location
 from locations.widgets import LocationWidget, LocationsWidget
 from .widgets import PersonIllustrationRelationRoleWidget, LocationRelationWidget
 from .widgets import PersonTextRelationRoleWidget, PersonWidget, PseudonymsWidget
@@ -242,7 +242,7 @@ class PersonLocationRelationForm(ModelForm):
 	spec_choices= [('d','day'),('m','month'),('y','year'),('c','century')]
 	attrs={'class':'form-control','type':'date'}
 	location = forms.ModelChoiceField(
-		queryset=UserLoc.objects.all().order_by('name'),
+		queryset=Location.objects.all().order_by('name'),
 		widget=LocationWidget(attrs={'data-placeholder':'Select location...',
 			'style':'width:100%;','class':'searching'}))
 	relation = forms.ModelChoiceField(
@@ -274,12 +274,12 @@ class PersonForm(ModelForm):
 	attrs={'class':'form-control','type':'date'}
 
 	birth_place= forms.ModelChoiceField(
-		queryset=UserLoc.objects.all().order_by('name'),
+		queryset=Location.objects.all().order_by('name'),
 		widget=LocationWidget(attrs={'data-placeholder':'Select location...',
 			'style':'width:100%;','class':'searching'}),
 		required = False)
 	death_place= forms.ModelChoiceField(
-		queryset=UserLoc.objects.all().order_by('name'),
+		queryset=Location.objects.all().order_by('name'),
 		widget=LocationWidget(attrs={'data-placeholder':'Select location...',
 			'style':'width:100%;','class':'searching'}),
 		required = False)
@@ -311,7 +311,7 @@ class PersonForm(ModelForm):
 class MovementForm(ModelForm):
 	'''Form to add a movement (e.g. cultural literary political).'''
 	location= forms.ModelChoiceField(
-		queryset=UserLoc.objects.all().order_by('name'),
+		queryset=Location.objects.all().order_by('name'),
 		widget=LocationWidget(attrs={'data-placeholder':'Select a location...',
 			'style':'width:100%;','class':'searching'}),
 		required = False
