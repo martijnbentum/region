@@ -242,7 +242,7 @@ class Periodical(models.Model, info):
 
 	@property
 	def location_str(self):
-		return ' | '.join([loc.name for loc in self.location.all()])
+		return 
 
 class PeriodicalPublicationRelation(models.Model, info):
 	'''linking a periodical to a publication (a specific issue of a periodical).'''

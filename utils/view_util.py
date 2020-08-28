@@ -260,6 +260,7 @@ class Tabs:
 
 def make_tabs(tab_type,focus=0,focus_names = ''):
 	minimize = Tab('Edit,Minimize',focus)
+	print(tab_type)
 	if focus_names == 'default': focus_names=''
 	if tab_type == 'person':
 		t = 'Locations,Texts,Illustrations,Publisher-Manager,Pseudonym,Movements,Persons'
@@ -287,16 +288,9 @@ def make_tabs(tab_type,focus=0,focus_names = ''):
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'location':
-		t = 'Add-from-database,Help'
-		location= Tab(t,focus)
-		relations = Tab('countries,regions',focus)
-		return Tabs([location,relations],'location,relations',focus_names)
-	if tab_type == 'geoloc':
 		t = 'Contained by'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
-	if tab_type == 'userloc':
-		return Tabs([minimize],'minimize,relations',focus_names)
 		
 
 		

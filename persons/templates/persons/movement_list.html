@@ -17,7 +17,7 @@
 	</tr>
 	{% for movement in movement_list %}
 		<td>{{movement.name}}</td>
-		<td>{{movement.location_string}}</td>
+		<td>{{movement.location_str}}</td>
 		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
         href ="{% url 'persons:delete' movement.pk 'Movement' %}"
         role="button"><i class="fa fa-trash text-secondary"></i></a>

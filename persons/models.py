@@ -247,6 +247,10 @@ class Movement(models.Model, info):
 	def __str__(self):
 		return self.name
 
+	@property
+	def location_str(self):
+		return self.location
+
 class PersonMovementRelationRole(models.Model, info):
 	'''Relation type between person and movement (e.g. founder, follower).'''
 	name = models.CharField(max_length = 100,unique=True)
