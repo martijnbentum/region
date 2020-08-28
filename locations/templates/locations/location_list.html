@@ -23,20 +23,20 @@
 	{% for location in location_list %}
 		<td>{{location.name}}</td>
 		<td>{{location.country}}</td>
-		<td>{{location.status}}</td>
 		<td>{{location.region}}</td>
+		<td>{{location.location_status}}</td>
 		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'locations:delete' location.pk 'UserLoc' %}"
+        href ="{% url 'locations:delete' location.pk 'Location' %}"
         role="button"><i class="fa fa-trash text-secondary"></i></a>
 		<a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'locations:edit_userloc' location.pk %}"
+        href ="{% url 'locations:edit_location' location.pk %}"
         role="button"><i class="far fa-edit text-secondary"></i></a></td>
 	</tr>
 	{% endfor %}
 </table>
 
-<a class ="btn btn-link ml-auto" href="{% url 'locations:add_userloc' %}" 
-role="button">Add user location</a>
+<a class ="btn btn-link ml-auto" href="{% url 'locations:add_location' %}" 
+role="button">Add location</a>
 </div>
 
 

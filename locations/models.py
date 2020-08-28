@@ -98,7 +98,7 @@ class Location(models.Model, info):
 		output = []
 		for location in self.contained.all():
 			container= location.container
-			if container.location_type == 'REGION': output.append(container.name)
+			if container.location_type.name == 'region': output.append(container.name)
 		return ','.join(output)
 
 

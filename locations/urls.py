@@ -13,4 +13,7 @@ urlpatterns = [
 	path('add_location/<str:view>', views.edit_location, name='add_location'),
 	path('edit_location/<int:pk>', views.edit_location, name='edit_location'),
 	path('edit_location/<int:pk>/<str:focus>', views.edit_location, name='edit_location'),
+	path('add_location_status/',views.add_location_status, name='add_location_status'),
+	path('add_location_precision/',views.add_location_precision, name='add_location_precision'),
+	path('add_location_type/',views.add_location_type, name='add_location_type'),
 ]

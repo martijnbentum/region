@@ -1,0 +1,63 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+	{{form.media.css}}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+{% block content %}
+<form method="post">
+	{% csrf_token %}
+	<div class="col-md-12 d-flex">
+		<h4 class="col-2 ml-0 pl-0">{{page_name}}</h4>
+		{% include 'utilities/save.html' %}
+	</div>
+	<hr>
+
+	<table class="table table-borderless table-sm">
+	<tr class="d-flex">
+		<td class="col-2">name</th>
+		<td class="col-9">{{form.name}} {{form.name.error}}</td>
+	</tr>
+	<tr class="d-flex">
+		<td class="col-2">location type</th>
+		<td class="col-9">{{form.location_type}} {{form.location_type.error}}</td>
+		<td><a class = "btn btn-link btn-sm ml-auto text-dark" target = "_blank"
+			href = "{% url 'locations:add_location_type' %}"
+			role="button"><i class="fa fa-plus"></i></a></td>
+	</tr>
+	<tr class="d-flex">
+		<td class="col-2">location status</th>
+		<td class="col-9">{{form.location_status}} {{form.location_status.error}}</td>
+		<td><a class = "btn btn-link btn-sm ml-auto text-dark" target = "_blank"
+			href = "{% url 'locations:add_location_status' %}"
+			role="button"><i class="fa fa-plus"></i></a></td>
+	</tr>
+	<tr class="d-flex">
+		<td class="col-2">location precision</th>
+		<td class="col-9">{{form.location_precision}} {{form.location_precision.error}}</td>
+		<td><a class = "btn btn-link btn-sm ml-auto text-dark" target = "_blank"
+			href = "{% url 'locations:add_location_precision' %}"
+			role="button"><i class="fa fa-plus"></i></a></td>
+	</tr>
+	<tr class="d-flex">
+		<td class="col-2">latitude</th>
+		<td class="col-9">{{form.latitude}} {{form.latitude.error}}</td>
+	</tr>
+	<tr class="d-flex">
+		<td class="col-2">longitude</th>
+		<td class="col-9">{{form.longitude}} {{form.longitude.error}}</td>
+	</tr>
+	<tr class="d-flex">
+		<td class="col-2">notes</th>
+		<td class="col-9">{{form.notes}} {{form.notes.error}}</td>
+	</tr>
+	</table>
+		<div class="col-md-12 d-flex">
+			<div class="col-2"></div>
+			{% include 'utilities/save.html' %}
+		</div>
+</form>
+<br>
+{{form.media.js}}
+{% endblock %}

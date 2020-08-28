@@ -4,14 +4,15 @@ from django.db.utils import IntegrityError
 from .models import Location, LocationRelation, LocationType, LocationStatus, LocationPrecision
 from .widgets import LocationWidget, LocationsWidget, LocationPrecisionWidget 
 from .widgets import LocationVerboseWidget, LocationTypeWidget, LocationStatusWidget
-from utilities.forms import make_select2_attr
 
 dattr = {'attrs':{'style':'width:100%'}}
 dchar = {'widget':forms.TextInput(**dattr),'required':False}
 dchar_required = {'widget':forms.TextInput(**dattr),'required':True}
 dtext = {'widget':forms.Textarea(attrs={'style':'width:100%','rows':3}),'required':False}
-dselect2 = make_select2_attr(input_length = 0)
+dselect2 = {'attrs':{'data-placeholder':'Select by name...','style':'width:100%',
+	'class':'searching'}}
 mft = {'fields':('name',),'widgets':{'name':forms.TextInput(dattr)}}
+
 
 def create_simple_form(name):
 	'''Create a simple model form based on the Model name. 
@@ -25,6 +26,7 @@ names = 'LocationType,LocationStatus,LocationPrecision'
 for name in names.split(','):
 	create_simple_form(name)
 
+
 class LocationForm(ModelForm):
 	'''form to add or edit a location.'''
 	name = forms.CharField(**dchar_required)
@@ -33,7 +35,7 @@ class LocationForm(ModelForm):
 		widget=LocationTypeWidget(**dselect2),
 		required=False)
 	location_status= forms.ModelChoiceField(
-		queryset=LocationStatus.objects.all().order_by('name'),
+		queryset=LocationType.objects.all().order_by('name'),
 		widget=LocationStatusWidget(**dselect2),
 		required=False)
 	location_precision= forms.ModelChoiceField(
@@ -54,6 +56,30 @@ class LocationForm(ModelForm):
 		fields += ',location_status,location_precision'
 		fields = fields.split(',')
 
+
+class FastLocForm(Form):
+	'''create a userloc based on a geoloc.
+	there is a large database of geolocs, only a subset had a corresponding userloc.
+	userlocs are used as locations. This form is used to add locations form the database.
+	'''
+	location = forms.ModelChoiceField(
+		queryset=Location.objects.all().order_by('name'),
+		widget=LocationWidget(attrs={'data-placeholder':'Select location...',
+			'style':'width:100%;','class':'searching'}))
+	
+	def save(self, commit = True):
+		data = self.cleaned_data
+		l = data['location']
+		lt_dict = dict([(lt.name,lt) for lt in LocationType.objects.all()])
+		'''
+		ul = UserLoc(name=l.name,loc_precision='exact',status='non-fiction',
+			loc_type= lt_dict[l.location_type.lower()])
+		if userloc_exists(ul,l): raise IntegrityError('location with name %s already exists' %
+			(ul.name))
+		if commit:
+			ul.save()
+			l.user_locs.add(ul)
+		'''
 
 class LocationRelationForm(ModelForm):
 	'''Form to add a location relation.
