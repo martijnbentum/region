@@ -9,7 +9,12 @@
 {% block content %}
 
 
+<div class="d-flex">
 {% include 'utilities/list_search_bar.html' %}
+
+	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_text' %}"
+	role="button">Add text</a>
+</div>
 
 {% if text_list %}
 
@@ -41,8 +46,6 @@
 	</tr>
 	{% endfor %}
 </table>
-<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_text' %}"
-role="button">Add text</a>
 </div>
 
 {% else %}

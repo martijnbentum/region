@@ -207,6 +207,7 @@ class PersonTextRelation(models.Model, info):
 		unique_together = ['role','person','text']
 
 
+
 class PersonIllustrationRelation(models.Model, info):
 	'''Relation between a person and an illustration.'''
 	role = models.ForeignKey(PersonIllustrationRelationRole, 

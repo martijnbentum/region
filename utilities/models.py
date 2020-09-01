@@ -57,3 +57,7 @@ def instance2names(instance):
 	app_name,_,model_name = s.split('.')
 	return app_name, model_name
 
+def instance2name(instance):
+	app_name, model_name = instance2names(instance)
+	return model_name
+

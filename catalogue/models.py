@@ -215,10 +215,21 @@ class TextPublicationRelation(models.Model): #many to many
 	start_page = models.CharField(max_length=5,null=True,blank=True)
 	end_page = models.CharField(max_length=5,null=True,blank=True)
 
+	def __str__(self):
+		m =  self.text.title+ ' is a part of '
+		m += self.publication.title
+		return m
+		
+
 class TextReviewPublicationRelation(models.Model): #many to many
 	'''Links a text with a publication.'''
 	text = models.ForeignKey(Text, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
+
+	def __str__(self):
+		m =  self.text.title+ ' is a review of '
+		m += self.publication.title
+		return m
 
 class IllustrationPublicationRelation(models.Model): #many to many
 	'''Links a illustration with a publication.'''
@@ -263,7 +274,7 @@ class TextTextRelation(models.Model, info):
 									on_delete=models.CASCADE, default=None)
 
 	def __str__(self):
-		m =  self.secondary.title+ ' is a ' + self.relation_type.name +' of '
+		m =  self.relation_type.name +' relation between ' + self.secondary.title +' and '
 		m += self.primary.title
 		return m
 
