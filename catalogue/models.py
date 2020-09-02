@@ -219,6 +219,10 @@ class TextPublicationRelation(models.Model): #many to many
 		m =  self.text.title+ ' is a part of '
 		m += self.publication.title
 		return m
+
+	@property
+	def primary(self):
+		return self.text
 		
 
 class TextReviewPublicationRelation(models.Model): #many to many
@@ -231,12 +235,24 @@ class TextReviewPublicationRelation(models.Model): #many to many
 		m += self.publication.title
 		return m
 
+	@property
+	def primary(self):
+		return self.text
+
 class IllustrationPublicationRelation(models.Model): #many to many
 	'''Links a illustration with a publication.'''
 	illustration = models.ForeignKey(Illustration, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 	page = models.CharField(max_length=5,null=True,blank=True)
 
+	def __str__(self):
+		m =  self.illustration.caption+ ' is a part of '
+		m += self.publication.title
+		return m
+
+	@property
+	def primary(self):
+		return self.illustration
 
 class Periodical(models.Model, info):
 	'''Recurrent publication.'''
@@ -261,6 +277,15 @@ class PeriodicalPublicationRelation(models.Model, info):
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 	volume= models.PositiveIntegerField(null=True,blank=True)
 	issue= models.PositiveIntegerField(null=True,blank=True)
+
+	def __str__(self):
+		m =  self.periodical.title+ ' is a periodical in '
+		m += self.publication.title
+		return m
+
+	@property
+	def primary(self):
+		return self.periodical
 
 
 class TextTextRelation(models.Model, info):

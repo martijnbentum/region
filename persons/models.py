@@ -146,10 +146,10 @@ class PersonLocationRelation(models.Model,info):
 
 	@property
 	def relation_name(self):
-		return 'search in foreignkey work in progress'
+		return self.relation.name
 
 	def __str__(self):
-		r = self.relation_name
+		r = self.relation.name
 		return ', '.join([self.person.name, self.location.name, r])
 
 	@classmethod
@@ -158,6 +158,10 @@ class PersonLocationRelation(models.Model,info):
 			cls.location_name = cls.location.name
 		if hasattr(cls,'person'):
 			cls.person_name = cls.person.first_name + ' ' + cls.person.last_name
+
+	@property
+	def primary(self):
+		return self.person
 
 
 
@@ -206,6 +210,9 @@ class PersonTextRelation(models.Model, info):
 	class Meta:
 		unique_together = ['role','person','text']
 
+	@property
+	def primary(self):
+		return self.person
 
 
 class PersonIllustrationRelation(models.Model, info):
@@ -224,6 +231,9 @@ class PersonIllustrationRelation(models.Model, info):
 	class Meta:
 		unique_together = ['role','person','illustration']
 
+	@property
+	def primary(self):
+		return self.person
 
 class MovementType(models.Model, info):
 	'''The type of movement e.g. cultural literary political.'''
@@ -266,6 +276,14 @@ class PersonMovementRelation(models.Model, info):
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	role = models.ForeignKey(PersonMovementRelationRole, on_delete=models.CASCADE)
 
+	def __str__(self):
+		m = self.person.__str__() + ' | ' + self.role.__str__() +' | of movement: '
+		m += self.movement.__str__() 
+		return m
+
+	@property
+	def primary(self):
+		return self.person
 
 class PersonPeriodicalRelationRole(models.Model, info):
 	'''Relation type between person and periodical (e.g. editor).'''
@@ -281,6 +299,14 @@ class PersonPeriodicalRelation(models.Model, info):
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	role = models.ForeignKey(PersonPeriodicalRelationRole, on_delete=models.CASCADE)
 
+	def __str__(self):
+		m = self.person.__str__() + ' | ' + self.role.__str__() +' | of periodical: '
+		m += self.periodical.__str__() 
+		return m
+
+	@property
+	def primary(self):
+		return self.person
 
 	
 	

@@ -1,0 +1,26 @@
+{% extends "utilities/base.html" %}
+{% block head %}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+{% block content %}
+
+<table>
+{% for crud in cruds %}
+	<tr>
+		<td><h4 class="mb-1">{{crud.instance.username}}</h4></td>
+		<td><p class="ml-5 mb-1">Last update: {{crud.last_update_time}}</p></td>
+	</tr>
+{% endfor %}
+</table>
+<hr class="mt-0 mb-4">
+
+{% for line in updates %}
+	{% if line.1 %}
+		<p><a class="small text-dark" href="{{line.1}}" style="text-decoration:none;">{{line.0}}</a><p>
+	{% else %}
+		<p class="small text-secondary">{{line.0}}</p>
+	{% endif %}
+{% endfor %}
+
+{% endblock %}

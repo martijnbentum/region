@@ -2,8 +2,15 @@ from django.apps import apps
 import inspect
 import sys
 from easyaudit.models import CRUDEvent
+from django.db.models.signals import pre_save,post_save,m2m_changed
+from django.dispatch import receiver
+import datetime
 from utils import signal_util
-from utilities.models import instance2name, instance2names
+
+
+
+# model2m2mreceiver('Famine','misc')
+# make_m2mreceiver('Famine.locations.through','famine','locations')
 
 def get_modelform(namespace,modelform_name):
 	temp = sys.modules[namespace]
@@ -75,7 +82,7 @@ class FormsetFactoryManager:
 
 
 class Cruds:
-	def __init__(self,app_name,model_name, related_name = ''):
+	def __init__(self,app_name,model_name):
 		self.app_name = app_name
 		self.model_name = model_name
 		self.model = apps.get_model(app_name,model_name)
@@ -96,48 +103,24 @@ class Cruds:
 		
 
 class Crud:
-	def __init__(self,instance,related_name = '',add_related_events = True, user= False):
+	def __init__(self,instance):
 		i = instance
 		self.instance = instance
-		self.related_name = related_name
-		self.add_related_events = add_related_events
-		self.user = user
 		self.model_name = str(type(i)).split('.')[-1].split("'")[0].lower()
 		self.app_name = str(type(i)).split('.')[0].split("'")[-1].lower()
-		if user: self.get_user_crud_events()
-		else: self.get_crud_events()
-		if add_related_events: self._add_related_events()
-
-	def get_user_crud_events(self):
-		events= CRUDEvent.objects.filter(
-			user__username=self.instance.username)
-		self._get_crud_events(events)
+		self.get_crud_events()
 
 	def get_crud_events(self):
+		'''easy audit creates events for all changes, load changes for a particular instance'''
 		events= CRUDEvent.objects.filter(
 			content_type__model=self.model_name,object_id=self.instance.pk)
-		self._get_crud_events(events)
-
-	def _get_crud_events(self,events):
 		o = []
 		for e in events:
-			if self.user: o.append(e)
-			elif e.get_event_type_display() == 'Create':o.append(e)
+			if e.get_event_type_display() == 'Create':o.append(e)
 			elif not e.changed_fields: e.delete() 
 			else: o.append(e) #store 
-		self.events = [Event(e,self.related_name,self.instance) for e in o]
-
-	def _add_related_events(self):
-		self.cruds = []
-		for attr in dir(self.instance):
-			if 'relation_set' in attr and not attr.startswith('_'):
-				cruds = [Crud(ri,instance2name(ri),False) for ri in 
-					getattr(self.instance,attr).all()]
-				self.cruds.extend(cruds)
-			if attr == 'relations':
-				for r in self.instance.relations.through.objects.all():  
-					if self.instance.pk in [ r.primary.pk, r.secondary.pk ]:
-						self.cruds.append(Crud(r,instance2name(r)))
+		self.events = [Event(e) for e in o]
+		
 
 	def __lt__(self,other):
 		if len(self.events) == 0: return True
@@ -162,62 +145,40 @@ class Crud:
 		return 'user unknown'
 
 	def _make_change_fields_string(self, e):# changed_fields):
-		m = ''
-		if self.user:
-			if e.type == 'Create': return ['created a '+e.model_name + ': ' + e.object_str]
-			m  = e.model_name+': ' + e.object_str + ' | '
-		elif not e.changed and not e.related_name: return ['no changes']
+		if not e.changed: return ['no changes']
 		o = []
-		for change in e.changes:
-			if change.field == 'last_login': o.append('login')
-			elif change.field == 'date_joined':pass
-			else:o.append(m + change.field + ': ' + change.old_state + ' -> ' + change.new_state )
+		for k in e.cf_dict:
+			old, new = e.cf_dict[k]
+			o.append( k + ': ' + old + ' -> ' + new )
 		return o
-
-	@property
-	def username(self):
-		return self.events[0].username
 
 
 	@property
 	def updates(self):
-		events = []
-		if self.related_name or self.user: events = [e for e in self.events]
-		else: events = [e for e in self.events if e.type =='Update']
-		if self.add_related_events:
-			for crud in self.cruds:
-				events.extend( crud.events )
-		return sorted(events,reverse = True)
+		return [e for e in self.events]
 
 
 	@property
 	def anychanges(self):
 		return True if self.updates else False
 		
-	@property
-	def updates_str_hide_user(self):
-		return self._updates_str(show_user=False)
 
 	@property
 	def updates_str(self):
-		return self._updates_str()
-
-	def _updates_str(self, show_user = True):
 		o = []
 		for e in self.updates:
 			cfs = self._make_change_fields_string(e)
 			for cf in cfs:
-				line = [e.username,e.time_str,cf] if show_user else [e.time_str,cf]
-				o.append([' | '.join(line),e.link])
+				o.append(' | '.join([e.username,
+					e.time_str,cf]))
 		if o == []: return 'no updates'
 		return o
 
 	@property
 	def last_update(self):
-		events = self.updates
-		if len(events) == 0: return 'unknown'
-		e = events[0]
-		if len(events) ==1 and e.type == 'Create':
+		if len(self.events) == 0: return 'unknown'
+		e = self.events[0]
+		if len(self.events) ==1 and e.type == 'Create':
 			cf = 'created'
 		else:
 			cf = ' | '.join(self._make_change_fields_string(e))
@@ -226,7 +187,7 @@ class Crud:
 	@property
 	def last_update_time(self):
 		if len(self.events) == 0: return 'time unknown'
-		return self.events[0].time_str
+		return self.events[0].time_str_exact
 	
 	@property
 	def last_update_by(self):
@@ -234,38 +195,23 @@ class Crud:
 		return self.events[0].username
 
 class Event:
-	def __init__(self,e, related_name = '',related_instance = None):
+	def __init__(self,e):
 		self.event = e
-		self.related_name = related_name
-		self.related_instance = related_instance
 		self.type = e.get_event_type_display()
 		self.changed = True if e.changed_fields not in ['null',None] else False
 		self.username = e.user.username if e.user else ''
 		self.set_time()
-		self.app_name = e.content_type.app_label
-		self.model_name = e.content_type.model
-		self.model_pk = e.object_id
 		if self.changed: self.set_changes()
-		elif related_name and self.type == 'Create':
-			self.set_related_change()
-		else: self.changes = []
 
 	def __repr__(self):
 		return str(self.type) + ' ' + str(self.username) 
-
-	def __lt__(self,other):
-		return self.epoch < other.epoch
 
 	def set_changes(self):
 		try: self.cf_dict = eval(self.event.changed_fields)
 		except: raise ValueError('could not create dict from:',
 			self.event.changed_fields)
-		self.changes = [Change(self.username,self.time_str,k,self.cf_dict[k],
-			self.related_name,self.related_instance) for k in self.cf_dict.keys()]
-
-	def set_related_change(self):
-		self.changes = [Change(self.username,self.time_str,self.related_name +' (created)',
-			['',self.related_instance.__str__()],'')]
+		self.changes = [Change(self.username,self.time_str,k,self.cf_dict[k])
+			for k in self.cf_dict.keys()]
 
 	def set_time(self):
 		e = self.event
@@ -293,44 +239,13 @@ class Event:
 		else: ts = self.time_str_day_short
 		self.time_str = ts
 
-	@property
-	def model(self):
-		if not hasattr(self,'_model'):
-			try:self._model = apps.get_model(self.app_name,self.model_name)
-			except:self._model = False
-		return self._model
-			
-	@property
-	def object_str(self):
-		try:return self.model.objects.get(pk = self.model_pk).__str__()
-		except: return 'an object that has been deleted'
-
-	@property
-	def link(self):
-		" creates an href link to the edit page of the changed object."
-		if self.model_name in ['userloc','geoloc','user'] or self.app_name == 'auth': return ''
-		if 'relation' in self.model_name:
-			model = self.model
-			try:instance = model.objects.get(pk = self.model_pk)
-			except: return ''
-			if not hasattr(instance,'primary'):return ''
-			print(model,instance.primary)
-			app_name, model_name = instance2names(instance.primary)	
-			return "/"+app_name+"/edit_"+model_name.lower()+"/"+str(instance.primary.pk)
-		return "/"+self.app_name +"/edit_"+self.model_name.lower()+"/"+str(self.model_pk)
-		
-				
-
 class Change:
-	def __init__(self,user,time,field_name,state,related_name,related_instance = None):
+	def __init__(self,user,time,field_name,state):
 		self.username = user
 		self.time = time
-		self.field= related_name + ' | ' + field_name if related_name else field_name
+		self.field= field_name
 		self.old_state = state[0]
-		if not related_instance or not related_name: self.new_state = state[1]
-		else: self.new_state = state[1] + ' (' + related_instance.__str__() +')'
-			
-		self.related_name = related_name
+		self.new_state = state[1]
 
 	def __repr__(self):
 		return str(self.field) + ' ' + str(self.username) + ' ' + self.time
@@ -361,7 +276,6 @@ class Tabs:
 
 def make_tabs(tab_type,focus=0,focus_names = ''):
 	minimize = Tab('Edit,Minimize',focus)
-	print(tab_type)
 	if focus_names == 'default': focus_names=''
 	if tab_type == 'person':
 		t = 'Locations,Texts,Illustrations,Publisher-Manager,Pseudonym,Movements,Persons'
@@ -369,11 +283,11 @@ def make_tabs(tab_type,focus=0,focus_names = ''):
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'publication':
-		t = 'Texts,Illustrations,Periodical,ReviewedByText'
+		t = 'Texts,Illustrations,Periodical'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'text':
-		t = 'Texts,Persons,Publications,PublicationReview'
+		t = 'Texts,Persons,Publications'
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'illustration':
@@ -389,9 +303,10 @@ def make_tabs(tab_type,focus=0,focus_names = ''):
 		relations = Tab(t,focus)
 		return Tabs([minimize,relations],'minimize,relations',focus_names)
 	if tab_type == 'location':
-		t = 'Contained by'
-		relations = Tab(t,focus)
-		return Tabs([minimize,relations],'minimize,relations',focus_names)
+		t = 'Add-from-database,GeoLocation,UserLocation,Help'
+		location= Tab(t,focus)
+		relations = Tab('countries,regions',focus)
+		return Tabs([location,relations],'location,relations',focus_names)
 		
 
 		
