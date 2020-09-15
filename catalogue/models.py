@@ -9,6 +9,7 @@ import json
 from locations.models import Location
 from utilities.models import Language
 from utils.model_util import id_generator, info
+from utils.map_util import field2locations, pop_up
 from partial_date import PartialDateField
 			
 
@@ -53,6 +54,7 @@ class Text(models.Model, info):
 	relations = models.ManyToManyField('self',
 		through='TextTextRelation',symmetrical=False, default=None)
 	location= models.ManyToManyField(Location,blank=True, default= None)
+	description = models.TextField(blank=True)
 	notes = models.TextField(default='',blank=True, null=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
@@ -80,6 +82,21 @@ class Text(models.Model, info):
 			if value == None: m.append('')
 			else: m.append(value)
 		return m
+
+	@property
+	def latlng(self):
+		locations = field2locations(self,'location')
+		if locations:
+			return [location.gps for location in locations]
+		else: return None
+
+	@property
+	def pop_up(self):
+		return pop_up(self)	
+
+	@property
+	def instance_name(self):
+		return self.title
 
 
 class TextTextRelationType(models.Model, info):
@@ -110,6 +127,7 @@ class Illustration(models.Model, info):
 	categories= models.ManyToManyField(IllustrationCategory, blank=True, related_name='Illustrations') 
 	page_number = models.CharField(max_length=50, null=True, blank=True)
 	notes = models.TextField(null=True,blank=True)
+	description = models.TextField(blank=True)
 	upload= models.ImageField(upload_to='illustrations/',null=True,blank=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
@@ -120,7 +138,17 @@ class Illustration(models.Model, info):
 		return self.caption
 
 
+	@property
+	def latlng(self):
+		return None
 
+	@property
+	def pop_up(self):
+		return pop_up(self)	
+
+	@property
+	def instance_name(self):
+		return self.caption
 
 class Audience(models.Model, info): # only usefull for periodical not book?
 	'''audience for a periodical'''
@@ -146,6 +174,7 @@ class Publisher(models.Model, info):
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 
 	notes = models.TextField(null=True,blank=True) # many to many
+	description = models.TextField(blank=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
 	location_field = 'location'
@@ -157,9 +186,23 @@ class Publisher(models.Model, info):
 	def location_string(self):
 		return ', '.join([l.name for l in self.location.all()])
 
+	@property
+	def latlng(self):
+		locations = field2locations(self,'location')
+		if locations:
+			return [location.gps for location in locations]
+		else: return None
+
+	@property
+	def instance_name(self):
+		return self.name
+
 	class Meta:
 		ordering = ['name']
 
+	@property
+	def pop_up(self):
+		return pop_up(self)	
 
 
 class PublicationType(models.Model):
@@ -187,6 +230,7 @@ class Publication(models.Model, info):
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
 	notes = models.TextField(default='',blank=True, null=True)
+	description = models.TextField(blank=True)
 	source_link= models.CharField(max_length=1000,blank=True,null=True)
 	copyright = models.ForeignKey(CopyRight,on_delete=models.SET_NULL,blank=True,null=True)
 	location_field = 'location'
@@ -207,6 +251,20 @@ class Publication(models.Model, info):
 	def location_str(self):
 		return ' | '.join([loc.name for loc in self.location.all()])
 
+	@property
+	def latlng(self):
+		locations = field2locations(self,'location')
+		if locations:
+			return [location.gps for location in locations]
+		else: return None
+
+	@property
+	def pop_up(self):
+		return pop_up(self)	
+
+	@property
+	def instance_name(self):
+		return self.title
 
 class TextPublicationRelation(models.Model): #many to many
 	'''Links a text with a publication.'''
@@ -263,6 +321,7 @@ class Periodical(models.Model, info):
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
 	location_field = 'location'
+	description = models.TextField(blank=True)
 
 	def __str__(self):
 		return self.title
@@ -270,6 +329,21 @@ class Periodical(models.Model, info):
 	@property
 	def location_str(self):
 		return 
+
+	@property
+	def latlng(self):
+		locations = field2locations(self,'location')
+		if locations:
+			return [location.gps for location in locations]
+		else: return None
+
+	@property
+	def instance_name(self):
+		return self.title
+
+	@property
+	def pop_up(self):
+		return pop_up(self)	
 
 class PeriodicalPublicationRelation(models.Model, info):
 	'''linking a periodical to a publication (a specific issue of a periodical).'''

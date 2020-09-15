@@ -17,17 +17,20 @@
           <a class="dropdown-item" href=
 			"{% url 'catalogue:publication_list' %}">publication</a>
           <a class="dropdown-item" href=
+			"{% url 'catalogue:periodical_list' %}">periodical</a>
+          <a class="dropdown-item" href=
 			"{% url 'catalogue:publisher_list' %}">publisher</a>
           <a class="dropdown-item" href=
 			"{% url 'catalogue:illustration_list' %}">illustration</a>
           <a class="dropdown-item" href=
 			"{% url 'persons:person_list' %}">person</a>
           <a class="dropdown-item" href=
+			"{% url 'persons:movement_list' %}">movement</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href=
 			"{% url 'locations:location_list' %}">location</a>
           <a class="dropdown-item" href=
-			"{% url 'persons:movement_list' %}">movement</a>
-          <a class="dropdown-item" href=
-			"{% url 'catalogue:periodical_list' %}">periodical</a>
+			"{% url 'locations:map' %}">map</a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" href=
 			"{% url 'accounts:log_view' %}">log</a>

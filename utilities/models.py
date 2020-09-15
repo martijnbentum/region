@@ -61,3 +61,37 @@ def instance2name(instance):
 	app_name, model_name = instance2names(instance)
 	return model_name
 
+def instance2color(instance):
+	name = instance2name(instance).lower()
+	if name in color_dict.keys(): return color_dict[name]
+	else: return 'black'
+
+def instance2icon(instance):
+	name = instance2name(instance).lower()
+	if name in icon_dict.keys():
+		return icon_dict[name]
+	return 'not found'
+
+def instance2map_buttons(instance):
+	app_name,model_name= instance2names(instance)
+	m = ''
+	m += '<a class = "btn btn-link btn-sm mt-1 pl-0 text-dark" href='
+	m += '/'+app_name+'/edit_' + model_name.lower()+'/' + str(instance.pk) 
+	m += ' role="button"><i class="far fa-edit"></i></a>'
+	m += '<a class = "btn btn-link btn-sm mt-1 pl-0 text-dark" href='
+	m += '/locations/show_links/'+app_name+'/'+ model_name.lower()+'/' + str(instance.pk) +'/'
+	m += ' role="button"><i class="fas fa-project-diagram"></i></a>'
+	return m
+
+names = 'text,illustration,publisher,publication,periodical,person,movement'.split(',')
+colors = '#0fba62,#5aa5c4,#e04eed,#ed4c72,#1e662a,#c92f04,#e39817'.split(',')
+icons ='fa fa-file-text-o,fa fa-picture-o,fa fa-building-o,fa fa-book'
+icons +=',fa fa-newspaper-o,fa fa-male,fa fa-users'
+icons = ['<i class="'+icon+' fa-lg mt-2" aria-hidden="true"></i>' for icon in icons.split(',')]
+color_dict,icon_dict ={}, {}
+for i,name in enumerate(names):
+	color_dict[name] = colors[i]
+	icon_dict[name] = icons[i]
+
+
+

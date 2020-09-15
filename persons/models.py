@@ -4,6 +4,8 @@ import json
 from locations.models import UserLoc, Location
 from utilities.models import Language
 from utils.model_util import id_generator, info
+from utils.map_util import field2locations, pop_up
+
 
 
 class Pseudonym(models.Model, info):
@@ -28,6 +30,7 @@ class Person(models.Model, info):
 	death_place= models.ForeignKey(Location, on_delete=models.SET_NULL,
 		related_name = 'hdied', default = None, null = True)
 	notes = models.TextField(blank=True,null=True) 
+	description = models.TextField(blank=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
 	location_field = 'birth_place'
@@ -90,8 +93,6 @@ class Person(models.Model, info):
 	@property
 	def gender(self):
 		return dict(self.SEX)[self.sex]
-		
-
 
 	@property
 	def table_header(self):
@@ -101,6 +102,18 @@ class Person(models.Model, info):
 	def table(self):
 		return [self.name,self.age,sex,born,died,birthplace,deathplace]
 
+	@property
+	def latlng(self):
+		locations, names = self.locations
+		return [location.gps for location in locations]
+
+	@property
+	def pop_up(self):
+		return pop_up(self)
+
+	@property
+	def instance_name(self):
+		return self.name
 
 class PersonPersonRelationType(models.Model, info):
 	'''Relation type between persons e.g. friends.'''
@@ -252,6 +265,7 @@ class Movement(models.Model, info):
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 
 	notes = models.TextField(null=True,blank=True) # many to many
+	description = models.TextField(blank=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
 
@@ -261,6 +275,22 @@ class Movement(models.Model, info):
 	@property
 	def location_str(self):
 		return self.location
+
+	@property
+	def latlng(self):
+		locations = field2locations(self,'location')
+		if locations:
+			return [location.gps for location in locations]
+		else: return None
+
+	@property
+	def pop_up(self):
+		return pop_up(self)	
+
+	@property
+	def instance_name(self):
+		return self.name
+	
 
 class PersonMovementRelationRole(models.Model, info):
 	'''Relation type between person and movement (e.g. founder, follower).'''

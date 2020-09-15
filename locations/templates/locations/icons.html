@@ -1,0 +1,18 @@
+<script>
+
+var colorDict={};
+var names = 'text,illustration,publisher,publication,periodical,person,movement'.split(',')
+var colors = '#0fba62,#5aa5c4,#e04eed,#ed4c72,#1e662a,#c92f04,#e39817'.split(',')
+for (i = 0; i<names.length; i++) {
+	colorDict[names[i]] = colors[i]
+	}
+
+function make_icon(name) {
+	color = colorDict[name]
+	return  L.divIcon({
+	className:name,
+	html:'<a style="color:'+color+';"><i class="fas fa-map-marker-alt"></i></i></a>',
+	iconAnchor:[3,15]
+	})
+}
+</script>
