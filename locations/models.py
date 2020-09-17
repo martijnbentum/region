@@ -126,6 +126,10 @@ class Location(models.Model, info):
 		try: return str(round(self.latitude,2)) + ', ' + str(round(self.longitude,2))
 		except: return ''
 
+	@property
+	def latlng(self):
+		return self.gps
+
 	def table_header(self):
 		return 'name,type,region,country'.split(',')
 
