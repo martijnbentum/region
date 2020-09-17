@@ -50,6 +50,7 @@ function make_marker(name,latlng,popup,markerid) {
 	var marker = L.marker(latlng,{icon:make_icon(name), className:markerid})
 	marker.bindPopup(popup,{maxWidth:200,closeButton:false})
 	oms.addMarker(marker);
+	console.log(name,12345);
 	layerDict[name].push(marker)
 	return marker;
 }
