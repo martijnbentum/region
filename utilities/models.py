@@ -3,6 +3,16 @@ from django.db import models
 from django.utils import timezone
 from utils.model_util import id_generator, info
 
+class RelationModel(models.Model):
+	model_fields = ['','']
+
+	class Meta:
+		abstract=True
+
+	def other(self,name):
+		if name == self.model_fields[0]: return self.model_fields[1]
+		if name == self.model_fields[1]: return self.model_fields[0]
+		return ''
 
 class SimpleModel(models.Model):
     name = models.CharField(max_length=300,default='',unique=True)
