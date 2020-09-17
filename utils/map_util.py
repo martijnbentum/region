@@ -10,8 +10,12 @@ def instance2related_locations(instance):
 	'''
 	locations = []
 	field_names = instance2related_fieldnames(instance)
+	source_model_name = instance2name(instance).lower()
+	map_list = []
 	for field_name, field_type in field_names:
 		#field type is either fk or m2m for foreign keys / many to many relations
+		print(field_name)
+		fn = field_name.replace('_set','')
 		ls =[]
 		related_instance= getattr(instance,field_name)
 		if not related_instance: continue
@@ -22,8 +26,9 @@ def instance2related_locations(instance):
 			ls = field2locations(related_instance,related_instance.location_field)
 			model_name = instance2name(related_instance)
 			if ls: # if there are locations set on the related instance add them to the output
-				ls =[[field_name.replace('_set',''),model_name,l,related_instance] for l in ls]
+				ls =[[fn,model_name,l,related_instance] for l in ls]
 				locations.extend(ls)
+				map_list.extend(instance2maprows(related_instance,role=fn))
 		if field_type == 'm2m':
 			# handle m2m related instances
 			for rl in related_instance.all():
@@ -32,9 +37,38 @@ def instance2related_locations(instance):
 				model_name = instance2name(rl)
 				ls=field2locations(rl,rl.location_field)
 				if ls: # if there are locations set on the related instance add them to the output
-					ls =[[field_name.replace('_set',''),model_name,l,rl] for l in ls]
+					ls =[[fn,model_name,l,rl] for l in ls]
 					locations.extend(ls)
-	return locations,field_names
+					map_list.extend(instance2maprows(rl,role=fn))
+		if field_type == 'relation':
+			for rl in related_instance.all():
+				name = rl.other(source_model_name)
+				if name:
+					x = getattr(rl,name)
+					if not hasattr(x,'location_field'): continue
+					ls = field2locations(x,x.location_field)
+					if ls:
+						ls =[[field_name.replace('_set',''),name,l,x] for l in ls]
+						locations.extend(ls)
+						print(ls,222)
+						print(rl,field_name,333)
+						print(instance2maprows(rl,field_name))
+						role = rl.relationship if hasattr(rl,'relationship') else fn 
+						map_list.extend(instance2maprows(x,role=role))
+						print(ls,222)
+		if field_type == 'locationrelation':
+			for rl in related_instance.all():
+				name = rl.other(source_model_name)
+				if not name: continue
+				l = getattr(rl,name)
+				if not l: continue
+				print(field_name,name,8,l)
+				locations.append([field_name.replace('_set',''),source_model_name,l,instance])
+				role = rl.relationship if rl.relationship else fn
+				print(role,101010101)
+				mr = instance2maprows(instance,latlng=l.latlng,pop_up=instance.pop_up,role=role)
+				map_list.append(mr)
+	return locations,field_names,map_list
 	
 
 def field2locations(instance, field_name):
@@ -60,22 +94,43 @@ def instance2related_fieldnames(instance):
 			fn.append([field.name,'fk'])
 	for field in instance._meta.__dict__['local_many_to_many']:
 		fn.append([field.name,'m2m'])
-	fn.extend([[name,'m2m'] for name in dir(instance) if name.endswith('_set')])
+	for name in dir(instance):
+		if not name.endswith('_set'): continue
+		related_instances= getattr(instance,name)
+		if related_instances: ri = related_instances.all()
+		print(ri,field.name)
+		if ri and 'LocationRelation' in instance2name(ri[0]):
+			fn.append([name,'locationrelation'])
+		elif ri and 'Relation' in instance2name(ri[0]):
+			fn.append([name,'relation'])
+		else:fn.append([name,'m2m'])
+	# fn.extend([[name,'m2m'] for name in dir(instance) if name.endswith('_set')])
 	return fn
 
-def queryset2maplist(qs,roles = [],perturbe= False,combine =False):
+
+def instance2maprows(instance,cull=True,pop_up = None,latlng=None,role = ''):
+	if not hasattr(instance,'latlng') or not instance.latlng: return False
+	o = []
+	name = instance2name(instance).lower()
+	markerid = name + str(instance.pk)
+	print(role,123321)
+	if pop_up == None:pop_up = instance.pop_up
+	if latlng: return [name,latlng,pop_up,markerid,role]
+	for i,latlng in enumerate(instance.latlng):
+		if not role and hasattr(instance,'latlng_roles'):role = instance.latlng_roles[i]
+		o.append([name,latlng,pop_up,markerid,role])
+	if cull: o = cull_maplist(o)
+	return o
+
+def queryset2maplist(qs,combine =False, cull = True):
 	'''Create a list of lists with information to create leaflet popups from a queryset.'''
 	o = []
 	for i,instance in enumerate(qs):
-		if not hasattr(instance,'latlng') or not instance.latlng: continue
-		for latlng in instance.latlng:
-			name = instance2name(instance).lower()
-			popup = instance.pop_up
-			markerid = name + str(instance.pk)
-			if perturbe: latlng = perturbe_latlng(latlng)
-			if roles:o.append([name,latlng,popup,markerid,roles[i].replace('_',' ')])
-			else:o.append([name,latlng,popup,markerid])
+		map_rows= instance2maprows(instance,cull)
+		if not map_rows: continue
+		o.extend(map_rows)
 	if combine:  o =combine_popups(o)
+	if cull: o = cull_maplist(o)
 	return o
 
 def combine_popups(o):
@@ -112,7 +167,8 @@ def pop_up(instance):
 	m += '<p class="h6 mb-0 mt-1" style="color:'+instance2color(instance)+';">'
 	m += instance.instance_name+'</p>'
 	m += '<hr class="mt-1 mb-0" style="border:1px solid '+instance2color(instance)+';">'
-	m += '<p class="mt-2 mb-0">'+instance.description+'</p>'
+	if instance.description:
+		m += '<p class="mt-2 mb-0">'+instance.description+'</p>'
 
 	if hasattr(instance,'play_field'):
 		link =  getattr(instance,getattr(intance,'play_field'))
@@ -124,4 +180,9 @@ def pop_up(instance):
 	return m
 	
 
+def cull_maplist(maplist):
+	o = []
+	for line in maplist:
+		if line not in o: o.append(line)
+	return o
 		
