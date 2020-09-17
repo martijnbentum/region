@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 import json
 from locations.models import Location
-from utilities.models import Language
+from utilities.models import Language, RelationModel
 from utils.model_util import id_generator, info
 from utils.map_util import field2locations, pop_up
 from partial_date import PartialDateField
@@ -133,6 +133,7 @@ class Illustration(models.Model, info):
 	approved = models.BooleanField(default=False)
 	source_link= models.CharField(max_length=1000,blank=True,null=True)
 	copyright = models.ForeignKey(CopyRight,on_delete=models.SET_NULL,blank=True,null=True)
+	location_field = ''
 	
 	def __str__(self):
 		return self.caption
@@ -266,12 +267,13 @@ class Publication(models.Model, info):
 	def instance_name(self):
 		return self.title
 
-class TextPublicationRelation(models.Model): #many to many
+class TextPublicationRelation(RelationModel): #many to many
 	'''Links a text with a publication.'''
 	text = models.ForeignKey(Text, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 	start_page = models.CharField(max_length=5,null=True,blank=True)
 	end_page = models.CharField(max_length=5,null=True,blank=True)
+	model_fields = ['text','publication']
 
 	def __str__(self):
 		m =  self.text.title+ ' is a part of '
@@ -283,25 +285,28 @@ class TextPublicationRelation(models.Model): #many to many
 		return self.text
 		
 
-class TextReviewPublicationRelation(models.Model): #many to many
+class TextReviewPublicationRelation(RelationModel): #many to many
 	'''Links a text with a publication.'''
 	text = models.ForeignKey(Text, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
+	model_fields = ['text','publication']
 
 	def __str__(self):
 		m =  self.text.title+ ' is a review of '
 		m += self.publication.title
 		return m
 
+
 	@property
 	def primary(self):
 		return self.text
 
-class IllustrationPublicationRelation(models.Model): #many to many
+class IllustrationPublicationRelation(RelationModel): #many to many
 	'''Links a illustration with a publication.'''
 	illustration = models.ForeignKey(Illustration, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 	page = models.CharField(max_length=5,null=True,blank=True)
+	model_fields = ['illustration','publication']
 
 	def __str__(self):
 		m =  self.illustration.caption+ ' is a part of '
@@ -345,12 +350,13 @@ class Periodical(models.Model, info):
 	def pop_up(self):
 		return pop_up(self)	
 
-class PeriodicalPublicationRelation(models.Model, info):
+class PeriodicalPublicationRelation(RelationModel, info):
 	'''linking a periodical to a publication (a specific issue of a periodical).'''
 	periodical= models.ForeignKey(Periodical, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 	volume= models.PositiveIntegerField(null=True,blank=True)
 	issue= models.PositiveIntegerField(null=True,blank=True)
+	model_fields = ['periodical','publication']
 
 	def __str__(self):
 		m =  self.periodical.title+ ' is a periodical in '
@@ -371,6 +377,7 @@ class TextTextRelation(models.Model, info):
 									on_delete=models.CASCADE, default=None)
 	relation_type = models.ForeignKey(TextTextRelationType, 
 									on_delete=models.CASCADE, default=None)
+	model_fields = ['primary','secondary']
 
 	def __str__(self):
 		m =  self.relation_type.name +' relation between ' + self.secondary.title +' and '
