@@ -10,7 +10,7 @@ from .forms import LocationForm, location_relation_formset
 from .forms import LocationRelationForm, LocationTypeForm,LocationStatusForm,LocationPrecisionForm
 import json
 from utils.view_util import make_tabs,FormsetFactoryManager
-from utils.map_util import instance2related_locations,queryset2maplist
+from utils.map_util import instance2related_locations,queryset2maplist,instance2maprows
 from utilities.views import getfocus, list_view, delete_model, edit_model, add_simple_model
 
 from catalogue.models import Text, Illustration, Publication, Publisher, Periodical
@@ -52,9 +52,9 @@ def map(request):
 	
 def show_links(request,app_name,model_name,pk):
 	instance = apps.get_model(app_name,model_name).objects.get(pk=pk)
-	l, fn= instance2related_locations(instance)
-	roles = ['main']+[line[0] for line in l]
-	link_list = queryset2maplist([instance] + [i[-1] for i in l],roles)
+	link_list= instance2maprows(instance,role='main') 
+	l, fn,ll= instance2related_locations(instance)
+	link_list.extend(ll)
 	args = {'page_name':'links','link_list':link_list}
 	return render(request,'locations/map.html',args)
 
