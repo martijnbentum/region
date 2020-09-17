@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 import json
 from locations.models import UserLoc, Location
-from utilities.models import Language
+from utilities.models import Language, RelationModel
 from utils.model_util import id_generator, info
 from utils.map_util import field2locations, pop_up
 
@@ -104,8 +104,18 @@ class Person(models.Model, info):
 
 	@property
 	def latlng(self):
-		locations, names = self.locations
-		return [location.gps for location in locations]
+		gps = []
+		for fn in 'birth_place,death_place'.split(','):
+			locations = field2locations(self,fn)
+			if locations:
+				gps.extend([location.gps for location in locations])
+		if gps: return gps
+		else: return None
+
+	@property
+	def latlng_roles(self):
+		return ['birth_place','death_place']
+
 
 	@property
 	def pop_up(self):
@@ -124,11 +134,12 @@ class PersonPersonRelationType(models.Model, info):
 		return self.name
 	
 
-class PersonPersonRelation(models.Model, info):
+class PersonPersonRelation(RelationModel, info):
 	'''Relation between persons. Assumed to be symmetrical.'''
 	person1 = models.ForeignKey(Person, on_delete=models.CASCADE,related_name='person1')
 	person2 = models.ForeignKey(Person, on_delete=models.CASCADE,related_name='person2')
 	relation_type = models.ForeignKey(PersonPersonRelationType, on_delete=models.CASCADE)
+	model_fields = ['person1','person2']
 
 	class Meta:
 		constraints = [models.UniqueConstraint(
@@ -144,7 +155,7 @@ class LocationRelation(models.Model, info):
 	def __str__(self):
 		return self.name
 
-class PersonLocationRelation(models.Model,info):
+class PersonLocationRelation(RelationModel,info):
 	'''relation between person and location.'''
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	location = models.ForeignKey(Location, on_delete=models.CASCADE,default=None,null=True)
@@ -155,7 +166,13 @@ class PersonLocationRelation(models.Model,info):
 	end_year = models.PositiveIntegerField(null=True,blank=True)
 	location_name = models.CharField(max_length=200, default='',null=True)
 	person_name = models.CharField(max_length=200, default='',null=True)
+	description= models.TextField(null=True,blank=True)
 	location_field = 'location'
+	model_fields = ['person','location']
+
+	@property
+	def relationship(self):
+		return self.relation.name
 
 	@property
 	def relation_name(self):
@@ -175,6 +192,21 @@ class PersonLocationRelation(models.Model,info):
 	@property
 	def primary(self):
 		return self.person
+
+	@property
+	def latlng(self):
+		locations = field2locations(self,'location')
+		if locations:
+			return [location.gps for location in locations]
+		else: return None
+
+	@property
+	def pop_up(self):
+		return pop_up(self)	
+
+	@property
+	def instance_name(self):
+		return self.__str__()
 
 
 
@@ -207,18 +239,23 @@ class PublisherManager(models.Model): #or broker
 		related_name='manager')
 
 
-class PersonTextRelation(models.Model, info):
+class PersonTextRelation(RelationModel, info):
 	'''Relation between a person and a text.'''
 	role = models.ForeignKey(PersonTextRelationRole, on_delete=models.CASCADE)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	text = models.ForeignKey('catalogue.Text', null=True, blank=True, 
 		on_delete=models.CASCADE)
 	published_under = models.CharField(max_length = 100,null=True,blank=True)
+	model_fields = ['person','text']
 	
 	def __str__(self):
 		m = self.person.__str__() + ' | ' + self.role.__str__() 
 		m += ' | ' + self.text.__str__()
 		return m
+
+	@property
+	def relationship(self):
+		return self.role.name
 
 	class Meta:
 		unique_together = ['role','person','text']
@@ -228,13 +265,14 @@ class PersonTextRelation(models.Model, info):
 		return self.person
 
 
-class PersonIllustrationRelation(models.Model, info):
+class PersonIllustrationRelation(RelationModel, info):
 	'''Relation between a person and an illustration.'''
 	role = models.ForeignKey(PersonIllustrationRelationRole, 
 		on_delete=models.CASCADE)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	illustration= models.ForeignKey('catalogue.Illustration', null=True, 
 		blank=True, on_delete=models.CASCADE)
+	model_fields=['person','illustration']
 	
 	def __str__(self):
 		m = self.person.__str__() + ' | ' + self.role.__str__() 
@@ -300,11 +338,12 @@ class PersonMovementRelationRole(models.Model, info):
 	def __str__(self):
 		return self.name
 
-class PersonMovementRelation(models.Model, info):
+class PersonMovementRelation(RelationModel, info):
 	'''Relation between a movement and a person.'''
 	movement = models.ForeignKey(Movement, on_delete=models.CASCADE)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	role = models.ForeignKey(PersonMovementRelationRole, on_delete=models.CASCADE)
+	model_fields = ['movement','person']
 
 	def __str__(self):
 		m = self.person.__str__() + ' | ' + self.role.__str__() +' | of movement: '
@@ -323,11 +362,12 @@ class PersonPeriodicalRelationRole(models.Model, info):
 	def __str__(self):
 		return self.name
 
-class PersonPeriodicalRelation(models.Model, info):
+class PersonPeriodicalRelation(RelationModel, info):
 	'''Relation between a movement and a person.'''
 	periodical = models.ForeignKey('catalogue.Periodical', on_delete=models.CASCADE)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	role = models.ForeignKey(PersonPeriodicalRelationRole, on_delete=models.CASCADE)
+	model_fields = ['periodical','person']
 
 	def __str__(self):
 		m = self.person.__str__() + ' | ' + self.role.__str__() +' | of periodical: '
