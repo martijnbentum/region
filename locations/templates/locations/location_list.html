@@ -7,7 +7,11 @@
 {% endblock %}
 
 {% block content %}
+<div class="d-flex">
 {% include 'utilities/list_search_bar.html' %}
+<a class ="btn btn-link ml-auto" href="{% url 'locations:add_location' %}" 
+role="button">Add location</a>
+</div>
 {% if location_list %}
 
 <div class="d-flex">
@@ -35,8 +39,6 @@
 	{% endfor %}
 </table>
 
-<a class ="btn btn-link ml-auto" href="{% url 'locations:add_location' %}" 
-role="button">Add location</a>
 </div>
 
 
