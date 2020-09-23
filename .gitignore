@@ -3,9 +3,10 @@
 *.swp
 __pychache__
 catalogue/SWP/
-catalogue/migrations/
-persons/migrations/
-locations/migrations/
+catalogue/migrations/*
+persons/migrations/*
+locations/migrations/*
+utilities/migrations/*
 data/
 node_modules/
 package.json
