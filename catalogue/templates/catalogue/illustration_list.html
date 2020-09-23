@@ -9,11 +9,13 @@
 <div class="d-flex">
 {% include 'utilities/list_search_bar.html' %}
 <a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_illustration' %}"
+role="button">Add illustration</a>
 </div>
+
 {% if illustration_list %}
+<br>
 
 <div class="d-flex">
-
 
 <table class="table table-hover">
 	<tr> 
@@ -35,7 +37,6 @@
 	</tr>
 	{% endfor %}
 </table>
-role="button">Add illustration</a>
 </div>
 
 {% else %}

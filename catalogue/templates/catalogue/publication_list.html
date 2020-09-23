@@ -9,9 +9,8 @@
 
 <div class="d-flex">
 	{% include 'utilities/list_search_bar.html' %}
-	<a class = "btn btn-link btn-sm ml-auto"
-	href ="{% url 'catalogue:edit_publication' publication.pk %}"
-	role="button"><i class="far fa-edit text-secondary"></i></a></td>
+	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publication' %}" 
+	role="button">Add publication</a>
 </div>
 
 {% if publication_list %}
@@ -41,6 +40,9 @@
 		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
         href ="{% url 'catalogue:delete' publication.pk 'Publication' %}"
         role="button"><i class="fa fa-trash text-secondary"></i></a>
+		<a class = "btn btn-link btn-sm ml-auto"
+		href ="{% url 'catalogue:edit_publication' publication.pk %}"
+		role="button"><i class="far fa-edit text-secondary"></i></a></td>
 	</tr>
 	{% endfor %}
 </table>
@@ -53,8 +55,6 @@
 {% endblock content %}
 
 {% block right %}
-<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publication' %}" 
-role="button"><i class="fa fa-plus"></i></a>
 {% endblock right %}
 
 
