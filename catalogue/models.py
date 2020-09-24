@@ -62,7 +62,8 @@ class Item(models.Model):
 
 	@property
 	def location_string(self):
-		return ', '.join(self.latlng_names)
+		try:return ', '.join(self.latlng_names)
+		except: return ''
 
 	@property
 	def pop_up(self):
