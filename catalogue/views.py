@@ -17,7 +17,6 @@ from .forms import textpublication_formset, illustrationpublication_formset
 from .forms import texttext_formset, texttextr_formset, publicationperiodical_formset
 from .forms import periodicalpublication_formset, TextTypeForm, textreviewpublication_formset
 from .forms import publicationreviewedbytext_formset
-from locations.models import UserLoc
 from persons.models import Person, PersonLocationRelation
 from persons.forms import textperson_formset, illustrationperson_formset, periodicalperson_formset
 from utils import view_util
