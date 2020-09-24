@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
-from django.db.utils import IntegrityError
+from django.db.utils import IntegrityError, cached_property
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
@@ -12,16 +12,58 @@ from utils.model_util import id_generator, info
 from utils.map_util import field2locations, pop_up
 from partial_date import PartialDateField
 			
-
-class test(models.Model, info):
-	name = models.CharField(max_length =9)
-	pd = PartialDateField()
-
 class CopyRight(models.Model, info):
 	name = models.CharField(max_length=100,unique=True)
 
 	def __str__(self):
 		return self.name
+
+
+class Item(models.Model):
+	dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
+	description = models.TextField(blank=True)
+	notes = models.TextField(default='',blank=True, null=True)
+	complete = models.BooleanField(default=False)
+	approved = models.BooleanField(default=False)
+	source_link= models.CharField(max_length=1000,blank=True,null=True)
+	copyright = models.ForeignKey(CopyRight,**dargs)
+	gps = models.CharField(max_length=300,default ='')
+	gps_names = models.CharField(max_length=4000,default='')
+	location_field = 'location'
+
+	def save(self,*args,**kwargs):
+		super(Item,self).save(*args,**kwargs)
+		old_gps = self.gps
+		self._set_gps()
+		if old_gps != self.gps:super(Text,self).save()
+		super(Item,self).save(*args,**kwargs)
+
+	def _set_gps(self):
+		locations = field2locations(self,self.location_field)
+		if locations:
+			gps = [location.gps for location in locations]
+			names= [location.name for location in locations]
+			self.gps = gps
+			self.gps_names = names
+		else: self.gps, self.gps_names = '',''
+
+	@property
+	def latlng(self):
+		try: return eval(self.gps)
+		except: return None
+
+	@property
+	def latlng_names(self):
+		try: return eval(self.gps_names)
+		except: return None
+
+	@property
+	def pop_up(self):
+		return pop_up(self)	
+	
+	class Meta:
+		abstract = True
+
 
 class Genre(models.Model, info):
 	'''category for texts. '''
@@ -40,8 +82,7 @@ class TextType(models.Model, info):
 		return self.name
 	
 
-
-class Text(models.Model, info):
+class Text(Item, info):
 	'''a text can be an entire book or article or a subsection thereof.'''
 	dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
 	title = models.CharField(max_length=300)
@@ -54,45 +95,15 @@ class Text(models.Model, info):
 	relations = models.ManyToManyField('self',
 		through='TextTextRelation',symmetrical=False, default=None)
 	location= models.ManyToManyField(Location,blank=True, default= None)
-	description = models.TextField(blank=True)
-	notes = models.TextField(default='',blank=True, null=True)
-	complete = models.BooleanField(default=False)
-	approved = models.BooleanField(default=False)
-	source_link= models.CharField(max_length=1000,blank=True,null=True)
-	copyright = models.ForeignKey(CopyRight,**dargs)
-	location_field = 'location'
 
-	def save(self):
+	def save(self,*args,**kwargs):
 		if not self.pk:
 			self.text_id= id_generator(length = 27)
-		super(Text, self).save()
+		super(Text, self).save(*args,**kwargs)
 
 	def __str__(self):
 		return self.title
 
-	@property
-	def attribute_names(self):
-		return 'title,language,genre,upload,notes'.split(',')
-
-	@property
-	def listify(self,date = '%Y'):
-		m = []
-		for attr in self.attribute_names:
-			value = getattr(self,attr)
-			if value == None: m.append('')
-			else: m.append(value)
-		return m
-
-	@property
-	def latlng(self):
-		locations = field2locations(self,'location')
-		if locations:
-			return [location.gps for location in locations]
-		else: return None
-
-	@property
-	def pop_up(self):
-		return pop_up(self)	
 
 	@property
 	def instance_name(self):
