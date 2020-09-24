@@ -1,11 +1,10 @@
 from django import forms
-from django.forms import ModelForm, inlineformset_factory
-from django.template.loader import render_to_string
+from django.forms import ModelForm, inlineformset_factory, modelform_factory
 from .models import Genre, Text, Publisher, Publication, Illustration, Periodical
 from .models import IllustrationCategory, IllustrationPublicationRelation
 from .models import TextPublicationRelation, TextTextRelation,PublicationType
 from .models import TextTextRelationType, PeriodicalPublicationRelation
-from .models import CopyRight, TextType, TextReviewPublicationRelation
+from .models import CopyRight, TextType, TextReviewPublicationRelation, Item
 from locations.models import Location
 from persons.models import Person, PersonLocationRelation, PersonTextRelation
 from persons.models import PersonTextRelationRole, PersonIllustrationRelation
@@ -20,26 +19,163 @@ from .widgets import IllustrationCategoryWidget,IllustrationWidget,TextWidget
 from .widgets import IllustrationCategoriesWidget,CopyRightWidget
 from .widgets import TextTextRelationTypeWidget, PublicationWidget, PeriodicalWidget
 from .widgets import TextTypeWidget
+from utilities.forms import make_select2_attr 
+
+# setting default kwargs to clean up form definition
+
+dattr = {'attrs':{'style':'width:100%'}}
+dchar = {'widget':forms.TextInput(**dattr),'required':False}
+dchar_required = {'widget':forms.TextInput(**dattr),'required':True}
+dtext = {'widget':forms.Textarea(attrs={'style':'width:100%','rows':3}),'required':False}
+dselect2 = make_select2_attr(input_length = 0)
+dselect2n2 = make_select2_attr(input_length = 2)
+mft = {'fields':('name',),'widgets':{'name':forms.TextInput(dattr)}}
+
+def create_simple_form(name):
+	'''Create a simple model form based on the Model name.
+	'Form' is appended to model-name
+	'''
+	exec(name + 'Form = modelform_factory('+name+',**mft)',globals())
+
+#create simple forms for the following models
+names = 'CopyRight,Genre,TextType,TextTextRelationType'
+names += ',PublicationType,IllustrationCategory'
+names = names.split(',')
+for name in names:
+	create_simple_form(name)
 
 
-def make_select2_attr(field_name,input_length=2):
-	attr= {'attrs':{'data-placeholder':'Select by '+field_name+' ...',
-	'style':'width:100%','class':'searching','data-minimum-input-length':str(input_length)}}
-	return attr
+item_fields = 'description,notes,complete,approved,source_link,copyright'
+item_fields = item_fields.split(',')
+
+class ItemForm(ModelForm):
+	'''base form for main catalogue models.'''
+	description =forms.CharField(**dtext)
+	notes =forms.CharField(**dtext)
+	source_link= forms.CharField(**dchar)
+	copyright = forms.ModelChoiceField(
+		queryset=CopyRight.objects.all(),
+		widget=CopyRightWidget(**dselect2),
+		required=False)
+
+	class Meta:
+		model =Item
+		fields=item_fields
+
+
+class PublicationForm(ItemForm):
+	'''Form to add a publication'''
+	form = forms.ModelChoiceField(
+		queryset=PublicationType.objects.all().order_by('name'),
+		widget=PublicationTypeWidget(
+			attrs={'data-placeholder':'Select publication form... e.g., novel',
+			'style':'width:100%;','class':'searching',
+			'data-minimum-input-length':'0'}),
+		required = False)
+	publisher = forms.ModelMultipleChoiceField(
+		queryset=Publisher.objects.all().order_by('name'),
+		widget=PublishersWidget(**dselect2),
+		required=False)
+	location= forms.ModelMultipleChoiceField(
+		queryset=Location.objects.all().order_by('name'),
+		widget=LocationsWidget(**dselect2n2),
+		required = False)
+	title = forms.CharField(**dchar_required)
+	date = forms.CharField(**dchar_required)
 		
+	class Meta:
+		model = Publication
+		m = 'title,form,publisher,date,location,pdf,cover'
+		m += ',volume,issue'
+		fields = item_fields + m.split(',')
+
+
+class PublisherForm(ItemForm):
+	'''form to add publisher.'''
+	location= forms.ModelMultipleChoiceField(
+		queryset=Location.objects.all().order_by('name'),
+		widget=LocationsWidget(**dselect2n2),
+		required = False)
+	name = forms.CharField(**dchar_required)
+	founded = forms.IntegerField(widget=forms.NumberInput(**dattr),required=False)
+	closure = forms.IntegerField(widget=forms.NumberInput(**dattr),required=False)
+
+	class Meta:
+		model = Publisher
+		m = 'name,location,founded,closure'
+		fields = item_fields + m.split(',')
+		
+
+class TextForm(ItemForm):
+	'''Form to add a text'''
+	language = forms.ModelChoiceField(
+		queryset=Language.objects.all().order_by('name'),
+		widget=LanguageWidget(**dselect2),
+		required = False)
+	genre = forms.ModelChoiceField(
+		queryset=Genre.objects.all().order_by('name'),
+		widget=GenreWidget(**dselect2),
+		required = False)
+	text_type= forms.ModelChoiceField(
+		queryset=TextType.objects.all().order_by('name'),
+		widget=TextTypeWidget(**dselect2),
+		required = False)
+	title = forms.CharField(**dchar_required)
+	location= forms.ModelMultipleChoiceField(
+		queryset=Location.objects.all().order_by('name'),
+		widget=LocationsWidget(**dselect2n2),
+		required = False)
+	setting= forms.CharField(**dchar)
+
+	class Meta:
+		model = Text
+		m = 'title,setting,language,genre,location'
+		m += ',text_type'
+		fields = item_fields + m.split(',')
+
+
+class IllustrationForm(ItemForm):
+	'''Form to add an illustration.'''
+	caption = forms.CharField(**dchar_required)
+	categories = forms.ModelMultipleChoiceField(
+		queryset=IllustrationCategory.objects.all().order_by('name'),
+		widget=IllustrationCategoriesWidget(**dselect2),
+		required = False)
+	page_number= forms.CharField(**dchar)
+
+	class Meta:
+		model = Illustration
+		fields = 'caption,categories,page_number,upload'
+		fields = item_fields + fields.split(',')
+
+
+class PeriodicalForm(ItemForm):
+	'''Form to add an periodical.'''
+	title= forms.CharField(**dchar_required)
+	founded= forms.IntegerField(widget=forms.NumberInput(**dattr),required=False)
+	closure= forms.IntegerField(widget=forms.NumberInput(**dattr),required=False)
+	location= forms.ModelMultipleChoiceField(
+		queryset=Location.objects.all().order_by('name'),
+		widget=LocationsWidget(**dselect2n2),
+		required = False)
+
+	class Meta:
+		model = Periodical
+		fields = item_fields + 'title,founded,closure,location'.split(',')
+
+
+
+
+# --- relational forms ---
 
 class PeriodicalPublicationRelationForm(ModelForm):
 	'''Form to add a periodical publication relation'''
 	publication = forms.ModelChoiceField(
 		queryset=Publication.objects.all(),
-		widget=PublicationWidget(
-			attrs={'data-placeholder':'Select publication by title...',
-			'style':'width:100%;','class':'searching'}))
+		widget=PublicationWidget(**dselect2))
 	periodical= forms.ModelChoiceField(
 		queryset=Periodical.objects.all(),
-		widget=PeriodicalWidget(
-			attrs={'data-placeholder':'Select periodical by title...',
-			'style':'width:100%;','class':'searching'}))
+		widget=PeriodicalWidget(**dselect2))
 
 	class Meta:
 		model = PeriodicalPublicationRelation
@@ -59,14 +195,10 @@ class IllustrationPublicationRelationForm(ModelForm):
 	'''Form to add a illustration publication relation'''
 	publication = forms.ModelChoiceField(
 		queryset=Publication.objects.all(),
-		widget=PublicationWidget(
-			attrs={'data-placeholder':'Select publication by title...',
-			'style':'width:100%;','class':'searching'}))
+		widget=PublicationWidget(**dselect2))
 	illustration = forms.ModelChoiceField(
 		queryset=Illustration.objects.all(),
-		widget=IllustrationWidget(
-			attrs={'data-placeholder':'Select illustration by title...',
-			'style':'width:100%;','class':'searching'}))
+		widget=IllustrationWidget(**dselect2))
 
 	class Meta:
 		model = IllustrationPublicationRelation
@@ -81,18 +213,15 @@ illustrationpublication_formset = inlineformset_factory(
 	Illustration,IllustrationPublicationRelation,
 	form = IllustrationPublicationRelationForm, extra=1)
 
+
 class TextPublicationRelationForm(ModelForm):
 	'''Form to add a text publication relation'''
 	publication = forms.ModelChoiceField(
 		queryset=Publication.objects.all(),
-		widget=PublicationWidget(
-			attrs={'data-placeholder':'Select publication by title...',
-			'style':'width:100%;','class':'searching'}))
+		widget=PublicationWidget(**dselect2))
 	text = forms.ModelChoiceField(
 		queryset=Text.objects.all(),
-		widget=TextWidget(
-			attrs={'data-placeholder':'Select text by title...',
-			'style':'width:100%;','class':'searching'}))
+		widget=TextWidget(**dselect2))
 
 	class Meta:
 		model = TextPublicationRelation
@@ -107,18 +236,15 @@ textpublication_formset = inlineformset_factory(
 	Text,TextPublicationRelation,
 	form = TextPublicationRelationForm, extra=1)
 
+
 class TextReviewPublicationRelationForm(ModelForm):
 	'''Form to add a text publication relation'''
 	publication = forms.ModelChoiceField(
 		queryset=Publication.objects.all(),
-		widget=PublicationWidget(
-			attrs={'data-placeholder':'Select publication by title...',
-			'style':'width:100%;','class':'searching'}))
+		widget=PublicationWidget(**dselect2))
 	text = forms.ModelChoiceField(
 		queryset=Text.objects.all(),
-		widget=TextWidget(
-			attrs={'data-placeholder':'Select text by title...',
-			'style':'width:100%;','class':'searching'}))
+		widget=TextWidget(**dselect2))
 
 	class Meta:
 		model = TextReviewPublicationRelation
@@ -139,20 +265,13 @@ class TextTextRelationForm(ModelForm):
 	review/reviewed translation/translated is not symmetrical but non trivial to implement'''
 	primary = forms.ModelChoiceField(
 		queryset=Text.objects.all(),
-		widget=TextWidget(
-			attrs={'data-placeholder':'Select text by title...',
-			'style':'width:100%;','class':'searching'}))
+		widget=TextWidget(**dselect2))
 	secondary = forms.ModelChoiceField(
 		queryset=Text.objects.all(),
-		widget=TextWidget(
-			attrs={'data-placeholder':'Select text by title...',
-			'style':'width:100%;','class':'searching'}))
+		widget=TextWidget(**dselect2))
 	relation_type = forms.ModelChoiceField(
 		queryset=TextTextRelationType.objects.all(),
-		widget=TextTextRelationTypeWidget(
-			attrs={'data-placeholder':'Select a relation...',
-			'style':'width:100%;','class':'searching',
-			'data-minimum-input-length':'0'}))
+		widget=TextTextRelationTypeWidget(**dselect2))
 
 	class Meta:
 		model = TextTextRelation
@@ -167,263 +286,5 @@ texttext_formset = inlineformset_factory(
 texttextr_formset = inlineformset_factory(
 	Text,TextTextRelation,fk_name = 'secondary',
 	form = TextTextRelationForm, extra=0)
-
-class TextTextRelationTypeForm(ModelForm):
-	'''Form to add a textrelationtype e.g. translation'''
-	name = forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
-	notes = forms.CharField(widget=forms.Textarea(
-		attrs={'style':'width:100%','rows':3}),
-		required=False)
-		
-	class Meta:
-		model = TextTextRelationType
-		m = 'name,notes'
-		fields = m.split(',')
-
-class PublicationTypeForm(ModelForm):
-	'''Form to add a publication type e.g. novel'''
-	name = forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
-	notes = forms.CharField(widget=forms.Textarea(
-		attrs={'style':'width:100%','rows':3}),
-		required=False)
-		
-	class Meta:
-		model = PublicationType
-		m = 'name,notes'
-		fields = m.split(',')
-
-class TextForm(ModelForm):
-	'''Form to add a text'''
-	language = forms.ModelChoiceField(
-		queryset=Language.objects.all().order_by('name'),
-		widget=LanguageWidget(attrs={'data-placeholder':'Select language...',
-			'style':'width:100%;','class':'searching',
-			'data-minimum-input-length':'0'}),
-		required = False
-		)
-	genre = forms.ModelChoiceField(
-		queryset=Genre.objects.all().order_by('name'),
-		widget=GenreWidget(attrs={'data-placeholder':'Select genre...',
-			'style':'width:100%;','class':'searching',
-			'data-minimum-input-length':'0'}),
-		required = False
-		)
-	text_type= forms.ModelChoiceField(
-		queryset=TextType.objects.all().order_by('name'),
-		widget=TextTypeWidget(**make_select2_attr('name',0)),
-		required = False
-		)
-	title = forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
-	location= forms.ModelMultipleChoiceField(
-		queryset=Location.objects.all().order_by('name'),
-		widget=LocationsWidget(attrs={'data-placeholder':'Select location(s)...',
-			'style':'width:100%;','class':'searching'}),
-		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
-		required = False
-		)
-	setting= forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}),
-		required=False)
-	notes = forms.CharField(widget=forms.Textarea(
-		attrs={'style':'width:100%','rows':3}),
-		required=False)
-	copyright= forms.ModelChoiceField(
-		queryset=CopyRight.objects.all().order_by('name'),
-		widget=CopyRightWidget(
-			attrs={'data-placeholder':'Select licence...',
-			'style':'width:100%;','class':'searching',
-			'data-minimum-input-length':'0'}),
-		required = False
-		)
-	source_link= forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}),
-		required = False)
-
-
-	class Meta:
-		model = Text
-		m = 'title,setting,language,genre,notes,location,complete,approved'
-		m += ',copyright,source_link,text_type'
-		fields = m.split(',')
-
-
-class PublicationForm(ModelForm):
-	'''Form to add a publication'''
-	form = forms.ModelChoiceField(
-		queryset=PublicationType.objects.all().order_by('name'),
-		widget=PublicationTypeWidget(
-			attrs={'data-placeholder':'Select publication form... e.g., novel',
-			'style':'width:100%;','class':'searching',
-			'data-minimum-input-length':'0'}),
-		required = False
-		)
-	publisher = forms.ModelMultipleChoiceField(
-		queryset=Publisher.objects.all().order_by('name'),
-		widget=PublishersWidget(attrs={'data-placeholder':'Select publisher(s)',
-			'style':'width:100%;','class':'searching'}),
-		required = False
-		)
-	location= forms.ModelMultipleChoiceField(
-		queryset=Location.objects.all().order_by('name'),
-		widget=LocationsWidget(attrs={'data-placeholder':'Select location(s)...',
-			'style':'width:100%;','class':'searching'}),
-		required = False
-		)
-	title = forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
-	setting= forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}),
-		required=False)
-	notes = forms.CharField(widget=forms.Textarea(
-		attrs={'style':'width:100%','rows':3}),
-		required=False)
-	date = forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
-	copyright= forms.ModelChoiceField(
-		queryset=CopyRight.objects.all().order_by('name'),
-		widget=CopyRightWidget(
-			attrs={'data-placeholder':'Select licence...',
-			'style':'width:100%;','class':'searching',
-			'data-minimum-input-length':'0'}),
-		required = False
-		)
-	source_link= forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}),
-		required = False)
-
-		
-	class Meta:
-		model = Publication
-		m = 'title,form,publisher,year,date,location,notes,pdf,cover,complete'
-		m += ',approved,volume,issue,copyright,source_link'
-		fields = m.split(',')
-
-
-class PublisherForm(ModelForm):
-	'''form to add publisher.'''
-	location= forms.ModelMultipleChoiceField(
-		queryset=Location.objects.all().order_by('name'),
-		widget=LocationsWidget(attrs={'data-placeholder':'Select location(s)...',
-			'style':'width:100%;','class':'searching'}),
-		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
-		required = False
-		)
-	name = forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
-	founded = forms.IntegerField(widget=forms.NumberInput(
-		attrs={'style':'width:100%'}),required=False)
-	closure = forms.IntegerField(widget=forms.NumberInput(
-		attrs={'style':'width:100%'}),required=False)
-	notes = forms.CharField(widget=forms.Textarea(
-		attrs={'style':'width:100%','rows':3}),
-		required=False)
-
-	class Meta:
-		model = Publisher
-		m = 'name,location,founded,closure,notes,complete,approved'
-		fields = m.split(',')
-
-
-class GenreForm(ModelForm):
-	'''form to add an illustration category.'''
-	name = forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
-
-	class Meta:
-		model = Genre
-		fields = ['name']
-
-class TextTypeForm(ModelForm):
-	'''form to add an illustration category.'''
-	name = forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
-
-	class Meta:
-		model = TextType 
-		fields = ['name']
-
-class CopyRightForm(ModelForm):
-	'''form to add an illustration category.'''
-	name = forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
-
-	class Meta:
-		model = CopyRight
-		fields = ['name']
-
-class IllustrationCategoryForm(ModelForm):
-	'''form to add an illustration category.'''
-	name = forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
-	notes = forms.CharField(widget=forms.Textarea(
-		attrs={'style':'width:100%','rows':3}),
-		required=False)
-
-	class Meta:
-		model = IllustrationCategory
-		fields = 'name,notes'.split(',')
-	
-
-class IllustrationForm(ModelForm):
-	'''Form to add an illustration.'''
-	caption = forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
-	categories = forms.ModelMultipleChoiceField(
-		queryset=IllustrationCategory.objects.all().order_by('name'),
-		widget=IllustrationCategoriesWidget(
-			attrs={'data-placeholder':'Select categories...',
-			'style':'width:100%;','class':'searching',
-			'data-minimum-input-length':'0'}),
-		required = False
-		)
-	copyright= forms.ModelChoiceField(
-		queryset=CopyRight.objects.all().order_by('name'),
-		widget=CopyRightWidget(
-			attrs={'data-placeholder':'Select licence...',
-			'style':'width:100%;','class':'searching',
-			'data-minimum-input-length':'0'}),
-		required = False
-		)
-	source_link= forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}),
-		required = False)
-	page_number= forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}),
-		required=False)
-	notes = forms.CharField(widget=forms.Textarea(
-		attrs={'style':'width:100%','rows':3}),
-		required=False)
-
-	class Meta:
-		model = Illustration
-		fields = 'caption,categories,page_number,notes,upload,complete,approved'
-		fields += ',copyright,source_link'
-		fields = fields.split(',')
-
-class PeriodicalForm(ModelForm):
-	'''Form to add an periodical.'''
-	title= forms.CharField(widget=forms.TextInput(
-		attrs={'style':'width:100%'}))
-	founded= forms.IntegerField(widget=forms.NumberInput(
-		attrs={'style':'width:100%'}),
-		required=False)
-	closure= forms.IntegerField(widget=forms.NumberInput(
-		attrs={'style':'width:100%'}),
-		required=False)
-	location= forms.ModelMultipleChoiceField(
-		queryset=Location.objects.all().order_by('name'),
-		widget=LocationsWidget(attrs={'data-placeholder':'Select location(s)...',
-			'style':'width:100%;','class':'searching'}),
-		# widget=HeavySelect2Widget(data_view = 'catalogue:heavy_data'),
-		required = False
-		)
-
-	class Meta:
-		model = Periodical
-		fields = 'title,founded,closure,location,complete,approved'.split(',')
-
 
 
