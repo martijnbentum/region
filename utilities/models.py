@@ -4,6 +4,10 @@ from django.utils import timezone
 from utils.model_util import id_generator, info
 
 class RelationModel(models.Model):
+	'''abstract model for relational models, e.g. text person relation model
+		provide other function: gives field name of the other field name
+		e.g. in previous example if person is provided text would be returned
+	'''
 	model_fields = ['','']
 
 	class Meta:
@@ -15,13 +19,16 @@ class RelationModel(models.Model):
 		return ''
 
 class SimpleModel(models.Model):
-    name = models.CharField(max_length=300,default='',unique=True)
+	'''abstract model for simple model with only a name and description.'''
+	name = models.CharField(max_length=300,default='',unique=True)
+	description = models.TextField(blank=True,null=True)
+	notes= models.TextField(blank=True,null=True)
 
-    def __str__(self): 
-        return self.name
+	def __str__(self): 
+		return self.name
                      
-    class Meta:        
-        abstract=True 
+	class Meta:        
+		abstract=True 
 
 class generic(models.Model):
 	pass
