@@ -1,11 +1,5 @@
 from django.db import models
-from django.db.models.signals import m2m_changed
-from django.dispatch import receiver
-from django.db.utils import IntegrityError, cached_property
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
-import json
 from locations.models import Location
 from utilities.models import Language, RelationModel, SimpleModel
 from utils.model_util import id_generator, info
