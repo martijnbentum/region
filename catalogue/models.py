@@ -43,7 +43,7 @@ class Item(models.Model):
 		super(Item,self).save(*args,**kwargs)
 		old_gps = self.gps
 		self._set_gps()
-		if old_gps != self.gps:super(Text,self).save()
+		if old_gps != self.gps:super(Item,self).save()
 		super(Item,self).save(*args,**kwargs)
 
 	def _set_gps(self):
