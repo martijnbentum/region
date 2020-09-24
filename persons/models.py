@@ -1,23 +1,32 @@
 from django.db import models
 from django.utils import timezone
 import json
-from locations.models import UserLoc, Location
+from locations.models import Location
 from utilities.models import Language, RelationModel
 from utils.model_util import id_generator, info
 from utils.map_util import field2locations, pop_up
+from utilities.models import SimpleModel
+
+
+def make_simple_model(name):
+	exec('class '+name + '(SimpleModel):\n\tpass',globals())
+
+names = 'Pseudonym,PersonPersonRelationType,LocationRelation,PersonTextRelationRole'
+names += ',PersonIllustrationRelationRole,MovementType,PersonPeriodicalRelationRole'
+names += ',PersonMovementRelationRole'
+names = names.split(',')
+
+for name in names:
+	make_simple_model(name)
 
 
 
-class Pseudonym(models.Model, info):
-	'''An alternate name for a person.'''
-	name = models.CharField(max_length=300, unique= True)
 
-	def __str__(self):
-		return self.name
-
+# --- main models ---
 
 class Person(models.Model, info):
 	'''A person with a specific role e.g. author, writer, etc.'''
+	dargs = {'on_delete':models.SET_NULL,'default':None,'null':True}
 	first_name = models.CharField(max_length=200, null=True, blank=True)
 	last_name = models.CharField(max_length=200, null=True, blank=True)
 	SEX = [('female','female'),('male','male'),('other','other'),('unknown','unknown')]
@@ -25,10 +34,8 @@ class Person(models.Model, info):
 	pseudonym= models.ManyToManyField(Pseudonym,blank=True)
 	birth_year = models.PositiveIntegerField(null=True,blank=True)
 	death_year = models.PositiveIntegerField(null=True,blank=True)
-	birth_place= models.ForeignKey(Location, on_delete=models.SET_NULL,
-		related_name = 'hborn', default = None, null = True)
-	death_place= models.ForeignKey(Location, on_delete=models.SET_NULL,
-		related_name = 'hdied', default = None, null = True)
+	birth_place= models.ForeignKey(Location, related_name = 'hborn', **dargs)
+	death_place= models.ForeignKey(Location, related_name = 'hdied', **dargs)
 	notes = models.TextField(blank=True,null=True) 
 	description = models.TextField(blank=True)
 	complete = models.BooleanField(default=False)
@@ -125,14 +132,47 @@ class Person(models.Model, info):
 	def instance_name(self):
 		return self.name
 
-class PersonPersonRelationType(models.Model, info):
-	'''Relation type between persons e.g. friends.'''
-	name = models.CharField(max_length=200,unique=True)
-	notes = models.TextField(null=True,blank=True)
+	
+class Movement(models.Model, info):
+	'''A movement (e.g. literary) a collection of persons.'''
+	dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
+	name = models.CharField(max_length=200, null=True, blank=True)
+	movement_type = models.ForeignKey(MovementType,**dargs)
+	location= models.ForeignKey(Location,**dargs)
+	founded = models.PositiveIntegerField(null=True,blank=True) 
+	closure = models.PositiveIntegerField(null=True,blank=True) 
+	notes = models.TextField(null=True,blank=True) # many to many
+	description = models.TextField(blank=True)
+	complete = models.BooleanField(default=False)
+	approved = models.BooleanField(default=False)
 
 	def __str__(self):
 		return self.name
-	
+
+	@property
+	def location_str(self):
+		return self.location
+
+	@property
+	def latlng(self):
+		locations = field2locations(self,'location')
+		if locations:
+			return [location.gps for location in locations]
+		else: return None
+
+	@property
+	def pop_up(self):
+		return pop_up(self)	
+
+	@property
+	def instance_name(self):
+		return self.name
+
+
+
+
+
+# --- relational models ---
 
 class PersonPersonRelation(RelationModel, info):
 	'''Relation between persons. Assumed to be symmetrical.'''
@@ -147,20 +187,10 @@ class PersonPersonRelation(RelationModel, info):
 			name = 'unique_personpersonrelation')]
 
 
-class LocationRelation(models.Model, info):
-	'''Relation type between person and location e.g. travel, residence.'''
-	name = models.CharField(max_length=200,unique=True)
-	notes = models.TextField(null=True,blank=True)
-
-	def __str__(self):
-		return self.name
-
 class PersonLocationRelation(RelationModel,info):
 	'''relation between person and location.'''
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	location = models.ForeignKey(Location, on_delete=models.CASCADE,default=None,null=True)
-	# RELATION= [('R','residence'),('T','travel'),('W','work'),('U','unknown')]
-	# relation= models.CharField(max_length=1,choices= RELATION,null= None)
 	relation = models.ForeignKey(LocationRelation, null=True, on_delete=models.SET_NULL)
 	start_year = models.PositiveIntegerField(null=True,blank=True)
 	end_year = models.PositiveIntegerField(null=True,blank=True)
@@ -207,27 +237,6 @@ class PersonLocationRelation(RelationModel,info):
 	@property
 	def instance_name(self):
 		return self.__str__()
-
-
-
-class PersonTextRelationRole(models.Model, info):
-	'''relation type between person and text e.g author | translator | editor | subject.'''
-	# how to initialize with above values
-	name = models.CharField(max_length = 100,unique=True)
-	notes = models.TextField(null=True,blank=True)
-
-	def __str__(self):
-		return self.name
-
-
-class PersonIllustrationRelationRole(models.Model, info):
-	'''relation type between person and an illustration e.g illustrator | subject. '''
-	# how to initialize with above values
-	name = models.CharField(max_length = 100,unique=True)
-	notes = models.TextField(null=True,blank=True)
-
-	def __str__(self):
-		return self.name
 
 
 class PublisherManager(models.Model): #or broker
@@ -286,57 +295,6 @@ class PersonIllustrationRelation(RelationModel, info):
 	def primary(self):
 		return self.person
 
-class MovementType(models.Model, info):
-	'''The type of movement e.g. cultural literary political.'''
-	name = models.CharField(max_length = 100,unique=True)
-	notes = models.TextField(null=True,blank=True)
-
-	def __str__(self):
-		return self.name
-
-
-class Movement(models.Model, info):
-	'''A movement (e.g. literary) a collection of persons.'''
-	name = models.CharField(max_length=200, null=True, blank=True)
-	movement_type = models.ForeignKey(MovementType,blank=True, null=True,on_delete=models.SET_NULL)
-	location= models.ForeignKey(Location,blank=True, null=True,on_delete=models.SET_NULL,default=None)
-	founded = models.PositiveIntegerField(null=True,blank=True) 
-	closure = models.PositiveIntegerField(null=True,blank=True) 
-	notes = models.TextField(null=True,blank=True) # many to many
-	description = models.TextField(blank=True)
-	complete = models.BooleanField(default=False)
-	approved = models.BooleanField(default=False)
-
-	def __str__(self):
-		return self.name
-
-	@property
-	def location_str(self):
-		return self.location
-
-	@property
-	def latlng(self):
-		locations = field2locations(self,'location')
-		if locations:
-			return [location.gps for location in locations]
-		else: return None
-
-	@property
-	def pop_up(self):
-		return pop_up(self)	
-
-	@property
-	def instance_name(self):
-		return self.name
-	
-
-class PersonMovementRelationRole(models.Model, info):
-	'''Relation type between person and movement (e.g. founder, follower).'''
-	name = models.CharField(max_length = 100,unique=True)
-	notes = models.TextField(null=True,blank=True)
-
-	def __str__(self):
-		return self.name
 
 class PersonMovementRelation(RelationModel, info):
 	'''Relation between a movement and a person.'''
@@ -354,16 +312,9 @@ class PersonMovementRelation(RelationModel, info):
 	def primary(self):
 		return self.person
 
-class PersonPeriodicalRelationRole(models.Model, info):
-	'''Relation type between person and periodical (e.g. editor).'''
-	name = models.CharField(max_length = 100,unique=True)
-	notes = models.TextField(null=True,blank=True)
-
-	def __str__(self):
-		return self.name
 
 class PersonPeriodicalRelation(RelationModel, info):
-	'''Relation between a movement and a person.'''
+	'''Relation between a periodical and a person.'''
 	periodical = models.ForeignKey('catalogue.Periodical', on_delete=models.CASCADE)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	role = models.ForeignKey(PersonPeriodicalRelationRole, on_delete=models.CASCADE)
@@ -380,4 +331,3 @@ class PersonPeriodicalRelation(RelationModel, info):
 
 	
 	
-# Create your models here.
