@@ -16,7 +16,6 @@ from .forms import personperson_formset, personpersonr_formset, PersonPersonRela
 from .forms import PersonPeriodicalRelationRoleForm, personperiodical_formset
 from django.forms import inlineformset_factory
 import json
-from locations.models import UserLoc
 from utils import view_util
 from utils.view_util import Crud, make_tabs, get_modelform, FormsetFactoryManager
 from utilities.views import add_simple_model, getfocus, edit_model, delete_model,list_view
