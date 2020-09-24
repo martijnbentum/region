@@ -1,8 +1,6 @@
-from utilities.models import Language
 from django import db
-from locations.models import GeoLoc as Location
-from locations.models import GeoLoc, UserLoc, LocType
-from locations.models import GeoLocsRelation 
+from locations.models import Location, LocationType, LocationStatus, LocationPrecision
+from locations.models import LocationRelation 
 import pandas as pd
 from utils.model_util import info
 
@@ -45,8 +43,10 @@ class city_info(info):
 			latitude = self.latitude,
 			longitude = self.longitude,
 			name = self.name,
-			location_type = 'CITY',
-			info = str(self.__dict__)
+			location_type = LocationType.objects.get(name='city'),
+			location_status = LocationStatus.objects.get(name='non-fiction'),
+			location_precision= LocationPrecision.objects.get(name='exact'),
+			information = str(self.__dict__)
 		)
 		return self.location
 
@@ -77,8 +77,11 @@ class country_info(info):
 		self.location = Location(
 			geonameid = self.geonameid,
 			name = self.country,
-			location_type = 'COUNTRY',
-			info = str(self.__dict__)
+			location_type = LocationType.objects.get(name='country'),
+			location_status = LocationStatus.objects.get(name='non-fiction'),
+			location_precision= LocationPrecision.objects.get(name='exact'),
+			information = str(self.__dict__),
+			active = True
 		)
 		return self.location
 
@@ -236,7 +239,7 @@ all_countries = [c.country for c in make_countries() if c.country not in exclud_
 
 def make_country2city_dict(countries,cities):
 	cd,cld = {},{}
-	city_locations = GeoLoc.objects.filter(location_type='CITY')
+	city_locations = Location.filter(location_type='city')
 	for country in countries:
 		if country.country not in cd.keys(): cd[country.country]=[]
 		for c in cities:
@@ -257,19 +260,6 @@ def make_location_dict(cities,countries):
 
 
 
-def add_info2locations(cities, countries, save = True, overwrite_info = False):
-	gl = GeoLoc.objects.all()
-	ld = make_location_dict(cities,countries)
-	for location in gl:
-		if location.info != '': continue
-		try: location.info = str(ld[location.geonameid].__dict__)
-		except: 
-			print(location)
-			continue
-		if save: location.save()
-
-
-
 def _save_locations(locations,loctype = 'unk', verbose=True):
 	saved, already_exists, error = [],[],[]
 	for l in locations:
@@ -283,47 +273,61 @@ def _save_locations(locations,loctype = 'unk', verbose=True):
 			'error: ',len(error))
 	return saved, already_exists, error
 
-def make_geolocations(countries='default', min_size_cities = 5000, save = True):
+def make_locations(countries='all', min_size_cities = 1000, save = True):
 	if countries == 'default':countries = default_countries
 	if countries == 'all':countries = all_countries
 	assert type(countries) == list
 	cities = make_cities()
+	print('cities made')
 	cities = [c for c in cities
 		if int(c.population) > min_size_cities and c.country in countries]
 	city_locations = [c.make_location() for c in cities]
+	print('city locations made')
 	country_locations = [c.make_location() for c in make_countries()
 		if c.country in countries]
+	print('country locations made')
 	if save:
+		print('saving')
 		city_results = _save_locations(city_locations,'cities')
 		country_results = _save_locations(country_locations,'countries')
-		glr = make_georelations()
+		glr = make_locationrelations()
 	return cities, city_results, country_results, glr
 
-def make_georelations():
+def make_locationrelations():
 	glr = [] 
-	country_locations = GeoLoc.objects.filter(location_type='COUNTRY')
-	city_locations = GeoLoc.objects.filter(location_type='CITY')
+	city_id = LocationType.objects.get(name='city').id
+	country_id = LocationType.objects.get(name='country').id
+	country_locations = Location.objects.filter(location_type=country_id)
+	city_locations = Location.objects.filter(location_type=city_id)
 	for country in country_locations:
 		cloc = []
 		for c in city_locations:
-			try: ccountry = eval(c.info)['country']
+			try: ccountry = eval(c.information)['country']
 			except: continue
 			if country.name == ccountry: cloc.append(c)
-		glr.extend([GeoLocsRelation(container=country,contained=city)
+		glr.extend([LocationRelation(container=country,contained=city)
 			for city in cloc])
 	_save_locations(glr,'locationrelation')
 	return glr
 
-def make_userlocations():
-	gl = GeoLoc.objects.all()
-	lts = [LocType(name = lt[1]) for lt in gl[0].LOCATION_TYPE]
-	lt_results = _save_locations(lts,'LocType')
-	lt_dict = dict([(lt.name,lt) for lt in LocType.objects.all()])
-	for l in gl:
-		ul = UserLoc(name=l.name,loc_precision='E',status='NF',
-			loc_type= lt_dict[l.location_type.lower()])
-		_save_locations([ul],verbose = False)
-		l.user_locs.add(ul)
+def make_locationtype():
+	for name in 'region,city,country,continent'.split(','):
+		l = LocationType(name=name)
+		try:l.save()
+		except:print(name,'already exists')
+
+def make_locationstatus():
+	for name in 'fiction,non-fiction'.split(','):
+		l = LocationStatus(name=name)
+		try:l.save()
+		except:print(name,'already exists')
+
+def make_locationprecision():
+	for name in 'exact,approximate,rough'.split(','):
+		l = LocationPrecision(name=name)
+		try:l.save()
+		except:print(name,'already exists')
+
 
 def make_database_languages():
 	l = make_languages()
@@ -332,8 +336,11 @@ def make_database_languages():
 	
 
 def make_database_defaults():
-	make_geolocations()
-	make_userlocations()
+	make_locationtype()
+	make_locationstatus()
+	make_locationprecision()
+	make_locations()
+	make_locationrelations()
 	make_database_languages()
 
 def add_geoloactions_country(country):

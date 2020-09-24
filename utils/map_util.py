@@ -77,8 +77,8 @@ def field2locations(instance, field_name):
 	x = getattr(instance,field_name)
 	if type(x) == Location: return [x]
 	if 'ManyRelatedManager' in str(type(x)): 
-		return list(x.all())
-	print('field:',field_name,'on:',instance,'is of unknown type:',type(x))
+		return x.all()
+	# print('field:',field_name,'on:',instance,'is of unknown type:',type(x))
 	return None
 
 		
@@ -113,7 +113,6 @@ def instance2maprows(instance,cull=True,pop_up = None,latlng=None,role = ''):
 	o = []
 	name = instance2name(instance).lower()
 	markerid = name + str(instance.pk)
-	print(role,123321)
 	if pop_up == None:pop_up = instance.pop_up
 	if latlng: return [name,latlng,pop_up,markerid,role]
 	for i,latlng in enumerate(instance.latlng):
