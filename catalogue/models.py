@@ -91,7 +91,6 @@ class Text(Item, info):
 	'''a text can be an entire book or article or a subsection thereof.'''
 	dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
 	title = models.CharField(max_length=300)
-	text_id= models.CharField(max_length=30,default = '')
 	setting = models.CharField(max_length=300,blank=True)
 	language = models.ForeignKey(Language, **dargs)
 	genre = models.ForeignKey(Genre, **dargs)
@@ -100,11 +99,6 @@ class Text(Item, info):
 	relations = models.ManyToManyField('self',
 		through='TextTextRelation',symmetrical=False, default=None)
 	location= models.ManyToManyField(Location,blank=True, default= None)
-
-	def save(self,*args,**kwargs):
-		if not self.pk:
-			self.text_id= id_generator(length = 27)
-		super(Text, self).save(*args,**kwargs)
 
 
 class Illustration(Item, info):
@@ -134,7 +128,6 @@ class Publication(Item, info):
 	'''The publication of a text or collection of texts and illustrations'''
 	title = models.CharField(max_length=300,null=True)
 	publisher = models.ManyToManyField(Publisher,blank=True)
-	publication_id= models.CharField(max_length=30, default = '')
 	form = models.ForeignKey(PublicationType,on_delete=models.SET_NULL,null=True)
 	issue = models.PositiveIntegerField(null=True,blank=True) 
 	volume = models.PositiveIntegerField(null=True,blank=True) 
@@ -145,10 +138,6 @@ class Publication(Item, info):
 	pdf = models.FileField(upload_to='publication/',null=True,blank=True) # ?
 	cover = models.ImageField(upload_to='publication/',null=True,blank=True)
 
-	def save(self):
-		if not self.pk:
-			self.publication_id= id_generator(length = 27)
-		super(Publication, self).save()
 
 	@property
 	def publisher_str(self):
