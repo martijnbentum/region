@@ -44,7 +44,7 @@ def id_generator(id_type= 'letters', length = 9):
 		return int(''.join(random.sample('123456789'*length,length)))
 
 
-def compare_dicts(sd,od):
+def compare_model_dicts(sd,od):
 	'''Compare model class dictionary to compare the similarity of two model instances.
 	helper function of compare_instances
 	'''
