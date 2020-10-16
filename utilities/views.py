@@ -55,7 +55,9 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 						kwargs={'pk':instance.pk,'focus':focus}))
 				else: print('ERROR',ffm.errors)
 			else: return HttpResponseRedirect('/utilities/close/')
-		# else:print('form invalid:',form)
+		else:
+			print('form invalid:',form.non_field_errors()[0])
+			show_messages(request,'form_invalid', model_name, form)
 	if not form: form = modelform(instance=instance)
 	if not ffm: ffm = FormsetFactoryManager(name_space,names,instance=instance)
 	tabs = make_tabs(model_name.lower(), focus_names = focus)
@@ -124,12 +126,15 @@ def getbutton(request):
 		return request.POST['save']
 	else: return 'default'
 
-def show_messages(request,button,model_name):
+def show_messages(request,message_type,model_name,form=None):
 	'''provide user feedback on submitting a form.'''
-	if button == 'saveas':messages.warning(request,
+	if message_type == 'saveas':messages.warning(request,
 		'saved a copy of '+model_name+'. Use "save" button to store edits to this copy')
-	elif button == 'confirm_delete':messages.success(request, model_name + ' deleted')
-	elif button == 'cancel':messages.warning(request,'delete aborted')
+	elif message_type == 'confirm_delete':messages.success(request, model_name + ' deleted')
+	elif message_type == 'cancel':messages.danger(request,'delete aborted')
+	elif message_type == 'form_invalid':
+		for error in form.non_field_errors():
+			messages.warning(request,error)
 	else: messages.success(request, model_name + ' saved')
 
 def close(request):
