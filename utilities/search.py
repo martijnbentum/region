@@ -52,6 +52,16 @@ class Search:
 			self.result = self.result.filter(approved=self.query.approval)
 			self.notes += '\napproval: ' + str(self.query.approval)
 
+	def exclude_doubles(self):
+		o,pk = [],[]
+		for instance in self.result:
+			if instance.pk not in pk:
+				pk.append(instance.pk)
+				o.append(instance)
+			else:continue
+		self.result = o
+			
+
 	def set_ordering_and_direction(self):
 		self.result = self.result.order_by(Lower(self.order.order_by))
 		self.notes += '\nordered on field: ' + self.order.order_by
@@ -84,7 +94,8 @@ class Search:
 		self.result = self.model.objects.filter(self.q)
 		self.check_completeness_approval()
 		self.set_ordering_and_direction()
-		self.nentries_found = self.result.count()
+		self.exclude_doubles() # returns a list of unique instances
+		self.nentries_found = len(self.result)
 		self.nentries = '# Entries: ' + str(self.nentries_found) 
 		if self.nentries_found > self.max_entries:
 			self.nentries += ' (truncated at ' + str(self.max_entries) + ' entries)'
