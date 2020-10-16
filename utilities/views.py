@@ -55,6 +55,7 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 						kwargs={'pk':instance.pk,'focus':focus}))
 				else: print('ERROR',ffm.errors)
 			else: return HttpResponseRedirect('/utilities/close/')
+		# else:print('form invalid:',form)
 	if not form: form = modelform(instance=instance)
 	if not ffm: ffm = FormsetFactoryManager(name_space,names,instance=instance)
 	tabs = make_tabs(model_name.lower(), focus_names = focus)

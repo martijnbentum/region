@@ -100,6 +100,10 @@ class Text(Item, info):
 		through='TextTextRelation',symmetrical=False, default=None)
 	location= models.ManyToManyField(Location,blank=True, default= None)
 
+	'''
+	class Meta:
+		unique_together = 'title,setting,language'.split(',')
+	'''
 
 class Illustration(Item, info):
 	'''a illustration typically part of publication'''
