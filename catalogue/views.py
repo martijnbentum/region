@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.db.models.functions import Lower
 from django.db.models import Q
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
@@ -22,6 +22,7 @@ from persons.forms import textperson_formset, illustrationperson_formset, period
 from utils import view_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
 from utilities.views import add_simple_model, edit_model, getfocus, delete_model,list_view
+import os
 
 
 '''
@@ -115,6 +116,14 @@ def delete(request, pk, model_name):
 
 		
 
+def hello_world(request):
+	return render(request, 'catalogue/hello_world.html')
+
+def ajax_test(request):
+	cpu = os.popen('top -l 1 | grep -E "^CPU|^Phys"').read()
+	cpu = cpu.split(',')
+	data = {'hello_world':'goodbye','cpu':cpu}
+	return JsonResponse(data)
 
 
 # Create your views here.
