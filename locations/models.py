@@ -1,7 +1,9 @@
 from django.db import models
+from colorfield.fields import ColorField
 from utils.model_util import info, id_generator
 from utils.general import flatten_lol
 from utilities.models import SimpleModel
+from partial_date import PartialDateField
 
 
 def make_simple_model(name):
@@ -141,8 +143,24 @@ class Location(models.Model, info):
 	class Meta:
 		ordering = ['name']
 
+class Color(models.Model, info):
+	name = models.CharField(max_length=200)
+	color = ColorField(default='#FF0000')
 
+	def __str__(self):
+		return self.name + ' ' + self.color
 
+class Figure(models.Model, info):
+	'''figure to be plotted on a map.'''
+	dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
+	name = models.CharField(max_length=200)
+	description= models.TextField(default='',blank=True)
+	color = models.ForeignKey(Color,**dargs)
+	start_date = PartialDateField(null=True,blank=True)
+	end_date = PartialDateField(null=True,blank=True)
+	geojson = models.FileField(upload_to='geojson/',null=True,blank=True) # ?
+	district_number=models.IntegerField(blank=True,null=True)
+	city = models.CharField(max_length=200)
 
 
 # --------------------------------------------------
