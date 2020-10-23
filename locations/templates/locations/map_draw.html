@@ -1,0 +1,276 @@
+{% extends "utilities/base.html" %}
+
+{% load getattribute %}
+{% load static %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+	integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+	crossorigin=""/>
+	<!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+   integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+   crossorigin=""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier-Leaflet/0.2.6/oms.min.js"></script>
+	<style>
+		#mapid {height: 640px;}
+	</style>
+<link href={% static "locations/nouislider.css" %} rel="stylesheet">
+<script src={% static "locations/nouislider.js" %}></script>
+{% endblock %}
+
+{% block content %}
+<br>
+<div id="years"></div>
+<br>
+<div id="mapid" class="mt-0"></div>
+{{figures|json_script:"figuresjs"}}
+{{colors|json_script:"colorsjs"}}
+
+
+<small>map opacity</small>
+<div id="map_opacity" class="col-2 mt-1"></div> 
+
+
+<script>
+
+
+var mymap = L.map('mapid').setView([30.021394878798638,31.227350234985355],12);
+var tiles= 
+L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+maxZoom: 20,
+opacity: 0.4,
+attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+});
+
+
+tiles.addTo(mymap);
+
+
+function onMapClick(e) {
+	<!-- alert("You clicked the map at "+e.latlng); -->
+	console.log(e.latlng);
+	console.log(e);
+	}
+
+function make_marker(name,latlng,popup,markerid) {
+	latlng = latlng.split(',').map(Number);
+	if (latlng == 0) {return false}
+	var marker = L.marker(latlng,{icon:make_icon(name), className:markerid})
+	marker.bindPopup(popup,{maxWidth:200,closeButton:false})
+	oms.addMarker(marker);
+	console.log(name,12345);
+	layerDict[name].push(marker)
+	return marker;
+}
+
+
+function onmarkerClick(e) {
+	var s = this.options.className;
+	console.log(s);
+	console.log(this);
+}
+
+function onEachFeature(feature,layer) {
+	layer.bindPopup(feature.pop_up,{maxWidth:200,closeButton:false});
+	layer.bindTooltip(feature.tool_tip);
+}
+
+function make_pop_up(figure) {
+	[app_name,model_name] = figure.model.split('.')
+	var m = '<h5 class="mt-2 mb-0">'+figure.fields.name+'</h5>'
+	m += '<p class="mt-2 mb-0">'+figure.fields.description+'</p>'
+	m += '<a class = "btn btn-link btn-sm mt-1 pl-0 text-dark" href='
+	m += '/'+app_name+'/edit_' + model_name+'/' + figure.pk 
+	m += ' role="button"><i class="far fa-edit"></i></a>'
+	console.log(m)
+	return m
+}
+
+
+async function add_figure(figure) {
+	const response = await fetch('/locations/geojson_file/'+figure.fields.geojson)
+	const data = await response.json()
+	style = make_style(figure);
+	console.log(data);
+	var pop_up = make_pop_up(figure);
+	data.features[0]['pop_up'] = pop_up;
+	data.features[0]['tool_tip'] = figure.fields.name;
+	console.log(data)
+	var geosjson_layer = L.geoJSON(data,{style:style,onEachFeature:onEachFeature})
+	layers.push({'figure':figure,'layer':geosjson_layer})
+	show_layers();
+}
+
+function get_color(pk) {
+	for (i = 0; i<colors.length; i++) {
+		if (colors[i].pk == pk) {return colors[i].fields.color}
+	}
+	return '#CCFFAA'
+}
+
+function make_style(figure){
+	color = get_color(figure.fields.color);
+	var myStyle = {
+		"color": color,
+		"weight": 2,
+		<!-- "dashArray": '20, 20', -->
+		"opacity": 0.65
+	};
+	return myStyle
+}
+
+function check_overlap(low,high){
+	console.log(low,high,start,end,'overlap func');
+	if (low <= start && high >= start){ return true;}
+	if (low <= end && high >= start){ return true;}
+	return false;
+}
+
+function show_layers(){
+	for (i = 0; i<layers.length; i++) {
+		layer = layers[i];
+		overlap = check_overlap(layer.figure.fields.start_date, layer.figure.fields.end_date)
+		if (overlap) {mymap.addLayer(layer.layer); console.log('add',layer,overlap)}
+		else {mymap.removeLayer(layer.layer);console.log('remove',layer,overlap)}
+	}
+}
+
+function handleYearSlider(values) {
+	start= values[0];
+	end= values[1];
+	show_layers();
+}
+
+var layers = [];
+var start = 1000;
+var end = 1400;
+colors = JSON.parse(document.getElementById('colorsjs').textContent)
+figures = JSON.parse(document.getElementById('figuresjs').textContent)
+for (i = 0; i<figures.length; i++) {
+	add_figure(figures[i]);
+}
+mymap.addEventListener('click', onMapClick);
+console.log(figuresjs);
+console.log(colorsjs);
+/*
+var slider = document.getElementById('map_opacity');
+slider.oninput = function() {
+	tiles.setOpacity(slider.value/100);
+}
+*/
+
+var slider = document.getElementById('map_opacity');
+noUiSlider.create(slider, {
+	start: [30],
+	range: {'min':0,'max':100},
+	steps: 1,
+});
+
+var multi_slider = document.getElementById('years');
+noUiSlider.create(multi_slider, {
+	start: [start, end],
+	connect: true,
+	range: {'min':500,'max':1500},
+	steps: 50,
+	tooltips: true,
+	format: {to: function (value) {return Math.floor(value)},from: function (value) {return Math.floor(value)}},
+});
+
+multi_slider.noUiSlider.on('change',handleYearSlider);
+slider.noUiSlider.on('slide',function(value){tiles.setOpacity(value/100);});
+
+</script>
+ 
+<style>
+
+/* no box around tooltip (numbers above the handles);
+ */
+.noUi-tooltip {
+  border: 0px; 
+  padding: 0px;
+}
+
+/* style handles;
+ */
+.noUi-handle {
+    border: 1px solid black;
+    border-radius: 5px;
+    background: black;
+    box-shadow:none; 
+	width: 15px !important;
+	height:15px !important;
+	right: -5px !important;
+	font-size: 14px;
+}
+/* make handel white on hover
+*/
+.noUi-handle:hover{
+	background:white;
+}
+
+/* Handle stripes;(remove them)
+ */
+.noUi-handle:before,
+.noUi-handle:after {
+  width: 0px;
+}
+
+/* remove blue outline on pressed handle
+ */
+.noUi-handle:focus {
+	outline:none;
+}
+
+.noUi-active {
+  box-shadow: none;
+}
+
+/* connect bar color  */
+.noUi-connect {
+	background:black;
+}
+
+.noUi-horizontal, .noUi-vertical {
+    background: lightgrey;
+	height:2px;
+	border:0px solid grey;
+ }
+
+/* css to customize Leaflet default styles  */
+
+.leaflet-popup-tip,
+.leaflet-popup-content-wrapper {
+	text-align:center;
+	padding:6px;
+}
+
+.leaflet-popup-content {
+	margin:0px;
+	padding:0px;
+}
+
+.leaflet-popup-content p {
+	margin:0px;
+	padding:0px;
+}
+
+
+.leaflet-control-layers-selector input[type="checkbox" i] {
+	background-color:black;
+	color:black;
+}
+
+.leaflet-control-layers-selector {
+	display:none;
+}
+
+.leaflet-container {
+    background-color:rgba(255,255,255,100.0);
+}
+
+
+</style>
+{% endblock %}
+

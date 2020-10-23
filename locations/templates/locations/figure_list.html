@@ -1,0 +1,51 @@
+
+
+<!-- test view to print data in a table from model --> 
+{% extends "utilities/base.html" %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+{% include 'utilities/list_search_bar.html' %}
+<a class ="btn btn-link ml-auto" href="{% url 'locations:add_figure' %}" 
+role="button">Add figure</a>
+</div>
+{% if figure_list %}
+
+<div class="d-flex">
+<table class="table table-hover">
+	<tr> 
+	<th><a href="?order_by=name,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">Name</a></th>
+	<th class="text-primary">description</th>
+	<th class="text-primary">start date</th>
+	<th class="text-primary">end date</th>
+	<th class="text-primary">city</th>
+	<th></th>
+	</tr>
+	{% for figure in figure_list %}
+		<td>{{figure.name}}</td>
+		<td>{{figure.description}}</td>
+		<td>{{figure.start_date}}</td>
+		<td>{{figure.end_date}}</td>
+		<td>{{figure.city}}</td>
+		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'locations:delete' figure.pk 'Figure' %}"
+        role="button"><i class="fa fa-trash text-secondary"></i></a>
+		<a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'locations:edit_figure' figure.pk %}"
+        role="button"><i class="far fa-edit text-secondary"></i></a></td>
+	</tr>
+	{% endfor %}
+</table>
+
+</div>
+
+
+{% else %}
+	<p>no locations are available</p>
+{% endif %}
+{% endblock content %}

@@ -1,0 +1,74 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.3.3/jscolor.min.js"></script>
+
+{% endblock %}
+
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();">
+{% csrf_token %}
+
+<script>
+// let's set defaults for all color pickers
+jscolor.presets.default = {
+    height: 181,              // make the picker box a little bigger
+    position: 'right',        // position the picker to the right of the target
+    previewPosition: 'right', // display color preview on the right side
+    previewSize: 40,          // make color preview bigger
+};
+</script>
+
+
+<div class="col-md-12 d-flex">
+<h4 class="mt-2">{{page_name}}</h4>
+{% if view != "inline" %}
+	{% if page_name == "Edit color"%}
+	<a class ="btn btn-link ml-auto" href="{% url 'locations:add_color' %}"
+	role="button"><i class="fa fa-plus"></i></a>
+	{% endif %}
+	<a class ="btn btn-link ml-auto" href="{% url 'locations:color_list' %}"
+	role="button"><i class="fas fa-list"></i></a>
+{% endif %}
+</div>
+
+
+	{%if page_name == "Edit color" and 'unknown' not in crud.last_update %}
+		{% include 'utilities/change_log.html' %}
+		{% else %} <p class="mb-4"></p>
+	{% endif %}
+<form method="post">
+	<table class="table table-borderless table-sm">
+	<tr class="d-flex">
+		<td class="col-2">name</th>
+		<td class="col-6">{{form.name}} {{form.name.error}}</td>
+	</tr>
+	<tr class="d-flex">
+		<td class="col-2">color</th>
+		<td class="col-6">{{form.color}} {{form.color.error}}</td>
+	</tr>
+	</table>
+
+
+
+
+<input type="hidden" name="navbar" id="navbar" value="" />
+<input type="hidden" name="navcontent" id="navcontent" value="" />
+<input type="hidden" name="focus" id="focus" value="" />
+<button type="submit" value="Submit" class ="btn btn-success">Save</button>
+	{% if view == "inline" %}
+		<a type="reset" value="Cancel" class ="btn btn-light"
+		href="{% url 'utilities:close' %}">Cancel</a>
+	{% else %}
+		<button type="submit" name="save" value="add_another"
+			 class ="btn btn-outline-success">Save | add another</button>
+	{% endif %}
+	{% if page_name == "Edit color"%}
+    <button type="submit" name="save" value="delete"
+		 class ="btn btn-outline-danger">delete</button>
+	{% endif %}
+</form>
+
+{% endblock %}

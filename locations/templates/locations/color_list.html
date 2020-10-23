@@ -1,0 +1,47 @@
+
+
+<!-- test view to print data in a table from model --> 
+{% extends "utilities/base.html" %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+{% include 'utilities/list_search_bar.html' %}
+<a class ="btn btn-link ml-auto" href="{% url 'locations:add_color' %}" 
+role="button">Add color</a>
+</div>
+{% if color_list %}
+
+<div class="d-flex">
+<table class="table">
+	<tr> 
+	<th><a href="?order_by=name,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">Name</a></th>
+	<th class="text-primary">Color</th>
+	<th></th>
+	</tr>
+	{% for color in color_list %}
+		<td>{{color.name}}</td>
+		<td>{{color.color}}</td>
+		<td style="background-color:{{color.color}};"></td>
+		<td></td>
+		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'locations:delete' color.pk 'Color' %}"
+        role="button"><i class="fa fa-trash text-secondary"></i></a>
+		<a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'locations:edit_color' color.pk %}"
+        role="button"><i class="far fa-edit text-secondary"></i></a></td>
+	</tr>
+	{% endfor %}
+</table>
+
+</div>
+
+
+{% else %}
+	<p>no colors are available</p>
+{% endif %}
+{% endblock content %}

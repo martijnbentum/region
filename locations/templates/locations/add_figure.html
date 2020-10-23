@@ -1,0 +1,87 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+	{{form.media.css}}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();">
+{% csrf_token %}
+
+<div class="col-md-12 d-flex">
+<h4 class="mt-2">{{page_name}}</h4>
+{% if view != "inline" %}
+	{% if page_name == "Edit figure"%}
+	<a class ="btn btn-link ml-auto" href="{% url 'locations:add_figure' %}"
+	role="button"><i class="fa fa-plus"></i></a>
+	{% endif %}
+	<a class ="btn btn-link ml-auto" href="{% url 'locations:figure_list' %}"
+	role="button"><i class="fas fa-list"></i></a>
+{% endif %}
+</div>
+
+
+{%if page_name == "Edit figure" and 'unknown' not in crud.last_update %}
+	{% include 'utilities/change_log.html' %}
+	{% else %} <p class="mb-4"></p>
+{% endif %}
+	<table class="table table-borderless table-sm">
+	<tr class="d-flex">
+		<td class="col-2">Name</th>
+		<td class="col-9">{{form.name}} {{form.name.error}}</td>
+	</tr>
+	<tr class="d-flex">
+		<td class="col-2">Description</th>
+		<td class="col-9">{{form.description}} {{form.description.error}}</td>
+	</tr>
+	<tr class="d-flex">
+		<td class="col-2">Color</th>
+		<td class="col-9">{{form.color}} {{form.color.error}}</td>
+		<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+			href = "{% url 'locations:add_color' 'inline'%}"
+			role="button"><i class="fa fa-plus"></i></a></td>
+	</tr>
+	<tr class="d-flex">
+		<td class="col-2">Start date</th>
+		<td class="col-9">{{form.start_date}} {{form.start_date.error}}</td>
+	</tr>
+	<tr class="d-flex">
+		<td class="col-2">End date</th>
+		<td class="col-9">{{form.end_date}} {{form.end_date.error}}</td>
+	</tr>
+	<tr class="d-flex">
+		<td class="col-2">File (geojson)</th>
+		<td class="col-9">{{form.geojson}} {{form.geojson.error}}</td>
+	</tr>
+	<tr class="d-flex">
+		<td class="col-2">District number</th>
+		<td class="col-9">{{form.district_number}} {{form.district_number.error}}</td>
+	</tr>
+	<tr class="d-flex">
+		<td class="col-2">City</th>
+		<td class="col-9">{{form.city}} {{form.city.error}}</td>
+	</tr>
+	</table>
+
+
+<input type="hidden" name="navbar" id="navbar" value="" />
+<input type="hidden" name="navcontent" id="navcontent" value="" />
+<input type="hidden" name="focus" id="focus" value="" />
+<button type="submit" value="Submit" class ="btn btn-success">Save</button>
+	{% if view == "inline" %}
+		<a type="reset" value="Cancel" class ="btn btn-light"
+		href="{% url 'utilities:close' %}">Cancel</a>
+	{% else %}
+		<button type="submit" name="save" value="add_another"
+			 class ="btn btn-outline-success">Save | add another</button>
+	{% endif %}
+	{% if page_name == "Edit figure"%}
+    <button type="submit" name="save" value="delete"
+		 class ="btn btn-outline-danger">delete</button>
+	{% endif %}
+</form>
+
+{{form.media.js}}
+{% endblock %}
