@@ -13,7 +13,6 @@ def list_view(request, model_name, app_name):
 	'''list view of a model.'''
 	s = Search(request,model_name,app_name)
 	instances= s.filter()
-	if model_name == 'UserLoc': model_name = 'location'
 	var = {model_name.lower() +'_list':instances,'page_name':model_name,
 		'order':s.order.order_by,'direction':s.order.direction,
 		'query':s.query.query,'nentries':s.nentries}
@@ -23,7 +22,7 @@ def list_view(request, model_name, app_name):
 
 @permission_required('utilities.add_generic')
 def edit_model(request, name_space, model_name, app_name, instance_id = None, 
-	formset_names='', focus='', view ='complete'):
+	formset_names='', focus='default', view ='complete'):
 	'''edit view generalized over models.
 	assumes a 'add_{{model_name}}.html template and edit_{{model_name}} function
 	and {{model_name}}Form
@@ -118,7 +117,9 @@ def delete_model(request, name_space, model_name, app_name, pk):
 def getfocus(request):
 	'''extracts focus variable from the request object to correctly set the active tabs.'''
 	if 'focus' in request.POST.keys():
-		return request.POST['focus']
+		focus = request.POST['focus']
+		if focus == '': return 'default'
+		else: return focus
 	else: return 'default'
 # Create your views here.
 def getbutton(request):
