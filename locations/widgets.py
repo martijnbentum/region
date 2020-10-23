@@ -1,5 +1,5 @@
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
-from .models import Location, LocationType, LocationStatus,LocationPrecision
+from .models import Location, LocationType, LocationStatus,LocationPrecision, Color
 
 class LocationTypeWidget(ModelSelect2Widget):
 	model = LocationType
@@ -10,6 +10,16 @@ class LocationTypeWidget(ModelSelect2Widget):
 
 	def get_queryset(self):
 		return LocationType.objects.all().order_by('name')
+
+class ColorWidget(ModelSelect2Widget):
+	model = Color
+	search_fields = ['name__icontains']
+
+	def label_from_instance(self,obj):
+		return obj.name
+
+	def get_queryset(self):
+		return Color.objects.all().order_by('name')
 
 class LocationStatusWidget(ModelSelect2Widget):
 	model = LocationStatus
