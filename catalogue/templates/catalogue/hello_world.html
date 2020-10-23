@@ -1,0 +1,39 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+
+{% block content %}
+
+<h2 id="hi">Hi</h2>
+<h3 id="cpu">Hi</h3>
+<img src="" id="pic">
+
+<script>
+var counter = 0;
+async function hello_world() {
+	const response = await fetch("{% url 'catalogue:ajax_test' %}")
+	const data = await response.json()
+	console.log(data)
+	document.getElementById("hi").innerHTML=data['hello_world'];
+	document.getElementById("cpu").innerHTML=data['cpu'];
+	return data
+}
+hello_world();
+setInterval(hello_world,3200);
+
+
+async function newPicture() {
+	const response = await fetch("https://picsum.photos/400/300")
+	console.log(response.url)
+	document.getElementById("pic").src = response.url
+	counter++;
+	if (counter > 10) { clearInterval(inter);}
+}
+
+newPicture();
+var inter = setInterval(newPicture,5000);
+</script>
+{% endblock content %}
