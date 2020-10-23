@@ -2,8 +2,10 @@ from django import forms
 from django.forms import ModelForm, inlineformset_factory, Form, modelform_factory
 from django.db.utils import IntegrityError
 from .models import Location, LocationRelation, LocationType, LocationStatus, LocationPrecision
+from .models import Color,Figure
 from .widgets import LocationWidget, LocationsWidget, LocationPrecisionWidget 
 from .widgets import LocationVerboseWidget, LocationTypeWidget, LocationStatusWidget
+from .widgets import ColorWidget
 from utilities.forms import make_select2_attr
 
 dattr = {'attrs':{'style':'width:100%'}}
@@ -74,5 +76,30 @@ location_relation_formset = inlineformset_factory(
 	form = LocationRelationForm, extra=1)
 
 
+class FigureForm(ModelForm):
+	'''form to add or edit a figure.'''
+	name = forms.CharField(**dchar_required)
+	description= forms.CharField(**dtext)
+	color = forms.ModelChoiceField(
+		queryset=Color.objects.all().order_by('color'),
+		widget=ColorWidget(**dselect2),
+		required=False)
+	start_date= forms.CharField(**dchar_required)
+	end_date= forms.CharField(**dchar_required)
+	district_number= forms.IntegerField(widget=forms.NumberInput(
+		attrs={'style':'width:100%'}),
+		required = False)
+	city = forms.CharField(**dchar_required)
 
+	class Meta:
+		model = Figure
+		fields = 'name,description,color,start_date,end_date,district_number,city,geojson'
+		fields = fields.split(',')
+
+class ColorForm(ModelForm):
+	name = forms.CharField(**dchar_required)
+
+	class Meta:
+		model = Color
+		fields = ['color','name']
 
