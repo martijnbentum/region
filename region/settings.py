@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 	'utilities.apps.UtilitiesConfig',
 	'easyaudit',
 	'django_select2',
+	'colorfield'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
