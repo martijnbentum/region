@@ -14,7 +14,7 @@
 <div class="col-md-12 d-flex">
 <h4 class="mt-2">{{page_name}}</h4>
 {% if view != "inline" %}
-	{% if page_name == "Edit geoloc"%}
+	{% if page_name == "Edit location"%}
 	<a class ="btn btn-link ml-auto" href="{% url 'locations:add_location' %}"
 	role="button"><i class="fa fa-plus"></i></a>
 	{% endif %}
@@ -27,7 +27,7 @@
 {% include 'utilities/edit_minimize_tab.html' %}
 <div class="tab-content">
     <div class="tab-pane fade" id="Edit">
-	{%if page_name == "Edit text" and 'unknown' not in crud.last_update %}
+	{%if page_name == "Edit location" and 'unknown' not in crud.last_update %}
 		{% include 'utilities/change_log.html' %}
 		{% else %} <p class="mb-4"></p>
 	{% endif %}
