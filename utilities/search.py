@@ -250,7 +250,7 @@ def get_foreign_keydict():
 	m = 'publication:title,text:title,illustration:caption,publisher:name,location:name'
 	m += ',person:first_name,movement:name,periodical:title,language:name,genre:name'
 	m += ',category:name,movement_type:name,form:name,userloc:name,loc_type:name'
-	m += ',geoloc:name'
+	m += ',geoloc:name,color:name,figure:name'
 	return make_dict(m)
 
 
