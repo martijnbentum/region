@@ -1,14 +1,16 @@
 from django.apps import apps
+from django.core import serializers
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
 from django.forms import inlineformset_factory
-from .models import Location, LocationType, LocationRelation
-from .forms import LocationForm, location_relation_formset
+from .models import Location, LocationType, LocationRelation, Figure, Color
+from .forms import LocationForm, location_relation_formset, ColorForm,FigureForm
 from .forms import LocationRelationForm, LocationTypeForm,LocationStatusForm,LocationPrecisionForm
 import json
+import os
 from utils.view_util import make_tabs,FormsetFactoryManager
 from utils.map_util import instance2related_locations,queryset2maplist,instance2maprows
 from utilities.views import getfocus, list_view, delete_model, edit_model, add_simple_model
@@ -49,6 +51,7 @@ def map(request):
 	maplist = queryset2maplist(get_querysets())
 	args = {'page_name':'map','maplist':maplist}
 	return render(request,'locations/map.html',args)
+
 	
 def show_links(request,app_name,model_name,pk):
 	instance = apps.get_model(app_name,model_name).objects.get(pk=pk)
@@ -64,6 +67,7 @@ def edit_location(request, pk=None, focus = '', view='complete'):
 	names='location_relation_formset'
 	return edit_model(request, __name__,'Location','locations',pk,formset_names=names, 
 		focus = focus, view=view)
+
 
 
 
@@ -111,4 +115,38 @@ def get_querysets(names = None):
 	return qs
 
 
+def geojson_file(request,filename):
+	if not os.path.isfile('geojson/'+filename): data = {'file':False}
+	a =  open('data/'+filename).read()
+	try: data = json.loads(a)
+	except: data = {'json':False}
+	return JsonResponse(data)
+
+
+def map_draw(request):
+	f = Figure.objects.all()
+	f = serializers.serialize('json',f)
+	f = json.loads(f)
+	c = Color.objects.all()
+	c = serializers.serialize('json',c)
+	c = json.loads(c)
+	args = {'page_name':'map_draw','figures':f,'colors':c}
+	return render(request,'locations/map_draw.html',args)
+
+def edit_color(request, pk=None, focus = '', view='complete'):
+	return edit_model(request, __name__,'Color','locations',pk, 
+		focus = focus, view=view)
+
+def edit_figure(request, pk=None, focus = '', view='complete'):
+	return edit_model(request, __name__,'Figure','locations',pk, 
+		focus = focus, view=view)
+
+def color_list(request):
+	'''list view of location.'''
+	return list_view(request, 'Color', 'locations')
+
+def figure_list(request):
+	'''list view of location.'''
+	return list_view(request, 'Figure', 'locations')
 # Create your views here.
+
