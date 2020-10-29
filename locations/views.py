@@ -6,8 +6,8 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
 from django.forms import inlineformset_factory
-from .models import Location, LocationType, LocationRelation, Figure, Color
-from .forms import LocationForm, location_relation_formset, ColorForm,FigureForm
+from .models import Location, LocationType, LocationRelation, Figure,Style 
+from .forms import LocationForm, location_relation_formset, StyleForm,FigureForm
 from .forms import LocationRelationForm, LocationTypeForm,LocationStatusForm,LocationPrecisionForm
 import json
 import os
@@ -116,8 +116,8 @@ def get_querysets(names = None):
 
 
 def geojson_file(request,filename):
-	if not os.path.isfile('geojson/'+filename): data = {'file':False}
-	a =  open('data/'+filename).read()
+	if not os.path.isfile('media/geojson/'+filename): data = {'file':False}
+	a =  open('media/geojson/'+filename).read()
 	try: data = json.loads(a)
 	except: data = {'json':False}
 	return JsonResponse(data)
@@ -127,23 +127,23 @@ def map_draw(request):
 	f = Figure.objects.all()
 	f = serializers.serialize('json',f)
 	f = json.loads(f)
-	c = Color.objects.all()
-	c = serializers.serialize('json',c)
-	c = json.loads(c)
-	args = {'page_name':'map_draw','figures':f,'colors':c}
+	s = Style.objects.all()
+	s = serializers.serialize('json',s)
+	s = json.loads(s)
+	args = {'page_name':'map_draw','figures':f,'styles':s}
 	return render(request,'locations/map_draw.html',args)
 
-def edit_color(request, pk=None, focus = '', view='complete'):
-	return edit_model(request, __name__,'Color','locations',pk, 
+def edit_style(request, pk=None, focus = '', view='complete'):
+	return edit_model(request, __name__,'Style','locations',pk, 
 		focus = focus, view=view)
 
 def edit_figure(request, pk=None, focus = '', view='complete'):
 	return edit_model(request, __name__,'Figure','locations',pk, 
 		focus = focus, view=view)
 
-def color_list(request):
+def style_list(request):
 	'''list view of location.'''
-	return list_view(request, 'Color', 'locations')
+	return list_view(request, 'Style', 'locations')
 
 def figure_list(request):
 	'''list view of location.'''
