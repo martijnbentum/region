@@ -26,7 +26,7 @@
 <br>
 <div id="mapid" class="mt-0"></div>
 {{figures|json_script:"figuresjs"}}
-{{colors|json_script:"colorsjs"}}
+{{styles|json_script:"stylesjs"}}
 
 
 <small>map opacity</small>
@@ -36,7 +36,7 @@
 <script>
 
 
-var mymap = L.map('mapid').setView([30.021394878798638,31.227350234985355],12);
+var mymap = L.map('mapid').setView([30.041394878798638,31.237350234985355],13);
 var tiles= 
 L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
 maxZoom: 20,
@@ -73,64 +73,87 @@ function onmarkerClick(e) {
 }
 
 function onEachFeature(feature,layer) {
+	//binds the pop up and tool tip to each feature
+	//skips tooltips for districts because they 'steal' the tooltip from other objects
 	layer.bindPopup(feature.pop_up,{maxWidth:200,closeButton:false});
+	if (!layer.feature.tool_tip.toLowerCase().includes('district')) {
 	layer.bindTooltip(feature.tool_tip);
+	}
 }
 
 function make_pop_up(figure) {
+	//create a pop up based on the figure information
 	[app_name,model_name] = figure.model.split('.')
+	if (figure.fields.name.toLowerCase().includes('district')) {
+	var m = '<p class="mt-0 mb-0">'+figure.fields.name+'</p>'
+	}
+	else {
 	var m = '<h5 class="mt-2 mb-0">'+figure.fields.name+'</h5>'
 	m += '<p class="mt-2 mb-0">'+figure.fields.description+'</p>'
 	m += '<a class = "btn btn-link btn-sm mt-1 pl-0 text-dark" href='
 	m += '/'+app_name+'/edit_' + model_name+'/' + figure.pk 
 	m += ' role="button"><i class="far fa-edit"></i></a>'
-	console.log(m)
+	}
 	return m
 }
 
+function add_popup_and_tooltip(data,pop_up,figure_name) {
+	//set the pop up and tool tip on geojson features 
+	for (i=0;i<data.features.length;i++){
+		var feature = data.features[i]
+		feature['pop_up'] = pop_up
+		feature['tool_tip']= figure_name
+	}
+}
 
 async function add_figure(figure) {
+	//function loads the json figure connected to figure through ajax
+	//fetches the correct style and creates a popup and tooltip
 	const response = await fetch('/locations/geojson_file/'+figure.fields.geojson)
 	const data = await response.json()
 	style = make_style(figure);
-	console.log(data);
 	var pop_up = make_pop_up(figure);
-	data.features[0]['pop_up'] = pop_up;
-	data.features[0]['tool_tip'] = figure.fields.name;
-	console.log(data)
+	add_popup_and_tooltip(data,pop_up,figure.fields.name)
 	var geosjson_layer = L.geoJSON(data,{style:style,onEachFeature:onEachFeature})
-	layers.push({'figure':figure,'layer':geosjson_layer})
-	show_layers();
+	layers.push({'figure':figure,'layer':geosjson_layer,'style':style})
 }
 
-function get_color(pk) {
-	for (i = 0; i<colors.length; i++) {
-		if (colors[i].pk == pk) {return colors[i].fields.color}
+function get_style(pk) {
+	//style is a foreign key on the figure object, this function returns the correct style based on 
+	// the pk
+	for (i = 0; i<styles.length; i++) {
+		if (styles[i].pk == pk) {return styles[i]}
 	}
 	return '#CCFFAA'
 }
 
 function make_style(figure){
-	color = get_color(figure.fields.color);
+	//create a dict that sets the style of a figure (based on the style objects in the database
+	style= get_style(figure.fields.style);
 	var myStyle = {
-		"color": color,
-		"weight": 2,
-		<!-- "dashArray": '20, 20', -->
-		"opacity": 0.65
+		"color": style.fields.color,
+		"weight": style.fields.stroke_weight,
+		"opacity": style.fields.stroke_opacity,
+		"fillOpacity": style.fields.fill_opacity,
+		"z_index": style.fields.z_index
 	};
+	if (style.fields.dashed) {myStyle ={...myStyle,...{"dashArray": '20, 20'}}}
 	return myStyle
 }
 
 function check_overlap(low,high){
-	console.log(low,high,start,end,'overlap func');
+	//compare start and end date of a figure with start end date of the year slider
 	if (low <= start && high >= start){ return true;}
 	if (low <= end && high >= start){ return true;}
 	return false;
 }
 
 function show_layers(){
+	//show the figures in the order of the z index
+	layers.sort((a,b) => a.style.z_index - b.style.z_index)
 	for (i = 0; i<layers.length; i++) {
 		layer = layers[i];
+		//check whether a figure overlaps with the current time range and only plot those that do
 		overlap = check_overlap(layer.figure.fields.start_date, layer.figure.fields.end_date)
 		if (overlap) {mymap.addLayer(layer.layer); console.log('add',layer,overlap)}
 		else {mymap.removeLayer(layer.layer);console.log('remove',layer,overlap)}
@@ -138,29 +161,39 @@ function show_layers(){
 }
 
 function handleYearSlider(values) {
+	//set start and end values based on the year slider, this is used to determine which
+	//figures are shown
 	start= values[0];
 	end= values[1];
 	show_layers();
 }
 
+async function check_done_loading(list,expected_n) {
+	//check whether the expected_n number of values are loaded into the array list
+	while (true) {
+		await new Promise(r => setTimeout(r,100));
+		if (list.length == expected_n) {break;}
+	}
+	show_layers();
+}
+
+//array to hold the figures
 var layers = [];
+//start and end date of the year slider
 var start = 1000;
 var end = 1400;
-colors = JSON.parse(document.getElementById('colorsjs').textContent)
+//load the json provided by the django view
+styles = JSON.parse(document.getElementById('stylesjs').textContent)
 figures = JSON.parse(document.getElementById('figuresjs').textContent)
 for (i = 0; i<figures.length; i++) {
+	//create figures to plot on the leaflet map
 	add_figure(figures[i]);
 }
 mymap.addEventListener('click', onMapClick);
-console.log(figuresjs);
-console.log(colorsjs);
-/*
-var slider = document.getElementById('map_opacity');
-slider.oninput = function() {
-	tiles.setOpacity(slider.value/100);
-}
-*/
+//figures load geojson files with ajax, check if they are loaded an show them on the map
+check_done_loading(layers,figures.length);
 
+//create slider to control opacity of the map tiles
 var slider = document.getElementById('map_opacity');
 noUiSlider.create(slider, {
 	start: [30],

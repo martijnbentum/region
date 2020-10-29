@@ -1,0 +1,52 @@
+
+
+<!-- test view to print data in a table from model --> 
+{% extends "utilities/base.html" %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex">
+{% include 'utilities/list_search_bar.html' %}
+<a class ="btn btn-link ml-auto" href="{% url 'locations:add_style' %}" 
+role="button">Add style</a>
+</div>
+{% if style_list %}
+
+<div class="d-flex">
+<table class="table">
+	<tr> 
+	<th><a href="?order_by=name,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">name</a></th>
+	<th class="text-primary">color</th>
+	<th class="text-primary">dashed</th>
+	<th class="text-primary">z index</th>
+	<th></th>
+	</tr>
+	{% for style in style_list %}
+		<td>{{style.name}}</td>
+		<td>{{style.color}}</td>
+		<td>{{style.dashed}}</td>
+		<td>{{style.z_index}}</td>
+		<td>{{style.stroke_opacity}}</td>
+		<td style="background-color:{{style.color}};"></td>
+		<td></td>
+		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'locations:delete' style.pk 'Style' %}"
+        role="button"><i class="fa fa-trash text-secondary"></i></a>
+		<a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'locations:edit_style' style.pk %}"
+        role="button"><i class="far fa-edit text-secondary"></i></a></td>
+	</tr>
+	{% endfor %}
+</table>
+
+</div>
+
+
+{% else %}
+	<p>no style are available</p>
+{% endif %}
+{% endblock content %}
