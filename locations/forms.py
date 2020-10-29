@@ -2,16 +2,17 @@ from django import forms
 from django.forms import ModelForm, inlineformset_factory, Form, modelform_factory
 from django.db.utils import IntegrityError
 from .models import Location, LocationRelation, LocationType, LocationStatus, LocationPrecision
-from .models import Color,Figure
+from .models import Style,Figure
 from .widgets import LocationWidget, LocationsWidget, LocationPrecisionWidget 
 from .widgets import LocationVerboseWidget, LocationTypeWidget, LocationStatusWidget
-from .widgets import ColorWidget
+from .widgets import StyleWidget
 from utilities.forms import make_select2_attr
 
 dattr = {'attrs':{'style':'width:100%'}}
 dchar = {'widget':forms.TextInput(**dattr),'required':False}
 dchar_required = {'widget':forms.TextInput(**dattr),'required':True}
 dtext = {'widget':forms.Textarea(attrs={'style':'width:100%','rows':3}),'required':False}
+dnumber= {'widget':forms.NumberInput(attrs={'style':'width:100%','rows':3}),'required':False}
 dselect2 = make_select2_attr(input_length = 0)
 mft = {'fields':('name',),'widgets':{'name':forms.TextInput(dattr)}}
 
@@ -80,26 +81,30 @@ class FigureForm(ModelForm):
 	'''form to add or edit a figure.'''
 	name = forms.CharField(**dchar_required)
 	description= forms.CharField(**dtext)
-	color = forms.ModelChoiceField(
-		queryset=Color.objects.all().order_by('color'),
-		widget=ColorWidget(**dselect2),
+	style= forms.ModelChoiceField(
+		queryset=Style.objects.all().order_by('name'),
+		widget=StyleWidget(**dselect2),
 		required=False)
 	start_date= forms.CharField(**dchar_required)
 	end_date= forms.CharField(**dchar_required)
-	district_number= forms.IntegerField(widget=forms.NumberInput(
-		attrs={'style':'width:100%'}),
-		required = False)
+	district_number= forms.IntegerField(**dnumber)
 	city = forms.CharField(**dchar_required)
 
 	class Meta:
 		model = Figure
-		fields = 'name,description,color,start_date,end_date,district_number,city,geojson'
+		fields = 'name,description,style,start_date,end_date,district_number,city,geojson'
 		fields = fields.split(',')
 
-class ColorForm(ModelForm):
+class StyleForm(ModelForm):
 	name = forms.CharField(**dchar_required)
+	stroke_opacity = forms.FloatField(**dnumber)
+	stroke_weight = forms.IntegerField(**dnumber)
+	fill_opacity = forms.FloatField(**dnumber)
+	z_index= forms.FloatField(**dnumber)
 
 	class Meta:
-		model = Color
-		fields = ['color','name']
+		model =Style 
+		f = 'stroke_weight,stroke_opacity,color,fill_opacity'
+		f += ',dashed,name,z_index'
+		fields = f.split(',')
 
