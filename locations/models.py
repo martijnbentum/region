@@ -143,9 +143,15 @@ class Location(models.Model, info):
 	class Meta:
 		ordering = ['name']
 
-class Color(models.Model, info):
+class Style(models.Model, info):
 	name = models.CharField(max_length=200)
 	color = ColorField(default='#FF0000')
+	stroke_opacity = models.FloatField(default = 0.8,)
+	stroke_weight = models.IntegerField(default = 2)
+	fill_opacity = models.FloatField(default = 0.3)
+	dashed = models.BooleanField(default =False)
+	z_index = models.IntegerField(default = 0)
+	
 
 	def __str__(self):
 		return self.name + ' ' + self.color
@@ -155,7 +161,7 @@ class Figure(models.Model, info):
 	dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
 	name = models.CharField(max_length=200)
 	description= models.TextField(default='',blank=True)
-	color = models.ForeignKey(Color,**dargs)
+	style= models.ForeignKey(Style,**dargs)
 	start_date = PartialDateField(null=True,blank=True)
 	end_date = PartialDateField(null=True,blank=True)
 	geojson = models.FileField(upload_to='geojson/',null=True,blank=True) # ?
