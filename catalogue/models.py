@@ -9,8 +9,8 @@ from partial_date import PartialDateField
 def make_simple_model(name):
 	exec('class '+name + '(SimpleModel,info):\n\tpass',globals())
 
-names = 'CopyRight,Genre,TextType,TextTextRelationType,Audience'
-names += ',PublicationType,IllustrationCategory'
+names = 'CopyRight,Genre,TextType,TextTextRelationType,Audience,IllustrationType'
+names += ',PublicationType,IllustrationCategory,IllustrationIllustrationRelationType'
 names = names.split(',')
 
 for name in names:
@@ -107,12 +107,16 @@ class Text(Item, info):
 
 class Illustration(Item, info):
 	'''a illustration typically part of publication'''
+	dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
 	caption =  models.CharField(max_length=300,null=True,blank=True)
 	category= models.ForeignKey(IllustrationCategory, on_delete=models.SET_NULL,
 		blank=True,null=True, related_name='Illustration',)
 	categories= models.ManyToManyField(IllustrationCategory, blank=True, related_name='Illustrations') 
 	page_number = models.CharField(max_length=50, null=True, blank=True)
 	upload= models.ImageField(upload_to='illustrations/',null=True,blank=True)
+	relations = models.ManyToManyField('self',
+		through='IllustrationIllustrationRelation',symmetrical=False, default=None)
+	illustration_type = models.ForeignKey(IllustrationType, **dargs)
 	location_field = ''
 	
 
@@ -245,4 +249,19 @@ class TextTextRelation(models.Model, info):
 		m += self.primary.title
 		return m
 
-	
+
+class IllustrationIllustrationRelation(models.Model, info):
+	'''connects two texts with a specific type of relation e.g. original 
+	and translation (primary, secondary).'''
+	primary = models.ForeignKey('Illustration', related_name='primary',
+									on_delete=models.CASCADE, default=None)
+	secondary = models.ForeignKey('Illustration', related_name='secondary',
+									on_delete=models.CASCADE, default=None)
+	relation_type = models.ForeignKey(IllustrationIllustrationRelationType, 
+									on_delete=models.CASCADE, default=None)
+	model_fields = ['primary','secondary']
+
+	def __str__(self):
+		m =  self.relation_type.name +' relation between ' + self.secondary.title +' and '
+		m += self.primary.title
+		return m

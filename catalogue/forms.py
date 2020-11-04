@@ -5,6 +5,8 @@ from .models import IllustrationCategory, IllustrationPublicationRelation
 from .models import TextPublicationRelation, TextTextRelation,PublicationType
 from .models import TextTextRelationType, PeriodicalPublicationRelation
 from .models import CopyRight, TextType, TextReviewPublicationRelation, Item
+from .models import IllustrationIllustrationRelation, IllustrationIllustrationRelationType
+from .models import IllustrationType
 from locations.models import Location
 from persons.models import Person, PersonLocationRelation, PersonTextRelation
 from persons.models import PersonTextRelationRole, PersonIllustrationRelation
@@ -18,7 +20,7 @@ from .widgets import GenreWidget, PublicationTypeWidget, PublishersWidget
 from .widgets import IllustrationCategoryWidget,IllustrationWidget,TextWidget
 from .widgets import IllustrationCategoriesWidget,CopyRightWidget
 from .widgets import TextTextRelationTypeWidget, PublicationWidget, PeriodicalWidget
-from .widgets import TextTypeWidget
+from .widgets import TextTypeWidget, IllustrationTypeWidget,IllustrationIllustrationRelationTypeWidget
 from utilities.forms import make_select2_attr 
 
 # setting default kwargs to clean up form definition
@@ -38,8 +40,8 @@ def create_simple_form(name):
 	exec(name + 'Form = modelform_factory('+name+',**mft)',globals())
 
 #create simple forms for the following models
-names = 'CopyRight,Genre,TextType,TextTextRelationType'
-names += ',PublicationType,IllustrationCategory'
+names = 'CopyRight,Genre,TextType,TextTextRelationType,IllustrationType'
+names += ',PublicationType,IllustrationCategory,IllustrationIllustrationRelationType'
 names = names.split(',')
 for name in names:
 	create_simple_form(name)
@@ -142,10 +144,18 @@ class IllustrationForm(ItemForm):
 		widget=IllustrationCategoriesWidget(**dselect2),
 		required = False)
 	page_number= forms.CharField(**dchar)
+	Illustration_type= forms.ModelChoiceField(
+		queryset=TextType.objects.all().order_by('name'),
+		widget=IllustrationTypeWidget(**dselect2),
+		required = False)
+	illustration_type= forms.ModelChoiceField(
+		queryset=IllustrationType.objects.all().order_by('name'),
+		widget=IllustrationTypeWidget(**dselect2),
+		required = False)
 
 	class Meta:
 		model = Illustration
-		fields = 'caption,categories,page_number,upload'
+		fields = 'caption,categories,page_number,upload,illustration_type'
 		fields = item_fields + fields.split(',')
 
 
@@ -286,5 +296,35 @@ texttext_formset = inlineformset_factory(
 texttextr_formset = inlineformset_factory(
 	Text,TextTextRelation,fk_name = 'secondary',
 	form = TextTextRelationForm, extra=0)
+
+
+class IllustrationIllustrationRelationForm(ModelForm):
+	'''Form to add a illustration relation.
+	the relation is directional however on the front end we show it as if it is symmetrical
+	review/reviewed translation/translated is not symmetrical but non trivial to implement'''
+	primary = forms.ModelChoiceField(
+		queryset=Illustration.objects.all(),
+		widget=IllustrationWidget(**dselect2))
+	secondary = forms.ModelChoiceField(
+		queryset=Illustration.objects.all(),
+		widget=IllustrationWidget(**dselect2))
+	relation_type = forms.ModelChoiceField(
+		queryset=IllustrationIllustrationRelationType.objects.all(),
+		widget=IllustrationIllustrationRelationTypeWidget(**dselect2))
+
+	class Meta:
+		model = IllustrationIllustrationRelation
+		fields = 'secondary,relation_type'
+		fields = fields.split(',')
+
+#fromsets are symmetrically defined to be able to add the relation from both sides
+#for relations between the same model the relation is asymmetrical
+illustrationillustration_formset= inlineformset_factory(
+	Illustration,IllustrationIllustrationRelation,fk_name = 'primary',
+	form = IllustrationIllustrationRelationForm, extra=1)
+illustrationillustration_formsetr = inlineformset_factory(
+	Illustration,IllustrationIllustrationRelation,fk_name = 'secondary',
+	form = IllustrationIllustrationRelationForm, extra=0)
+
 
 

@@ -47,6 +47,14 @@
 			</td>
 	</tr>
 	<tr class="d-flex">
+		<th class="col-2">Illustration type</th>
+		<td class="col-8">{{form.illustration_type}} {{form.illustration_type.error}}</td>
+		<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+			href ="{% url 'catalogue:add_illustration_type' %}" 
+			role="button"><i class="fa fa-plus"></i></a>
+		</td>
+	</tr>
+	<tr class="d-flex">
 		<th class="col-2">Page</th>
 		<td class="col-8">{{form.page_number}} {{form.page_number.error}}</td>
 	</tr>
@@ -91,6 +99,42 @@
 {% include 'utilities/relation_tabs.html' %}
 
 <div class="tab-content">
+
+	<div class="tab-pane fade" id="Illustrations">
+		{{illustrationillustration_formset.management_form}}
+		<table class="table table-borderless">
+		<tr class ="d-flex">
+		<th class="col-5">Illustration
+			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_illustration' 'inline' %}" role="button">
+				 <i class="fa fa-plus"></i></a>
+			</th>
+		<th class="col-3">relation
+			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_illustrationillustration_relation_type'  %}" role="button">
+				 <i class="fa fa-plus"></i></a>
+			</th>
+		<th><i class="fa fa-times text-danger"></i></th>
+		</tr>
+		{{illustrationillustration_formsetr.management_form}}
+		{% for f in illustrationillustration_formsetr.forms %}
+			<tr class ="d-flex">
+			<td class="col-5">{{f.primary}} {{f.primary.errors}}</td>
+			<td class="col-3">{{f.relation_type}} {{f.relation_type.errors}}</td>
+			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
+		{% for f in illustrationillustration_formset.forms %}
+			<tr class ="d-flex">
+			<td class="col-5">{{f.secondary}} {{f.secondary.errors}}</td>
+			<td class="col-3">{{f.relation_type}} {{f.relation_type.errors}}</td>
+			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+
+
 	<div class="tab-pane fade" id="Persons">
 		{{illustrationperson_formset.management_form}}
 		<table class="table table-borderless">

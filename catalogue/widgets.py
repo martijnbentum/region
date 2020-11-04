@@ -1,6 +1,6 @@
 from .models import Text, Illustration, Genre, Publisher, PublicationType, Publication
-from .models import Periodical, CopyRight, TextType
-from .models import IllustrationCategory, TextTextRelationType
+from .models import Periodical, CopyRight, TextType, IllustrationType
+from .models import IllustrationCategory, TextTextRelationType,IllustrationIllustrationRelationType
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
 #all select2 widgets related to catalogue models are defined here
@@ -25,6 +25,22 @@ class TextTypeWidget(ModelSelect2Widget):
 		return obj.name
 	def get_queryset(self):
 		return TextType.objects.all().order_by('name')
+
+class IllustrationTypeWidget(ModelSelect2Widget):
+	model = IllustrationType
+	search_fields = ['name__icontains']
+	def label_from_instance(self,obj):
+		return obj.name
+	def get_queryset(self):
+		return IllustrationType.objects.all().order_by('name')
+
+class IllustrationIllustrationRelationTypeWidget(ModelSelect2Widget):
+	model = IllustrationIllustrationRelationType
+	search_fields = ['name__icontains']
+	def label_from_instance(self,obj):
+		return obj.name
+	def get_queryset(self):
+		return IllustrationIllustrationRelationType.objects.all().order_by('name')
 
 class IllustrationCategoryWidget(ModelSelect2Widget):
 	model = IllustrationCategory
