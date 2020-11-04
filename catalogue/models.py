@@ -262,6 +262,10 @@ class IllustrationIllustrationRelation(models.Model, info):
 	model_fields = ['primary','secondary']
 
 	def __str__(self):
-		m =  self.relation_type.name +' relation between ' + self.secondary.title +' and '
-		m += self.primary.title
+		try:
+			m =  self.relation_type.name +' relation between ' + self.secondary.title +' and '
+			m += self.primary.title
+		except: 
+			print('WARNING could not create string for IllustrationIllustrationRelation')
+			return ''
 		return m
