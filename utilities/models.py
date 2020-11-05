@@ -23,6 +23,7 @@ class SimpleModel(models.Model):
 	name = models.CharField(max_length=300,default='',unique=True)
 	description = models.TextField(blank=True,null=True)
 	notes= models.TextField(blank=True,null=True)
+	endnode = True
 
 	def __str__(self): 
 		return self.name
@@ -37,6 +38,7 @@ class generic(models.Model):
 class Language(models.Model, info):
 	name = models.CharField(max_length=100, unique = True)
 	iso = models.CharField(max_length=3,null=True,blank=True)
+	endnode = True
 
 	def __str__(self):
 		return self.name
@@ -70,8 +72,9 @@ def simple_copy(instance, commit = True):
 	return copy
 
 def instance2names(instance):
-	s = str(type(instance)).split("'")[-2]
-	app_name,_,model_name = s.split('.')
+	# s = str(type(instance)).split("'")[-2]
+	# app_name,_,model_name = s.split('.')
+	app_name,model_name = instance._meta.app_label, instance._meta.model_name.capitalize()
 	return app_name, model_name
 
 def instance2name(instance):
