@@ -1,8 +1,59 @@
 from django.apps import apps
 from utilities.models import instance2names
+from django.core import serializers
+from lxml import etree
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
 
 exclude_apps = 'admin,auth,contenttypes,sessions,utilities,easyaudit'.split(',')
 non_primary_apps = ['locations']
+
+class Export:
+	def __init__(self,instances, recursive = False):
+		self.recursive = recursive
+		self.connection_set = ConnectionSet()
+		self.connection_set.add_instances(instances, recursive)
+
+	def to_excel(self,filename='default.xlsx', save =True):
+		wb = Workbook()
+		for e in self.xml.getchildren():
+			o = XmlModelObject(e)
+			wb = o.to_excel(wb)
+		if save: wb.save(filename)
+		return wb
+
+	@property
+	def instances(self):
+		return self.connection_set.instances
+
+	@property
+	def xml(self):
+		if not self.newly_added and hasattr(self,'_xml'):return self._xml
+		x = serializers.serialize('xml',self.instances) 
+		self._xml = etree.fromstring(bytes(x,encoding='utf-8'))
+		return self._xml
+
+	@property
+	def xml_str(self):
+		return etree.tostring(self.xml,pretty_print=True).decode()
+
+	@property
+	def json(self):
+		self._json = json.loads(self.json_str)
+		return self._json
+
+	@property
+	def json_str(self):
+		if not self.newly_added and hasattr(self,'_json_str'):return self._json_str
+		self._json_str = serializers.serialize('json',self.instances)
+		return self._json_str
+
+	@property
+	def newly_added(self):
+		return self.connection_set.pk.newly_added
+		
+
+
 
 class Relations:
 	'''finds all models that have a relation with this models.
@@ -42,7 +93,7 @@ class Relations:
 		m += 'm2m models:\n\t' + model_list2str(self.m2m_models, '\n\t')+'\n\n'
 		return m
 
-class Connection_set:
+class ConnectionSet:
 	'''collect all connections for one or more instances.
 	can also recursively collect all connections for one or more instances
 	i.e. find all connections for instances connected to the original set of instances
@@ -185,3 +236,127 @@ def getlongeststr(lines):
 	for line in lines:
 		if len(line) > longest: longest = len(line)
 	return longest
+
+class XmlModelObject:
+	def __init__(self,xml):
+		self.xml = xml
+		self.app_name, self.model_name = xml.attrib['model'].split('.')
+		self.pk = xml.attrib['pk']
+		self.fields = [XmlFieldObject(f) for f in xml.getchildren()]
+		self.column_names, self.column_values = ['pk'],[self.pk]
+		self.column_type_names, self.column_type_values = [],[]
+		for f in self.fields:
+			self.column_names.append(f.column_name)
+			self.column_values.append(f.column_value)
+			self.column_type_names.extend(f.column_type_names)
+			self.column_type_values.extend(f.column_type_values)
+
+
+	def __repr__(self):
+		return self.model_name + ' ' + str(self.pk)
+
+	def __str__(self):
+		m = self.__repr__() + '\n'
+		m += '\n\n'.join([str(f) for f in self.fields])
+		return m
+
+	def to_excel(self,wb = None):
+		if not wb: self.wb = Workbook()
+		else: self.wb = wb
+		if not self.model_name in self.wb.sheetnames: 
+			self._set_fieldtypes()
+			# self.type_sheet = self.wb.create_sheet(self.model_name+ '|type')
+			self.sheet = self.wb.create_sheet(self.model_name)
+			self._set_column_names()
+			self.current_row = 2
+		else:
+			self.sheet = self.wb[self.model_name]
+			# self.type_sheet = self.wb[self.model_name+'|type']
+			self.current_row = self.sheet.max_row + 1
+		self._set_values()
+		if 'Sheet' in self.wb.sheetnames:
+			self.wb.remove(self.wb['Sheet'])
+		return self.wb
+
+	def _set_column_names(self):
+		for i, col in enumerate(self.column_names):
+			self.sheet.cell(row=1,column=i+1,value=col)
+			column = get_column_letter(i+1)
+			self.sheet.column_dimensions[column].width = len(col)*1.2 +3
+		'''
+		for i, col in enumerate(self.column_type_names):
+			self.type_sheet.cell(row=1,column=i+1,value=col)
+			column = get_column_letter(i+1)
+			self.type_sheet.column_dimensions[column].width = len(col) +3
+		for i, val in enumerate(self.column_type_values):
+			self.type_sheet.cell(row=2,column=i+1,value= val)
+		'''
+
+	def _set_fieldtypes(self):
+		if not 'fieldtypes' in self.wb.sheetnames:
+			self.fieldtype_sheet = self.wb.create_sheet('fieldtypes')
+			for i, val in enumerate('app_name,model_name,fieldname,fieldtype,to'.split(',')):
+				self.fieldtype_sheet.cell(row=1,column=i+1,value = val)
+				column = get_column_letter(i+1)
+				self.fieldtype_sheet.column_dimensions[column].width = 22
+		else: self.fieldtype_sheet = self.wb['fieldtypes']
+		self.current_type_row = self.fieldtype_sheet.max_row +1
+		for f in self.fields:
+			for i, val in enumerate([self.app_name,self.model_name]+f.field_type_values):
+				self.fieldtype_sheet.cell(row=self.current_type_row,column=i+1,value =val)
+			self.current_type_row +=1
+			
+		
+
+	def _set_values(self):
+		for i, val in enumerate(self.column_values):
+			self.sheet.cell(row=self.current_row,column=i+1,value= val)
+	
+
+class XmlFieldObject:
+	def __init__(self,xml):
+		f = xml
+		self.xml = xml
+		self.name = f.attrib['name']
+		self.column_name = self.name
+		self.column_type_values,self.column_type_names = [], []
+		if 'rel' in f.attrib:
+			self.relational = True
+			self.local = False
+			self.type = f.attrib['rel']
+			self.to = f.attrib['to'].split('.')[-1]
+			self.column_type_names.append(self.name+'|to')
+			self.column_type_values.append(self.to)
+		if 'type' in f.attrib:
+			self.relational = False
+			self.local = True
+			self.type = f.attrib['type']
+			self.to = ''
+		self.column_type_names.append(self.name+'|ftype')
+		self.column_type_values.append(self.type)
+		self.field_type_values = [self.name,self.type,self.to]
+
+		if self.type == 'ManyToManyRel':
+			self.value = ';'.join([c.attrib['pk'] for c in self.xml.getchildren()])
+			self.column_value =self.value
+		else: 
+			self.value = str(xml.text) if xml.text else ''
+			self.column_value =self.value
+
+
+	def __repr__(self):
+		m = 'relational field' if self.relational else 'local field, '
+		m += 'name\t'+self.name 
+		return m
+
+	def __str__(self):
+		m = 'relational field\n' if self.relational else 'local field\n'
+		m += 'name\t'+self.name +'\n'
+		m += 'type\t'+self.type+'\n'
+		m += 'value\t'+self.value+'\n'
+		if self.to: m += 'to\t' + self.to +'\n'
+		return m
+		
+			
+
+
