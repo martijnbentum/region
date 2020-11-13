@@ -3,18 +3,100 @@ from utilities.models import instance2names
 from django.core import serializers
 from lxml import etree
 from openpyxl import Workbook
+from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
+from .model_util import compare_instances
+from partial_date.partial_date import PartialDate
 
-exclude_apps = 'admin,auth,contenttypes,sessions,utilities,easyaudit'.split(',')
+exclude_apps = 'admin,auth,contenttypes,django,sessions,utilities,easyaudit'.split(',')
 non_primary_apps = ['locations']
+all_models = apps.get_models()
+selected_models = []
+for m in all_models:
+	app_name, model_name = instance2names(m)
+	if app_name in exclude_apps or app_name in non_primary_apps: continue
+	selected_models.append(m)
+		
+class Exports:
+	def __init__(self, model_names= []):
+		'''export all instances of all or a set of model names
+		export_all 		export all models in the selected_models 
+						this excludes models from the exclude apps and non_primary apps
+						instance from the non_primary apps are still included if they are
+						linked to included instances
+		model_names 	export all instances from each model in model_names 
+						instances of other models linked to these are also include
+		'''
+		self.export_all = True if not model_names else False
+		if model_names:models = [m for m in all_models if instance2names(m)[1] in model_names]
+		else: model_names = [instance2names(m)[1] for m in selected_models]
+		self.model_names = model_names
+		self.models = selected_models if self.export_all else models
+		self.exports = []
+
+	def make_exports(self):
+		self.exports = []
+		self._instances = []
+		recursive = True if not self.export_all else False
+		for i, model in enumerate(self.models):
+			instances = model.objects.all()
+			e = Export(instances,recursive)
+			self.exports.append(e)
+			self._instances.extend(e.instances)
+		self._instances = list(set(self._instances))
+		self.export = Export(self._instances,True)
+
+	def to_excel(self,filename='default.xlsx',save = True):
+		wb = self.export.to_excel(filename=filename,save=save)
+		return wb
+
+	@property
+	def instances(self):
+		return self.export.instances
+
+	@property
+	def xml(self):
+		return self.export.xml
+
+	@property
+	def xml_str(self):
+		return self.export.xml_str
+
+	@property
+	def json(self):
+		return self.export.json
+	
+	@property
+	def json_str(self):
+		return self.export.json_str
+
 
 class Export:
+	'''export instances to different file formats.'''
 	def __init__(self,instances, recursive = False):
+		'''export instances to json, xml or excel
+		instances 		list or queryset with instances to be exported
+		recurive 		linked instances are automatically loaded, instance linked
+						to the linked instances are also loaded when recursive is True
+		'''
 		self.recursive = recursive
 		self.connection_set = ConnectionSet()
 		self.connection_set.add_instances(instances, recursive)
 
+	def __repr__(self):
+		return 'export object for '+str(len(self.instances)) + ' instances' 
+
+	def __str__(self):
+		m = self.__repr__()
+		m += 'XML representation:\n'
+		m += self.xml_str[:1500] +'\n'
+		m += '[...]'
+
 	def to_excel(self,filename='default.xlsx', save =True):
+		'''Stores the instance information in an excel workbook, each sheet contains
+		instances of a specific model
+		the sheet fieldtype holds all column names and field types for each model
+		'''
 		wb = Workbook()
 		for e in self.xml.getchildren():
 			o = XmlModelObject(e)
@@ -24,10 +106,12 @@ class Export:
 
 	@property
 	def instances(self):
+		'''returns all instances (these also include instance related to the original set'''
 		return self.connection_set.instances
 
 	@property
 	def xml(self):
+		'''returns an lxml xml representation of all isntances.'''
 		if not self.newly_added and hasattr(self,'_xml'):return self._xml
 		x = serializers.serialize('xml',self.instances) 
 		self._xml = etree.fromstring(bytes(x,encoding='utf-8'))
@@ -35,25 +119,29 @@ class Export:
 
 	@property
 	def xml_str(self):
+		''' returns a str verson of the xml representation of the instances'''
 		return etree.tostring(self.xml,pretty_print=True).decode()
 
 	@property
 	def json(self):
+		''' returns a json representation of the instances'''
 		self._json = json.loads(self.json_str)
 		return self._json
 
 	@property
 	def json_str(self):
+		''' returns a str version of the json representation of the instances'''
 		if not self.newly_added and hasattr(self,'_json_str'):return self._json_str
 		self._json_str = serializers.serialize('json',self.instances)
 		return self._json_str
 
 	@property
 	def newly_added(self):
+		'''flag to monitor if there are newly added instances
+		if true  a new json xml etc is created.
+		'''
 		return self.connection_set.pk.newly_added
 		
-
-
 
 class Relations:
 	'''finds all models that have a relation with this models.
@@ -92,6 +180,7 @@ class Relations:
 		m += 'fk models:\n\t' + model_list2str(self.fk_models,'\n\t') + '\n\n'
 		m += 'm2m models:\n\t' + model_list2str(self.m2m_models, '\n\t')+'\n\n'
 		return m
+
 
 class ConnectionSet:
 	'''collect all connections for one or more instances.
@@ -132,12 +221,10 @@ class ConnectionSet:
 		print('finding connections recursively, order:',self.counter,'instances:',len(dif))
 		if dif: self.add_instances(dif,True)
 		
-			
-			
-
 	@property
 	def instances(self):
 		return self.pk.instances
+
 
 
 class Connections:
@@ -202,7 +289,6 @@ class Pk:
 	def __str__(self):
 		return self.__repr__()
 		
-
 	def update(self,other):
 		for k in other.d:
 			if k not in self.d: self.d[k] = []
@@ -236,6 +322,10 @@ def getlongeststr(lines):
 	for line in lines:
 		if len(line) > longest: longest = len(line)
 	return longest
+
+def format_dict(d, extra = 3):
+	longest = getlongeststr(list(d.keys())) + extra
+	return '\n'.join([key.ljust(longest) + val.__repr__() for key,val in d.items()])
 
 class XmlModelObject:
 	def __init__(self,xml):
