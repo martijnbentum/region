@@ -7,6 +7,7 @@ from openpyxl import load_workbook
 from .model_util import compare_instances
 from .export import format_dict
 from partial_date.partial_date import PartialDate
+import sys
 
 
 class Import:
@@ -68,6 +69,20 @@ class Import:
 			self.similar_instances.extend(ii.similar_instances)
 			self.mismatch_instances.extend(ii.mismatch_instances)
 			self.all_import_instances.extend(ii.import_instances)
+
+	def fill_db(self,empty_db=False):
+		if empty_db:
+			print('\n'.join(self.model_names))
+			i = input('do you want to delete the contents of these models (yes/no):')
+		if not empty_db or i != 'yes': 
+			print('did nothing...')
+			return
+		for model in self.models:
+			print('deleting',model)
+			qs = model.objects.all()
+			qs.delete()
+
+		
 		
 class ImportInstances:
 	'''Collects all instances of a specific model based on exported excel sheet
@@ -136,12 +151,14 @@ class ImportInstance:
 		self.names2model = names2model
 		self.app_name, self.model_name = instance2names(model) 
 		self._set_row_values()
+		self.saved = False
 
 	def __repr__(self):
 		if hasattr(self,'instance'):
 			m = self.instance.__repr__()
-			m += ' complete: '+str(self.complete) + 'equal: ' + str(self.equal)
-			m += 'in db: ' + str(self.db_instance)
+			m += ' complete: '+str(self.complete) + ' equal: ' + str(self.equal)
+			m += ' in db: ' + str(self.db_instance)
+		return m
 
 	def _set_row_values(self):
 		'''transform the values in the excel sheet to the correct data type.
@@ -222,3 +239,36 @@ class ImportInstance:
 		self.instance.pk = self.values['pk']
 		i,dbi = self.instance, self.db_instance
 		self.equal,self.perc_same,self.similar,self.perc_similar = compare_instances(i,dbi)
+
+
+
+	@property
+	def complete(self):
+		return self.all_related_instance_present
+
+
+
+def save_instance(self,force =False):
+	if self.saved and not force: return 'Already saved'
+	self.saving_failed = False
+	self.collect_relations()
+	if not self.complete: return 'Not complete'
+	# add fk related instances
+	for key,val in self.related_instance.items():
+		if type(val) == list: continue
+		setattr(self.instance,key,val)
+	try: self.instance.save()
+	except:
+		e = sys.exc_info()[0]
+		self.saving_failed = True
+	else:
+		#adding m2m related instance
+		for key,val in self.related_instance.items():
+			if type(val) != list: continue
+			field = getattr(self.instance,key)
+			[field.add(x) for x in val]
+	if self.saving_failed: return 'error with saving:' + str(e)
+	else: 
+		self.saved = True
+		return 'saved successfully'
+

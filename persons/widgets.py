@@ -1,4 +1,4 @@
-from .models import Person, LocationRelation, Pseudonym
+from .models import Person, PersonLocationRelationType, Pseudonym
 from .models import PersonIllustrationRelationRole, PersonTextRelationRole
 from .models import PersonMovementRelationRole,Movement, MovementType
 from .models import PersonPersonRelationType,PersonPeriodicalRelationRole
@@ -11,15 +11,15 @@ from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 # approach all instances of a model would be coded in the html, now it is send via
 # ajax calls with json)
 
-class LocationRelationWidget(ModelSelect2Widget):
-	model = LocationRelation 
+class PersonLocationRelationTypeWidget(ModelSelect2Widget):
+	model = PersonLocationRelationType 
 	search_fields = ['name__icontains']
 
 	def label_from_instance(self,obj):
 		return obj.name
 
 	def get_queryset(self):
-		return LocationRelation.objects.all().order_by('name')
+		return PersonLocationRelationType.objects.all().order_by('name')
 
 
 class PersonWidget(ModelSelect2Widget):
