@@ -73,7 +73,7 @@ def compare_instances(self,other):
 	Also returns percentage for both equal and similar
 	'''
 	if type(self) != type(other):
-		print(self,'is not of the same type as:',other,type(self),type(other))
+		# print(self,'is not of the same type as:',other,type(self),type(other))
 		return False,0,False,0
 	sd, od = self.__dict__, other.__dict__
 	return compare_model_dicts(sd,od)
