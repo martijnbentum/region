@@ -99,7 +99,7 @@ class TextWidget(ModelSelect2Widget):
 	search_fields = ['title__icontains']
 	def label_from_instance(self,obj):
 		if not x.language: return obj.title
-		return obj.title' | ' + obj.language.name
+		return obj.title + ' | ' + obj.language.name
 	def get_queryset(self):
 		return Text.objects.all().order_by('title')
 
