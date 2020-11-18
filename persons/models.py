@@ -11,7 +11,7 @@ from utilities.models import SimpleModel
 def make_simple_model(name):
 	exec('class '+name + '(SimpleModel):\n\tpass',globals())
 
-names = 'Pseudonym,PersonPersonRelationType,LocationRelation,PersonTextRelationRole'
+names = 'Pseudonym,PersonPersonRelationType,PersonLocationRelationType,PersonTextRelationRole'
 names += ',PersonIllustrationRelationRole,MovementType,PersonPeriodicalRelationRole'
 names += ',PersonMovementRelationRole'
 names = names.split(',')
@@ -191,7 +191,7 @@ class PersonLocationRelation(RelationModel,info):
 	'''relation between person and location.'''
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	location = models.ForeignKey(Location, on_delete=models.CASCADE,default=None,null=True)
-	relation = models.ForeignKey(LocationRelation, null=True, on_delete=models.SET_NULL)
+	relation = models.ForeignKey(PersonLocationRelationType, null=True, on_delete=models.SET_NULL)
 	start_year = models.PositiveIntegerField(null=True,blank=True)
 	end_year = models.PositiveIntegerField(null=True,blank=True)
 	location_name = models.CharField(max_length=200, default='',null=True)

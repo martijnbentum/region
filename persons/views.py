@@ -5,8 +5,8 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
 # from utilities.models import Date 
-from .models import Person, PersonLocationRelation, LocationRelation, Movement, MovementType
-from .forms import PersonForm, PersonLocationRelationForm, LocationRelationForm
+from .models import Person, PersonLocationRelation, PersonLocationRelationType, Movement, MovementType
+from .forms import PersonForm, PersonLocationRelationForm, PersonLocationRelationTypeForm
 from .forms import location_formset, persontext_formset, personillustration_formset
 from .forms import personpublisher_formset, PseudonymForm, MovementForm
 from .forms import PersonTextRelationRoleForm, PersonIllustrationRelationRoleForm
@@ -57,7 +57,7 @@ def add_person_person_relation_type(request):
 		'persons','person - person relation type')
 
 def add_person_location_relation(request):
-	return add_simple_model(request,__name__,'LocationRelation','persons',
+	return add_simple_model(request,__name__,'PersonLocationRelationType','persons',
 		'person - location relation')
 
 def add_person_text_relation_role(request):

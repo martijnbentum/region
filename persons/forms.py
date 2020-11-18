@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm, inlineformset_factory, modelform_factory
-from .models import Person, PersonLocationRelation, LocationRelation
+from .models import Person, PersonLocationRelation, PersonLocationRelationType
 from .models import PersonTextRelation, PersonTextRelationRole 
 from .models import PersonIllustrationRelation, PersonIllustrationRelationRole
 from .models import PublisherManager, Pseudonym, PersonMovementRelation
@@ -11,7 +11,7 @@ from catalogue.models import Text, Illustration, Publisher, Periodical
 from catalogue.widgets import TextWidget, PublisherWidget, IllustrationWidget, PeriodicalWidget
 from locations.models import Location
 from locations.widgets import LocationWidget, LocationsWidget
-from .widgets import PersonIllustrationRelationRoleWidget, LocationRelationWidget
+from .widgets import PersonIllustrationRelationRoleWidget, PersonLocationRelationTypeWidget
 from .widgets import PersonTextRelationRoleWidget, PersonWidget, PseudonymsWidget
 from .widgets import PersonMovementRelationRoleWidget, MovementWidget, MovementTypeWidget
 from .widgets import PersonPersonRelationTypeWidget, PersonPeriodicalRelationRoleWidget 
@@ -32,7 +32,7 @@ def create_simple_form(name):
 	exec(name + 'Form = modelform_factory('+name+',**mft)',globals())
 
 #create simple forms for the following models
-names = 'Pseudonym,PersonPersonRelationType,LocationRelation,PersonTextRelationRole'
+names = 'Pseudonym,PersonPersonRelationType,PersonLocationRelationType,PersonTextRelationRole'
 names += ',PersonIllustrationRelationRole,MovementType,PersonPeriodicalRelationRole'
 names += ',PersonMovementRelationRole'
 names = names.split(',')
@@ -224,8 +224,8 @@ class PersonLocationRelationForm(ModelForm):
 		queryset=Location.objects.all().order_by('name'),
 		widget=LocationWidget(**dselect2n2))
 	relation = forms.ModelChoiceField(
-		queryset=LocationRelation.objects.all(),
-		widget=LocationRelationWidget(**dselect2))
+		queryset=PersonLocationRelationType.objects.all(),
+		widget=PersonLocationRelationTypeWidget(**dselect2))
 	start_year= forms.IntegerField(widget=forms.NumberInput(**dattr),required=False)
 	end_year= forms.IntegerField(widget=forms.NumberInput(**dattr),required=False)
 
