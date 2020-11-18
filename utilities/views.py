@@ -132,7 +132,7 @@ def show_messages(request,message_type,model_name,form=None):
 	if message_type == 'saveas':messages.warning(request,
 		'saved a copy of '+model_name+'. Use "save" button to store edits to this copy')
 	elif message_type == 'confirm_delete':messages.success(request, model_name + ' deleted')
-	elif message_type == 'cancel':messages.danger(request,'delete aborted')
+	elif message_type == 'cancel':messages.warning(request,'delete aborted')
 	elif message_type == 'form_invalid':
 		for error in form.non_field_errors():
 			messages.warning(request,error)
