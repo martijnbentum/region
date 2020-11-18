@@ -98,7 +98,7 @@ class TextWidget(ModelSelect2Widget):
 	model = Text
 	search_fields = ['title__icontains']
 	def label_from_instance(self,obj):
-		if not x.language: return obj.title
+		if not obj.language: return obj.title
 		return obj.title + ' | ' + obj.language.name
 	def get_queryset(self):
 		return Text.objects.all().order_by('title')
@@ -116,8 +116,8 @@ class PublicationWidget(ModelSelect2Widget):
 	model = Publication
 	search_fields = ['title__icontains']
 	def label_from_instance(self,obj):
-		if obj.str == '':return obj.title
-		return obj.title + ' | ' + obj.location_str
+		if obj.location_string == '':return obj.title
+		return obj.title + ' | ' + obj.location_string
 	def get_queryset(self):
 		return Publication.objects.all().order_by('title')
 
