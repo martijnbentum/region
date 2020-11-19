@@ -51,7 +51,7 @@ def copy_complete(instance, commit = True):
 	for f in copy._meta.get_fields():
 		if f.one_to_many:
 			for r in list(getattr(instance,f.name+'_set').all()):
-				rcopy = simple_copy(r,False)
+				rcopy = simple_copy(r,False,False)
 				setattr(rcopy,model_name.lower(), copy)
 				rcopy.save()
 		if f.many_to_many:
@@ -59,7 +59,7 @@ def copy_complete(instance, commit = True):
 	return copy
 
 
-def simple_copy(instance, commit = True):
+def simple_copy(instance, commit = True,add_copy_suffix = True):
 	'''Copy a model instance and save it to the database.
 	m2m and relations are not saved.
 	'''
@@ -67,6 +67,14 @@ def simple_copy(instance, commit = True):
 	model = apps.get_model(app_name,model_name)
 	copy = model.objects.get(pk=instance.pk)
 	copy.pk = None
+	print('copying...')
+	for name in 'title,name,caption,first_name'.split(','):
+		if hasattr(copy,name):
+			print('setting',name)
+			copy.view()
+			setattr(copy,name,getattr(copy,name)+ ' !copy!')
+			copy.view()
+			break
 	if commit:
 		copy.save()
 	return copy
