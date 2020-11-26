@@ -153,7 +153,8 @@ class Publication(Item, info):
 
 	@property
 	def publisher_str(self):
-		return self.publisher_names
+		return ' | '.join([x.name for x in self.publisher.all()])
+		# return self.publisher_names
 
 	@property
 	def location_str(self):
