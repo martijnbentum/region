@@ -155,7 +155,7 @@ class IllustrationForm(ItemForm):
 
 	class Meta:
 		model = Illustration
-		fields = 'caption,categories,page_number,upload,illustration_type'
+		fields = 'caption,categories,page_number,upload,illustration_type,image_filename'
 		fields = item_fields + fields.split(',')
 
 
