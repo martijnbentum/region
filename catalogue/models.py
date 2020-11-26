@@ -184,9 +184,13 @@ class TextPublicationRelation(RelationModel):
 	model_fields = ['text','publication']
 
 	def __str__(self):
-		m =  self.text.title+ ' is a part of '
-		m += self.publication.title
-		return m
+		try:
+			m =  self.text.title+ ' is a part of '
+			m += self.publication.title
+			return m
+		except:
+			print('textpublicationrelation name could not be made')
+			return ''
 
 	@property
 	def primary(self):
