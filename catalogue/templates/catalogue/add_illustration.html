@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();">
+<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();" id="form">
     {% csrf_token %}
 
 <div class="col-md-12 d-flex">
@@ -206,6 +206,7 @@
 {{form.media.js}}
 
 {% include 'utilities/tab_selector.html' %}
+{% include 'utilities/set_image_filename.html' %}
 
 <br>
 {% if form.instance.upload %}
