@@ -1,10 +1,14 @@
 from django.db import models
+from django.conf import settings
 from django.utils import timezone
+import glob
 from locations.models import Location
-from utilities.models import Language, RelationModel, SimpleModel
+from utilities.models import Language, RelationModel, SimpleModel, instance2names
 from utils.model_util import id_generator, info
 from utils.map_util import field2locations, pop_up
+import os
 from partial_date import PartialDateField
+import time
 
 def make_simple_model(name):
 	exec('class '+name + '(SimpleModel,info):\n\tpass',globals())
@@ -103,19 +107,33 @@ class Text(Item, info):
 	class Meta:
 		unique_together = 'title,setting,language'.split(',')
 
+		
+
+def make_filename(instance, filename):
+	app_name, model_name = instance2names(instance)
+	name,ext = os.path.splitext(filename)
+	name += '_django-'+time.strftime('%y-%m-%d-%H-%M') + ext
+	pn = model_name.lower() +'/'+ name
+	return pn
+
 class Illustration(Item, info):
 	'''a illustration typically part of publication'''
 	dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
 	caption =  models.CharField(max_length=300,null=True,blank=True)
-	category= models.ForeignKey(IllustrationCategory, on_delete=models.SET_NULL,
-		blank=True,null=True, related_name='Illustration',)
-	categories= models.ManyToManyField(IllustrationCategory, blank=True, related_name='Illustrations') 
-	page_number = models.CharField(max_length=50, null=True, blank=True)
-	upload= models.ImageField(upload_to='illustrations/',null=True,blank=True)
+	category = models.ForeignKey(IllustrationCategory,on_delete=models.SET_NULL,
+		blank=True,null=True,related_name='Illustration')
+	categories=models.ManyToManyField(IllustrationCategory,blank=True,related_name='Illustrations') 
+	page_number = models.CharField(max_length=50, default = '', blank=True)
+	upload= models.ImageField(upload_to=make_filename,null=True,blank=True)
 	relations = models.ManyToManyField('self',
 		through='IllustrationIllustrationRelation',symmetrical=False, default=None)
 	illustration_type = models.ForeignKey(IllustrationType, **dargs)
 	location_field = ''
+	image_filename = models.CharField(max_length=500,default='',blank=True,null=True)
+
+	class Meta:
+		unique_together = 'caption,image_filename,page_number'.split(',')
+
 	
 
 class Publisher(Item, info):
