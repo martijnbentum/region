@@ -1,0 +1,25 @@
+<div style="visibility:hidden; display:inline;">
+	{{form.image_filename}} {{form.image_filename.error}}
+</div>
+
+<script>
+	// set the value of image_filename field to the name of the image file uploaded
+	// with the image_file field
+	// this support using the image_file field as unique
+	// otherwise uniqueness constraints cannot be enforced because django adds
+	// a suffix to a filename to prevend overwriting files
+	//the instance should have an image_filename field that is not required
+	// and the upload field should be named image_file
+	function setFilename(event){
+		console.log(event)
+		console.log(upload)
+		if (upload.files.length > 0) {
+			image_filename.value = upload.files[0].name
+		}
+	}
+
+	var form = document.getElementById("form");
+	var upload= document.getElementById("id_upload");
+	var image_filename= document.getElementById("id_image_filename");
+	form.addEventListener('submit',setFilename);
+</script>
