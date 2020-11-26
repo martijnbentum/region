@@ -170,6 +170,28 @@
 {{form.media.js}}
 
 {% include 'utilities/tab_selector.html' %}
+<div style="visibility:hidden; display:inline;">
+	 {{form.publisher_names}} {{form.publisher_names.error}}
+</div>
+
+<script>
+
+function showNames(event){
+	var publishers = []
+	var pub= document.getElementById('id_publisher')
+	var publisher_names = document.getElementById('id_publisher_names')
+	for (i = 0;i < pub.selectedOptions.length; i++) {
+		publishers.push(pub.selectedOptions[i].label); 
+		console.log(pub.selectedOptions[i].label); 
+	}
+	publisher_names.value = publishers.join(' | ')
+	console.log(publishers.join(' | '));
+}
+
+var form = document.getElementById('myform')
+form.addEventListener('submit',showNames);
+
+</script>
 
 {% endblock content %}
 
