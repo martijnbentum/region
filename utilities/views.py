@@ -37,10 +37,12 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 		focus, button = getfocus(request), getbutton(request)
 		if button in 'delete,cancel,confirm_delete': 
 			return delete_model(request,name_space,model_name,app_name,instance_id)
+		copy_instance = copy_complete(instance) if button == 'saveas' and instance else False
 		form = modelform(request.POST, request.FILES, instance=instance)
-		if form.is_valid():
+		if form.is_valid() or copy_instance:
 			print('form is valid: ',form.cleaned_data,type(form))
-			instance = form.save()
+			if not button == 'saveas':instance = form.save()
+			else:instance = copy_instance
 			if view == 'complete':
 				ffm = FormsetFactoryManager(name_space,names,request,instance)
 				valid = ffm.save()
@@ -48,7 +50,6 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 					show_messages(request,button, model_name)
 					if button== 'add_another':
 						return HttpResponseRedirect(reverse(app_name+':add_'+model_name.lower()))
-					if button == 'saveas' and instance: instance = copy_complete(instance)
 					return HttpResponseRedirect(reverse(
 						app_name+':edit_'+model_name.lower(), 
 						kwargs={'pk':instance.pk,'focus':focus}))
@@ -129,6 +130,7 @@ def getbutton(request):
 
 def show_messages(request,message_type,model_name,form=None):
 	'''provide user feedback on submitting a form.'''
+	print(message_type)
 	if message_type == 'saveas':messages.warning(request,
 		'saved a copy of '+model_name+'. Use "save" button to store edits to this copy')
 	elif message_type == 'confirm_delete':messages.success(request, model_name + ' deleted')
