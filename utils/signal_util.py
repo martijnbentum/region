@@ -39,6 +39,7 @@ def catch_m2m(instance, action, pk_set, model_name,field_name):
 			event.save()
 		print(model_name,field_name, 'before:',','.join([str(n) for n in before]))
 		print(model_name,field_name,'after:',','.join([str(n) for n in after]))
+		instance.save()
 	
 
 def make_m2mreceiver(sender,model_name,field_name):
