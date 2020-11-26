@@ -88,7 +88,7 @@ class PublicationForm(ItemForm):
 	class Meta:
 		model = Publication
 		m = 'title,form,publisher,date,location,pdf,cover'
-		m += ',volume,issue'
+		m += ',volume,issue,publisher_names'
 		fields = item_fields + m.split(',')
 
 

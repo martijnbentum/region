@@ -37,7 +37,7 @@ class Item(models.Model):
 		super(Item,self).save(*args,**kwargs)
 		old_gps = self.gps
 		self._set_gps()
-		if old_gps != self.gps:super(Item,self).save()
+		if self.gps != old_gps:super(Item,self).save()
 		super(Item,self).save(*args,**kwargs)
 
 	def _set_gps(self):
@@ -136,19 +136,24 @@ class Publication(Item, info):
 	title = models.CharField(max_length=300,null=True)
 	publisher = models.ManyToManyField(Publisher,blank=True)
 	form = models.ForeignKey(PublicationType,on_delete=models.SET_NULL,null=True)
-	issue = models.PositiveIntegerField(null=True,blank=True) 
-	volume = models.PositiveIntegerField(null=True,blank=True) 
-	identifier = models.CharField(max_length=100,null=True,blank=True,unique=True) # not shown in form
+	issue = models.PositiveIntegerField(default=0,blank=True) 
+	volume = models.PositiveIntegerField(default=0,blank=True) 
+	identifier = models.CharField(max_length=100,null=True,blank=True,unique=True) # not shown 
 	year = models.PositiveIntegerField(null=True,blank=True) # obsolete, replace by date
 	date = PartialDateField(null=True,blank=True)
 	location = models.ManyToManyField(Location,blank=True,default=None) 
 	pdf = models.FileField(upload_to='publication/',null=True,blank=True) # ?
 	cover = models.ImageField(upload_to='publication/',null=True,blank=True)
+	publisher_names = models.CharField(max_length = 500, null=True,blank=True,default='')
+
+
+	class Meta:
+		unique_together = [['title','publisher_names','date','issue','volume']]
 
 
 	@property
 	def publisher_str(self):
-		return ' | '.join([pu.name for pu in self.publisher.all()])
+		return self.publisher_names
 
 	@property
 	def location_str(self):
