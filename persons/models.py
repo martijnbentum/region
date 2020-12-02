@@ -42,6 +42,9 @@ class Person(models.Model, info):
 	approved = models.BooleanField(default=False)
 	location_field = 'birth_place'
 
+	class Meta:
+		unique_together = 'first_name,last_name,birth_year'.split(',')
+
 	@property
 	def name(self):
 		if self.first_name == None: return self.last_name
@@ -132,6 +135,7 @@ class Person(models.Model, info):
 	def instance_name(self):
 		return self.name
 
+
 	
 class Movement(models.Model, info):
 	'''A movement (e.g. literary) a collection of persons.'''
@@ -145,6 +149,9 @@ class Movement(models.Model, info):
 	description = models.TextField(blank=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
+
+	class Meta:
+		unique_together = 'name,founded'.split(',')
 
 	def __str__(self):
 		return self.name
