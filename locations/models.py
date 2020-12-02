@@ -52,6 +52,10 @@ class Location(models.Model, info):
 	active = models.BooleanField(default=False)
 	notes = models.TextField(default='',blank=True)
 
+	class Meta:
+		ordering = ['name']
+		unique_together = 'name,latitude,longitude'.split(',')
+
 	def save(self):
 		if not self.pk and not self.geonameid:
 			try: geonameid = eval(self.information)['geonameid']
@@ -140,8 +144,6 @@ class Location(models.Model, info):
 		o.extend([self.contained_by_region,self.contained_by_country])
 		return o
 
-	class Meta:
-		ordering = ['name']
 
 class Style(models.Model, info):
 	name = models.CharField(max_length=200)
