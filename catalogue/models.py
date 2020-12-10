@@ -5,7 +5,7 @@ import glob
 from locations.models import Location
 from utilities.models import Language, RelationModel, SimpleModel, instance2names
 from utils.model_util import id_generator, info
-from utils.map_util import field2locations, pop_up
+from utils.map_util import field2locations, pop_up, get_location_name
 import os
 from partial_date import PartialDateField
 import time
@@ -48,20 +48,20 @@ class Item(models.Model):
 		'''sets the gps coordinates and name of related location to speed up map visualization.'''
 		locations = field2locations(self,self.location_field)
 		if locations:
-			gps = [location.gps for location in locations]
-			names= [location.name for location in locations]
+			gps = ' | '.join([location.gps for location in locations])
+			names= ' | '.join([location.name for location in locations])
 			self.gps = gps
 			self.gps_names = names
 		else: self.gps, self.gps_names = '',''
 
 	@property
 	def latlng(self):
-		try: return eval(self.gps)
+		try: return [eval(el) for el in self.gps.split(' - ')]
 		except: return None
 
 	@property
 	def latlng_names(self):
-		try: return eval(self.gps_names)
+		try: return self.gps_names.split(' - ')
 		except: return None
 
 	@property
@@ -69,10 +69,9 @@ class Item(models.Model):
 		try:return ', '.join(self.latlng_names)
 		except: return ''
 
-	@property
-	def pop_up(self):
+	def pop_up(self, latlng=None):
 		'''creates html for the pop up for map visualization.'''
-		return pop_up(self)	
+		return pop_up(self,latlng)	
 
 	@property
 	def instance_name(self):
@@ -83,6 +82,17 @@ class Item(models.Model):
 		if hasattr(self,'caption'):
 			return self.caption
 		else: raise ValueError('please override instance_name property with correct "name" field')
+
+	@property
+	def plot(self):
+		app_name, model_name = instance2names(self) 
+		gps = str(self.gps.split(' | ')).replace("'",'')
+		d = {'app_name':app_name, 'model_name':model_name, 
+			'gps':gps, 'pk':self.pk}
+		return d
+
+	def gps2name(self,latlng):
+		return get_location_name(self,latlng)
 	
 	class Meta:
 		abstract = True
