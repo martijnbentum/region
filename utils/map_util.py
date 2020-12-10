@@ -66,7 +66,7 @@ def instance2related_locations(instance):
 				locations.append([field_name.replace('_set',''),source_model_name,l,instance])
 				role = rl.relationship if rl.relationship else fn
 				print(role,101010101)
-				mr = instance2maprows(instance,latlng=l.latlng,pop_up=instance.pop_up,role=role)
+				mr = instance2maprows(instance,latlng=l.latlng,pop_up=instance.pop_up(),role=role)
 				map_list.append(mr)
 	return locations,field_names,map_list
 	
@@ -113,7 +113,7 @@ def instance2maprows(instance,cull=True,pop_up = None,latlng=None,role = ''):
 	o = []
 	name = instance2name(instance).lower()
 	markerid = name + str(instance.pk)
-	if pop_up == None:pop_up = instance.pop_up
+	if pop_up == None:pop_up = instance.pop_up()
 	if latlng: return [name,latlng,pop_up,markerid,role]
 	for i,latlng in enumerate(instance.latlng):
 		if not role and hasattr(instance,'latlng_roles'):role = instance.latlng_roles[i]
@@ -149,14 +149,21 @@ def combine_popups(o):
 			no.append(value[0])
 	return no
 
-def perturbe_latlng(latlng):
-	lat,lng = map(float,latlng.split(', '))
-	lat+=(random.random() - 0.5) /50 
-	lng+=(random.random() - 0.5) /50 
-	return ','.join(map(str,[lat,lng]))
 
+def get_location_name(instance,latlng):
+	location_name = ''
+	if latlng==None: return location_name
+	if hasattr(instance,'gps'):
+		for i,gps in enumerate(instance.gps.split(" | ")):
+			if not gps: continue
+			print(latlng,gps)
+			if latlng == eval(gps):
+				location_name=instance.gps_names.split(" | ")[i]
+	return location_name
 	
-def pop_up(instance):
+def pop_up(instance,latlng=None):
+	# location_name = get_location_name(instance,latlng)
+	location_name = instance.gps2name(latlng)
 	app_name, model_name = instance2names(instance)
 	m = ''
 	if hasattr(instance,'thumbnail'):
@@ -176,6 +183,7 @@ def pop_up(instance):
 			m += link
 			m += 'role="button"><i class="fas fa-play"></i></a>'
 	m += instance2map_buttons(instance)
+	if location_name:m += '<p><small>'+location_name+'</small></p>'
 	return m
 	
 
