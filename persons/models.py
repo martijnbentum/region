@@ -2,9 +2,9 @@ from django.db import models
 from django.utils import timezone
 import json
 from locations.models import Location
-from utilities.models import Language, RelationModel
+from utilities.models import Language, RelationModel, instance2names
 from utils.model_util import id_generator, info
-from utils.map_util import field2locations, pop_up
+from utils.map_util import field2locations, pop_up, get_location_name
 from utilities.models import SimpleModel
 
 
@@ -18,6 +18,7 @@ names = names.split(',')
 
 for name in names:
 	make_simple_model(name)
+
 
 
 
@@ -41,6 +42,26 @@ class Person(models.Model, info):
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
 	location_field = 'birth_place'
+	gps = models.CharField(max_length=300,default ='')
+	gps_names = models.CharField(max_length=4000,default='')
+	
+
+	def save(self,*args,**kwargs):
+		super(Person,self).save(*args,**kwargs)
+		old_gps = self.gps
+		self._set_gps()
+		if self.gps != old_gps:super(Person,self).save()
+		super(Person,self).save(*args,**kwargs)
+
+	def _set_gps(self):
+		'''sets the gps coordinates and name of related location to speed up map visualization.'''
+		locations = field2locations(self,self.location_field)
+		if locations:
+			gps = ' - '.join([location.gps for location in locations])
+			names= ' - '.join([location.name for location in locations])
+			self.gps = gps
+			self.gps_names = names
+		else: self.gps, self.gps_names = '',''
 
 	class Meta:
 		unique_together = 'first_name,last_name,birth_year'.split(',')
@@ -68,17 +89,6 @@ class Person(models.Model, info):
 		m += ',death_place,notes'
 		return m.split(',')
 
-	@property
-	def locations(self):
-		locs, names = [], []
-		for n in 'birth_place,death_place'.split(','):
-			if getattr(self,n):
-				locs.append(getattr(self,n))
-				names.append(n.replace('_',' '))
-		for plr in self.personlocationrelation_set.all():
-			locs.append(plr.location)
-			names.append(plr.relation_name)
-		return locs, names
 
 	@property
 	def location_status(self):
@@ -88,52 +98,81 @@ class Person(models.Model, info):
 		return json.dumps(o)
 
 	@property
-	def listify(self,date = '%Y'):
-		m = []
-		for attr in self.attribute_names:
-			value = getattr(self,attr) 
-			if attr == 'sex': m.append(dict(self.SEX)[self.sex])
-			elif 'date_of' in attr: 
-				try:m.append(getattr(self,attr).strftime(date))
-				except: m.append('')
-			elif value == None: m.append('')
-			else: m.append(str(getattr(self,attr)))
-		return m
-
-	@property
 	def gender(self):
 		return dict(self.SEX)[self.sex]
 
-	@property
-	def table_header(self):
-		return 'name,sex,born,died,birth_place,death_place'.split(',')
-
-	@property
-	def table(self):
-		return [self.name,self.age,sex,born,died,birthplace,deathplace]
 
 	@property
 	def latlng(self):
-		gps = []
-		for fn in 'birth_place,death_place'.split(','):
-			locations = field2locations(self,fn)
-			if locations:
-				gps.extend([location.gps for location in locations])
-		if gps: return gps
-		else: return None
+		try: return [eval(el) for el in self.gps.split(' - ')]
+		except: return None
 
 	@property
-	def latlng_roles(self):
-		return ['birth_place','death_place']
+	def latlng_names(self):
+		try: return self.gps_names.split(' - ')
+		except: return None
 
 
-	@property
-	def pop_up(self):
-		return pop_up(self)
+	def pop_up(self,latlng=None):
+		p = pop_up(self, latlng)
+		p += '<small>' + self.gps2placetype(latlng) + '</small>'
+		return p
 
 	@property
 	def instance_name(self):
 		return self.name
+
+	@property
+	def plot(self):
+		app_name, model_name = instance2names(self) 
+		gps = str(self.gps.split(' | ')).replace("'",'')
+		d = {'app_name':app_name, 'model_name':model_name, 
+			'gps':gps, 'pk':self.pk}
+		if d['gps'] == '[]': self._set_secondary_place(d)
+		return d
+
+	def _set_secondary_place(self,d):
+		ptd = self.make_placetype_dict()
+		for key in ptd:
+			if 'residence' == key: 
+				d['gps'] = '[' + ptd[key] + ']'
+				break
+			d['gps'] = '[' + ptd[key] + ']'
+		
+
+	def gps2placetype(self,latlng):
+		try:
+			ptd = self.make_placetype_dict()
+			for key in ptd:
+				if 'location_name' in key: continue
+				if eval(ptd[key]) == latlng: return key.replace('_',' ')
+			self.view()
+		except:pass
+		return '---'
+
+	def gps2name(self,latlng):
+		ln = get_location_name(self,latlng)
+		if ln != '': return ln
+		try:
+			ptd = self.make_placetype_dict()
+			for key in ptd:
+				if eval(ptd[key]) ==latlng: return ptd[key+'_location_name']
+		except:pass
+		return '-'
+		
+	def make_placetype_dict(self):
+		d = {}
+		for name in  'birth_place,death_place'.split(','):
+			if hasattr(self,name):
+				try: 
+					d[name] = getattr(self,name).gps 
+					d[name+'_location_name'] = getattr(self,name).name
+				except:continue
+		for plr in self.personlocationrelation_set.all():
+			if None in [getattr(plr,n) for n in 'location,person,relation'.split(',')]:continue
+			d[plr.relation.name] =  plr.location.gps 
+			d[plr.relation.name+'_location_name'] = plr.location.name
+		return d
 
 
 	
@@ -149,6 +188,27 @@ class Movement(models.Model, info):
 	description = models.TextField(blank=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
+	gps = models.CharField(max_length=300,default ='')
+	gps_names = models.CharField(max_length=4000,default='')
+	location_field = 'location'
+
+
+	def save(self,*args,**kwargs):
+		super(Movement,self).save(*args,**kwargs)
+		old_gps = self.gps
+		self._set_gps()
+		if self.gps != old_gps:super(Movement,self).save()
+		super(Movement,self).save(*args,**kwargs)
+
+	def _set_gps(self):
+		'''sets the gps coordinates and name of related location to speed up map visualization.'''
+		locations = field2locations(self,self.location_field)
+		if locations:
+			gps = ' | '.join([location.gps for location in locations])
+			names= ' | '.join([location.name for location in locations])
+			self.gps = gps
+			self.gps_names = names
+		else: self.gps, self.gps_names = '',''
 
 	class Meta:
 		unique_together = 'name,founded'.split(',')
@@ -158,24 +218,41 @@ class Movement(models.Model, info):
 
 	@property
 	def location_str(self):
-		return self.location
+		return self.location_string
 
 	@property
 	def latlng(self):
-		locations = field2locations(self,'location')
-		if locations:
-			return [location.gps for location in locations]
-		else: return None
+		try: return [eval(el) for el in self.gps.split(' - ')]
+		except: return None
 
 	@property
-	def pop_up(self):
+	def latlng_names(self):
+		try: return self.gps_names.split(' || ')
+		except: return None
+
+	@property
+	def location_string(self):
+		try:return ', '.join(self.latlng_names)
+		except: return ''
+
+
+	def pop_up(self,latlng = None):
 		return pop_up(self)	
 
 	@property
 	def instance_name(self):
 		return self.name
 
+	@property
+	def plot(self):
+		app_name, model_name = instance2names(self) 
+		gps = str(self.gps.split(' | ')).replace("'",'')
+		d = {'app_name':app_name, 'model_name':model_name, 
+			'gps':gps, 'pk':self.pk}
+		return d
 
+	def gps2name(self,latlng):
+		return get_location_name(self,latlng)
 
 
 
@@ -216,8 +293,12 @@ class PersonLocationRelation(RelationModel,info):
 		return self.relation.name
 
 	def __str__(self):
-		r = self.relation.name
-		return ', '.join([self.person.name, self.location.name, r])
+		try:
+			r = self.relation.name
+			return ', '.join([self.person.name, self.location.name, r])
+		except:
+			self.view()
+			return 'could not generate str representation'
 
 	@classmethod
 	def create(cls):
@@ -237,13 +318,18 @@ class PersonLocationRelation(RelationModel,info):
 			return [location.gps for location in locations]
 		else: return None
 
-	@property
-	def pop_up(self):
-		return pop_up(self)	
+	def pop_up(self,latlng =None):
+		return pop_up(self,latlng)	
 
 	@property
 	def instance_name(self):
 		return self.__str__()
+
+	@property
+	def plot(self):
+		pd = self.person.plot
+		pd['gps'] = self.location.gps
+		return pd
 
 
 class PublisherManager(models.Model): #or broker
