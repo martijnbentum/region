@@ -45,7 +45,7 @@ function onMapClick(e) {
 	}
 
 function make_marker(name,latlng,popup,markerid) {
-	latlng = latlng.split(',').map(Number);
+	latlng = latlng;
 	if (latlng == 0) {return false}
 	var marker = L.marker(latlng,{icon:make_icon(name), className:markerid})
 	marker.bindPopup(popup,{maxWidth:200,closeButton:false})
@@ -73,7 +73,7 @@ for (i = 0; i<names.length; i++) {
 var bounds = []; 
 var maplist = JSON.parse(document.getElementById('map-list').textContent);
 for (i = 0; i<maplist.length; i++) {
-	var latlng = maplist[i][1].split(',').map(Number);
+	var latlng = maplist[i][1];
 	bounds.push(latlng);
 	make_marker(...maplist[i]);
 }
@@ -99,8 +99,8 @@ for (i = 0; i<linklist.length; i++) {
 }
 <!-- set map to fit the placed markers --> 
 var polyline = L.polyline(bounds);
-if (bounds.length > 1) { mymap.fitBounds(polyline.getBounds());}
-else {mymap.setView(bounds[0],9);}
+//if (bounds.length > 1) { mymap.fitBounds(polyline.getBounds());}
+//else {mymap.setView(bounds[0],9);}
 
 
 var overlayMarkers= {};
