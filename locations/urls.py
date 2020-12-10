@@ -6,7 +6,10 @@ from . import views
 app_name = 'locations'
 urlpatterns = [
 	path('map/',views.map, name='map'),
+	path('map_ll/',views.map_ll, name='map_ll'),
 	path('map_draw/',views.map_draw, name='map_draw'),
+	path('ajax_popup/<str:markerid>/',views.ajax_popup, name='ajax_popup'),
+	path('ajax_popup/<str:markerid>/<str:lat>/<str:lng>/',views.ajax_popup, name='ajax_popup'),
 	path('geojson_file/<str:filename>/',views.geojson_file, name='geojson_file'),
 	path('geojson_file/geojson/<str:filename>/',views.geojson_file, name='geojson_file'),
 	path('show_links/<str:app_name>/<str:model_name>/<int:pk>/',views.show_links,name='show_links'),
