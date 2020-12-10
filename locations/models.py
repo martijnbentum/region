@@ -129,12 +129,12 @@ class Location(models.Model, info):
 
 	@property
 	def gps(self):
-		try: return str(round(self.latitude,2)) + ', ' + str(round(self.longitude,2))
+		try: return str(round(self.latitude,4)) + ', ' + str(round(self.longitude,4))
 		except: return ''
 
 	@property
 	def latlng(self):
-		return self.gps
+		return eval(self.gps)
 
 	def table_header(self):
 		return 'name,type,region,country'.split(',')
