@@ -12,7 +12,7 @@ from .forms import LocationRelationForm, LocationTypeForm,LocationStatusForm,Loc
 import json
 import os
 from utils.view_util import make_tabs,FormsetFactoryManager
-from utils.map_util import instance2related_locations,queryset2maplist,instance2maprows
+from utils.map_util import instance2related_locations,queryset2maplist,instance2maprows,pop_up
 from utilities.views import getfocus, list_view, delete_model, edit_model, add_simple_model
 
 from catalogue.models import Text, Illustration, Publication, Publisher, Periodical
@@ -45,6 +45,12 @@ for name in names.split(','):
 def location_list(request):
 	'''list view of location.'''
 	return list_view(request, 'Location', 'locations')
+
+def map_ll(request):
+	maplist = [x.plot for x in get_querysets()]
+	args = {'page_name':'map','maplist':maplist}
+	return render(request,'locations/map_ll.html',args)
+
 
 
 def map(request):
@@ -114,6 +120,17 @@ def get_querysets(names = None):
 		qs.extend(model.objects.all())
 	return qs
 
+def ajax_popup(request,markerid,lat=None,lng=None):
+	app_name, model_name, pk,latlng = markerid.split('_')
+	# print(markerid,lat,lng,latlng)
+	try:latlng = eval(latlng)
+	except: pass
+	model = apps.get_model(app_name,model_name)
+	instance = model.objects.get(pk=pk)
+	# print(instance,type(instance),1234,instance.pop_up)
+	d = {'popup':instance.pop_up(latlng)}
+	return JsonResponse(d)
+	
 
 def geojson_file(request,filename):
 	if not os.path.isfile('media/geojson/'+filename): data = {'file':False}
