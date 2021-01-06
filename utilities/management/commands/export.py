@@ -14,7 +14,7 @@ class Command(BaseCommand):
 		start = time.time()
 		save = True if not options['dryrun'] else False
 		path = options['path']  
-		path = path if os.path.isdir(path) else ''
+		path = path if path and os.path.isdir(path) else ''
 		if path != '' and not path.endswith('/'): path += '/'
 
 		filename = path + 'region_'+time.strftime('%Y_%m_%d_%H_%M')
