@@ -6,7 +6,7 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from utils import view_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
-from .models import copy_complete
+from utils.model_util import copy_complete
 from utilities.search import Search
 
 def list_view(request, model_name, app_name):
