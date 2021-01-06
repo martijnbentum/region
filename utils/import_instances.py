@@ -1,6 +1,6 @@
 import copy
 from django.apps import apps
-from utilities.models import instance2names
+from .model_util import instance2names
 from django.core import serializers
 from openpyxl import Workbook
 from openpyxl import load_workbook
