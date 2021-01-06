@@ -6,7 +6,7 @@ def field2locations(instance, field_name):
 	'''return locations from a field (fk or m2m) on a model.'''
 	if not hasattr(instance,field_name):return None
 	x = getattr(instance,field_name)
-	location_model = apps.get_model('locations','Location')
+	Location= apps.get_model('locations','Location')
 	if type(x) == Location: return [x]
 	if 'ManyRelatedManager' in str(type(x)): 
 		return x.all()
