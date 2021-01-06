@@ -1,4 +1,5 @@
 from .model_util import instance2name, instance2names
+from django.apps import apps
 import random
 
 def field2locations(instance, field_name):
