@@ -36,6 +36,9 @@ tiles.addTo(mymap);
 
 <!-- https://github.com/jawj/OverlappingMarkerSpiderfier-Leaflet to handle overlapping markers -->
 var oms = new OverlappingMarkerSpiderfier(mymap,{keepSpiderfied:true});
+var markerid = ''
+var main_instance_markerid = ''
+var markerid2marker = {}
 
 
 function onMapClick(e) {
@@ -44,21 +47,34 @@ function onMapClick(e) {
 	console.log(e);
 	}
 
+function marker_dict2markerid(marker_dict,gps) {
+	markerid=[marker_dict.app_name,marker_dict.model_name,marker_dict.pk,gps].join('_')
+	return markerid;
+}
 
-function make_marker(marker_dict) {
+
+function make_marker(marker_dict,add_main_instance = false) {
 	try {latlng = JSON.parse(marker_dict.gps);}
 	catch {latlng = []}
 	if (latlng.length == 0) {return false}
 	name =marker_dict.model_name.toLowerCase()
-	markerid=[marker_dict.app_name,marker_dict.model_name,marker_dict.pk].join('_')
 	for (var i= 0; i<latlng.length; i +=2) {
 		gps = latlng.slice(i,i+2)
-		var marker = L.marker(gps,{icon:make_icon(name), className:markerid + '_' + gps})
+		markerid= marker_dict2markerid(marker_dict,gps)
+		//if (Object.keys(markerid2marker).includes(markerid)){
+		//	return markerid2marker[markerid];
+		//}
+		if (add_main_instance) {mi = main_instance_markerid}
+		else { mi = false}
+		if (Object.keys(marker_dict).includes('layer_name')) 
+			{name = marker_dict.layer_name.toLowerCase()}
+		var marker = L.marker(gps,{icon:make_icon(name), className:markerid, main_instance:mi,
+			layer_name:name})
 		marker.bindPopup('loading...',{maxWidth:200,closeButton:false})
 		marker.on('click',setPopup)
 		oms.addMarker(marker);
-		console.log(name,12345);
 		layerDict[name].push(marker)
+		markerid2marker[markerid] = marker
 	}
 	return marker;
 }
@@ -67,6 +83,8 @@ async function setPopup(e) {
 	console.log(e.target)
 	console.log(e.target.options.className,'<<<---')
 	markerid = e.target.options.className;
+	if (e.target.options.main_instance) {
+		markerid += '/' + e.target.options.main_instance;}
 	//latlng = '/' + e.target._latlng.lat + '/' + e.target._latlng.lng
 	const response = await fetch('/locations/ajax_popup/'+ markerid) 
 	const data = await response.json()
@@ -76,18 +94,47 @@ async function setPopup(e) {
 	popup.update();
 }
 
-/*
-function make_marker(name,latlng,popup,markerid) {
-	latlng = latlng.split(',').map(Number);
-	if (latlng == 0) {return false}
-	var marker = L.marker(latlng,{icon:make_icon(name), className:markerid})
-	marker.bindPopup(popup,{maxWidth:200,closeButton:false})
-	oms.addMarker(marker);
-	console.log(name,12345);
-	layerDict[name].push(marker)
-	return marker;
+async function getLinks(e) {
+	link_markers ={'links':[],'main':markerid2marker[markerid]} 
+	main_instance_markerid = markerid
+	//latlng = '/' + e.target._latlng.lat + '/' + e.target._latlng.lng
+	const response = await fetch('/locations/ajax_links/'+ markerid) 
+	const data = await response.json()
+	for (link in data.links) {
+		marker_dict = data.links[link];
+		link_markers['links'].push(make_marker(marker_dict,true));
+		
+		console.log(data.links[link]);
+	}
+	showLinks(link_markers)
 }
-*/
+
+function hideMarkers() {
+	for (var key in markerid2marker) {
+		mymap.removeLayer(markerid2marker[key])
+	}
+	controlLayers.remove(mymap);
+}
+
+
+function showLinks(link_markers) {
+	hideMarkers()
+	//mymap.addLayer(link_markers['main'])
+	marker_ids = [ link_markers['main'].options.className ]
+	var start = link_markers['main']._latlng
+	for (var index in link_markers['links']) {
+		marker = link_markers['links'][index]
+		if (marker == undefined || marker.options == undefined) {continue}
+		var end = marker._latlng;
+		marker_ids.push(marker.options.className)
+		console.log(marker,marker.options.layer_name);
+		name = marker.options.layer_name.toLowerCase()
+		var polyline = L.polyline([start,end], {color:colorDict[name],
+		weight:2,opacity:0.3});
+		polyline.addTo(mymap)
+	}
+	showMarkers(marker_ids)
+}
 
 
 function onmarkerClick(e) {
@@ -95,6 +142,30 @@ function onmarkerClick(e) {
 	console.log(s);
 	console.log(this);
 }
+
+function showMarkers(marker_ids = 'all') {
+	//var controlLayers;
+	console.log(marker_ids)
+	for (const [key, value] of Object.entries(layerDict)) {
+		markers = [];
+		if (marker_ids != 'all') {
+			for (const marker of value) {
+				//console.log(marker)
+				if (marker == undefined) {continue;}
+				cn = marker.options.className
+				if (marker_ids.includes(cn)) {markers.push(marker);}
+			}
+			console.log(markers.length,555)
+		}
+		else {markers = value;}
+		var color = colorDict[key]
+		var layername = '<span style="color:'+color+';">'+key+'</span>'
+		console.log(layername);
+		if ( markers.length > 0) {overlayMarkers[layername]=L.layerGroup(markers).addTo(mymap)};
+	}
+	controlLayers = L.control.layers({},overlayMarkers,{collapsed:false}).addTo(mymap);
+}
+
 
 var names = 'text,illustration,publication,publisher,periodical,person,movement'.split(',');
 layerDict = {}
@@ -113,7 +184,24 @@ for (i = 0; i<maplist.length; i++) {
 	make_marker(maplist[i]);
 }
 console.log(maplist.length)
+var controlLayers;
+var overlayMarkers= {};
+var a = ['catalogue_Publisher_292_55.6759,12.5655',"catalogue_Periodical_19_53.7965,-1.5478"]
+showMarkers('all');
 /*
+
+for (const [key, value] of Object.entries(layerDict)) {
+	var color = colorDict[key]
+	var layername = '<span style="color:'+color+';">'+key+'</span>'
+	console.log(layername,value);
+	if ( value.length > 0) {overlayMarkers[layername]=L.layerGroup(value).addTo(mymap)};
+}
+var controlLayers = L.control.layers({},overlayMarkers,{collapsed:false});
+controlLayers.addTo(mymap);
+
+console.log(colorDict['text']);
+
+
 
 var linklist= JSON.parse(document.getElementById('link-list').textContent);
 
@@ -141,16 +229,6 @@ else {mymap.setView(bounds[0],9);}
 
 */
 
-var overlayMarkers= {};
-for (const [key, value] of Object.entries(layerDict)) {
-	var color = colorDict[key]
-	var layername = '<span style="color:'+color+';">'+key+'</span>'
-	console.log(layername);
-	if ( value.length > 0) {overlayMarkers[layername]=L.layerGroup(value).addTo(mymap)};
-}
-L.control.layers({},overlayMarkers,{collapsed:false}).addTo(mymap);
-
-console.log(colorDict['text']);
 
 </script>
  
