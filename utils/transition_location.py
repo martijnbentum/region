@@ -3,7 +3,7 @@ from locations.models import UserLoc,GeoLoc,Location
 from .hloc_util import make_locationtype, make_locationstatus, make_locationprecision
 from locations.models import Location, LocationType, LocationStatus, LocationPrecision
 from locations.models import LocationRelation 
-from utilities.models import instance2names
+from .model_util import instance2names
 
 def make():
 	make_locationtype()
