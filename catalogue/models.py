@@ -3,9 +3,9 @@ from django.conf import settings
 from django.utils import timezone
 import glob
 from locations.models import Location
-from utilities.models import Language, RelationModel, SimpleModel, instance2names
-from utils.model_util import id_generator, info
-from utils.map_util import field2locations, pop_up, get_location_name
+from utilities.models import Language, RelationModel, SimpleModel 
+from utils.model_util import id_generator, info,instance2names
+from utils.map_util import field2locations, pop_up, get_location_name,gps2latlng
 import os
 from partial_date import PartialDateField
 import time
@@ -48,16 +48,15 @@ class Item(models.Model):
 		'''sets the gps coordinates and name of related location to speed up map visualization.'''
 		locations = field2locations(self,self.location_field)
 		if locations:
-			gps = ' | '.join([location.gps for location in locations])
-			names= ' | '.join([location.name for location in locations])
+			gps = ' | '.join([location.gps for location in locations if location.gps])
+			names= ' | '.join([location.name for location in locations if location.gps])
 			self.gps = gps
 			self.gps_names = names
 		else: self.gps, self.gps_names = '',''
 
 	@property
 	def latlng(self):
-		try: return [eval(el) for el in self.gps.split(' - ')]
-		except: return None
+		return gps2latlng(self.gps)
 
 	@property
 	def latlng_names(self):
@@ -83,7 +82,6 @@ class Item(models.Model):
 			return self.caption
 		else: raise ValueError('please override instance_name property with correct "name" field')
 
-	@property
 	def plot(self):
 		app_name, model_name = instance2names(self) 
 		gps = str(self.gps.split(' | ')).replace("'",'')
@@ -91,7 +89,7 @@ class Item(models.Model):
 			'gps':gps, 'pk':self.pk}
 		return d
 
-	def gps2name(self,latlng):
+	def latlng2name(self,latlng):
 		return get_location_name(self,latlng)
 	
 	class Meta:
@@ -117,7 +115,22 @@ class Text(Item, info):
 	class Meta:
 		unique_together = 'title,setting,language'.split(',')
 
-		
+	def latlng2name(self,latlng):
+		location_name = super().latlng2name(latlng)
+		if location_name:
+			return 'Text situated in <b>' +location_name + '</b>'
+		else: return '<p></p>'
+
+	def pop_up(self,latlng):
+		m = ''
+		if self.language: m += '<p><small>language <b>' + self.language.name 
+		if self.language and self.genre: m += '</b>, '
+		else: m += '</b></small></p>'
+		if not m and self.genre: m += '<p><small>'
+		if self.genre: m += 'genre <b>' + self.genre.name + '</b></small></p>'
+		return pop_up(self,latlng,extra_information=m)
+			
+			
 
 def make_filename(instance, filename):
 	app_name, model_name = instance2names(instance)
@@ -158,6 +171,15 @@ class Publisher(Item, info):
 		ordering = ['name']
 		unique_together = 'name,founded'.split(',')
 
+	def pop_up(self,latlng):
+		m = ''
+		if self.founded: m += '<p><small>founded <b>' + str(self.founded)
+		if self.founded and self.closure: m += '</b>, '
+		else: m += '</b></small></p>'
+		if not m and self.founded: m += '<p><small>'
+		if self.closure: m += 'closure <b>' + str(self.closure) + '</b></small></p>'
+		return pop_up(self,latlng,extra_information=m)
+
 
 class Publication(Item, info):
 	'''The publication of a text or collection of texts and illustrations'''
@@ -174,6 +196,17 @@ class Publication(Item, info):
 	cover = models.ImageField(upload_to='publication/',null=True,blank=True)
 	publisher_names = models.CharField(max_length = 500, null=True,blank=True,default='')
 
+	def pop_up(self,latlng):
+		m = ''
+		if self.publisher_names: 
+			m += '<p><small>published by <b>'+self.publisher_names+'</b></small></p>'
+		if self.volume: m+='<p><small>volume <b>' + str(self.volume)
+		if not self.issue: m+= '</b></small></p>'
+		if not self.volume and self.issue:m+= '<p><small>'
+		if self.issue and self.volume: m += '</b>, '
+		if self.issue: m += 'issue <b>'+ str(self.issue) +'</b></small></p>'
+		if self.date: m+= '<p><small>published in <b>' + self.date.name + '</b></small></p>'
+		return pop_up(self,latlng,extra_information=m)
 
 	class Meta:
 		unique_together = [['title','publisher_names','date','issue','volume']]
@@ -199,6 +232,18 @@ class Periodical(Item, info):
 
 	class Meta:
 		unique_together = 'title,founded'.split(',')
+
+	def pop_up(self,latlng):
+		m = ''
+		if self.founded: m += '<p><small>founded <b>' + str(self.founded)
+		if self.founded and self.closure: m += '</b>, '
+		else: m += '</b></small></p>'
+		if not m and self.founded: m += '<p><small>'
+		if self.closure: m += 'closure <b>' + str(self.closure) + '</b></small></p>'
+		x = self.periodicalpublicationrelation_set.all()
+		names = ' | '.join(list(set([y.publication.publisher_names for y in x])))
+		if names: m += '<p><small>published by <b>' + names + '</b></small></p>'
+		return pop_up(self,latlng,extra_information=m)
 
 
 # ---- relation objects, e.g text publication relation etc. ----
