@@ -1,11 +1,10 @@
 from django.apps import apps
-from utilities.models import instance2names
 from django.core import serializers
 from lxml import etree
 from openpyxl import Workbook
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
-from .model_util import compare_instances
+from .model_util import compare_instances, instance2names
 from partial_date.partial_date import PartialDate
 
 exclude_apps = 'admin,auth,contenttypes,django,sessions,utilities,easyaudit'.split(',')
