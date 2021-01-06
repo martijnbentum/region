@@ -3,7 +3,7 @@ import inspect
 import sys
 from easyaudit.models import CRUDEvent
 from utils import signal_util
-from utilities.models import instance2name, instance2names
+from .model_util import instance2name, instance2names
 
 def get_modelform(namespace,modelform_name):
 	temp = sys.modules[namespace]
