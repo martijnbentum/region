@@ -4,7 +4,7 @@ from easyaudit.models import CRUDEvent
 from django.db.models.signals import m2m_changed, post_delete
 from django.dispatch import receiver
 from catalogue.models import TextTextRelation
-from utilities.models import instance2name, instance2names
+from .model_util import instance2name, instance2names
 
 from persons.models import Person,Movement
 from catalogue.models import Text,Publication,Publisher,Illustration,Periodical
