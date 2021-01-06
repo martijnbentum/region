@@ -6,6 +6,7 @@ from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from .model_util import compare_instances, instance2names
 from partial_date.partial_date import PartialDate
+import json
 
 exclude_apps = 'admin,auth,contenttypes,django,sessions,utilities,easyaudit'.split(',')
 non_primary_apps = ['locations']
