@@ -1,7 +1,8 @@
 from django.apps import apps
 from django.db import models
 from django.utils import timezone
-from utils.model_util import id_generator, info
+from utils.model_util import id_generator, info, instance2names
+from utils.map_util import pop_up, get_location_name,gps2latlng
 
 class RelationModel(models.Model):
 	'''abstract model for relational models, e.g. text person relation model
@@ -9,14 +10,36 @@ class RelationModel(models.Model):
 		e.g. in previous example if person is provided text would be returned
 	'''
 	model_fields = ['','']
+	other = False
+	other_field_name = False
+	relation_field = ''
 
 	class Meta:
 		abstract=True
 
-	def other(self,name):
-		if name == self.model_fields[0]: return self.model_fields[1]
-		if name == self.model_fields[1]: return self.model_fields[0]
-		return ''
+	def set_other(self,main_instance):
+		for field_name in self.model_fields:
+			instance = getattr(self,field_name)
+			if instance == main_instance: continue
+			else: 
+				self.other = instance
+				self.other_field_name =field_name
+
+	def plot(self):
+		app_name, model_name = instance2names(self) 
+		oan,omn = instance2names(self.other)
+		gps = str(self.other.gps.split(' | ')).replace("'",'')
+		d = {'app_name':app_name, 'model_name':model_name, 
+			'gps':gps, 'pk':self.pk,'layer_name':omn}
+		return d
+
+	def pop_up(self,main_instance):
+		self.set_other(main_instance)
+		if not self.other: return 'could not construct relation'
+		latlng = gps2latlng(self.other.gps)
+		m = self.other.pop_up(latlng)
+		return m
+
 
 class SimpleModel(models.Model):
 	'''abstract model for simple model with only a name and description.'''
@@ -44,82 +67,8 @@ class Language(models.Model, info):
 		return self.name
 # Create your models here.
 
-def copy_complete(instance, commit = True):
-	'''copy a model instance completely with all relations.'''
-	copy = simple_copy(instance, commit)
-	app_name, model_name = instance2names(instance)
-	for f in copy._meta.get_fields():
-		if f.one_to_many:
-			for r in list(getattr(instance,f.name+'_set').all()):
-				rcopy = simple_copy(r,False,False)
-				setattr(rcopy,model_name.lower(), copy)
-				rcopy.save()
-		if f.many_to_many:
-			getattr(copy,f.name).set(getattr(instance,f.name).all())
-	return copy
 
 
-def simple_copy(instance, commit = True,add_copy_suffix = True):
-	'''Copy a model instance and save it to the database.
-	m2m and relations are not saved.
-	'''
-	app_name, model_name = instance2names(instance)
-	model = apps.get_model(app_name,model_name)
-	copy = model.objects.get(pk=instance.pk)
-	copy.pk = None
-	print('copying...')
-	for name in 'title,name,caption,first_name'.split(','):
-		if hasattr(copy,name):
-			print('setting',name)
-			copy.view()
-			setattr(copy,name,getattr(copy,name)+ ' !copy!')
-			copy.view()
-			break
-	if commit:
-		copy.save()
-	return copy
-
-def instance2names(instance):
-	# s = str(type(instance)).split("'")[-2]
-	# app_name,_,model_name = s.split('.')
-	app_name,model_name = instance._meta.app_label, instance._meta.model_name.capitalize()
-	return app_name, model_name
-
-def instance2name(instance):
-	app_name, model_name = instance2names(instance)
-	return model_name
-
-def instance2color(instance):
-	name = instance2name(instance).lower()
-	if name in color_dict.keys(): return color_dict[name]
-	else: return 'black'
-
-def instance2icon(instance):
-	name = instance2name(instance).lower()
-	if name in icon_dict.keys():
-		return icon_dict[name]
-	return 'not found'
-
-def instance2map_buttons(instance):
-	app_name,model_name= instance2names(instance)
-	m = ''
-	m += '<a class = "btn btn-link btn-sm mt-1 pl-0 text-dark" href='
-	m += '/'+app_name+'/edit_' + model_name.lower()+'/' + str(instance.pk) 
-	m += ' role="button"><i class="far fa-edit"></i></a>'
-	m += '<a class = "btn btn-link btn-sm mt-1 pl-0 text-dark" href='
-	m += '/locations/show_links/'+app_name+'/'+ model_name.lower()+'/' + str(instance.pk) +'/'
-	m += ' role="button"><i class="fas fa-project-diagram"></i></a>'
-	return m
-
-names = 'text,illustration,publisher,publication,periodical,person,movement'.split(',')
-colors = '#0fba62,#5aa5c4,#e04eed,#ed4c72,#1e662a,#c92f04,#e39817'.split(',')
-icons ='fa fa-file-text-o,fa fa-picture-o,fa fa-building-o,fa fa-book'
-icons +=',fa fa-newspaper-o,fa fa-male,fa fa-users'
-icons = ['<i class="'+icon+' fa-lg mt-2" aria-hidden="true"></i>' for icon in icons.split(',')]
-color_dict,icon_dict ={}, {}
-for i,name in enumerate(names):
-	color_dict[name] = colors[i]
-	icon_dict[name] = icons[i]
 
 
 
