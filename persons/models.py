@@ -2,9 +2,9 @@ from django.db import models
 from django.utils import timezone
 import json
 from locations.models import Location
-from utilities.models import Language, RelationModel, instance2names
-from utils.model_util import id_generator, info
-from utils.map_util import field2locations, pop_up, get_location_name
+from utilities.models import Language, RelationModel 
+from utils.model_util import id_generator, info,instance2names
+from utils.map_util import field2locations, pop_up, get_location_name,gps2latlng
 from utilities.models import SimpleModel
 
 
@@ -18,9 +18,6 @@ names = names.split(',')
 
 for name in names:
 	make_simple_model(name)
-
-
-
 
 
 # --- main models ---
@@ -57,8 +54,8 @@ class Person(models.Model, info):
 		'''sets the gps coordinates and name of related location to speed up map visualization.'''
 		locations = field2locations(self,self.location_field)
 		if locations:
-			gps = ' - '.join([location.gps for location in locations])
-			names= ' - '.join([location.name for location in locations])
+			gps = ' | '.join([location.gps for location in locations if location.gps])
+			names= ' | '.join([location.name for location in locations if location.gps])
 			self.gps = gps
 			self.gps_names = names
 		else: self.gps, self.gps_names = '',''
@@ -71,6 +68,10 @@ class Person(models.Model, info):
 		if self.first_name == None: return self.last_name
 		if self.last_name == None: return self.first_name
 		return str(self.first_name) + ' ' + str(self.last_name)
+
+	@property
+	def instance_name(self):
+		return self.name
 	
 	def __str__(self):
 		return self.name
@@ -84,45 +85,39 @@ class Person(models.Model, info):
 		return self.death_year
 
 	@property
-	def attribute_names(self):
-		m = 'first_name,last_name,sex,birth_year,death_year,birth_place'
-		m += ',death_place,notes'
-		return m.split(',')
-
-
-	@property
-	def location_status(self):
-		locs, names = self.locations
-		o = dict([[str(i),n] for i,n in zip(range(1,len(names)+1),names)])
-		# return ','.join(names)
-		return json.dumps(o)
+	def life(self):
+		m =''
+		if self.born:m += 'born ' + str(self.birth_year) 
+		if self.born and self.died: m += ', '
+		if self.died:m += 'died ' + str(self.death_year)
+		if self.born and self.died: m += ' (age ' + str(self.death_year -self.birth_year) + ')'
+		return m
 
 	@property
 	def gender(self):
 		return dict(self.SEX)[self.sex]
 
-
 	@property
 	def latlng(self):
-		try: return [eval(el) for el in self.gps.split(' - ')]
-		except: return None
+		return gps2latlng(self.gps)
 
 	@property
 	def latlng_names(self):
 		try: return self.gps_names.split(' - ')
 		except: return None
 
-
+	@property
+	def pseudonyms(self):
+		return ' | '.join([x.name for x in self.pseudonym.all()])
+		
 	def pop_up(self,latlng=None):
-		p = pop_up(self, latlng)
-		p += '<small>' + self.gps2placetype(latlng) + '</small>'
+		m = ''
+		if self.life: m += '<p><small>' + self.life + '</small></p>'
+		pseudonyms = self.pseudonyms
+		if pseudonyms: m += '<p><small>pseudonym <b>' + pseudonyms + '</b></small></p>'
+		p = pop_up(self, latlng, extra_information = m)
 		return p
 
-	@property
-	def instance_name(self):
-		return self.name
-
-	@property
 	def plot(self):
 		app_name, model_name = instance2names(self) 
 		gps = str(self.gps.split(' | ')).replace("'",'')
@@ -133,45 +128,61 @@ class Person(models.Model, info):
 
 	def _set_secondary_place(self,d):
 		ptd = self.make_placetype_dict()
-		for key in ptd:
-			if 'residence' == key: 
-				d['gps'] = '[' + ptd[key] + ']'
+		for relation_name in ptd:
+			if 'residence' == relation_name: 
+				d['gps'] = '[' + ptd[relation_name][0] + ']'
 				break
-			d['gps'] = '[' + ptd[key] + ']'
+			d['gps'] = '[' + ptd[relation_name][0] + ']'
 		
 
-	def gps2placetype(self,latlng):
+	def latlng2placetype(self,latlng):
+		'''return the relation between the place and the person, e.g. residence.'''
 		try:
 			ptd = self.make_placetype_dict()
-			for key in ptd:
-				if 'location_name' in key: continue
-				if eval(ptd[key]) == latlng: return key.replace('_',' ')
+			for relation_name in ptd:
+				if 'location_name' in relation_name: continue
+				for gps in ptd[relation_name]:
+					if eval(gps) == latlng: return relation_name.replace('_',' ')
 			self.view()
 		except:pass
-		return '---'
+		return ''
 
-	def gps2name(self,latlng):
+	def latlng2name(self,latlng):
+		'''returns the location name based on on the latlng input
+		uses index of gps corresponding with latlng and gps_names to return correct name
+		'''
 		ln = get_location_name(self,latlng)
-		if ln != '': return ln
-		try:
-			ptd = self.make_placetype_dict()
-			for key in ptd:
-				if eval(ptd[key]) ==latlng: return ptd[key+'_location_name']
-		except:pass
-		return '-'
+		if ln == '':
+			try:
+				ptd = self.make_placetype_dict()
+				for relation_name in ptd:
+					if 'location_name' in relation_name: continue
+					for i,gps in enumerate(ptd[relation_name]):
+						if eval(gps) ==latlng: ln = ptd[relation_name+'_location_name'][i]
+			except:pass
+		pt = self.latlng2placetype(latlng)
+		if ln and pt: return '<b>'+ln + '</b>, ' + pt
+		if ln: return ln
+		return pt
 		
 	def make_placetype_dict(self):
+		'''creates a dictionary that maps the relation name between the person and location
+		to the gps string saved on the person instance
+		[relation name] + '_location_name' gives the corresponding location name
+		'''
 		d = {}
 		for name in  'birth_place,death_place'.split(','):
 			if hasattr(self,name):
 				try: 
-					d[name] = getattr(self,name).gps 
-					d[name+'_location_name'] = getattr(self,name).name
+					d[name] = [getattr(self,name).gps]
+					d[name+'_location_name'] = [getattr(self,name).name]
 				except:continue
 		for plr in self.personlocationrelation_set.all():
 			if None in [getattr(plr,n) for n in 'location,person,relation'.split(',')]:continue
-			d[plr.relation.name] =  plr.location.gps 
-			d[plr.relation.name+'_location_name'] = plr.location.name
+			if plr.relation.name not in d.keys():
+				d[plr.relation.name], d[plr.relation.name +'_location_name'] = [], []
+			d[plr.relation.name].append( plr.location.gps )
+			d[plr.relation.name+'_location_name'].append( plr.location.name )
 		return d
 
 
@@ -204,8 +215,8 @@ class Movement(models.Model, info):
 		'''sets the gps coordinates and name of related location to speed up map visualization.'''
 		locations = field2locations(self,self.location_field)
 		if locations:
-			gps = ' | '.join([location.gps for location in locations])
-			names= ' | '.join([location.name for location in locations])
+			gps = ' | '.join([location.gps for location in locations if location.gps])
+			names= ' | '.join([location.name for location in locations if location.gps])
 			self.gps = gps
 			self.gps_names = names
 		else: self.gps, self.gps_names = '',''
@@ -222,8 +233,7 @@ class Movement(models.Model, info):
 
 	@property
 	def latlng(self):
-		try: return [eval(el) for el in self.gps.split(' - ')]
-		except: return None
+		return gps2latlng(self.gps)
 
 	@property
 	def latlng_names(self):
@@ -235,15 +245,22 @@ class Movement(models.Model, info):
 		try:return ', '.join(self.latlng_names)
 		except: return ''
 
+	def pop_up(self,latlng):
+		m = ''
+		if self.movement_type: 
+			m += '<p><small><b>' + self.movement_type.name + '</b> movement</small></p>'
+		if self.founded: m += '<p><small>founded <b>' + str(self.founded)
+		if self.founded and self.closure: m += '</b>, '
+		else: m += '</b></small></p>'
+		if not m and self.founded: m += '<p><small>'
+		if self.closure: m += 'closure <b>' + str(self.closure) + '</b></small></p>'
+		return pop_up(self,latlng,extra_information=m)
 
-	def pop_up(self,latlng = None):
-		return pop_up(self)	
 
 	@property
 	def instance_name(self):
 		return self.name
 
-	@property
 	def plot(self):
 		app_name, model_name = instance2names(self) 
 		gps = str(self.gps.split(' | ')).replace("'",'')
@@ -251,7 +268,7 @@ class Movement(models.Model, info):
 			'gps':gps, 'pk':self.pk}
 		return d
 
-	def gps2name(self,latlng):
+	def latlng2name(self,latlng):
 		return get_location_name(self,latlng)
 
 
@@ -264,12 +281,17 @@ class PersonPersonRelation(RelationModel, info):
 	person2 = models.ForeignKey(Person, on_delete=models.CASCADE,related_name='person2')
 	relation_type = models.ForeignKey(PersonPersonRelationType, on_delete=models.CASCADE)
 	model_fields = ['person1','person2']
+	relation_field = 'relation_type'
 
 	class Meta:
 		constraints = [models.UniqueConstraint(
 			fields='person1,person2,relation_type'.split(','), 
 			name = 'unique_personpersonrelation')]
 
+
+	@property
+	def relation_name(self):
+		return self.relation.name
 
 class PersonLocationRelation(RelationModel,info):
 	'''relation between person and location.'''
@@ -283,10 +305,7 @@ class PersonLocationRelation(RelationModel,info):
 	description= models.TextField(null=True,blank=True)
 	location_field = 'location'
 	model_fields = ['person','location']
-
-	@property
-	def relationship(self):
-		return self.relation.name
+	relation_field = 'relation'
 
 	@property
 	def relation_name(self):
@@ -311,25 +330,29 @@ class PersonLocationRelation(RelationModel,info):
 	def primary(self):
 		return self.person
 
-	@property
-	def latlng(self):
-		locations = field2locations(self,'location')
-		if locations:
-			return [location.gps for location in locations]
-		else: return None
 
-	def pop_up(self,latlng =None):
-		return pop_up(self,latlng)	
+	def pop_up(self,main_instance=None, latlng =None):
+		m = self.person.pop_up(self.location.latlng)	
+		return m
 
 	@property
 	def instance_name(self):
 		return self.__str__()
 
-	@property
 	def plot(self):
-		pd = self.person.plot
-		pd['gps'] = self.location.gps
-		return pd
+		d = super().plot()
+		d['layer_name'] = 'Person'
+		return d
+
+	'''
+	def plot(self):
+		app_name, model_name = instance2names(self) 
+		pan, pmn= instance2names(self.person) 
+		gps = str(self.location.gps.split(' | ')).replace("'",'')
+		d = {'app_name':app_name, 'model_name':model_name, 
+			'gps':gps, 'pk':self.pk,'layer_name':pmn}
+		return d
+	'''
 
 
 class PublisherManager(models.Model): #or broker
@@ -339,7 +362,11 @@ class PublisherManager(models.Model): #or broker
 		on_delete=models.CASCADE, related_name='publisher')
 	manager = models.ForeignKey(Person, on_delete=models.CASCADE,
 		related_name='manager')
+	model_fields = ['person','location']
 
+	@property
+	def relation_name(self):
+		return 'Manager'
 
 class PersonTextRelation(RelationModel, info):
 	'''Relation between a person and a text.'''
@@ -349,6 +376,7 @@ class PersonTextRelation(RelationModel, info):
 		on_delete=models.CASCADE)
 	published_under = models.CharField(max_length = 100,null=True,blank=True)
 	model_fields = ['person','text']
+	relation_field = 'role'
 	
 	def __str__(self):
 		m = self.person.__str__() + ' | ' + self.role.__str__() 
@@ -356,7 +384,7 @@ class PersonTextRelation(RelationModel, info):
 		return m
 
 	@property
-	def relationship(self):
+	def relation_name(self):
 		return self.role.name
 
 	class Meta:
@@ -365,6 +393,35 @@ class PersonTextRelation(RelationModel, info):
 	@property
 	def primary(self):
 		return self.person
+
+	def pop_up(self,main_instance):
+		m = super().pop_up(main_instance)
+		m += '<small>'+self.person.name + ' is the <b>' +self.relation_name + '</b></small>'
+		return m
+
+	'''
+	def pop_up(self,main_instance,latlng = None):
+		self.set_other(main_instance)
+		if not self.other: return 'could not construct relation'
+		latlng = gps2latlng(self.other.gps)
+		m = self.other.pop_up(latlng)
+		m += '<small>'+self.person.name + ' is the <b>' +self.relation_name + '</b></small>'
+		return m
+
+	def set_other(self,main_instance):
+		if main_instance == self.person: self.other = self.text
+		elif main_instance == self.text: self.other = self.person
+		else: self.other = False
+		
+	def plot(self):
+		app_name, model_name = instance2names(self) 
+		oan,omn = instance2names(self.other)
+		gps = str(self.other.gps.split(' | ')).replace("'",'')
+		d = {'app_name':app_name, 'model_name':model_name, 
+			'gps':gps, 'pk':self.pk,'layer_name':omn}
+		return d
+	'''
+
 
 
 class PersonIllustrationRelation(RelationModel, info):
@@ -395,6 +452,7 @@ class PersonMovementRelation(RelationModel, info):
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	role = models.ForeignKey(PersonMovementRelationRole, on_delete=models.CASCADE)
 	model_fields = ['movement','person']
+	relation_field = 'role'
 
 	def __str__(self):
 		m = self.person.__str__() + ' | ' + self.role.__str__() +' | of movement: '
@@ -402,9 +460,40 @@ class PersonMovementRelation(RelationModel, info):
 		return m
 
 	@property
+	def relation_name(self):
+		return self.role.name
+
+	@property
 	def primary(self):
 		return self.person
 
+	def pop_up(self,main_instance):
+		m = super().pop_up(main_instance)
+		m += '<small>Role: <b>'+self.relation_name + '</b></small>'
+		return m
+
+	'''
+	def pop_up(self,main_instance,latlng = None):
+		self.set_other(main_instance)
+		if not self.other: return 'could not construct relation'
+		latlng = gps2latlng(self.other.gps)
+		m = self.other.pop_up(latlng)
+		m += '<small>Role: <b>'+self.relation_name + '</b></small>'
+		return m
+
+	def set_other(self,main_instance):
+		if main_instance == self.person: self.other = self.movement
+		elif main_instance == self.movement: self.other = self.person
+		else: self.other = False
+
+	def plot(self):
+		app_name, model_name = instance2names(self) 
+		oan,omn = instance2names(self.other)
+		gps = str(self.other.gps.split(' | ')).replace("'",'')
+		d = {'app_name':app_name, 'model_name':model_name, 
+			'gps':gps, 'pk':self.pk,'layer_name':omn}
+		return d
+	'''
 
 class PersonPeriodicalRelation(RelationModel, info):
 	'''Relation between a periodical and a person.'''
@@ -412,6 +501,7 @@ class PersonPeriodicalRelation(RelationModel, info):
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
 	role = models.ForeignKey(PersonPeriodicalRelationRole, on_delete=models.CASCADE)
 	model_fields = ['periodical','person']
+	relation_field = 'role'
 
 	def __str__(self):
 		m = self.person.__str__() + ' | ' + self.role.__str__() +' | of periodical: '
@@ -419,8 +509,37 @@ class PersonPeriodicalRelation(RelationModel, info):
 		return m
 
 	@property
+	def relation_name(self):
+		return self.role.name
+
+	@property
 	def primary(self):
 		return self.person
 
+	def pop_up(self,main_instance):
+		m = super().pop_up(main_instance)
+		m += '<small>Role: '+self.role.name + '</small>'
+		return m
+
+	'''
+	def pop_up(self,main_instance,latlng = None):
+		self.set_other(main_instance)
+		if not self.other: return 'could not construct relation'
+		latln = gps2latlng(self.other.gps)
+		m = self.other.pop_up(latlng)
+		m += '<small>Role: '+self.role.name + '</small>'
+		return m
+
+	def set_other(self,main_instance):
+		if main_instance == self.person: self.other = self.periodical
+		elif main_instance == self.periodical: self.other = self.person
+		else: self.other = False
 	
-	
+	def plot(self):
+		app_name, model_name = instance2names(self) 
+		oan,omn = instance2names(self.other)
+		gps = str(self.other.gps.split(' | ')).replace("'",'')
+		d = {'app_name':app_name, 'model_name':model_name, 
+			'gps':gps, 'pk':self.pk,'layer_name':omn}
+		return d
+	'''
