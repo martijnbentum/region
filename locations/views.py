@@ -12,9 +12,11 @@ from .forms import LocationRelationForm, LocationTypeForm,LocationStatusForm,Loc
 import json
 import os
 from utils.view_util import make_tabs,FormsetFactoryManager
-from utils.map_util import instance2related_locations,queryset2maplist,instance2maprows,pop_up
+# from utils.map_util import instance2related_locations,queryset2maplist,instance2maprows,pop_up
+from utils.map_util import gps2latlng, pop_up
+from utils.model_util import instance2names
+from utils.instance_links import Links
 from utilities.views import getfocus, list_view, delete_model, edit_model, add_simple_model
-
 from catalogue.models import Text, Illustration, Publication, Publisher, Periodical
 from persons.models import Person, Movement
 
@@ -47,23 +49,28 @@ def location_list(request):
 	return list_view(request, 'Location', 'locations')
 
 def map_ll(request):
-	maplist = [x.plot for x in get_querysets()]
+	maplist = [x.plot() for x in get_querysets()]
 	args = {'page_name':'map','maplist':maplist}
 	return render(request,'locations/map_ll.html',args)
 
 
 
 def map(request):
-	maplist = queryset2maplist(get_querysets())
+	# maplist = queryset2maplist(get_querysets())
+	maplist = None
 	args = {'page_name':'map','maplist':maplist}
 	return render(request,'locations/map.html',args)
 
 	
 def show_links(request,app_name,model_name,pk):
+	print(app_name,model_name,pk)
 	instance = apps.get_model(app_name,model_name).objects.get(pk=pk)
+	l = Links(instance)
+	print(l.connections.instances,22222222222)
 	link_list= instance2maprows(instance,role='main') 
 	l, fn,ll= instance2related_locations(instance)
 	link_list.extend(ll)
+	print(link_list,1111111111111111111111111)
 	args = {'page_name':'links','link_list':link_list}
 	return render(request,'locations/map.html',args)
 
@@ -120,16 +127,25 @@ def get_querysets(names = None):
 		qs.extend(model.objects.all())
 	return qs
 
-def ajax_popup(request,markerid,lat=None,lng=None):
-	app_name, model_name, pk,latlng = markerid.split('_')
-	# print(markerid,lat,lng,latlng)
-	try:latlng = eval(latlng)
-	except: pass
+def ajax_popup(request,markerid,main_instance_markerid = None):
+	print(markerid,main_instance_markerid,11111111111)
+	app_name, model_name, pk,gps= markerid.split('_')
+	latlng = gps2latlng(gps)
 	model = apps.get_model(app_name,model_name)
 	instance = model.objects.get(pk=pk)
-	# print(instance,type(instance),1234,instance.pop_up)
-	d = {'popup':instance.pop_up(latlng)}
+	if main_instance_markerid:
+		mi_an, mi_mn, mi_pk,mi_gps= main_instance_markerid.split('_')
+		mi_model = apps.get_model(mi_an,mi_mn)
+		mi_instance = mi_model.objects.get(pk=mi_pk)
+		d = {'popup':instance.pop_up(mi_instance)}
+	else:d = {'popup':instance.pop_up(latlng)}
 	return JsonResponse(d)
+
+def ajax_links(request,markerid):
+	app_name, model_name, pk,gps= markerid.split('_')
+	model = apps.get_model(app_name,model_name)
+	instance = model.objects.get(pk=pk)
+	return JsonResponse({'links':Links(instance).plots})
 	
 
 def geojson_file(request,filename):
