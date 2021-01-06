@@ -134,7 +134,8 @@ class Location(models.Model, info):
 
 	@property
 	def latlng(self):
-		return eval(self.gps)
+		try:return eval(self.gps)
+		except: None
 
 	def table_header(self):
 		return 'name,type,region,country'.split(',')
