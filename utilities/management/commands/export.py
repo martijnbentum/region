@@ -3,6 +3,18 @@ from utils.export import Exports
 import time
 import os
 
+'''
+Export entire database to xlsx / xlm / json file
+Filename is region_[date]
+
+At the current db size this takes a minute or two
+
+-output 		filetypes xlsx / xlm / json
+-path 			destination folder (checked to exist, otherwise saved in repository directory)
+--dryrun 		do not actually create export and save files, but run through everything else
+				(print filename and path)
+'''
+
 class Command(BaseCommand):
 	def add_arguments(self,parser):
 		parser.add_argument('-output',nargs='+')
