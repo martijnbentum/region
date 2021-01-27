@@ -158,8 +158,10 @@ SELECT2BOOTSTRAP = True
 LOGIN_REDIRECT_URL = '/catalogue/text/'
 LOGOUT_REDIRECT_URL = '/catalogue/text/'
 
-EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
-EMAIL_FILE_PATH = os.path.join(BASE_DIR,'sent_emails')
+DEFAULT_FROM_EMAIL = 'redefiningtheregion@ru.nl'
+# EMAIL_HOST = '127.0.0.1'
+#EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+#EMAIL_FILE_PATH = os.path.join(BASE_DIR,'sent_emails')
 
 try:
     from django.contrib.messages import constants as messages
