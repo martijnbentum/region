@@ -3,7 +3,7 @@ from django.conf import settings
 from django.utils import timezone
 import glob
 from locations.models import Location
-from utilities.models import Language, RelationModel, SimpleModel 
+from utilities.models import Language, RelationModel, SimpleModel, GroupTag
 from utils.model_util import id_generator, info,instance2names
 from utils.map_util import field2locations, pop_up, get_location_name,gps2latlng
 import os
@@ -32,6 +32,7 @@ class Item(models.Model):
 	copyright = models.ForeignKey(CopyRight,**dargs)
 	gps = models.CharField(max_length=300,default ='')
 	gps_names = models.CharField(max_length=4000,default='')
+	group_tags= models.ManyToManyField(GroupTag,blank=True, default= None)
 	location_field = 'location'
 	
 	def __str__(self):
