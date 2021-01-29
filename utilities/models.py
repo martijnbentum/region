@@ -67,6 +67,30 @@ class Language(models.Model, info):
 		return self.name
 # Create your models here.
 
+class GroupTag(models.Model,info):
+	name = models.CharField(max_length=300)
+	created = models.DateTimeField(auto_now_add=True,null=True)
+	modified = models.DateTimeField(auto_now_add=False,null=True,blank=True)
+	done = models.BooleanField(default=False)
+	tag_type = models.CharField(max_length=300,blank=True, null =True)
+	index = models.PositiveIntegerField(null=True,blank=True) 
+	description = models.TextField(blank=True,null=True)
+
+	def save(self, *args, **kwargs):  
+		if not self.id:
+			self.created = timezone.now()
+		else: self.modified = timezone.now()
+		return super(GroupTag, self).save(*args,**kwargs)
+
+	def __lt__(self,other):
+		return self.created < other.created
+
+	def __repr__(self):
+		return self.name
+
+
+			
+
 
 
 
