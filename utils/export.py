@@ -166,6 +166,11 @@ class Relations:
 		self.m2m_fields = [f for f in model._meta.local_many_to_many if f.related_model != model]
 		self.m2m_fields_str = [f.get_attname() for f in self.m2m_fields]
 		self.m2m_models = [f.related_model for f in self.m2m_fields]
+		#retrieve all reverse m2m fields and models (not used for export yet, not sure if needed)
+		self.reverse_m2m_fields = [f for f in model._meta.get_fields()
+			if f.many_to_many]
+		self.reverse_m2m_fields_str = [f.get_accessor_name() for f in self.reverse_m2m_fields]
+		self.reverse_m2m_models = [f.related_model for f in self.reverse_m2m_fields]
 
 	def __repr__(self):
 		m = 'relations of '
@@ -179,6 +184,7 @@ class Relations:
 		m += 'relation models:\n\t' + model_list2str(self.relation_models,'\n\t') + '\n\n'
 		m += 'fk models:\n\t' + model_list2str(self.fk_models,'\n\t') + '\n\n'
 		m += 'm2m models:\n\t' + model_list2str(self.m2m_models, '\n\t')+'\n\n'
+		m += 'reverse m2m models:\n\t' + model_list2str(self.reverse_m2m_models, '\n\t')+'\n\n'
 		return m
 
 
