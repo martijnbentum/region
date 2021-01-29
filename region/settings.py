@@ -148,6 +148,8 @@ USE_L10N = True
 USE_TZ = True
 
 
+DJANGO_EASY_AUDIT_UNREGISTERED_CLASSES_EXTRA = ['utilities.grouptag']
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
