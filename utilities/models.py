@@ -86,7 +86,9 @@ class GroupTag(models.Model,info):
 		return self.created < other.created
 
 	def __repr__(self):
-		return self.name
+		m = self.name + ' ' + str(self.created).split('.')[0]
+		if self.index != None:m += ' ' + str(self.index)
+		return m
 
 
 			
