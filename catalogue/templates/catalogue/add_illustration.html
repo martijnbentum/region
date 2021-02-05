@@ -189,19 +189,8 @@
 <input type="hidden" name="navbar" id="navbar" value="" />
 <input type="hidden" name="navcontent" id="navcontent" value="" />
 <input type="hidden" name="focus" id="focus" value="" />
-<input type="submit" value="Save" class="btn btn-success">
 
-	{% if view == "inline" %}
-		<a type="reset" value="Cancel" class ="btn btn-light"
-		href="{% url 'utilities:close' %}">Cancel</a>
-	{% else %}
-    <button type="submit" name="save" value="add_another"
-		 class ="btn btn-outline-success">Save | add another</button>
-	{% endif %}
-	{% if page_name == "Edit illustration"%}
-    <button type="submit" name="save" value="delete"
-		 class ="btn btn-outline-danger">delete</button>
-	{% endif %}
+{% include 'utilities/save.html' %}
 
 {{form.media.js}}
 
