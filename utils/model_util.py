@@ -1,3 +1,4 @@
+from django.apps import apps
 import random
 import string
 import itertools
