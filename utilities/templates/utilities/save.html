@@ -1,0 +1,16 @@
+<button type="submit" value="Submit" class ="btn btn-success">Save</button>
+	{% if view == "inline" %}
+		<a type="reset" value="Cancel" class ="btn btn-light"
+		href="{% url 'utilities:close' %}">Cancel</a>
+	{% else %}
+		<button type="submit" name="save" value="add_another"
+			 class ="btn btn-outline-success">Save | add another</button>
+	{% endif %}
+	{% if 'publication' in page_name %}
+		<button type="submit" name="save" value="saveas"
+			 class ="btn btn-outline-warning">Save as</button>
+	{% endif %}
+	{% if 'Edit' in page_name %}
+    <button type="submit" name="save" value="delete"
+		 class ="btn btn-outline-danger">delete</button>
+	{% endif %}
