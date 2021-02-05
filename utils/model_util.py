@@ -139,3 +139,24 @@ def simple_copy(instance, commit = True,add_copy_suffix = True):
 		copy.save()
 	return copy
 		
+
+def make_models_image_file_dict():
+	'''
+	creates a dictionary with all models containing a image or file field.
+	dict contents:
+	key 		app_name, model name (tuple)
+	value 		list of field_names (can either be image or file field
+	'''
+	from .export import all_models, selected_models
+	
+	d = {}
+	for model in selected_models:
+		fields = model._meta.get_fields()
+		file_field_names = []
+		for field in fields:
+			if field.get_internal_type() == 'FileField':
+				file_field_names.append(field.name)
+		if file_field_names: 
+			app_name, model_name = instance2names(model)
+			d[app_name, model_name] = file_field_names
+	return d
