@@ -1,13 +1,18 @@
 from django.apps import apps
 import sys
 from easyaudit.models import CRUDEvent
-from django.db.models.signals import m2m_changed, post_delete
+from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch import receiver
+from django.conf import settings
 from catalogue.models import TextTextRelation
-from .model_util import instance2name, instance2names
+from .model_util import instance2name, instance2names, make_models_image_file_dict
+from .backup_util import put_file, isfile
 
 from persons.models import Person,Movement
 from catalogue.models import Text,Publication,Publisher,Illustration,Periodical
+
+import sys
+import os
 
 def catch_m2m(instance, action, pk_set, model_name,field_name):
 	'''Adds a changed field dict to changed_fields attr of easyaudit event object
@@ -102,3 +107,44 @@ def show(sender,instance,**kwargs):
 	print(pe.get_event_type_display(),pe.changed_fields)
 	print(se.get_event_type_display(),se.changed_fields)
 
+def make_file_backup_postsave_receiver(app_name,model_name):
+	m = '@receiver(post_save, sender = '
+	m += model_name + ')\n'
+	m += 'def save_file_backup_'+app_name + '_' + model_name 
+	m += '(sender, instance, **kwargs):\n'
+	m += '\tfieldnames = make_models_image_file_dict()["'
+	m += app_name + '","'+model_name +'"]\n'
+	m += '\tfor field_name in  fieldnames:\n'
+	m += '\t\tprint("handling field:",field_name)\n'
+	m += '\t\tfield = getattr(instance,field_name)\n'
+	m += '\t\tif field:\n'
+	m += '\t\t\tlocal_path, remote_path, filename = extract_filename_and_path(field.name)\n'
+	m += '\t\t\tprint(local_path, remote_path, filename)\n'
+	m += '\t\t\tif not isfile(remote_path + filename):\n'
+	m += '\t\t\t\tprint("file not yet backed up, saving to remote folder")\n'
+	m += '\t\t\t\tput_file(local_path,remote_path,filename)\n'
+	m += '\t\t\telse: print("backup file already exists, doing nothing")\n'
+	exec(m,globals())
+
+
+d = make_models_image_file_dict()
+for k in d:
+	app_name, model_name = k
+	make_file_backup_postsave_receiver(app_name,model_name)
+
+
+def extract_filename_and_path(name):
+	'''create correct path and filename to backup to the werkgroep map'''
+	media_dir = settings.MEDIA_ROOT
+	media_remote_dir = media_dir.split('/')[-1]
+	if not media_dir.endswith('/'): media_dir += '/'
+	if not media_remote_dir.endswith('/'): media_remote_dir += '/'
+	if '/' not in name: filename, remote_path = name, ''
+	else: filename, remote_path = name.split('/')[-1], '/'.join(name.split('/')[:-1])
+	remote_path += '/'
+	local_path = media_dir + remote_path
+	name = local_path + '/' + filename
+	remote_path = media_remote_dir + remote_path
+	if not os.path.isdir(local_path):print(path,'not an existing directory') 
+	if not os.path.isfile(name):print(name,'not an existing file')
+	return local_path, remote_path, filename
