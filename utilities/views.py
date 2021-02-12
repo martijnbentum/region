@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from utils import view_util
+from utils import help_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
 from utils.model_util import copy_complete
 from utilities.search import Search
@@ -62,8 +63,9 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 	if not ffm: ffm = FormsetFactoryManager(name_space,names,instance=instance)
 	tabs = make_tabs(model_name.lower(), focus_names = focus)
 	page_name = 'Edit ' +model_name.lower() if instance_id else 'Add ' +model_name.lower()
+	helper = help_util.Helper(model_name=model_name)
 	args = {'form':form,'page_name':page_name,'crud':crud,
-		'tabs':tabs, 'view':view}
+		'tabs':tabs, 'view':view,'helper':helper.get_dict()}
 	args.update(ffm.dict)
 	return render(request,app_name+'/add_' + model_name.lower() + '.html',args)
 		

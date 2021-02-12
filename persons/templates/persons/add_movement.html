@@ -30,7 +30,7 @@ role="button"><i class="fas fa-list"></i></a>
 			{% else %} <p class="mb-4"></p>
 		{% endif %}
 
-		<table class="table table-borderless" >
+		<table class="table table-borderless" id="form_table">
 		<tr class="d-flex">
 			<th class="col-2">Name</th>
 			<td class="col-8">{{form.name}}</td>
@@ -119,6 +119,8 @@ role="button"><i class="fas fa-list"></i></a>
 
 {% include 'utilities/save.html' %}
 
+
+{% include 'utilities/helper.html' %}
 {{form.media.js}}
 
 {% include 'utilities/tab_selector.html' %}

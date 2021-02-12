@@ -1,0 +1,46 @@
+{{helper|json_script:"helperjs"}}
+<script>
+//tippy sets an pop up based on an elements id
+//I create a help text for each form field for a given form
+//helper is created based on the excel file Protocol in the data folder
+var table= document.getElementById("form_table");
+helper = JSON.parse(document.getElementById('helperjs').textContent)
+for (let key of Object.keys(helper)) {
+	//select the tab menu's at the bottom of the page, a is appended because 
+	// the tab titles have an id of tab_name + a
+	var item = document.getElementById(key+'a')
+	if (item != null) {
+		help_text = helper[key]
+		tippy('#' + key+'a',{content: help_text,allowHTML:true,});
+		}
+	}
+
+
+for (let row of table.rows) {
+	//loop over the table which contains the fields of the form
+	for (let cell of row.cells) {
+		//uses the field name e.g. title to set the id of the cell
+		if (cell.innerText != '') {
+			name = cell.innerText.split(' ').join('_');
+			name  = name.replace('(','').replace(')',''); 
+			name = name.trim()
+			try {key_name = cell.innerText.toLowerCase().trim()}
+			catch (error) {key_name = ''}
+			if (Object.keys(helper).includes(key_name)) {
+				//set the id, tippy uses the id to set the pop up help text
+				cell.id = name
+				help_text = helper[key_name]
+				//console.log(help_text);
+				//create the pop up help text with tippy
+				tippy('#'+ name,{content: help_text,allowHTML:true,});
+			}
+		}
+	}
+}
+//console.log(table)
+
+//the flag is outside the form so the help text needs to be created sperately
+//used for the hoh project, but might be usefull here aswell
+tippy('#flag',{content: helper['flag symbol'],allowHTML:true,});
+tippy('#id_flag',{content: helper['flag symbol'],allowHTML:true,});
+</script>

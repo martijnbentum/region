@@ -40,7 +40,7 @@
 		{% else %} <p class="mb-4"></p>
 	{% endif %}
 
-	<table class="table table-borderless" >
+	<table class="table table-borderless" id="form_table">
 	<tr class="d-flex">
 		<th class="col-2">Title</th>
 		<td class="col-8">{{form.title}}</td>
@@ -134,6 +134,7 @@
 
 {% include 'utilities/save.html' %}
 
+{% include 'utilities/helper.html' %}
 {{form.media.js}}
 {{periodicalpublication_formset.forms.0.media.js}}
 

@@ -30,7 +30,7 @@
 
 <form method="post">
     {% csrf_token %}
-	<table class="table table-borderless" >
+	<table class="table table-borderless" id="form_table">
 	<tr class="d-flex">
 		<th class="col-2">Name</th>
 		<td class="col-8">{{form.name}}</td>
@@ -60,6 +60,7 @@
 </form>
 <br>
 
+{% include 'utilities/helper.html' %}
 {{form.media.js}}
 {% endblock content %}
 

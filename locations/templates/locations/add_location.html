@@ -32,7 +32,7 @@
 		{% else %} <p class="mb-4"></p>
 	{% endif %}
 <form method="post">
-	<table class="table table-borderless table-sm">
+	<table class="table table-borderless table-sm" id="form_table">
 	<tr class="d-flex">
 		<td class="col-2">name</th>
 		<td class="col-9">{{form.name}} {{form.name.error}}</td>
@@ -119,5 +119,6 @@
 {% include 'utilities/save.html' %}
 
 {% include 'utilities/tab_selector.html' %}
+{% include 'utilities/helper.html' %}
 {{form.media.js}}
 {% endblock %}
