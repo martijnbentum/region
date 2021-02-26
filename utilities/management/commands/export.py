@@ -19,6 +19,7 @@ class Command(BaseCommand):
 	def add_arguments(self,parser):
 		parser.add_argument('-output',nargs='+')
 		parser.add_argument('-path')
+		parser.add_argument('-filename')
 		parser.add_argument('--dryrun',action='store_true')
 
 
@@ -28,9 +29,12 @@ class Command(BaseCommand):
 		path = options['path']  
 		path = path if path and os.path.isdir(path) else ''
 		if path != '' and not path.endswith('/'): path += '/'
-
-		filename = path + 'region_'+time.strftime('%Y_%m_%d_%H_%M')
+		filename = options['filename']
+		print(filename,999,options['filename'],path)
+		if not filename: filename = path + 'region_'+time.strftime('%Y_%m_%d_%H_%M')
+		else: filename = path + filename
 		print('exporting the database...')
+
 		if options['output']:print('filetypes: ',', '.join(options['output']))
 		if save:
 			export = Exports()
