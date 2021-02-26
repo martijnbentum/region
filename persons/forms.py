@@ -54,8 +54,8 @@ class PersonForm(ModelForm):
 		queryset=Location.objects.all().order_by('name'),
 		widget=LocationWidget(**dselect2n2),
 		required = False)
-	first_name= forms.CharField(**dchar_required)
-	last_name= forms.CharField(**dchar_required)
+	first_name= forms.CharField(**dchar)
+	last_name= forms.CharField(**dchar)
 	birth_year= forms.IntegerField(widget=forms.NumberInput(
 		attrs={'style':'width:100%', 'placeholder':'year of birth'}),
 		required = False)
