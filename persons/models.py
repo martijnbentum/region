@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 import json
 from locations.models import Location
-from utilities.models import Language, RelationModel 
+from utilities.models import Language, RelationModel,GroupTag 
 from utils.model_util import id_generator, info,instance2names
 from utils.map_util import field2locations, pop_up, get_location_name,gps2latlng
 from utilities.models import SimpleModel
@@ -41,6 +41,7 @@ class Person(models.Model, info):
 	location_field = 'birth_place'
 	gps = models.CharField(max_length=300,default ='')
 	gps_names = models.CharField(max_length=4000,default='')
+	group_tags= models.ManyToManyField(GroupTag,blank=True, default= None)
 	
 
 	def save(self,*args,**kwargs):
