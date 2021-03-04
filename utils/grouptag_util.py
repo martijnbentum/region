@@ -97,6 +97,9 @@ class MakeGroupTags:
 		self.tags = list(GroupTag.objects.filter(name = name))
 		self.instances = [tag2instance(tag) for tag in self.tags]
 
+	def __repr__(self):
+		return 'MakeGroupTags: ' + self.name
+
 
 	def add_grouptag(self,goal_instance,tag_type = None,index= None,description =None):
 		'''Create GroupTag and connect it to the goal_instance.'''
@@ -118,6 +121,7 @@ class MakeGroupTags:
 		'''
 		i = index_start if set_index else None
 		for instance in goal_instances:
+			if instance in self.instances: continue
 			self.add_grouptag(goal_instance=instance,tag_type=tag_type,
 				index =i, description=description)
 			if set_index: i += 1
@@ -132,7 +136,7 @@ def make_unique_name(name= ''):
 	names = list(set([x.name for x in GroupTag.objects.all()]))
 	if name not in names:
 		return name
-	else: return self.make_unique_name(name + '_' + id_generator(length = 2))
+	else: return make_unique_name(name + '_' + id_generator(length = 2))
 
 
 def tag2instance(tag,verbose = False):
