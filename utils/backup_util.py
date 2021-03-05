@@ -111,7 +111,8 @@ def mkdir(remote_path,verbose = False):
 		_mkdir(name,verbose)
 	else: 
 		if verbose: print('path does not exists',path,directory)
-		create_path(path)
+		# create_path(path) this function used to be called create_path
+		mkdir(path)
 		if verbose: print('making directory',directory,'at',path)
 		name = path + '/' +directory if path != '' else directory
 		_mkdir(name,verbose)
