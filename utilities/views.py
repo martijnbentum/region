@@ -71,7 +71,7 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 		
 
 @permission_required('utilities.add_generic')
-def add_simple_model(request, name_space,model_name,app_name, page_name):
+def add_simple_model(request, name_space,model_name,app_name, page_name, pk = None):
 	'''Function to add simple models with only a form could be extended.
 	request 	django object
 	name_space 	the name space of the module calling this function (to load forms / models)
@@ -80,20 +80,31 @@ def add_simple_model(request, name_space,model_name,app_name, page_name):
 	page_name 	name of the page
 	The form name should be of format <model_name>Form
 	'''
+	model = apps.get_model(app_name,model_name)
 	modelform = view_util.get_modelform(name_space,model_name+'Form')
-	form = modelform(request.POST)
+	instance= model.objects.get(pk=pk) if pk else None
+	# form = modelform(request.POST)
+	form = None
 	if request.method == 'POST':
+		form = modelform(request.POST, instance=instance)
+		button = getbutton(request) 
+		print(button,'12345667889999')
+		if button in 'delete,confirm_delete':
+			print('deleting simple model')
+			return delete_model(request,name_space,model_name,app_name,pk,True)
 		if form.is_valid():
 			form.save()
 			messages.success(request, model_name + ' saved')
 			return HttpResponseRedirect('/utilities/close/')
-	model = apps.get_model(app_name,model_name)
+	if not form: form = modelform(instance=instance)
 	instances = model.objects.all().order_by('name')
-	var = {'form':form, 'page_name':page_name, 'instances':instances}
+	page_name = 'Edit ' +model_name.lower() if pk else 'Add ' +model_name.lower()
+	url = '/'.join(request.path.split('/')[:-1])+'/' if pk else request.path
+	var = {'form':form, 'page_name':page_name, 'instances':instances, 'url':url}
 	return render(request, 'utilities/add_simple_model.html',var)
 
 @permission_required('utilities.delete_generic')
-def delete_model(request, name_space, model_name, app_name, pk):
+def delete_model(request, name_space, model_name, app_name, pk, close = False):
 	model = apps.get_model(app_name,model_name)
 	instance= get_object_or_404(model,id =pk)
 	focus, button = getfocus(request), getbutton(request)
@@ -109,6 +120,7 @@ def delete_model(request, name_space, model_name, app_name, pk):
 		if button == 'confirm_delete':
 			instance.delete()
 			show_messages(request,button, model_name)
+			if close: return HttpResponseRedirect('/utilities/close/')
 			return HttpResponseRedirect('/'+app_name+'/'+model_name.lower())
 	info = instance.info
 	print(1,info,instance,pk)

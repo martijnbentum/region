@@ -22,15 +22,19 @@
 	</tr>
 	</table>
     <button type="submit" value="Submit" class ="btn btn-success">Save</button>
-		<a type="reset" value="Cancel" class ="btn btn-light"
-		href="{% url 'utilities:close' %}">Cancel</a>
+	{% if form.instance.name != ''%}
+	<button type="submit" name="save" value="delete" class ="btn btn-warning">Delete</button>
+	{%endif%}
+	<a type="reset" value="Cancel" class ="btn btn-light"
+	href="{% url 'utilities:close' %}">Cancel</a>
 </form>
 <br>
 <br>
 <h5 class="text-secondary">Current set</h4> 
 <hr class="mt-0 mb-4">
 {% for instance in instances %}
-	<p class="text-secondary">{{instance.name}}</p>
+	<p><a class="text-dark" style="text-decoration:none" href="{{url}}{{instance.pk}}">
+	{{instance.name}}</a></p>
 {% endfor %}
 
 {{form.media.js}}
