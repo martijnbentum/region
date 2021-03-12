@@ -22,6 +22,31 @@ urlpatterns = [
 	path('edit_movement/<int:pk>/<str:focus>', views.edit_movement, 
 		name='edit_movement'),
 	path('person/<int:person_id>',views.person_detail,name='person_detail'),
+	path('person/add_pseudonym',views.add_pseudonym,
+		name='add_pseudonym'),
+	path('delete/<int:pk>/<str:model_name>', views.delete, name='delete'),
+]
+
+def create_simple_path(name):
+	'''creates a simple view based on the model name
+	Assumes the form only has a name field.
+	'''
+	n = views.make_fname(name)
+	o = []
+	p = "path('add_"+n+"/', views.add_"+n+" , name='add_"+n+"')"
+	o.append(eval(p))
+	p = "path('add_"+n+"/<int:pk>', views.add_"+n+" , name='add_"+n+"')"
+	o.append(eval(p))
+	return o
+
+names = 'PersonPersonRelationType,PersonLocationRelationType,PersonTextRelationRole'
+names += ',PersonIllustrationRelationRole,PersonMovementRelationRole'
+names += ',PersonPeriodicalRelationRole,MovementType,Pseudonym'
+for name in names.split(','):
+	urlpatterns.extend(create_simple_path(name))
+
+'''
+temp = [
 	path('person/add_person_text_relation_role',views.add_person_text_relation_role,
 		name='add_person_text_relation_role'),
 	path('person/add_person_illustration_relation_role',
@@ -38,7 +63,5 @@ urlpatterns = [
 	path('person/add_movement_type', views.add_movement_type,name='add_movement_type'),
 	path('person/add_person_person_relation_type', views.add_person_person_relation_type,
 		name='add_person_person_relation_type'),
-	path('person/add_pseudonym',views.add_pseudonym,
-		name='add_pseudonym'),
-	path('delete/<int:pk>/<str:model_name>', views.delete, name='delete'),
 ]
+'''

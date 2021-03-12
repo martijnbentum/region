@@ -62,7 +62,7 @@ role="button"><i class="fa fa-plus"></i></a>
 	<th class="col-2">Type
 		{% if request.user|has_group:"typemaster" %}
 		<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-			href ="{% url 'persons:add_person_location_relation' %}" role="button">
+			href ="{% url 'persons:add_person_location_relation_type' %}" role="button">
 			 <i class="fa fa-plus"></i></a>
 		{% endif %}
 		</th>

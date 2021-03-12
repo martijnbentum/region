@@ -9,7 +9,7 @@ from utilities.models import SimpleModel
 
 
 def make_simple_model(name):
-	exec('class '+name + '(SimpleModel):\n\tpass',globals())
+	exec('class '+name + '(SimpleModel,info):\n\tpass',globals())
 
 names = 'Pseudonym,PersonPersonRelationType,PersonLocationRelationType,PersonTextRelationRole'
 names += ',PersonIllustrationRelationRole,MovementType,PersonPeriodicalRelationRole'
@@ -96,7 +96,8 @@ class Person(models.Model, info):
 
 	@property
 	def gender(self):
-		return dict(self.SEX)[self.sex]
+		try:return dict(self.SEX)[self.sex]
+		except:return ''
 
 	@property
 	def latlng(self):

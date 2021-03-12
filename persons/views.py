@@ -30,26 +30,38 @@ def movement_list(request):
 	return list_view(request, 'Movement', 'persons')
 	
 
-class PersonView(generic.ListView):
-	template_name = 'persons/person_list.html'
-	context_object_name = 'person_list'
-
-	def get_queryset(self):
-		return Person.objects.order_by('last_name')
-
-
-class MovementView(generic.ListView):
-	template_name = 'persons/movement_list.html'
-	context_object_name = 'movement_list'
-
-	def get_queryset(self):
-		return Movement.objects.order_by('name')
 
 
 def person_detail(request, person_id):
 	p = Person.objects.get(pk=person_id)
 	var = {'person':p,'map_name':'europe.js','location_name':'europe'}
 	return render(request,'persons/person_detail.html',var)
+
+def make_fname(name):
+	o = name[0]
+	for c in name[1:]:
+		if c.isupper(): o += '_' + c
+		else: o += c
+	return o.lower()
+
+
+def create_simple_view(name):
+	'''creates a simple view based on the model name
+	Assumes the form only has a name field.
+	'''
+	p_name = make_fname(name).replace('_',' ') +'aaa'
+	print(p_name,123)
+	c = 'def add_'+make_fname(name)+'(request,pk=None):\n'
+	c += '\treturn add_simple_model(request,__name__,"'+name+'","persons","add '+p_name+'",pk=pk)'
+	return exec(c,globals())
+
+names = 'PersonPersonRelationType,PersonLocationRelationType,PersonTextRelationRole'
+names += ',PersonIllustrationRelationRole,PersonMovementRelationRole'
+names += ',PersonPeriodicalRelationRole,MovementType,Pseudonym'
+for name in names.split(','):
+	create_simple_view(name)
+
+'''
 
 
 def add_person_person_relation_type(request):
@@ -83,6 +95,7 @@ def add_movement_type(request):
 def add_pseudonym(request):
 	return add_simple_model(request,__name__,'Pseudonym',
 		'persons','add pseudonym')
+'''
 		
 		
 def edit_person(request, pk=None, focus = '', view='complete'):

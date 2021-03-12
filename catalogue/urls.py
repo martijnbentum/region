@@ -62,17 +62,3 @@ names += ',IllustrationType'
 for name in names.split(','):
 	urlpatterns.extend(create_simple_path(name))
 
-temp = [
-	path('add_texttext_relation_type',views.add_text_text_relation_type,
-		name='add_texttext_relation_type'),
-	path('add_illustrationillustration_relation_type',views.add_illustration_illustration_relation_type,
-		name='add_illustrationillustration_relation_type'),
-	path('add_illustration_type/', views.add_illustration_type, name='add_illustration_type'),
-	path('add_illustration_category/', views.add_illustration_category, 
-		name='add_illustration_category'),
-	path('add_publication_type/', views.add_publication_type, name='add_publication_type'),
-	path('add_copy_right/', views.add_copy_right, name='add_copy_right'),
-	path('add_genre/', views.add_genre, name='add_genre'),
-	path('add_text_type/', views.add_text_type, name='add_text_type'),
-
-]

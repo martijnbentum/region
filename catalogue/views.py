@@ -70,39 +70,6 @@ names += ',IllustrationType'
 for name in names.split(','):
 	create_simple_view(name)
 
-'''
-def add_genre(request):
-	return add_simple_model(request,__name__,'Genre','catalogue',
-		'add genre')
-
-def add_text_type(request):
-	return add_simple_model(request,__name__,'TextType','catalogue',
-		'add text type')
-
-def add_copy_right(request):
-	return add_simple_model(request,__name__,'CopyRight','catalogue',
-		'add license')
-
-def add_illustration_category(request):
-	return add_simple_model(request,__name__,'IllustrationCategory','catalogue',
-		'add illustration category')
-
-def add_type(request):
-	return add_simple_model(request,__name__,'PublicationType','catalogue',
-		'add publication type')
-
-def add_texttext_relation_type(request):
-	return add_simple_model(request,__name__,'TextTextRelationType','catalogue',
-		'text - text relation type')
-
-def add_illustrationillustration_relation_type(request):
-	return add_simple_model(request,__name__,'IllustrationIllustrationRelationType','catalogue',
-		'illustration - illustration relation type')
-
-def add_illustration_type(request):
-	return add_simple_model(request,__name__,'IllustrationType','catalogue',
-		'add illustration type')
-'''
 
 def edit_text(request, pk=None, focus = '', view='complete'):
 	names='texttext_formset,texttextr_formset,textperson_formset,textpublication_formset'
