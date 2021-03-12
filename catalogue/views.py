@@ -27,17 +27,6 @@ from utilities.views import add_simple_model, edit_model, getfocus, delete_model
 import os
 
 
-'''
-class PeriodicalView(generic.ListView):
-	template_name = 'catalogue/periodical_list.html'
-	context_object_name = 'periodical_list'
-	# paginate_by = 10 # http://127.0.0.1:8000/catalogue/text/?page=2
-	# cruds = Cruds('catalogue','Illustration')
-	extra_context={'page_name':'periodical'}#,'cruds':cruds}
-
-	def get_queryset(self):
-		return Periodical.objects.order_by('title')
-'''
 
 def text_list(request):
 	'''list view of text.'''
@@ -59,8 +48,29 @@ def illustration_list(request):
 	'''list view of illustrations.'''
 	return list_view(request, 'Illustration', 'catalogue')
 
+def make_fname(name):
+	o = name[0]
+	for c in name[1:]:
+		if c.isupper(): o += '_' + c
+		else: o += c
+	return o.lower()
 
 
+def create_simple_view(name):
+	'''creates a simple view based on the model name
+	Assumes the form only has a name field.
+	'''
+	c = 'def add_'+make_fname(name)+'(request,pk=None):\n'
+	c += '\treturn add_simple_model(request,__name__,"'+name+'","catalogue","add '+name+'",pk=pk)'
+	return exec(c,globals())
+
+names = 'Genre,TextType,CopyRight,IllustrationCategory,PublicationType'
+names += ',TextTextRelationType,IllustrationIllustrationRelationType'
+names += ',IllustrationType'
+for name in names.split(','):
+	create_simple_view(name)
+
+'''
 def add_genre(request):
 	return add_simple_model(request,__name__,'Genre','catalogue',
 		'add genre')
@@ -92,7 +102,7 @@ def add_illustrationillustration_relation_type(request):
 def add_illustration_type(request):
 	return add_simple_model(request,__name__,'IllustrationType','catalogue',
 		'add illustration type')
-
+'''
 
 def edit_text(request, pk=None, focus = '', view='complete'):
 	names='texttext_formset,texttextr_formset,textperson_formset,textpublication_formset'
