@@ -1,4 +1,5 @@
 {% extends "utilities/base.html" %}
+{% load getattribute %} 
 
 
 {% block head %}
@@ -41,18 +42,22 @@
 	<tr class="d-flex">
 		<th class="col-2">Categories</th>
 		<td class="col-8">{{form.categories}} {{form.categories.error}}</td>
+		{% if request.user|has_group:"typemaster" %}
 			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
 				href ="{% url 'catalogue:add_illustration_category'%}"
 				role="button"><i class="fa fa-plus"></i></a>
 			</td>
+		{% endif %}
 	</tr>
 	<tr class="d-flex">
 		<th class="col-2">Illustration type</th>
 		<td class="col-8">{{form.illustration_type}} {{form.illustration_type.error}}</td>
-		<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-			href ="{% url 'catalogue:add_illustration_type' %}" 
-			role="button"><i class="fa fa-plus"></i></a>
-		</td>
+		{% if request.user|has_group:"typemaster" %}
+			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_illustration_type' %}" 
+				role="button"><i class="fa fa-plus"></i></a>
+			</td>
+		{% endif %}
 	</tr>
 	<tr class="d-flex">
 		<th class="col-2">Page</th>

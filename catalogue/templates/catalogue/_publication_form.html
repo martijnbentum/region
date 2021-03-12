@@ -1,3 +1,5 @@
+{% load getattribute %} 
+
 	<table class="table table-borderless" id="form_table">
 	<tr class="d-flex">
 		<th class="col-2">Title</th>
@@ -6,10 +8,12 @@
 	<tr class="d-flex">
 		<th class="col-2">Type</th>
 		<td class="col-8">{{form.form}}</td>
+		{% if request.user|has_group:"typemaster" %}
 			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
 				href ="{% url 'catalogue:add_publication_type'%}" role="button">
 				 <i class="fa fa-plus"></i></a>
 			</td>
+		{% endif %}
 	</tr>
 	<tr class="d-flex">
 		<th class="col-2">Publisher</th>

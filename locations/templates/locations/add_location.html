@@ -1,5 +1,6 @@
 
 {% extends "utilities/base.html" %}
+{% load getattribute %} 
 
 {% block head %}
 	{{form.media.css}}
@@ -40,23 +41,29 @@
 	<tr class="d-flex">
 		<td class="col-2">type</th>
 		<td class="col-9">{{form.location_type}} {{form.location_type.error}}</td>
+		{% if request.user|has_group:"typemaster" %}
 		<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
 			href = "{% url 'locations:add_location_type' %}"
 			role="button"><i class="fa fa-plus"></i></a></td>
+		{% endif %}
 	</tr>
 	<tr class="d-flex">
 		<td class="col-2">status</th>
 		<td class="col-9">{{form.location_status}} {{form.location_status.error}}</td>
+		{% if request.user|has_group:"typemaster" %}
 		<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
 			href = "{% url 'locations:add_location_status' %}"
 			role="button"><i class="fa fa-plus"></i></a></td>
+		{% endif %}
 	</tr>
 	<tr class="d-flex">
 		<td class="col-2">precision</th>
 		<td class="col-9">{{form.location_precision}} {{form.location_precision.error}}</td>
+		{% if request.user|has_group:"typemaster" %}
 		<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
 			href = "{% url 'locations:add_location_precision' %}"
 			role="button"><i class="fa fa-plus"></i></a></td>
+		{% endif %}
 	</tr>
 	<tr class="d-flex">
 		<td class="col-2">latitude</th>
