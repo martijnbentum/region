@@ -103,9 +103,11 @@ def show(sender,instance,**kwargs):
 	else:se.changed_fields=v
 	pe.save()
 	se.save()
-	print(c[0].get_event_type_display(),c[0].changed_fields,len(c))
-	print(pe.get_event_type_display(),pe.changed_fields)
-	print(se.get_event_type_display(),se.changed_fields)
+	try:
+		print(c[0].get_event_type_display(),c[0].changed_fields,len(c))
+		print(pe.get_event_type_display(),pe.changed_fields)
+		print(se.get_event_type_display(),se.changed_fields)
+	except: print('could not print info',sys.exc_info())
 
 def make_file_backup_postsave_receiver(app_name,model_name):
 	m = '@receiver(post_save, sender = '
