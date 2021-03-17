@@ -152,7 +152,7 @@ class Relations:
 	these relation type are stored seperatly
 	both the fields and model linked to those fields are stored 
 	'''
-	def __init__(self,model,retrieve_reverse = False):
+	def __init__(self,model):
 		self.app_name, self.model_name = instance2names(model)
 		#retrieve all relation model ie model:Text -> TextPublication relation etc.
 		self.relation_fields=[f for f in model._meta.get_fields() if f.one_to_many]
@@ -166,12 +166,14 @@ class Relations:
 		self.m2m_fields = [f for f in model._meta.local_many_to_many if f.related_model != model]
 		self.m2m_fields_str = [f.get_attname() for f in self.m2m_fields]
 		self.m2m_models = [f.related_model for f in self.m2m_fields]
-		if retrieve_reverse:
-			#retrieve all reverse m2m fields and models (not used for export yet, not sure if needed)
-			self.reverse_m2m_fields = [f for f in model._meta.get_fields()
-				if f.many_to_many]
+		self.reverse_m2m_fields = [f for f in model._meta.get_fields()
+			if f.many_to_many]
+		try:
 			self.reverse_m2m_fields_str = [f.get_accessor_name() for f in self.reverse_m2m_fields]
 			self.reverse_m2m_models = [f.related_model for f in self.reverse_m2m_fields]
+		except: 
+			self.reverse_m2m_fields_str = []
+			self.reverse_m2m_models= []
 
 	def __repr__(self):
 		m = 'relations of '
