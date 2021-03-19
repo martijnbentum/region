@@ -7,11 +7,7 @@
 
 {% block content %}
 
-<div class="d-flex">
-	{% include 'utilities/list_search_bar.html' %}
-	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publication' %}" 
-	role="button">Add publication</a>
-</div>
+{% include 'utilities/list_search_bar.html' %}
 
 {% if publication_list %}
 

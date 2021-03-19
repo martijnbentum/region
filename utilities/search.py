@@ -4,7 +4,8 @@ from django.db.models import Q
 
 class Search:
 	'''search a django model on all fields or a subset with Q objects'''
-	def __init__(self,request=None, model_name='',app_name='',query=None, max_entries=500):
+	def __init__(self,request=None, model_name='',app_name='',query=None, max_entries=500,
+		active_fields = None,special_terms = None):
 		'''search object to filter django models
 		query 				search terms provided by user
 		search_fields 		field set to restrict search (obsolete?)
@@ -12,29 +13,37 @@ class Search:
 		app_name 			name of the app of the model
 		'''
 		if query:
-			self.query = Query(query=query)
+			self.query = Query(query=query,active_fields = active_fields,special_terms=special_terms)
 			self.order = Order(order=get_foreign_keydict()[model_name.lower()])
 		else:
 			self.request = request
-			self.query = Query(request,model_name)
+			self.query = Query(request,model_name, 
+				active_fields = active_fields,special_terms=special_terms)
 			self.order = self.query.order
+		self.option = self.query.option
 		self.max_entries = max_entries
 		self.model_name = model_name
 		self.app_name = app_name
 		self.model = apps.get_model(app_name,model_name)
 		self.fields = get_fields(model_name,app_name)
 		self.select_fields()
-		self.notes = 'Search Fields: (' + ','.join([f.name for f in self.fields if f.include]) + ')'
+		self.active_fields = [f.name for f in self.fields if f.include]
+		self.search_fields = [f.name for f in self.fields if not f.exclude]
+		self.notes = 'Search Fields: (' + ','.join(self.active_fields) + ')'
 
 	def select_fields(self):
-		if self.query.fields:
+		print(self.query.fields,bool(self.query.fields))
+		if self.query.fields and self.query.fields != ['']:
 			for field in self.fields:
 				if field.name in self.query.fields: field.include = True
 				else: field.include = False
 
 	def check_and_or(self, and_or):
 		if and_or == '': 
-			self.and_or = 'and' if 'and' in self.query.special_terms else 'or'
+			st = self.query.special_terms
+			print(st,123,4)
+			if 'and' in st or 'combine columns' in st: self.and_or = 'and'
+			else: self.and_or = 'or'
 		if self.and_or == 'and': self.notes += '\nall fields should match query'
 		else: self.notes += '\none ore more fields should match query'
 
@@ -69,12 +78,13 @@ class Search:
 			self.result= self.result.reverse()
 		self.notes += '\nordered in ' + self.order.direction + ' order'
 
-	def filter(self, option = 'icontains',and_or='',combine= None):
+	def filter(self, option = None,and_or='',combine= None):
 		'''method to create q objects and filter instance from the database
 		option 		search term for filtering, default capital insensitive search
 		and_or 		whether q objects have an and/or relation
 		seperate 	whether the words in the query should be searched seperately or not
 		'''
+		if option == None: option = self.option
 		self.check_and_or(and_or)
 		self.check_combine(combine)
 		self.qs = []
@@ -109,7 +119,8 @@ class Search:
 
 class Query:
 	'''class to parse a http request extract query and extract relevant information.'''
-	def __init__(self,request=None, model_name='',query=''):
+	def __init__(self,request=None, model_name='',query='', active_fields = None,
+		special_terms = None):
 		'''individual words and special terms are extracted from the query.
 		a clean version of the query (without special terms) is constructed.
 		$ 	symbol prepended to field names
@@ -125,7 +136,10 @@ class Query:
 		self.query_terms = [w for w in self.words if w and w[0] not in ['*','$']]
 		self.clean_query = ' '.join(self.query_terms)
 		self.extract_field_names()
-		self.extract_special_terms()
+		if active_fields and type(active_fields) == list:
+			self.fields.extend(active_fields)
+		self.extract_special_terms(special_terms)
+	
 
 	def extract_field_names(self):
 		temp= [w[1:] for w in self.words if len(w) > 1 and w[0] == '$']
@@ -134,15 +148,21 @@ class Query:
 			if ':' in term:self.field_term.append(term.split(':'))
 			else: self.fields.append(term.lower())
 
-	def extract_special_terms(self):
+	def extract_special_terms(self,special_terms):
 		self.special_terms = [w[1:].lower() for w in self.words if len(w) > 1 and w[0] == '*']
+		if special_terms and type(special_terms) == list:
+			self.special_terms.extend(special_terms)
 		if 'complete' in self.special_terms: self.completeness = True
 		elif 'incomplete' in self.special_terms: self.completeness = False
 		else: self.completeness = None
 		if 'approved' in self.special_terms: self.approval = True
 		elif 'unapproved' in self.special_terms: self.approval = False
 		else: self.approval = None
-		self.combine = 'True' if 'combine' in self.special_terms else False
+		if 'combine' in self.special_terms or 'combine words' in self.special_terms:
+			self.combine = True
+		else: self.combine = False
+		if 'exact' in self.special_terms:self.option ='iexact'
+		else: self.option = 'icontains'
 			
 	
 			
@@ -159,7 +179,13 @@ class Field:
 
 	def set_include(self, value = None):
 		self.include = True 
-		if self.name == 'id' or self.bool or self.file or self.image: self.include = False 
+		self.exclude = False
+		exclude = 'id,gps,gps_names,source_link,publisher_names,identifier,year'
+		exclude += ',group_tags,relations,copyright'
+		exclude = exclude.split(',')
+		if self.name in exclude or self.bool or self.file or self.image: 
+			self.include = False 
+			self.exclude = True
 		if value != None and value in [True,False]: self.include = value
 
 

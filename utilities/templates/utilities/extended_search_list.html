@@ -1,0 +1,95 @@
+
+
+<div id="extended_search_list" style="display:none">
+</div>
+
+
+{{search_fields|json_script:"js_search_fields"}}
+
+<script>
+var search_fields= JSON.parse(document.getElementById('js_search_fields').textContent);
+console.log(search_fields)
+
+for (i = 0; i<search_fields.length; i++) {
+	make_button(search_fields[i]);
+}
+
+function make_button(name) {
+	var button = document.createElement('button');
+	button.innerHTML = name;
+	button.id = name + '_button'
+	button.classList.add('button')
+	button.classList.add('button1')
+	button.addEventListener('click',highlight);
+	var button_location = document.getElementById('extended_search_list')
+	button_location.append(button)
+}
+
+
+function show_extended_search_list(){
+  var x = document.getElementById("extended_search_list");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  var i = document.getElementById('extra_search_icon')
+  i.classList.remove('fa-chevron-down')
+  i.classList.add('fa-chevron-up')
+  } else {
+    x.style.display = "none";
+  var i = document.getElementById('extra_search_icon')
+  i.classList.remove('fa-chevron-up')
+  i.classList.add('fa-chevron-down')
+  }
+}
+
+function highlight(event) {
+	b = event.toElement;
+	if (b.classList.contains('selected')) { b.classList.remove('selected') }
+	else {b.classList.add('selected')}
+}
+
+function clear_highlights() {
+	var buttons = getElementsByClassName()
+	for (i = 0; i<buttons.length;i++) {
+		button.classList.remove('selected');
+	}
+}
+		
+
+</script>
+
+<style>
+.button {
+  border: none;
+  color: white;
+  padding: 2px 4px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.button1 {
+  background-color: white; 
+  color: #adcaf7; 
+  border: 1px solid #adcaf7;
+}
+
+.button1:hover {
+  background-color: #c5dafc;
+  color: white;
+}
+.button:focus{
+	outline-color:#c5dafc;
+}
+
+.selected {
+	background-color:#89b5fa;
+	color:white;
+    border: 1px solid #89b5fa; 
+}
+
+</style>

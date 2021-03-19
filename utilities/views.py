@@ -12,11 +12,18 @@ from utilities.search import Search
 
 def list_view(request, model_name, app_name):
 	'''list view of a model.'''
-	s = Search(request,model_name,app_name)
+	extended_search = getextended_search(request)
+	active_fields= get_active_search_buttons(request)
+	special_terms= get_active_special_term_buttons(request)
+	print(special_terms,999)
+	s = Search(request,model_name,app_name,active_fields=active_fields,
+		special_terms = special_terms)
 	instances= s.filter()
 	var = {model_name.lower() +'_list':instances,'page_name':model_name,
-		'order':s.order.order_by,'direction':s.order.direction,
-		'query':s.query.query,'nentries':s.nentries}
+		'order':s.order.order_by,'direction':s.order.direction,'app_name':app_name,
+		'query':s.query.query,'nentries':s.nentries,'search_fields':s.search_fields,
+		'name':model_name.lower(),'extended_search':extended_search,
+		'active_search_buttons':active_fields,'active_special_term_buttons':special_terms}
 	print(s.notes,000)
 	return render(request, app_name+'/'+model_name.lower()+'_list.html',var)
 
@@ -88,7 +95,6 @@ def add_simple_model(request, name_space,model_name,app_name, page_name, pk = No
 	if request.method == 'POST':
 		form = modelform(request.POST, instance=instance)
 		button = getbutton(request) 
-		print(button,'12345667889999')
 		if button in 'delete,confirm_delete':
 			print('deleting simple model')
 			return delete_model(request,name_space,model_name,app_name,pk,True)
@@ -108,9 +114,6 @@ def delete_model(request, name_space, model_name, app_name, pk, close = False):
 	model = apps.get_model(app_name,model_name)
 	instance= get_object_or_404(model,id =pk)
 	focus, button = getfocus(request), getbutton(request)
-	print(request.POST.keys())
-	print(99,instance.view(),instance,888)
-	print(button)
 	if request.method == 'POST':
 		if button == 'cancel': 
 			show_messages(request,button, model_name)
@@ -123,9 +126,7 @@ def delete_model(request, name_space, model_name, app_name, pk, close = False):
 			if close: return HttpResponseRedirect('/utilities/close/')
 			return HttpResponseRedirect('/'+app_name+'/'+model_name.lower())
 	info = instance.info
-	print(1,info,instance,pk)
 	var = {'info':info,'page_name':'Delete '+model_name.lower()}
-	print(2)
 	return render(request, 'utilities/delete_model.html',var)
 	
 
@@ -141,6 +142,25 @@ def getbutton(request):
 	if 'save' in request.POST.keys():
 		return request.POST['save']
 	else: return 'default'
+
+def getextended_search(request):
+	print(request.GET)
+	if 'extended_search' in request.GET.keys():
+		return request.GET['extended_search']
+	else: return 'display:block'
+
+def get_active_search_buttons(request):
+	print(request.GET)
+	if 'active_search_buttons' in request.GET.keys():
+		return request.GET['active_search_buttons'].split(',')
+	else: return []
+
+def get_active_special_term_buttons(request):
+	print(request.GET)
+	if 'active_special_term_buttons' in request.GET.keys():
+		return request.GET['active_special_term_buttons'].split(',')
+	else: return []
+
 
 def show_messages(request,message_type,model_name,form=None):
 	'''provide user feedback on submitting a form.'''
