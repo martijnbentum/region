@@ -47,6 +47,7 @@ for name in names:
 	create_simple_form(name)
 
 
+#fields occuring in all models inheriting from the abstract class Item
 item_fields = 'description,notes,complete,approved,source_link,copyright'
 item_fields = item_fields.split(',')
 
@@ -69,10 +70,9 @@ class PublicationForm(ItemForm):
 	'''Form to add a publication'''
 	form = forms.ModelChoiceField(
 		queryset=PublicationType.objects.all().order_by('name'),
-		widget=PublicationTypeWidget(
-			attrs={'data-placeholder':'Select publication form... e.g., novel',
-			'style':'width:100%;','class':'searching',
-			'data-minimum-input-length':'0'}),
+		widget=PublicationTypeWidget(**make_select2_attr(
+			data_placeholder ='Select publication form... e.g., novel',
+			input_length = 0)),
 		required = False)
 	publisher = forms.ModelMultipleChoiceField(
 		queryset=Publisher.objects.all().order_by('name'),
