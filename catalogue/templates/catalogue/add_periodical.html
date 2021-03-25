@@ -9,6 +9,7 @@
 
 {% block head %}
 	{{form.media.css}}
+	<!-- unsure why I need formset media css -->
 	{{periodicalpublication_formset.forms.0.media.css}}
 	<title>{{page_name}}</title>
 {% endblock %}
@@ -16,18 +17,20 @@
 {% block content %}
 
 <div class="col-md-12 d-flex">
-<h4 class="mt-2">{{page_name}}</h4>
+	<h4 class="mt-2">{{page_name}}</h4>
 
-{% if view != "inline" %}
-	{% if page_name == "Edit periodical"%}
-	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_periodical' %}"
-	role="button"><i class="fa fa-plus"></i></a>
+	{% if view != "inline" %}
+		{% if page_name == "Edit periodical"%}
+			<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_periodical' %}"
+				role="button"><i class="fa fa-plus"></i></a>
+		{% endif %}
+			<a class ="btn btn-link ml-auto" 
+				href="{% url 'utilities:list_view' 'Periodical' 'catalogue'%}" 
+				role="button"><i class="fas fa-list"></i></a>
 	{% endif %}
-	<a class ="btn btn-link ml-auto" href="{% url 'utilities:list_view' 'Periodical' 'catalogue'%}" 
-	role="button"><i class="fas fa-list"></i></a>
-{% endif %}
 </div>
 
+<!-- dosubmit function can be found in template/utilities/tab_selector.html -->
 <form method="post" enctype="multipart/form-data" onsubmit="dosubmit();">
     {% csrf_token %}
 
@@ -35,40 +38,42 @@
 
 <div class="tab-content">
     <div class="tab-pane fade" id="Edit">
-	{% if page_name == "Edit periodical" and 'unknown' not in crud.last_update %}
-		{% include 'utilities/change_log.html' %}
-		{% else %} <p class="mb-4"></p>
-	{% endif %}
+		{% if page_name == "Edit periodical" and 'unknown' not in crud.last_update %}
+			{% include 'utilities/change_log.html' %}
+			{% else %} <p class="mb-4"></p>
+		{% endif %}
 
-	<table class="table table-borderless" id="form_table">
-	<tr class="d-flex">
-		<th class="col-2">Title</th>
-		<td class="col-8">{{form.title}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">founded</th>
-		<td class="col-8">{{form.founded}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">closure</th>
-		<td class="col-8">{{form.closure}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Locations</th>
-		<td class="col-8">{{form.location}}</td>
-			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'locations:add_location' 'inline' %}" 
-				role="button"><i class="fa fa-plus"></i></a>
-			</td>
-	</tr>
-	</table>
+		<table class="table table-borderless" id="form_table">
+			<tr class="d-flex">
+				<th class="col-2">Title</th>
+				<td class="col-8">{{form.title}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">founded</th>
+				<td class="col-8">{{form.founded}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">closure</th>
+				<td class="col-8">{{form.closure}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">Locations</th>
+				<td class="col-8">{{form.location}}</td>
+					<td>
+						<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+							href ="{% url 'locations:add_location' 'inline' %}" 
+							role="button"><i class="fa fa-plus"></i></a>
+					</td>
+			</tr>
+		</table>
+
     </div>
 
     <div class="tab-pane fade" id="Minimize">
-		<!-- you can minimize the illustration form -->
+		<!-- you can minimize the periodical form -->
 		<br>
 		<div class="col-md-12 d-flex">
-        <h5 class="mb-1">{{form.instance.title}} </h5> 
+			<h5 class="mb-1">{{form.instance.title}} </h5> 
 		</div>
     </div>
 </div>
@@ -83,57 +88,60 @@
 	<div class="tab-pane fade" id="Publications">
 		{{periodicalpublication_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-5">Publication
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_publication' 'inline' %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-			</th>
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{% for f in periodicalpublication_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.publication}} {{f.publication.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			<th class="col-5">Publication
+				<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+					href ="{% url 'catalogue:add_publication' 'inline' %}" role="button">
+					<i class="fa fa-plus"></i></a>
+				</th>
+			<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
+			{% for f in periodicalpublication_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.publication}} {{f.publication.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
 		</table>
 	</div>
 
 	<div class="tab-pane fade" id="Persons">
 		{{periodicalperson_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-5">Person
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'persons:add_person' 'inline' %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-			</th>
-		<th class="col-3">role
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'persons:add_person_periodical_relation_role' %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{% for f in periodicalperson_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.person}} {{f.person.errors}}</td>
-			<td class="col-3">{{f.role}} {{f.role.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			<th class="col-5">Person
+				<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+					href ="{% url 'persons:add_person' 'inline' %}" role="button">
+					<i class="fa fa-plus"></i></a>
+				</th>
+			<th class="col-3">role
+				<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+					href ="{% url 'persons:add_person_periodical_relation_role' %}" role="button">
+					 <i class="fa fa-plus"></i></a>
+			<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
+			{% for f in periodicalperson_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.person}} {{f.person.errors}}</td>
+					<td class="col-3">{{f.role}} {{f.role.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
 		</table>
 	</div>
+
 </div>
 
 {% endif %}
 
+<!-- current tab state is stored here to maintain it after submit,see tab_selector  -->
 <input type="hidden" name="navbar" id="navbar" value="" />
 <input type="hidden" name="navcontent" id="navcontent" value="" />
 <input type="hidden" name="focus" id="focus" value="" />
 
 {% include 'utilities/save.html' %}
 
+<!-- displays the help text for each field -->
 {% include 'utilities/helper.html' %}
 {{form.media.js}}
 {{periodicalpublication_formset.forms.0.media.js}}

@@ -8,48 +8,51 @@
 
 
 {% block content %}
-<form name="myform" id="myform" enctype="multipart/form-data" method = "post" onsubmit="dosubmit();">
+<!-- dosubmit function can be found in template/utilities/tab_selector.html -->
+<form name="myform" id="myform" enctype="multipart/form-data" 
+method = "post" onsubmit="dosubmit();">
     {% csrf_token %}
 
-
 <div class="col-md-12 d-flex">
-<h4 class="mt-2">{{page_name}}</h4>
+	<h4 class="mt-2">{{page_name}}</h4>
 
-{% if view != "inline" %}
-	{% if page_name == "Edit publication"%}
-	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publication' %}"
-	role="button"><i class="fa fa-plus"></i></a>
+	{% if view != "inline" %}
+		{% if page_name == "Edit publication"%}
+			<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publication' %}"
+				role="button"><i class="fa fa-plus"></i></a>
+		{% endif %}
+		<a class ="btn btn-link ml-auto" 
+			href="{% url 'utilities:list_view' 'Publication' 'catalogue'%}" 
+			role="button"><i class="fas fa-list"></i></a>
 	{% endif %}
-	<a class ="btn btn-link ml-auto" 
-		href="{% url 'utilities:list_view' 'Publication' 'catalogue'%}" 
-		role="button"><i class="fas fa-list"></i></a>
-{% endif %}
 </div>
-
 
 <!-- adding or editing a publication-->
 {% include 'utilities/edit_minimize_tab.html' %}
 <div class="tab-content">
+
     <div class="tab-pane fade" id="Edit">
-	{%if page_name == "Edit publication" and 'unknown' not in crud.last_update %}
-		{% include 'utilities/change_log.html' %}
-		{% else %} <p class="mb-4"></p>
-	{% endif %}
-	<!-- publication form is defined in a seperate template -->
-	{% include 'catalogue/_publication_form.html' %}
+		{%if page_name == "Edit publication" and 'unknown' not in crud.last_update %}
+			{% include 'utilities/change_log.html' %}
+			{% else %} <p class="mb-4"></p>
+		{% endif %}
+		<!-- publication form is defined in a seperate template -->
+		{% include 'catalogue/_publication_form.html' %}
     </div>
+
     <div class="tab-pane fade" id="Minimize">
 		<!-- you can minimize the publication form -->
 		<br>
 		<div class="col-md-12 d-flex">
-        <h5 class="mb-1">{{form.instance.title}} </h5> 
-		<p class="text-small ml-auto text-secondary mb-1">{{form.instance.form}} 
-			{{form.instance.year}}</p> 
+			<h5 class="mb-1">{{form.instance.title}} </h5> 
+			<p class="text-small ml-auto text-secondary mb-1">{{form.instance.form}} 
+				{{form.instance.year}}</p> 
 		</div>
     </div>
-</div>
-<hr>
 
+</div>
+
+<hr>
 
 {% if view == "inline" %}
 {% else %}
@@ -57,104 +60,107 @@
 {% include 'utilities/relation_tabs.html' %}
 
 <div class="tab-content">
+
 	<div class="tab-pane fade" id="Texts">
 		{{publicationtext_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-5">Text
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_text' 'inline' %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-			</th>
-		<th class="col-3">start page</th>
-		<th class="col-3">end page</th>
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{% for f in publicationtext_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.text}} {{f.text.errors}}</td>
-			<td class="col-3">{{f.start_page}} {{f.start_page.errors}}</td>
-			<td class="col-3">{{f.end_page}} {{f.end_page.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				<th class="col-5">Text
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'catalogue:add_text' 'inline' %}" role="button">
+						<i class="fa fa-plus"></i></a>
+					</th>
+				<th class="col-3">start page</th>
+				<th class="col-3">end page</th>
+				<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
+			{% for f in publicationtext_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.text}} {{f.text.errors}}</td>
+					<td class="col-3">{{f.start_page}} {{f.start_page.errors}}</td>
+					<td class="col-3">{{f.end_page}} {{f.end_page.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
 		</table>
 	</div>
 
 	<div class="tab-pane fade" id="Illustrations">
 		{{publicationillustration_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-5">Illustration
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_illustration' 'inline' %}" 
-				role="button"><i class="fa fa-plus"></i></a>
-			</th>
-		<th class="col-4">Page 
-			</th>
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{% for f in publicationillustration_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.illustration}} {{f.illustration.errors}}</td>
-			<td class="col-4">{{f.page}} {{f.page.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				<th class="col-5">Illustration
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'catalogue:add_illustration' 'inline' %}" 
+						role="button"><i class="fa fa-plus"></i></a>
+					</th>
+				<th class="col-4">Page 
+					</th>
+				<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
-	</table>
+			{% for f in publicationillustration_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.illustration}} {{f.illustration.errors}}</td>
+					<td class="col-4">{{f.page}} {{f.page.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
+		</table>
 	</div>
 
 	<div class="tab-pane fade" id="Periodical">
 		{{publicationperiodical_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-5">Periodical
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_periodical' 'inline' %}" 
-				role="button"><i class="fa fa-plus"></i></a>
-			</th>
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{% for f in publicationperiodical_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.periodical}} {{f.periodical.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				<th class="col-5">Periodical
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'catalogue:add_periodical' 'inline' %}" 
+						role="button"><i class="fa fa-plus"></i></a>
+					</th>
+				<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
-	</table>
+			{% for f in publicationperiodical_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.periodical}} {{f.periodical.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
+		</table>
 	</div>
 
 	<div class="tab-pane fade" id="ReviewedByText">
 		{{publicationreviewedbytext_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-4">Text
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_text' 'inline' %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-			</th>
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{% for f in publicationreviewedbytext_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-4">{{f.text}} {{f.text.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				<th class="col-4">Text
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'catalogue:add_text' 'inline' %}" role="button">
+						<i class="fa fa-plus"></i></a>
+					</th>
+				<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
+			{% for f in publicationreviewedbytext_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-4">{{f.text}} {{f.text.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
 		</table>
 	</div>
-
 
 </div>
 
 
 {% endif %}
 
-	<input type="hidden" name="navbar" id="navbar" value="" />
-	<input type="hidden" name="navcontent" id="navcontent" value="" />
-	<input type="hidden" name="focus" id="focus" value="a" />
+<!-- current tab state is stored here to maintain it after submit,see tab_selector  -->
+<input type="hidden" name="navbar" id="navbar" value="" />
+<input type="hidden" name="navcontent" id="navcontent" value="" />
+<input type="hidden" name="focus" id="focus" value="a" />
+
 {% include 'utilities/save.html' %}
 
+<!-- displays the help text for each field -->
 {% include 'utilities/helper.html' %}
 {{form.media.js}}
 
@@ -164,7 +170,8 @@
 </div>
 
 <script>
-
+//store publisher (m2m) name for each publisher in the char field publisher_names
+//could also be handled by creating a custom save on the publication model
 function showNames(event){
 	var publishers = []
 	var pub= document.getElementById('id_publisher')

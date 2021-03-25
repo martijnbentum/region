@@ -8,96 +8,100 @@
 {% endblock %}
 
 {% block content %}
+<!-- dosubmit function can be found in template/utilities/tab_selector.html -->
 <form method="post" enctype="multipart/form-data" onsubmit="dosubmit();" id="form">
     {% csrf_token %}
 
 <div class="col-md-12 d-flex">
-<h4 class="mt-2">{{page_name}}</h4>
+	<h4 class="mt-2">{{page_name}}</h4>
 
-{% if view != "inline" %}
-	{% if page_name == "Edit illustration"%}
-	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_illustration' %}"
-	role="button"><i class="fa fa-plus"></i></a>
+	{% if view != "inline" %}
+		{% if page_name == "Edit illustration"%}
+			<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_illustration' %}"
+				role="button"><i class="fa fa-plus"></i></a>
+		{% endif %}
+		<a class ="btn btn-link ml-auto" 
+			href="{% url 'utilities:list_view' 'Illustration' 'catalogue'%}" 
+			role="button"><i class="fas fa-list"></i></a>
 	{% endif %}
-	<a class ="btn btn-link ml-auto" href="{% url 'utilities:list_view' 'Illustration' 'catalogue'%}" 
-	role="button"><i class="fas fa-list"></i></a>
-{% endif %}
 </div>
 
 
 {% include 'utilities/edit_minimize_tab.html' %}
 
+<!-- contains div Edit and Minimize -->
 <div class="tab-content">
     <div class="tab-pane fade" id="Edit">
-	{% if page_name == "Edit illustration" and 'unknown' not in crud.last_update %}
-		{% include 'utilities/change_log.html' %}
-		{% else %} <p class="mb-4"></p>
-	{% endif %}
-
-	<table class="table table-borderless" id="form_table">
-	<tr class="d-flex">
-		<th class="col-2">Caption</th>
-		<td class="col-8">{{form.caption}} {{from.caption.error}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Categories</th>
-		<td class="col-8">{{form.categories}} {{form.categories.error}}</td>
-		{% if request.user|has_group:"typemaster" %}
-			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_illustration_category'%}"
-				role="button"><i class="fa fa-plus"></i></a>
-			</td>
+		{% if page_name == "Edit illustration" and 'unknown' not in crud.last_update %}
+			{% include 'utilities/change_log.html' %}
+			{% else %} <p class="mb-4"></p>
 		{% endif %}
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Illustration type</th>
-		<td class="col-8">{{form.illustration_type}} {{form.illustration_type.error}}</td>
-		{% if request.user|has_group:"typemaster" %}
-			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_illustration_type' %}" 
-				role="button"><i class="fa fa-plus"></i></a>
-			</td>
-		{% endif %}
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Page</th>
-		<td class="col-8">{{form.page_number}} {{form.page_number.error}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Upload</th>
-		<td class="col-8">{{form.upload}} {{form.upload.error}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Source link</th>
-		<td class="col-8">{{form.source_link}} {{form.source_link.error}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Copyright</th>
-		<td class="col-8">{{form.copyright}} {{form.copyright.error}}</td>
-		<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-			href ="{% url 'catalogue:add_copy_right' %}" 
-			role="button"><i class="fa fa-plus"></i></a>
-		</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Notes</th>
-		<td class="col-8">{{form.notes}} {{form.notes.error}}</td>
-	</tr>
-	</table>
 
+		<table class="table table-borderless" id="form_table">
+			<tr class="d-flex">
+				<th class="col-2">Caption</th>
+				<td class="col-8">{{form.caption}} {{from.caption.error}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">Categories</th>
+				<td class="col-8">{{form.categories}} {{form.categories.error}}</td>
+				{% if request.user|has_group:"typemaster" %}
+					<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+							href ="{% url 'catalogue:add_illustration_category'%}"
+							role="button"><i class="fa fa-plus"></i></a>
+					</td>
+				{% endif %}
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">Illustration type</th>
+				<td class="col-8">{{form.illustration_type}} {{form.illustration_type.error}}</td>
+				{% if request.user|has_group:"typemaster" %}
+					<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+							href ="{% url 'catalogue:add_illustration_type' %}" 
+							role="button"><i class="fa fa-plus"></i></a>
+					</td>
+				{% endif %}
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">Page</th>
+				<td class="col-8">{{form.page_number}} {{form.page_number.error}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">Upload</th>
+				<td class="col-8">{{form.upload}} {{form.upload.error}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">Source link</th>
+				<td class="col-8">{{form.source_link}} {{form.source_link.error}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">Copyright</th>
+				<td class="col-8">{{form.copyright}} {{form.copyright.error}}</td>
+				<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+					href ="{% url 'catalogue:add_copy_right' %}" 
+					role="button"><i class="fa fa-plus"></i></a>
+				</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">Notes</th>
+				<td class="col-8">{{form.notes}} {{form.notes.error}}</td>
+			</tr>
+		</table>
     </div>
 
     <div class="tab-pane fade" id="Minimize">
 		<!-- you can minimize the illustration form -->
 		<br>
-		<div class="col-md-12 d-flex">
-        <h5 class="mb-1">{{form.instance.title}} </h5> 
-		<p class="text-small ml-auto text-secondary mb-1">{{form.instance.form}} 
-			{{form.instance.year}}</p> 
-		</div>
-    </div>
-</div>
 
+		<div class="col-md-12 d-flex">
+			<h5 class="mb-1">{{form.instance.title}} </h5> 
+			<p class="text-small ml-auto text-secondary mb-1">{{form.instance.form}} 
+				{{form.instance.year}}</p> 
+		</div>
+
+    </div>
+
+</div>
 
 {% if view == "inline" %}
 {% else %}
@@ -108,96 +112,98 @@
 	<div class="tab-pane fade" id="Illustrations">
 		{{illustrationillustration_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-5">Illustration
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_illustration' 'inline' %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-			</th>
-		<th class="col-3">relation
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_illustration_illustration_relation_type'  %}" 
-				role="button">
-				 <i class="fa fa-plus"></i></a>
-			</th>
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{{illustrationillustration_formsetr.management_form}}
-		{% for f in illustrationillustration_formsetr.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.primary}} {{f.primary.errors}}</td>
-			<td class="col-3">{{f.relation_type}} {{f.relation_type.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			<th class="col-5">Illustration
+				<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+					href ="{% url 'catalogue:add_illustration' 'inline' %}" role="button">
+					<i class="fa fa-plus"></i></a>
+				</th>
+			<th class="col-3">relation
+				<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+					href ="{% url 'catalogue:add_illustration_illustration_relation_type'  %}" 
+					role="button">
+					<i class="fa fa-plus"></i></a>
+				</th>
+				<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
-		{% for f in illustrationillustration_formset.forms %}
-			<tr class ="d-flex">
-			<td class="col-5">{{f.secondary}} {{f.secondary.errors}}</td>
-			<td class="col-3">{{f.relation_type}} {{f.relation_type.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
-			</tr>
-		{% endfor %}
+			{{illustrationillustration_formsetr.management_form}}
+			{% for f in illustrationillustration_formsetr.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.primary}} {{f.primary.errors}}</td>
+					<td class="col-3">{{f.relation_type}} {{f.relation_type.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
+			{% for f in illustrationillustration_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.secondary}} {{f.secondary.errors}}</td>
+					<td class="col-3">{{f.relation_type}} {{f.relation_type.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
 		</table>
 	</div>
-
 
 	<div class="tab-pane fade" id="Persons">
 		{{illustrationperson_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-5">Person
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'persons:add_person' 'inline' %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-			</th>
-		<th class="col-3">Role
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'persons:add_person_illustration_relation_role'  %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-			</th>
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{% for f in illustrationperson_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.person}} {{f.person.errors}}</td>
-			<td class="col-3">{{f.role}} {{f.role.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				<th class="col-5">Person
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'persons:add_person' 'inline' %}" role="button">
+						<i class="fa fa-plus"></i></a>
+				</th>
+				<th class="col-3">Role
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'persons:add_person_illustration_relation_role'  %}" 
+						role="button">
+						<i class="fa fa-plus"></i></a>
+				</th>
+				<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
+			{% for f in illustrationperson_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.person}} {{f.person.errors}}</td>
+					<td class="col-3">{{f.role}} {{f.role.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
 		</table>
 	</div>
 
 	<div class="tab-pane fade" id="Publications">
 		{{illustrationpublication_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-5">Publication
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_publication' 'inline' %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-			</th>
-		<th class="col-3">Page</th>
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{% for f in illustrationpublication_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.publication}} {{f.publication.errors}}</td>
-			<td class="col-3">{{f.page}} {{f.page.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				<th class="col-5">Publication
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'catalogue:add_publication' 'inline' %}" role="button">
+						<i class="fa fa-plus"></i></a>
+				</th>
+				<th class="col-3">Page</th>
+				<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
+			{% for f in illustrationpublication_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.publication}} {{f.publication.errors}}</td>
+					<td class="col-3">{{f.page}} {{f.page.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
 		</table>
 	</div>
 </div>
 
 {% endif %}
 
+<!-- current tab state is stored here to maintain it after submit,see tab_selector  -->
 <input type="hidden" name="navbar" id="navbar" value="" />
 <input type="hidden" name="navcontent" id="navcontent" value="" />
 <input type="hidden" name="focus" id="focus" value="" />
 
 {% include 'utilities/save.html' %}
 
+<!-- displays the help text for each field -->
 {% include 'utilities/helper.html' %}
 {{form.media.js}}
 

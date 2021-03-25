@@ -1,59 +1,59 @@
 {% load getattribute %} 
 <table class="table table-borderless" id="form_table">
-<tr class="d-flex">
-	<th class="col-2">Title</th>
-	<td class="col-8">{{form.title}}</td>
-</tr>
-<tr class="d-flex">
-	<th class="col-2">Language</th>
-	<td class="col-8">{{form.language}}</td>
-</tr>
-<tr class="d-flex">
-	<th class="col-2">Genre</th>
-	<td class="col-8">{{form.genre}}</td>
-	{% if request.user|has_group:"typemaster" %}
+	<tr class="d-flex">
+		<th class="col-2">Title</th>
+		<td class="col-8">{{form.title}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Language</th>
+		<td class="col-8">{{form.language}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Genre</th>
+		<td class="col-8">{{form.genre}}</td>
+		{% if request.user|has_group:"typemaster" %}
+			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_genre' %}" 
+				role="button"><i class="fa fa-plus"></i></a>
+			</td>
+		{% endif %}
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Text type</th>
+		<td class="col-8">{{form.text_type}} {{form.text_type.error}}</td>
+		{% if request.user|has_group:"typemaster" %}
+			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'catalogue:add_text_type' %}" 
+				role="button"><i class="fa fa-plus"></i></a>
+			</td>
+		{% endif %}
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Setting</th>
+		<td class="col-8">{{form.setting}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Locations</th>
+		<td class="col-8">{{form.location}}</td>
+			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+				href ="{% url 'locations:add_location' 'inline' %}" 
+				role="button"><i class="fa fa-plus"></i></a>
+			</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Source link</th>
+		<td class="col-8">{{form.source_link}} {{form.source_link.error}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Copyright</th>
+		<td class="col-8">{{form.copyright}} {{form.copyright.error}}</td>
 		<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-			href ="{% url 'catalogue:add_genre' %}" 
+			href ="{% url 'catalogue:add_copy_right' %}" 
 			role="button"><i class="fa fa-plus"></i></a>
 		</td>
-	{% endif %}
-</tr>
-<tr class="d-flex">
-	<th class="col-2">Text type</th>
-	<td class="col-8">{{form.text_type}} {{form.text_type.error}}</td>
-	{% if request.user|has_group:"typemaster" %}
-		<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-			href ="{% url 'catalogue:add_text_type' %}" 
-			role="button"><i class="fa fa-plus"></i></a>
-		</td>
-	{% endif %}
-</tr>
-<tr class="d-flex">
-	<th class="col-2">Setting</th>
-	<td class="col-8">{{form.setting}}</td>
-</tr>
-<tr class="d-flex">
-	<th class="col-2">Locations</th>
-	<td class="col-8">{{form.location}}</td>
-		<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-			href ="{% url 'locations:add_location' 'inline' %}" 
-			role="button"><i class="fa fa-plus"></i></a>
-		</td>
-</tr>
-<tr class="d-flex">
-	<th class="col-2">Source link</th>
-	<td class="col-8">{{form.source_link}} {{form.source_link.error}}</td>
-</tr>
-<tr class="d-flex">
-	<th class="col-2">Copyright</th>
-	<td class="col-8">{{form.copyright}} {{form.copyright.error}}</td>
-	<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-		href ="{% url 'catalogue:add_copy_right' %}" 
-		role="button"><i class="fa fa-plus"></i></a>
-	</td>
-</tr>
-<tr class="d-flex">
-	<th class="col-2">Notes</th>
-	<td class="col-8">{{form.notes}}</td>
-</tr>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">Notes</th>
+		<td class="col-8">{{form.notes}}</td>
+	</tr>
 </table>

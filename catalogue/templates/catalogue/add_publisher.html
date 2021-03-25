@@ -1,6 +1,5 @@
 {% extends "utilities/base.html" %}
 
-
 {% block head %}
 	{{form.media.css}}
 	<title>{{page_name}}</title>
@@ -9,16 +8,17 @@
 
 {% block content %}
 <div class="col-md-12 d-flex">
-<h4 class="mt-2">{{page_name}}</h4>
+	<h4 class="mt-2">{{page_name}}</h4>
 
-{% if view != "inline" %}
-	{% if page_name == "Edit publisher"%}
-	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publisher' %}"
-	role="button"><i class="fa fa-plus"></i></a>
+	{% if view != "inline" %}
+		{% if page_name == "Edit publisher"%}
+			<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publisher' %}"
+				role="button"><i class="fa fa-plus"></i></a>
+		{% endif %}
+		<a class ="btn btn-link ml-auto" 
+			href="{% url 'utilities:list_view' 'Publisher' 'catalogue'%}"
+			role="button"><i class="fas fa-list"></i></a>
 	{% endif %}
-	<a class ="btn btn-link ml-auto" href="{% url 'utilities:list_view' 'Publisher' 'catalogue'%}"
-	role="button"><i class="fas fa-list"></i></a>
-{% endif %}
 </div>
 
 <hr class="mt-0 mb-o">
@@ -31,30 +31,30 @@
 <form method="post">
     {% csrf_token %}
 	<table class="table table-borderless" id="form_table">
-	<tr class="d-flex">
-		<th class="col-2">Name</th>
-		<td class="col-8">{{form.name}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Locations</th>
-		<td class="col-8">{{form.location}}</td>
-			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'locations:add_location' 'inline' %}" 
-				role="button"><i class="fa fa-plus"></i></a>
-			</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Founded</th>
-		<td class="col-8">{{form.founded}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Closure</th>
-		<td class="col-8">{{form.closure}}</td>
-	</tr>
-	<tr class="d-flex">
-		<th class="col-2">Notes</th>
-		<td class="col-8">{{form.notes}}</td>
-	</tr>
+		<tr class="d-flex">
+			<th class="col-2">Name</th>
+			<td class="col-8">{{form.name}}</td>
+		</tr>
+		<tr class="d-flex">
+			<th class="col-2">Locations</th>
+			<td class="col-8">{{form.location}}</td>
+				<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+					href ="{% url 'locations:add_location' 'inline' %}" 
+					role="button"><i class="fa fa-plus"></i></a>
+				</td>
+		</tr>
+		<tr class="d-flex">
+			<th class="col-2">Founded</th>
+			<td class="col-8">{{form.founded}}</td>
+		</tr>
+		<tr class="d-flex">
+			<th class="col-2">Closure</th>
+			<td class="col-8">{{form.closure}}</td>
+		</tr>
+		<tr class="d-flex">
+			<th class="col-2">Notes</th>
+			<td class="col-8">{{form.notes}}</td>
+		</tr>
 	</table>
 	{% include 'utilities/save.html' %}
 </form>
