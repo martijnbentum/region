@@ -16,8 +16,11 @@ class LanguageWidget(ModelSelect2Widget):
 	def get_queryset(self):
 		return Language.objects.all().order_by('name')
 
-def make_select2_attr(field_name = 'name', input_length = 2):
-	attr= {'attrs':{'data-placeholder':'Select by '+field_name+' ...',
+def make_select2_attr(field_name = None, input_length = 2,data_placeholder = None):
+	if field_name == None:field_name = 'name' 
+	if not data_placeholder: data_placeholder = 'Select by ' + field_name + ' ...'
+
+	attr= {'attrs':{'data-placeholder':data_placeholder,
 	'style':'width:100%','class':'searching','data-minimum-input-length':str(input_length)}} 
 	return attr
 
