@@ -16,7 +16,8 @@ def catch_output(name):
 
 def get_output(name):
 	'''fetches output from the smbclient call'''
-	return open(smbouputdir + name).read()
+	try:return open(smbouputdir + name).read()
+	except:return ''
 
 def _mkdir(name, verbose = False):
 	'''Create a directory in the remote directory HOHrepositoryfiles
