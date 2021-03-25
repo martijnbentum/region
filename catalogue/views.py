@@ -32,21 +32,6 @@ def text_list(request):
 	'''list view of text.'''
 	return list_view(request, 'Text', 'catalogue')
 
-def publication_list(request):
-	'''list view of publications.'''
-	return list_view(request, 'Publication', 'catalogue')
-
-def publisher_list(request):
-	'''list view of publishers.'''
-	return list_view(request, 'Publisher', 'catalogue')
-
-def periodical_list(request):
-	'''list view of periodicals.'''
-	return list_view(request, 'Periodical', 'catalogue')
-
-def illustration_list(request):
-	'''list view of illustrations.'''
-	return list_view(request, 'Illustration', 'catalogue')
 
 def make_fname(name):
 	'''changes capitalized class names to underscore separated names.'''
@@ -105,8 +90,6 @@ def delete(request, pk, model_name):
 
 		
 
-def hello_world(request):
-	return render(request, 'catalogue/hello_world.html')
 
 def ajax_test(request):
 	cpu = os.popen('top -l 1 | grep -E "^CPU|^Phys"').read()
