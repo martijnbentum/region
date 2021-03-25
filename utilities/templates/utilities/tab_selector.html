@@ -1,5 +1,8 @@
 <script>
+//add forms uses bootstrap taps; these function maintains the selected tab after submitting
+//current tap is storing on an hidden input element passed along to the view
 function set_active(){
+	//sets the tabs that should be visible based on the information in tabs (passed from view)
 	{% for name in tabs.focus %}
 		if (document.getElementById('{{name}}a') !== null) {
 		document.getElementById('{{name}}a').className="nav-link active"; }
@@ -9,6 +12,7 @@ function set_active(){
 };
 
 function get_tab_state(){
+	//gets the current tab state; OBSOLETE??
 	var tab = get_ids("nav-link active")
 	var content = get_ids("show active")
 }
@@ -23,6 +27,8 @@ function get_ids(classname){
 }
 
 function dosubmit(){
+	//stores the current selected tab and focus to maintain the current selected tabs
+	//unsure why focus1 and focus2 are in there??
 	document.getElementById('focus').value = get_ids("tab-pane fade show active");
 	document.getElementById('focus1').value = get_ids("tab-pane fade show active");
 	document.getElementById('focus2').value = get_ids("tab-pane fade show active");
