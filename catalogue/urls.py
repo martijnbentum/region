@@ -7,7 +7,6 @@ app_name = 'catalogue'
 urlpatterns = [
 	path('',views.text_list,name='text_view'),
 	path('ajax_test/',views.ajax_test,name='ajax_test'),
-	path('hello_world/',views.hello_world,name='hello_world'),
 	path('add_illustration/', views.edit_illustration, name='add_illustration'),
 	path('add_text/', views.edit_text, name='add_text'),
 	path('add_periodical/', views.edit_periodical, name='add_periodical'),
