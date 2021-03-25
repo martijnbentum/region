@@ -11,6 +11,7 @@ from partial_date import PartialDateField
 import time
 
 def make_simple_model(name):
+	'''creates a new model based on name, uses the abstract class SimpleModel.'''
 	exec('class '+name + '(SimpleModel,info):\n\tpass',globals())
 
 names = 'CopyRight,Genre,TextType,TextTextRelationType,Audience,IllustrationType'
@@ -22,7 +23,9 @@ for name in names:
 			
 
 class Item(models.Model):
-	'''abstract model for non simple/ non relational catalogue models.'''
+	'''abstract model for non simple/ non relational catalogue models.
+	sets fields that are used by most models and defines methods used by most models
+	'''
 	dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
 	description = models.TextField(blank=True)
 	notes = models.TextField(default='',blank=True, null=True)
@@ -39,6 +42,7 @@ class Item(models.Model):
 		return self.instance_name
 
 	def save(self,*args,**kwargs):
+		'''sets the gps coordinates and names field after saving based on the fk location'''
 		super(Item,self).save(*args,**kwargs)
 		old_gps = self.gps
 		self._set_gps()
@@ -84,6 +88,7 @@ class Item(models.Model):
 		else: raise ValueError('please override instance_name property with correct "name" field')
 
 	def plot(self):
+		'''provides information to plot an instance on the map'''
 		app_name, model_name = instance2names(self) 
 		gps = str(self.gps.split(' | ')).replace("'",'')
 		d = {'app_name':app_name, 'model_name':model_name, 
@@ -134,6 +139,7 @@ class Text(Item, info):
 			
 
 def make_filename(instance, filename):
+	'''creates a filename for uploaded images'''
 	app_name, model_name = instance2names(instance)
 	name,ext = os.path.splitext(filename)
 	name += '_django-'+time.strftime('%y-%m-%d-%H-%M') + ext
@@ -272,7 +278,7 @@ class TextPublicationRelation(RelationModel):
 		
 
 class TextReviewPublicationRelation(RelationModel): 
-	'''Links a text with a publication.'''
+	'''Links a review text with a publication.'''
 	text = models.ForeignKey(Text, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 	model_fields = ['text','publication']
