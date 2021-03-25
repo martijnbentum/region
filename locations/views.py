@@ -45,9 +45,6 @@ for name in names.split(','):
     create_simple_view(name)
 
 
-def location_list(request):
-	'''list view of location.'''
-	return list_view(request, 'Location', 'locations')
 
 def map_ll(request):
 	maplist = [x.plot() for x in get_querysets()]

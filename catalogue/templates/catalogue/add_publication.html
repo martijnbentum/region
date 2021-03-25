@@ -20,8 +20,9 @@
 	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publication' %}"
 	role="button"><i class="fa fa-plus"></i></a>
 	{% endif %}
-	<a class ="btn btn-link ml-auto" href="{% url 'catalogue:publication_list' %}" 
-	role="button"><i class="fas fa-list"></i></a>
+	<a class ="btn btn-link ml-auto" 
+		href="{% url 'utilities:list_view' 'Publication' 'catalogue'%}" 
+		role="button"><i class="fas fa-list"></i></a>
 {% endif %}
 </div>
 

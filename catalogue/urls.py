@@ -33,12 +33,6 @@ urlpatterns = [
 		name='edit_illustration'),
 	path('edit_illustration/<int:pk>/<str:focus>', 
 		views.edit_illustration, name='edit_illustration'),
-	path('text/',views.text_list, name='text_list'),
-	path('publication/',views.publication_list,name='publication_list'),
-	path('publisher/',views.publisher_list,name='publisher_list'),
-	path('periodical/',views.periodical_list,name='periodical_list'),
-	path('illustration/',views.illustration_list,
-		name='illustration_list'),
 	path('delete/<int:pk>/<str:model_name>', views.delete, name='delete'),
 ]
 

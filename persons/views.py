@@ -21,17 +21,6 @@ from utils.view_util import Crud, make_tabs, get_modelform, FormsetFactoryManage
 from utilities.views import add_simple_model, getfocus, edit_model, delete_model,list_view
 	
 
-def person_list(request):
-	'''list view of person.'''
-	return list_view(request, 'Person', 'persons')
-
-def movement_list(request):
-	'''list view of movement.'''
-	return list_view(request, 'Movement', 'persons')
-	
-
-
-
 def person_detail(request, person_id):
 	p = Person.objects.get(pk=person_id)
 	var = {'person':p,'map_name':'europe.js','location_name':'europe'}

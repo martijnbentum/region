@@ -49,6 +49,7 @@ def illustration_list(request):
 	return list_view(request, 'Illustration', 'catalogue')
 
 def make_fname(name):
+	'''changes capitalized class names to underscore separated names.'''
 	o = name[0]
 	for c in name[1:]:
 		if c.isupper(): o += '_' + c

@@ -5,10 +5,6 @@ from . import views
 
 app_name = 'persons'
 urlpatterns = [
-	path('', views.person_list, name='person_list'),
-	path('person', views.person_list, name='person_list'),
-	path('person_list', views.person_list, name='person_list'),
-	path('movement', views.movement_list, name='movement_list'),
 	path('add_person/', views.edit_person, name='add_person'),
 	path('add_person/<str:view>', views.edit_person, name='add_person'),
 	path('add_movement/', views.edit_movement, name='add_movement'),
