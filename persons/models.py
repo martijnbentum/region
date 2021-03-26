@@ -3,7 +3,7 @@ from django.utils import timezone
 import json
 from locations.models import Location
 from utilities.models import Language, RelationModel,GroupTag 
-from utils.model_util import id_generator, info,instance2names
+from utils.model_util import id_generator, info,instance2names, get_empty_fields
 from utils.map_util import field2locations, pop_up, get_location_name,gps2latlng
 from utilities.models import SimpleModel
 
@@ -46,7 +46,6 @@ class Person(models.Model, info):
 	gps_names = models.CharField(max_length=4000,default='')
 	group_tags= models.ManyToManyField(GroupTag,blank=True, default= None)
 	
-
 	def save(self,*args,**kwargs):
 		'''set gps location information on the person instance to speed up map rendering.
 		'''
@@ -55,6 +54,9 @@ class Person(models.Model, info):
 		self._set_gps()
 		if self.gps != old_gps:super(Person,self).save()
 		super(Person,self).save(*args,**kwargs)
+
+	def empty_fields(self,fields = []):
+		return get_empty_fields(self,fields, default_is_empty = True)
 
 	def _set_gps(self):
 		'''sets the gps coordinates and name of related location to speed up map visualization.'''
@@ -224,13 +226,15 @@ class Movement(models.Model, info):
 	gps_names = models.CharField(max_length=4000,default='')
 	location_field = 'location'
 
-
 	def save(self,*args,**kwargs):
 		super(Movement,self).save(*args,**kwargs)
 		old_gps = self.gps
 		self._set_gps()
 		if self.gps != old_gps:super(Movement,self).save()
 		super(Movement,self).save(*args,**kwargs)
+
+	def empty_fields(self,fields = []):
+		return get_empty_fields(self,fields, default_is_empty = True)
 
 	def _set_gps(self):
 		'''sets the gps coordinates and name of related location to speed up map visualization.'''
