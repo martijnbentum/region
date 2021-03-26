@@ -1,6 +1,7 @@
 from django.apps import apps
 from django.db.models.functions import Lower
 from django.db.models import Q
+import time
 
 class Search:
 	'''search a django model on all fields or a subset with Q objects'''
@@ -99,6 +100,26 @@ class Search:
 			self.result= self.result.reverse()
 		self.notes += '\nordered in ' + self.order.direction + ' order'
 
+	def select_empty(self):
+		'''selects those instance that do not have a value in the specified fields'''
+		o = []
+		start = time.time()
+		for instance in self.result:
+			empty_fields = instance.empty_fields(self.active_fields)
+			if self.and_or == 'and':
+				ok = True
+				for field in self.active_fields:
+					if field not in empty_fields:ok = False
+			else:
+				ok = False
+				for field in self.active_fields:
+					if field in empty_fields:ok =True 
+			if ok: o.append(instance)
+		print('duration:',time.time()-start)
+		self.result = o
+					
+			
+
 	def filter(self, option = None,and_or='',combine= None):
 		'''method to create q objects and filter instance from the database
 		option 		search term for filtering, default capital insensitive search
@@ -126,6 +147,9 @@ class Search:
 		self.check_completeness_approval()
 		self.set_ordering_and_direction()
 		self.exclude_doubles() # returns a list of unique instances
+		if 'empty' in self.query.special_terms:
+			print('selecting empty fields in fields:',self.active_fields)
+			self.select_empty()	
 		self.nentries_found = len(self.result)
 		self.nentries = '# Entries: ' + str(self.nentries_found) 
 		if self.nentries_found > self.max_entries:
@@ -322,7 +346,7 @@ def get_foreign_keydict():
 	m = 'publication:title,text:title,illustration:caption,publisher:name,location:name'
 	m += ',person:first_name,movement:name,periodical:title,language:name,genre:name'
 	m += ',category:name,movement_type:name,form:name,userloc:name,loc_type:name'
-	m += ',geoloc:name,style:name,figure:name'
+	m += ',geoloc:name,style:name,figure:name,birth_place:name,death_place:name'
 	return make_dict(m)
 
 
