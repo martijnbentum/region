@@ -9,8 +9,11 @@ from utilities.models import SimpleModel
 
 
 def make_simple_model(name):
+	'''create a simple model for a given name based on the abstract model SimpleModel
+	'''
 	exec('class '+name + '(SimpleModel,info):\n\tpass',globals())
 
+#for each name listed below, create a simple model
 names = 'Pseudonym,PersonPersonRelationType,PersonLocationRelationType,PersonTextRelationRole'
 names += ',PersonIllustrationRelationRole,MovementType,PersonPeriodicalRelationRole'
 names += ',PersonMovementRelationRole'
@@ -45,6 +48,8 @@ class Person(models.Model, info):
 	
 
 	def save(self,*args,**kwargs):
+		'''set gps location information on the person instance to speed up map rendering.
+		'''
 		super(Person,self).save(*args,**kwargs)
 		old_gps = self.gps
 		self._set_gps()
@@ -101,18 +106,26 @@ class Person(models.Model, info):
 
 	@property
 	def latlng(self):
+		'''float tuple representation of the gps coordinates.
+		'''
 		return gps2latlng(self.gps)
 
 	@property
 	def latlng_names(self):
+		'''return a list of location names.
+		'''
 		try: return self.gps_names.split(' - ')
 		except: return None
 
 	@property
 	def pseudonyms(self):
+		'''string representation of listed pseudonyms.
+		'''
 		return ' | '.join([x.name for x in self.pseudonym.all()])
 		
 	def pop_up(self,latlng=None):
+		'''create a pop up for map rendering with information about this instance.
+		'''
 		m = ''
 		if self.life: m += '<p><small>' + self.life + '</small></p>'
 		pseudonyms = self.pseudonyms
@@ -121,6 +134,9 @@ class Person(models.Model, info):
 		return p
 
 	def plot(self):
+		'''create an information dictionary that can be used to retrieve 
+		this instance from the database.
+		'''
 		app_name, model_name = instance2names(self) 
 		gps = str(self.gps.split(' | ')).replace("'",'')
 		d = {'app_name':app_name, 'model_name':model_name, 
@@ -129,6 +145,9 @@ class Person(models.Model, info):
 		return d
 
 	def _set_secondary_place(self,d):
+		'''if the default location used for plotting a person is not present
+		use an alternatively specified location to plot it on the map
+		'''
 		ptd = self.make_placetype_dict()
 		for relation_name in ptd:
 			if 'residence' == relation_name: 

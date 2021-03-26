@@ -22,11 +22,15 @@ from utilities.views import add_simple_model, getfocus, edit_model, delete_model
 	
 
 def person_detail(request, person_id):
+	'''work in progress.'''
 	p = Person.objects.get(pk=person_id)
 	var = {'person':p,'map_name':'europe.js','location_name':'europe'}
 	return render(request,'persons/person_detail.html',var)
 
 def make_fname(name):
+	'''replace capitalized letter to lower case and insert an underscore before
+	except for the fort character in a string.
+	'''
 	o = name[0]
 	for c in name[1:]:
 		if c.isupper(): o += '_' + c
@@ -44,6 +48,7 @@ def create_simple_view(name):
 	c += '\treturn add_simple_model(request,__name__,"'+name+'","persons","add '+p_name+'",pk=pk)'
 	return exec(c,globals())
 
+#for each name in the list below create a simple view
 names = 'PersonPersonRelationType,PersonLocationRelationType,PersonTextRelationRole'
 names += ',PersonIllustrationRelationRole,PersonMovementRelationRole'
 names += ',PersonPeriodicalRelationRole,MovementType,Pseudonym'
