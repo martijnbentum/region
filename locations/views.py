@@ -21,8 +21,6 @@ from catalogue.models import Text, Illustration, Publication, Publisher, Periodi
 from persons.models import Person, Movement
 
 
-
-
 def make_fname(name):
 	o = name[0]
 	for c in name[1:]:
@@ -47,6 +45,9 @@ for name in names.split(','):
 
 
 def map_ll(request):
+	'''test view for new map implementation; now default map view
+	the new map view uses ajax/ lazy loading to speed up map rendering
+	'''
 	maplist = [x.plot() for x in get_querysets()]
 	args = {'page_name':'map','maplist':maplist}
 	return render(request,'locations/map_ll.html',args)
@@ -54,6 +55,9 @@ def map_ll(request):
 
 
 def map(request):
+	'''old style map rendering, all data is prepared beforehand which 
+	resulted in slow loading times
+	'''
 	# maplist = queryset2maplist(get_querysets())
 	maplist = None
 	args = {'page_name':'map','maplist':maplist}
@@ -61,6 +65,10 @@ def map(request):
 
 	
 def show_links(request,app_name,model_name,pk):
+	'''OBSOLETE old style map rendering, render location by getting extra info
+	for specific instation to plot the links an instance has to other instances
+	which are also plotted on the map
+	'''
 	print(app_name,model_name,pk)
 	instance = apps.get_model(app_name,model_name).objects.get(pk=pk)
 	l = Links(instance)
@@ -80,8 +88,6 @@ def edit_location(request, pk=None, focus = '', view='complete'):
 		focus = focus, view=view)
 
 
-
-
 def mapp(request, location_name = ''):
 	if location_name == '': location_name = 'europe'
 	map_name = location_name + '.js'
@@ -98,10 +104,6 @@ def germany(request):
 
 def world(request):
 	return render(request,'locations/world.html')
-
-
-
-
 
 def delete(request, pk, model_name):
 	return delete_model(request, __name__,model_name,'locations',pk)
@@ -126,6 +128,8 @@ def get_querysets(names = None):
 	return qs
 
 def ajax_popup(request,markerid,main_instance_markerid = None):
+	'''create a popup based on an async call with the relevant information
+	'''
 	print(markerid,main_instance_markerid,11111111111)
 	app_name, model_name, pk,gps= markerid.split('_')
 	latlng = gps2latlng(gps)
@@ -140,6 +144,8 @@ def ajax_popup(request,markerid,main_instance_markerid = None):
 	return JsonResponse(d)
 
 def ajax_links(request,markerid):
+	'''show links an instance has with other instance by plotting all on a map.
+	'''
 	app_name, model_name, pk,gps= markerid.split('_')
 	model = apps.get_model(app_name,model_name)
 	instance = model.objects.get(pk=pk)
@@ -147,6 +153,9 @@ def ajax_links(request,markerid):
 	
 
 def geojson_file(request,filename):
+	'''files used to draw a figure on a map.
+	code for source of life map demo
+	'''
 	if not os.path.isfile('media/geojson/'+filename): data = {'file':False}
 	a =  open('media/geojson/'+filename).read()
 	try: data = json.loads(a)
@@ -155,6 +164,8 @@ def geojson_file(request,filename):
 
 
 def map_draw(request):
+	'''view map demo source of life.
+	'''
 	f = Figure.objects.all()
 	f = serializers.serialize('json',f)
 	f = json.loads(f)
@@ -165,19 +176,25 @@ def map_draw(request):
 	return render(request,'locations/map_draw.html',args)
 
 def edit_style(request, pk=None, focus = '', view='complete'):
+	'''source of life map demo.
+	'''
 	return edit_model(request, __name__,'Style','locations',pk, 
 		focus = focus, view=view)
 
 def edit_figure(request, pk=None, focus = '', view='complete'):
+	'''source of life map demo.
+	'''
 	return edit_model(request, __name__,'Figure','locations',pk, 
 		focus = focus, view=view)
 
 def style_list(request):
-	'''list view of location.'''
+	'''source of life map demo
+	'''
 	return list_view(request, 'Style', 'locations')
 
 def figure_list(request):
-	'''list view of location.'''
+	'''source of life map demo
+	'''
 	return list_view(request, 'Figure', 'locations')
 # Create your views here.
 

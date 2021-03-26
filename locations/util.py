@@ -1,3 +1,7 @@
+'''this code code is OBSOLETE; see utils/loc_util
+'''
+
+
 from .models import Language, Location 
 from .util_models import info
 

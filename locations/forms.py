@@ -8,6 +8,7 @@ from .widgets import LocationVerboseWidget, LocationTypeWidget, LocationStatusWi
 from .widgets import StyleWidget
 from utilities.forms import make_select2_attr
 
+#attribute  declaration to clean up forms
 dattr = {'attrs':{'style':'width:100%'}}
 dchar = {'widget':forms.TextInput(**dattr),'required':False}
 dchar_required = {'widget':forms.TextInput(**dattr),'required':True}
@@ -78,7 +79,9 @@ location_relation_formset = inlineformset_factory(
 
 
 class FigureForm(ModelForm):
-	'''form to add or edit a figure.'''
+	'''form to add or edit a figure.
+	part of the map code for source of life.
+	'''
 	name = forms.CharField(**dchar_required)
 	description= forms.CharField(**dtext)
 	style= forms.ModelChoiceField(
@@ -96,6 +99,9 @@ class FigureForm(ModelForm):
 		fields = fields.split(',')
 
 class StyleForm(ModelForm):
+	'''sets the style for a figure on a map
+	part of the map code for source of life.
+	'''
 	name = forms.CharField(**dchar_required)
 	stroke_opacity = forms.FloatField(**dnumber)
 	stroke_weight = forms.IntegerField(**dnumber)
