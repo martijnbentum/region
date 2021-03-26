@@ -18,6 +18,10 @@ class RelationModel(models.Model):
 		abstract=True
 
 	def set_other(self,main_instance):
+		'''a relation model connects two models e.g. text & person
+		if main_instance is of type text the other instance will be of type person
+		and stored on attribute .other
+		'''
 		for field_name in self.model_fields:
 			instance = getattr(self,field_name)
 			if instance == main_instance: continue
@@ -42,7 +46,7 @@ class RelationModel(models.Model):
 
 
 class SimpleModel(models.Model):
-	'''abstract model for simple model with only a name and description.'''
+	'''abstract model for simple model with only a name, notes and description.'''
 	name = models.CharField(max_length=300,default='',unique=True)
 	description = models.TextField(blank=True,null=True)
 	notes= models.TextField(blank=True,null=True)
@@ -55,6 +59,7 @@ class SimpleModel(models.Model):
 		abstract=True 
 
 class generic(models.Model):
+	'''used for setting persmission'''
 	pass
 
 
@@ -68,6 +73,9 @@ class Language(models.Model, info):
 # Create your models here.
 
 class GroupTag(models.Model,info):
+	'''can be added to an instance to group instances together.
+	this could be used to process a set of instances
+	'''
 	name = models.CharField(max_length=300)
 	created = models.DateTimeField(auto_now_add=True,null=True)
 	modified = models.DateTimeField(auto_now_add=False,null=True,blank=True)
