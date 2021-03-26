@@ -7,18 +7,19 @@
 
 {% block content %}
 <div class="col-md-12 d-flex">
-<h4 class="mt-2">{{page_name}}</h4> 
-{% if page_name == "Edit movement"%}
-<a class ="btn btn-link ml-auto" href="{% url 'persons:add_movement' %}"
-role="button"><i class="fa fa-plus"></i></a>
-{% endif %}
-<a class ="btn btn-link ml-auto" href="{% url 'utilities:list_view' 'Movement' 'persons'%}" 
-role="button"><i class="fas fa-list"></i></a>
+	<h4 class="mt-2">{{page_name}}</h4> 
+	{% if page_name == "Edit movement"%}
+		<a class ="btn btn-link ml-auto" href="{% url 'persons:add_movement' %}"
+			role="button"><i class="fa fa-plus"></i></a>
+	{% endif %}
+	<a class ="btn btn-link ml-auto" href="{% url 'utilities:list_view' 'Movement' 'persons'%}" 
+		role="button"><i class="fas fa-list"></i></a>
 </div>
 
 
+<!-- dosubmit function can be found in template/utilities/tab_selector.html -->
 <form name="myform" id="myform" method = "post" onsubmit="dosubmit();">
-    {% csrf_token %}
+{% csrf_token %}
 
 {% include 'utilities/edit_minimize_tab.html' %}
 
@@ -32,46 +33,48 @@ role="button"><i class="fas fa-list"></i></a>
 		{% endif %}
 
 		<table class="table table-borderless" id="form_table">
-		<tr class="d-flex">
-			<th class="col-2">Name</th>
-			<td class="col-8">{{form.name}}</td>
-		</tr>
-		<tr class="d-flex">
-			<th class="col-2">Type</th>
-			<td class="col-8">{{form.movement_type}}</td>
-			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'persons:add_movement_type'%}"
-				role="button"><i class="fa fa-plus"></i></a>
-			</td>
-		</tr>
-		<tr class="d-flex">
-			<th class="col-2">Location</th>
-			<td class="col-8">{{form.location}}</td>
-			<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'locations:add_location' 'inline' %}" 
-				role="button"><i class="fa fa-plus"></i></a>
-			</td>
-		</tr>
-		<tr class="d-flex">
-			<th class="col-2">Founded</th>
-			<td class="col-8">{{form.founded}}</td>
-		</tr>
-		<tr class="d-flex">
-			<th class="col-2">Closure</th>
-			<td class="col-8">{{form.closure}}</td>
-		</tr>
-		<tr class="d-flex">
-			<th class="col-2">Notes</th>
-			<td class="col-8">{{form.notes}}</td>
-		</tr>
+			<tr class="d-flex">
+				<th class="col-2">Name</th>
+				<td class="col-8">{{form.name}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">Type</th>
+				<td class="col-8">{{form.movement_type}}</td>
+				<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'persons:add_movement_type'%}"
+						role="button"><i class="fa fa-plus"></i></a>
+				</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">Location</th>
+				<td class="col-8">{{form.location}}</td>
+				<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'locations:add_location' 'inline' %}" 
+						role="button"><i class="fa fa-plus"></i></a>
+				</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">Founded</th>
+				<td class="col-8">{{form.founded}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">Closure</th>
+				<td class="col-8">{{form.closure}}</td>
+			</tr>
+			<tr class="d-flex">
+				<th class="col-2">Notes</th>
+				<td class="col-8">{{form.notes}}</td>
+			</tr>
 		</table>
 
     </div>
+
     <div class="tab-pane fade" id="Minimize">
 		<!-- you can minimize the person form -->
 		<br>
         <h5>{{form.instance.name}}</h5>
     </div>
+
 </div>
 <hr>
 
@@ -87,35 +90,38 @@ role="button"><i class="fas fa-list"></i></a>
 
 	{{movementperson_formset.management_form}}
 	<table class="table table-borderless">
-	<tr class ="d-flex">
-	<th class="col-4">Person
-		<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-			href ="{% url 'persons:add_person' 'inline'%}" role="button">
-			 <i class="fa fa-plus"></i></a>
-		</th>
-	<th class="col-4">Role
-		{% if request.user|has_group:"typemaster" %}
-		<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-			href ="{% url 'persons:add_person_movement_relation_role' %}" role="button">
-			 <i class="fa fa-plus"></i></a>
-		{% endif %}
-		</th>
-	<th><i class="fa fa-times text-danger"></i></th>
-	</tr>
-	{% for f in movementperson_formset.forms %}
 		<tr class ="d-flex">
-		<td class="col-4">{{f.person}} {{f.person.errors}}</td>
-		<td class="col-4">{{f.role}} {{f.role.errors}}</td>
-		<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			<th class="col-4">Person
+				<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+					href ="{% url 'persons:add_person' 'inline'%}" role="button">
+					<i class="fa fa-plus"></i></a>
+				</th>
+			<th class="col-4">Role
+				{% if request.user|has_group:"typemaster" %}
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'persons:add_person_movement_relation_role' %}" 
+						role="button">
+						<i class="fa fa-plus"></i></a>
+				{% endif %}
+				</th>
+			<th><i class="fa fa-times text-danger"></i></th>
 		</tr>
-	{% endfor %}
+		{% for f in movementperson_formset.forms %}
+			<tr class ="d-flex">
+				<td class="col-4">{{f.person}} {{f.person.errors}}</td>
+				<td class="col-4">{{f.role}} {{f.role.errors}}</td>
+				<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
 	</table>
 	</div>
 
 </div>
 <hr> 
+
 {% endif %}
 
+<!-- current tab state is stored here to maintain it after submit,see tab_selector  -->
 <input type="hidden" name="navbar" id="navbar" value="" />
 <input type="hidden" name="navcontent" id="navcontent" value="" />
 <input type="hidden" name="focus" id="focus" value="" />

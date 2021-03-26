@@ -45,6 +45,7 @@
 			<tr class="d-flex">
 				<th class="col-2">Categories</th>
 				<td class="col-8">{{form.categories}} {{form.categories.error}}</td>
+				<!-- typemaster controls who can add edit and delete catogory type entries --> 
 				{% if request.user|has_group:"typemaster" %}
 					<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
 							href ="{% url 'catalogue:add_illustration_category'%}"
@@ -55,6 +56,7 @@
 			<tr class="d-flex">
 				<th class="col-2">Illustration type</th>
 				<td class="col-8">{{form.illustration_type}} {{form.illustration_type.error}}</td>
+				<!-- typemaster controls who can add edit and delete catogory type entries --> 
 				{% if request.user|has_group:"typemaster" %}
 					<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
 							href ="{% url 'catalogue:add_illustration_type' %}" 

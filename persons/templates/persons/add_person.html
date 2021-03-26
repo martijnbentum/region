@@ -7,25 +7,26 @@
 
 {% block content %}
 <div class="col-md-12 d-flex">
-<h4 class="mt-2">{{page_name}}</h4> 
-{% if page_name == "Edit person"%}
-<a class ="btn btn-link ml-auto" href="{% url 'persons:add_person' %}"
-role="button"><i class="fa fa-plus"></i></a>
-{% endif %}
-<a class ="btn btn-link ml-auto" 
-	href="{% url 'utilities:list_view' 'Person' 'persons' %}" role="button">
-	<i class="fas fa-list"></i></a>
+	<h4 class="mt-2">{{page_name}}</h4> 
+	{% if page_name == "Edit person"%}
+		<a class ="btn btn-link ml-auto" href="{% url 'persons:add_person' %}"
+			role="button"><i class="fa fa-plus"></i></a>
+	{% endif %}
+	<a class ="btn btn-link ml-auto" 
+		href="{% url 'utilities:list_view' 'Person' 'persons' %}" role="button">
+		<i class="fas fa-list"></i></a>
 </div>
 
 
+<!-- dosubmit function can be found in template/utilities/tab_selector.html -->
 <form name="myform" id="myform" method = "post" onsubmit="dosubmit();">
-    {% csrf_token %}
-
+{% csrf_token %}
 <!-- adding or editing a person -->
 
 {% include 'utilities/edit_minimize_tab.html' %}
 
 <div class="tab-content">
+
     <div class="tab-pane fade" id="Edit">
 		<!-- person form is defined in a seperate template -->
 		{% if page_name == "Edit Person" and 'unknown' not in crud.last_update %}
@@ -34,11 +35,13 @@ role="button"><i class="fa fa-plus"></i></a>
 		{% endif %}
 		{% include 'persons/_person_form.html' %}
     </div>
+
     <div class="tab-pane fade" id="Minimize">
 		<!-- you can minimize the person form -->
 		<br>
         <h5>{{form.instance.first_name}} {{form.instance.last_name}}</h5>
     </div>
+
 </div>
 <hr>
 
@@ -50,233 +53,245 @@ role="button"><i class="fa fa-plus"></i></a>
 {% include 'utilities/relation_tabs.html' %}
 
 <div class="tab-content">
-    <div class="tab-pane fade" id="Locations">
 
-	{{location_formset.management_form}}
-	<table class="table table-borderless">
-	<tr class ="d-flex">
-	<th class="col-4">Location
-		<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-			href ="{% url 'locations:add_location' 'inline' %}" 
-			role="button"><i class="fa fa-plus"></i></a>
-		</th>
-	<th class="col-2">Type
-		{% if request.user|has_group:"typemaster" %}
-		<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-			href ="{% url 'persons:add_person_location_relation_type' %}" role="button">
-			 <i class="fa fa-plus"></i></a>
-		{% endif %}
-		</th>
-	<th class="col-2">Start</th>
-	<th class="col-2">End</th>
-	<th><i class="fa fa-times text-danger"></i></th>
-	</tr>
-	{% for f in location_formset.forms %}
-		<tr class ="d-flex">
-		<td class="col-4">{{f.location}} {{f.location.errors}}</td>
-		<td class="col-2">{{f.relation}} {{f.relation.errors}}</td>
-		<td class="col-2">{{f.start_year}}</td>
-		<td class="col-2">{{f.end_year}}</td>
-		<td class="col-1">{{f.DELETE}} {{f.id}}</td>
-		</tr>
-	{% endfor %}
-	</table>
+    <div class="tab-pane fade" id="Locations">
+		{{location_formset.management_form}}
+		<table class="table table-borderless">
+			<tr class ="d-flex">
+				<th class="col-4">Location
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'locations:add_location' 'inline' %}" 
+						role="button"><i class="fa fa-plus"></i></a>
+					</th>
+				<th class="col-2">Type
+					<!-- typemaster controls who can add edit and delete catogory type entries --> 
+					{% if request.user|has_group:"typemaster" %}
+						<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+							href ="{% url 'persons:add_person_location_relation_type' %}" 
+							role="button">
+							<i class="fa fa-plus"></i></a>
+					{% endif %}
+				</th>
+				<th class="col-2">Start</th>
+				<th class="col-2">End</th>
+				<th><i class="fa fa-times text-danger"></i></th>
+			</tr>
+			{% for f in location_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-4">{{f.location}} {{f.location.errors}}</td>
+					<td class="col-2">{{f.relation}} {{f.relation.errors}}</td>
+					<td class="col-2">{{f.start_year}}</td>
+					<td class="col-2">{{f.end_year}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
+		</table>
 	</div>
 
 	<div class="tab-pane fade" id="Texts">
 		{{persontext_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-4">Text
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_text' 'inline' %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-			</th>
-		<th class="col-3">Role
-		{% if request.user|has_group:"typemaster" %}
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'persons:add_person_text_relation_role' %}" 
-				role="button"><i class="fa fa-plus"></i></a>
-		{% endif %}
-			</th>
-		<th class="col-4">Published under</th>
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{% for f in persontext_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-4">{{f.text}} {{f.text.errors}}</td>
-			<td class="col-3">{{f.role}} {{f.role.errors}}</td>
-			<td class="col-4">{{f.published_under}} {{f.published_under.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				<th class="col-4">Text
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'catalogue:add_text' 'inline' %}" role="button">
+						<i class="fa fa-plus"></i></a>
+				</th>
+				<th class="col-3">Role
+					<!-- typemaster controls who can add edit and delete catogory type entries --> 
+					{% if request.user|has_group:"typemaster" %}
+						<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+							href ="{% url 'persons:add_person_text_relation_role' %}" 
+							role="button"><i class="fa fa-plus"></i></a>
+					{% endif %}
+				</th>
+				<th class="col-4">Published under</th>
+				<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
+			{% for f in persontext_formset.forms %}
+				<tr class ="d-flex">
+				<td class="col-4">{{f.text}} {{f.text.errors}}</td>
+				<td class="col-3">{{f.role}} {{f.role.errors}}</td>
+				<td class="col-4">{{f.published_under}} {{f.published_under.errors}}</td>
+				<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
 		</table>
 	</div>
 
 	<div class="tab-pane fade" id="Illustrations">
 		{{personillustration_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-5">Illustration
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_illustration' 'inline' %}" 
-				role="button"><i class="fa fa-plus"></i></a>
-			</th>
-		<th class="col-5">Role
-		{% if request.user|has_group:"typemaster" %}
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'persons:add_person_illustration_relation_role' %}" 
-				role="button"><i class="fa fa-plus"></i></a>
-			</th>
-		{% endif %}
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{% for f in personillustration_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.illustration}} {{f.illustration.errors}}</td>
-			<td class="col-5">{{f.role}} {{f.role.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				<th class="col-5">Illustration
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'catalogue:add_illustration' 'inline' %}" 
+						role="button"><i class="fa fa-plus"></i></a>
+				</th>
+				<th class="col-5">Role
+				<!-- typemaster controls who can add edit and delete catogory type entries --> 
+				{% if request.user|has_group:"typemaster" %}
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'persons:add_person_illustration_relation_role' %}" 
+						role="button"><i class="fa fa-plus"></i></a>
+					</th>
+				{% endif %}
+				<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
-	</table>
+			{% for f in personillustration_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.illustration}} {{f.illustration.errors}}</td>
+					<td class="col-5">{{f.role}} {{f.role.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
+		</table>
 	</div>
 
 	<div class="tab-pane fade" id="Publisher-Manager">
 		{{personpublisher_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-5">Publisher
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_publisher' 'inline' %}" 
-				role="button"><i class="fa fa-plus"></i></a>
-			</th>
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{% for f in personpublisher_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.publisher}} {{f.publisher.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				<th class="col-5">Publisher
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'catalogue:add_publisher' 'inline' %}" 
+						role="button"><i class="fa fa-plus"></i></a>
+				</th>
+				<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
-	</table>
+			{% for f in personpublisher_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.publisher}} {{f.publisher.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
+		</table>
 	</div>
 
 	<div class="tab-pane fade" id="Pseudonym">
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-			<th class="col-10">Pseudonym(s)
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'persons:add_pseudonym' %}" 
-				role="button"><i class="fa fa-plus"></i></a>
-			</th>
-		</tr>
-		<tr class ="d-flex">
-			<td class="col-10">{{form.pseudonym}} {{form.pseudonym.errors}}</td>
-		</tr>
-	</table>
+			<tr class ="d-flex">
+				<th class="col-10">Pseudonym(s)
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'persons:add_pseudonym' %}" 
+						role="button"><i class="fa fa-plus"></i></a>
+				</th>
+			</tr>
+			<tr class ="d-flex">
+				<td class="col-10">{{form.pseudonym}} {{form.pseudonym.errors}}</td>
+			</tr>
+		</table>
 	</div>
 
 	<div class="tab-pane fade" id="Movements">
 		{{personmovement_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-5">movement
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'persons:add_movement' 'inline' %}" 
-				role="button"><i class="fa fa-plus"></i></a>
-			</th>
-		<th class="col-4">role
-		{% if request.user|has_group:"typemaster" %}
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'persons:add_person_movement_relation_role' %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-		{% endif %}
-			</th>
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{% for f in personmovement_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.movement}} {{f.movement.errors}}</td>
-			<td class="col-4">{{f.role}} {{f.role.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				<th class="col-5">movement
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'persons:add_movement' 'inline' %}" 
+						role="button"><i class="fa fa-plus"></i></a>
+				</th>
+				<th class="col-4">role
+				<!-- typemaster controls who can add edit and delete catogory type entries --> 
+				{% if request.user|has_group:"typemaster" %}
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'persons:add_person_movement_relation_role' %}" role="button">
+						<i class="fa fa-plus"></i></a>
+				{% endif %}
+					</th>
+				<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
-	</table>
+			{% for f in personmovement_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.movement}} {{f.movement.errors}}</td>
+					<td class="col-4">{{f.role}} {{f.role.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
+		</table>
 	</div>
-
 
 	<div class="tab-pane fade" id="Periodicals">
 		{{personperiodical_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-5">periodical
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'catalogue:add_periodical' 'inline' %}" 
-				role="button"><i class="fa fa-plus"></i></a>
-			</th>
-		<th class="col-4">role
-		{% if request.user|has_group:"typemaster" %}
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'persons:add_person_periodical_relation_role' %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-		{% endif %}
-			</th>
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{% for f in personperiodical_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.periodical}} {{f.periodical.errors}}</td>
-			<td class="col-4">{{f.role}} {{f.role.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				<th class="col-5">periodical
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'catalogue:add_periodical' 'inline' %}" 
+						role="button"><i class="fa fa-plus"></i></a>
+				</th>
+				<th class="col-4">role
+				<!-- typemaster controls who can add edit and delete catogory type entries --> 
+					{% if request.user|has_group:"typemaster" %}
+						<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+							href ="{% url 'persons:add_person_periodical_relation_role' %}" 
+							role="button">
+							<i class="fa fa-plus"></i></a>
+					{% endif %}
+				</th>
+				<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
-	</table>
+			{% for f in personperiodical_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.periodical}} {{f.periodical.errors}}</td>
+					<td class="col-4">{{f.role}} {{f.role.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
+		</table>
 	</div>
 
 	<div class="tab-pane fade" id="Persons">
 		{{personperson_formset.management_form}}
 		<table class="table table-borderless">
-		<tr class ="d-flex">
-		<th class="col-5">person
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'persons:add_person' 'inline' %}" 
-				role="button"><i class="fa fa-plus"></i></a>
-			</th>
-		<th class="col-4">relation
-		{% if request.user|has_group:"typemaster" %}
-			<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-				href ="{% url 'persons:add_person_person_relation_type' %}" role="button">
-				 <i class="fa fa-plus"></i></a>
-		{% endif %}
-			</th>
-		<th><i class="fa fa-times text-danger"></i></th>
-		</tr>
-		{{personpersonr_formset.management_form}}
-		{% for f in personpersonr_formset.forms %}
 			<tr class ="d-flex">
-			<td class="col-5">{{f.person1}} {{f.person1.errors}}</td>
-			<td class="col-4">{{f.relation_type}} {{f.relation_type.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				<th class="col-5">person
+					<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'persons:add_person' 'inline' %}" 
+						role="button"><i class="fa fa-plus"></i></a>
+				</th>
+				<th class="col-4">relation
+					<!-- typemaster controls who can add edit and delete catogory type entries --> 
+					{% if request.user|has_group:"typemaster" %}
+						<a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+							href ="{% url 'persons:add_person_person_relation_type' %}" 
+							role="button">
+							<i class="fa fa-plus"></i></a>
+					{% endif %}
+				</th>
+				<th><i class="fa fa-times text-danger"></i></th>
 			</tr>
-		{% endfor %}
-		{% for f in personperson_formset.forms %}
-			<tr class ="d-flex">
-			<td class="col-5">{{f.person2}} {{f.person2.errors}}</td>
-			<td class="col-4">{{f.relation_type}} {{f.relation_type.errors}}</td>
-			<td class="col-1">{{f.DELETE}} {{f.id}}</td>
-			</tr>
-		{% endfor %}
-	</table>
+			{{personpersonr_formset.management_form}}
+			{% for f in personpersonr_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.person1}} {{f.person1.errors}}</td>
+					<td class="col-4">{{f.relation_type}} {{f.relation_type.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
+			{% for f in personperson_formset.forms %}
+				<tr class ="d-flex">
+					<td class="col-5">{{f.person2}} {{f.person2.errors}}</td>
+					<td class="col-4">{{f.relation_type}} {{f.relation_type.errors}}</td>
+					<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+				</tr>
+			{% endfor %}
+		</table>
 	</div>
 
 </div>
+
 <hr> 
 {% endif %}
 
+
+<!-- current tab state is stored here to maintain it after submit,see tab_selector  -->
 <input type="hidden" name="focus" id="focus" value="" />
 
 {% include 'utilities/save.html' %}
 
+<!-- displays the help text for each field -->
 {% include 'utilities/helper.html' %}
 {{form.media.js}}
 
