@@ -1,6 +1,6 @@
 from django.db import models
 from colorfield.fields import ColorField
-from utils.model_util import info, id_generator
+from utils.model_util import info, id_generator, get_empty_fields
 from utils.general import flatten_lol
 from utilities.models import SimpleModel
 from partial_date import PartialDateField
@@ -51,6 +51,9 @@ class Location(models.Model, info):
 	information = models.TextField(default='',blank=True)
 	active = models.BooleanField(default=False)
 	notes = models.TextField(default='',blank=True)
+
+	def empty_fields(self,fields = []):
+		return get_empty_fields(self,fields, default_is_empty = True)
 
 	class Meta:
 		ordering = ['name']
