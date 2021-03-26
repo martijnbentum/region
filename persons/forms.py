@@ -17,6 +17,7 @@ from .widgets import PersonMovementRelationRoleWidget, MovementWidget, MovementT
 from .widgets import PersonPersonRelationTypeWidget, PersonPeriodicalRelationRoleWidget 
 from utilities.forms import make_select2_attr 
 
+#declaration of attributes to clean up form declaration
 dattr = {'attrs':{'style':'width:100%'}}
 dchar = {'widget':forms.TextInput(**dattr),'required':False}
 dchar_required = {'widget':forms.TextInput(**dattr),'required':True}
@@ -45,7 +46,6 @@ for name in names:
 class PersonForm(ModelForm):
 	'''form to add a person'''
 	attrs={'class':'form-control','type':'date'}
-
 	birth_place= forms.ModelChoiceField(
 		queryset=Location.objects.all().order_by('name'),
 		widget=LocationWidget(**dselect2n2),
