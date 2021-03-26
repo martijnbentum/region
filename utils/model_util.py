@@ -160,3 +160,25 @@ def make_models_image_file_dict():
 			app_name, model_name = instance2names(model)
 			d[app_name, model_name] = file_field_names
 	return d
+
+
+def get_empty_fields(instance,fields = [],default_is_empty =False):
+	if not fields: fields = instance._meta.fields
+	empty_values = ['',None]
+	exclude = 'gps,gps_names'.split(',')
+	empty_fields = []
+	for f in fields:
+		if type(f) == str: f = instance._meta.get_field(f)
+		if f.name in exclude:continue
+		empty = False
+		value = getattr(instance,f.name)
+		if value in empty_values:empty = True 
+		if not empty and default_is_empty: 
+			default = f.get_default()
+			if value == default: empty = True
+		if empty: empty_fields.append(f.name)
+	return empty_fields
+
+		
+
+
