@@ -4,7 +4,7 @@ from django.utils import timezone
 import glob
 from locations.models import Location
 from utilities.models import Language, RelationModel, SimpleModel, GroupTag
-from utils.model_util import id_generator, info,instance2names
+from utils.model_util import id_generator, info,instance2names, get_empty_fields
 from utils.map_util import field2locations, pop_up, get_location_name,gps2latlng
 import os
 from partial_date import PartialDateField
@@ -58,6 +58,9 @@ class Item(models.Model):
 			self.gps = gps
 			self.gps_names = names
 		else: self.gps, self.gps_names = '',''
+
+	def empty_fields(self,fields = []):
+		return get_empty_fields(self,fields, default_is_empty = True)
 
 	@property
 	def latlng(self):
