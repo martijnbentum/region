@@ -47,7 +47,7 @@ query.addEventListener('click',before_search)
 var search_fields= JSON.parse(document.getElementById('js_search_fields').textContent);
 var active_search_buttons= JSON.parse(document.getElementById('js_asb').textContent);
 var active_special_term_buttons= JSON.parse(document.getElementById('js_stb').textContent);
-var special_terms = 'combine words,combine columns,exact'.split(',')
+var special_terms = 'combine words,combine columns,exact,empty'.split(',')
 
 for (i = 0; i<search_fields.length; i++) {
 	make_button(search_fields[i],'button_search_field');
@@ -64,6 +64,7 @@ function before_search() {
 }
 
 function check_active_buttons() {
+	//checks which buttons are active
 	var active_buttons = []
 	var search_fields = []
 	var special_terms = []
@@ -81,11 +82,15 @@ function check_active_buttons() {
 	}
 	document.getElementById('active_search_buttons').value = search_fields.join()
 	document.getElementById('active_special_term_buttons').value = special_terms.join()
+	console.log(search_fields,1);
+	console.log(special_terms,2);
 }
 
 function set_active_buttons() {
+	//sets a button active on loading page based on on the value of the input vield
+	// active_search_buttons and active_special_term_buttons
 	var buttons = document.getElementsByClassName('search_button')
-	console.log(active_search_buttons,12345)
+	//console.log(active_search_buttons,12345)
 	for (i = 0; i<buttons.length;i++) {
 		if (!buttons[i].classList.contains('selected') ) {
 			if (active_search_buttons.includes(buttons[i].name)) {
@@ -93,12 +98,15 @@ function set_active_buttons() {
 			}
 			if (active_special_term_buttons.includes(buttons[i].name)) {
 				buttons[i].classList.add('selected');
+				console.log(buttons[i].innerHTML)
+				if (buttons[i].innerHTML == 'empty') {toggle_exact_and_combine_words(enable=false);}
 			}
 		}
 	}
 }
 		
 function make_button(name, button_type) {
+	//creates a button to indicate search field or special term
 	var button = document.createElement('button');
 	button.innerHTML = name.replace('_',' ');
 	button.name = name;
@@ -112,6 +120,7 @@ function make_button(name, button_type) {
 
 
 function show_extended_search_list(){
+	//determines whether search field and special term buttons are shown; on by default
 	var x = document.getElementById("extended_search_list");
 	var y = document.getElementById("extended_search");
 	if (x.style.display === "none") {
@@ -130,10 +139,42 @@ function show_extended_search_list(){
 }
 
 function highlight(event) {
+	//toggles a button between active or not active i.e. selected or not selected
 	b = event.toElement;
-	if (b.classList.contains('selected')) { b.classList.remove('selected') }
-	else {b.classList.add('selected')}
+	if (b.classList.contains('disabled')) {}// do nothing if a button is disabled
+	else if (b.classList.contains('selected')) {
+		b.classList.remove('selected') 
+		if (b.innerHTML == 'empty') {toggle_exact_and_combine_words(enable=true);}
+		}
+	else {
+		b.classList.add('selected')
+		if (b.innerHTML == 'empty') {toggle_exact_and_combine_words(enable=false);}
+		}
+	//check_active_buttons();
 }
+
+function toggle_exact_and_combine_words(enable) {
+	var buttons = document.getElementsByClassName('search_button')
+	var query_field = document.getElementById('exampleFormControlInput1')
+	var items= 'exact,combine words'.split(',');
+	for (i = 0; i<buttons.length;i++) {
+		b = buttons[i]
+		if (items.includes(b.innerHTML)) {
+			if (enable) {
+				b.classList.add('button_special_term');
+				b.classList.remove('disabled');
+				}
+			else {
+				b.classList.remove('button_special_term');
+				b.classList.add('disabled');
+				query_field.value= '';
+				}
+			}
+	}
+}
+		
+	
+	
 
 function clear_highlights() {
 	var buttons = getElementsByClassName()
@@ -203,4 +244,15 @@ function clear_highlights() {
 .button_special_term:focus{
 	outline-color:#facd4b;
 }
+
+.disabled: {
+	background-color = white;
+	color = #999999;
+    border: 1px solid #999999; 
+}
+.disabled:focus{
+	outline:0;
+}
+
+
 </style>
