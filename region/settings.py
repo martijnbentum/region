@@ -157,8 +157,8 @@ STATIC_ROOT =  os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/' 
 SELECT2BOOTSTRAP = True
 # SELECT2_CSS = ''
-LOGIN_REDIRECT_URL = '/catalogue/text/'
-LOGOUT_REDIRECT_URL = '/catalogue/text/'
+LOGIN_REDIRECT_URL = '/catalogue/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 DEFAULT_FROM_EMAIL = 'redefiningtheregion@ru.nl'
 # EMAIL_HOST = '127.0.0.1'
