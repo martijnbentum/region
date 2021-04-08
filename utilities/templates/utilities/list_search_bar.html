@@ -47,7 +47,13 @@ query.addEventListener('click',before_search)
 var search_fields= JSON.parse(document.getElementById('js_search_fields').textContent);
 var active_search_buttons= JSON.parse(document.getElementById('js_asb').textContent);
 var active_special_term_buttons= JSON.parse(document.getElementById('js_stb').textContent);
-var special_terms = 'combine words,combine columns,exact,empty,complete'.split(',')
+var special_terms = 'combine words,combine columns,exact,empty'.split(',')
+
+if (active_special_term_buttons.includes('incomplete')) {
+	special_terms.push('incomplete')
+} else {
+	special_terms.push('complete')
+}
 
 for (i = 0; i<search_fields.length; i++) {
 	make_button(search_fields[i],'button_search_field');
@@ -143,8 +149,12 @@ function highlight(event) {
 	b = event.toElement;
 	if (b.classList.contains('disabled')) {}// do nothing if a button is disabled
 	else if (b.classList.contains('selected')) {
-		b.classList.remove('selected') 
-		if (b.innerHTML == 'empty') {toggle_exact_and_combine_words(enable=true);}
+		if (b.innerHTML == 'complete') {b.innerHTML = 'incomplete'; b.name = 'incomplete';}
+		else {
+			b.classList.remove('selected') 
+			if (b.innerHTML == 'empty') {toggle_exact_and_combine_words(enable=true);}
+			if (b.innerHTML == 'incomplete') {b.innerHTML = 'complete';b.name = 'complete';}
+			}
 		}
 	else {
 		b.classList.add('selected')
