@@ -47,7 +47,7 @@ query.addEventListener('click',before_search)
 var search_fields= JSON.parse(document.getElementById('js_search_fields').textContent);
 var active_search_buttons= JSON.parse(document.getElementById('js_asb').textContent);
 var active_special_term_buttons= JSON.parse(document.getElementById('js_stb').textContent);
-var special_terms = 'combine words,combine columns,exact,empty'.split(',')
+var special_terms = 'combine words,combine columns,exact,empty,complete'.split(',')
 
 for (i = 0; i<search_fields.length; i++) {
 	make_button(search_fields[i],'button_search_field');
