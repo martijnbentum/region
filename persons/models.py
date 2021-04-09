@@ -30,6 +30,7 @@ class Person(models.Model, info):
 	dargs = {'on_delete':models.SET_NULL,'default':None,'null':True}
 	first_name = models.CharField(max_length=200, null=True, blank=True)
 	last_name = models.CharField(max_length=200, null=True, blank=True)
+	full_name = models.CharField(max_length=900, null=True, blank=True)
 	SEX = [('female','female'),('male','male'),('other','other'),('unknown','unknown')]
 	sex = models.CharField(max_length=15,choices=SEX)
 	pseudonym= models.ManyToManyField(Pseudonym,blank=True)
@@ -52,6 +53,7 @@ class Person(models.Model, info):
 		super(Person,self).save(*args,**kwargs)
 		old_gps = self.gps
 		self._set_gps()
+		self._set_full_name()
 		if self.gps != old_gps:super(Person,self).save()
 		super(Person,self).save(*args,**kwargs)
 
@@ -67,6 +69,13 @@ class Person(models.Model, info):
 			self.gps = gps
 			self.gps_names = names
 		else: self.gps, self.gps_names = '',''
+
+	def _set_full_name(self):
+		full_name = self.name 
+		pseudonyms = self.pseudonyms
+		if pseudonyms: full_name += ', ' + pseudonyms
+		self.full_name = full_name
+			
 
 	class Meta:
 		unique_together = 'first_name,last_name,birth_year'.split(',')
@@ -225,6 +234,14 @@ class Movement(models.Model, info):
 	gps = models.CharField(max_length=300,default ='')
 	gps_names = models.CharField(max_length=4000,default='')
 	location_field = 'location'
+	person = models.CharField(max_length=2000,blank=True,null=True)
+
+	def _set_person(self):
+		names = [] 
+		for pmr in self.personmovementrelation_set.all():
+			names.append(pmr.person.full_name)
+		self.person = '; '.join(names)
+		self.save()
 
 	def save(self,*args,**kwargs):
 		super(Movement,self).save(*args,**kwargs)

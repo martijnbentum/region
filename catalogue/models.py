@@ -120,6 +120,17 @@ class Text(Item, info):
 	relations = models.ManyToManyField('self',
 		through='TextTextRelation',symmetrical=False, default=None)
 	location= models.ManyToManyField(Location,blank=True, default= None)
+	person = models.CharField(max_length=2000,blank=True,null=True)
+
+	def _set_person(self):
+		names = [] 
+		for ptr in self.persontextrelation_set.all():
+			names.append(ptr.person.full_name)
+		self.person = '; '.join(names)
+		self.save()
+			
+			
+
 
 	class Meta:
 		unique_together = 'title,setting,language'.split(',')
@@ -163,6 +174,14 @@ class Illustration(Item, info):
 	illustration_type = models.ForeignKey(IllustrationType, **dargs)
 	location_field = ''
 	image_filename = models.CharField(max_length=500,default='',blank=True,null=True)
+	person = models.CharField(max_length=2000,blank=True,null=True)
+
+	def _set_person(self):
+		names = [] 
+		for pir in self.personillustrationrelation_set.all():
+			names.append(pir.person.full_name)
+		self.person = '; '.join(names)
+		self.save()
 
 	class Meta:
 		unique_together = 'caption,image_filename,page_number'.split(',')
@@ -175,6 +194,14 @@ class Publisher(Item, info):
 	location= models.ManyToManyField(Location,blank=True,default=None)
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 
+	person = models.CharField(max_length=2000,blank=True,null=True)
+
+	def _set_person(self):
+		names = [] 
+		for p in self.publisher.all():
+			names.append(p.manager.full_name)
+		self.person = '; '.join(names)
+		self.save()
 
 
 	class Meta:
@@ -238,6 +265,15 @@ class Periodical(Item, info):
 	founded = models.PositiveIntegerField(null=True,blank=True) 
 	closure = models.PositiveIntegerField(null=True,blank=True) 
 	location= models.ManyToManyField(Location,blank=True,default =None)
+	person = models.CharField(max_length=2000,blank=True,null=True)
+
+	def _set_person(self):
+		names = [] 
+		for ppr in self.personperiodicalrelation_set.all():
+			names.append(ppr.person.full_name)
+		self.person = '; '.join(names)
+		self.save()
+
 
 
 	class Meta:

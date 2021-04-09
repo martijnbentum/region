@@ -8,7 +8,8 @@ from catalogue.models import TextTextRelation
 from .model_util import instance2name, instance2names, make_models_image_file_dict
 from .backup_util import put_file, isfile
 
-from persons.models import Person,Movement
+from persons.models import Person,Movement, PersonTextRelation, PersonIllustrationRelation
+from persons.models import PublisherManager, PersonPeriodicalRelation, PersonMovementRelation
 from catalogue.models import Text,Publication,Publisher,Illustration,Periodical
 
 import sys
@@ -129,12 +130,13 @@ def make_file_backup_postsave_receiver(app_name,model_name):
 	exec(m,globals())
 
 
+#create receivers for all models that have upload file fields to make backups of the image
 d = make_models_image_file_dict()
 for k in d:
 	app_name, model_name = k
 	make_file_backup_postsave_receiver(app_name,model_name)
 
-
+#create filename and path to make a backup to the werkgroepmap
 def extract_filename_and_path(name):
 	'''create correct path and filename to backup to the werkgroep map'''
 	media_dir = settings.MEDIA_ROOT
@@ -150,3 +152,27 @@ def extract_filename_and_path(name):
 	if not os.path.isdir(local_path):print(path,'not an existing directory') 
 	if not os.path.isfile(name):print(name,'not an existing file')
 	return local_path, remote_path, filename
+
+# receivers to set person field on text, illustration, publisher, periodical and movement
+# person field is combination of first name last name and pseudonyms of each person
+# linked to a specific entry
+@receiver([post_save,post_delete],sender = PersonTextRelation)
+def update_person_on_text(sender,instance,**kwargs):
+	instance.text._set_person()
+
+@receiver([post_save,post_delete],sender = PersonIllustrationRelation)
+def update_person_on_illustration(sender,instance,**kwargs):
+	instance.illustration._set_person()
+
+@receiver([post_save,post_delete],sender = PublisherManager)
+def update_person_on_publisher(sender,instance,**kwargs):
+	instance.publisher._set_person()
+
+@receiver([post_save,post_delete],sender = PersonPeriodicalRelation)
+def update_person_on_periodical(sender,instance,**kwargs):
+	instance.periodical._set_person()
+
+@receiver([post_save,post_delete],sender = PersonMovementRelation)
+def update_person_on_movement(sender,instance,**kwargs):
+	instance.movement._set_person()
+
