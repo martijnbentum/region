@@ -124,7 +124,7 @@ def delete_model(request, name_space, model_name, app_name, pk, close = False):
 			instance.delete()
 			show_messages(request,button, model_name)
 			if close: return HttpResponseRedirect('/utilities/close/')
-			return HttpResponseRedirect('/'+app_name+'/'+model_name.lower())
+			return HttpResponseRedirect('/utilities/list_view/'+model_name.lower()+'/' +app_name)
 	info = instance.info
 	var = {'info':info,'page_name':'Delete '+model_name.lower()}
 	return render(request, 'utilities/delete_model.html',var)
