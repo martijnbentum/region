@@ -43,7 +43,7 @@ def create_simple_view(name):
 	Assumes the form only has a name field.
 	'''
 	p_name = make_fname(name).replace('_',' ') +'aaa'
-	print(p_name,123)
+	# print(p_name,123)
 	c = 'def add_'+make_fname(name)+'(request,pk=None):\n'
 	c += '\treturn add_simple_model(request,__name__,"'+name+'","persons","add '+p_name+'",pk=pk)'
 	return exec(c,globals())
