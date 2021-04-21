@@ -103,6 +103,7 @@ class Location(models.Model, info):
 	def contained_by_country(self):
 		'''returns the country a location is in if this is provided within a locationrelation 
 		'''
+		if not self.location_type: return ''
 		if self.location_type.name == 'country' or self.location_type.name == 'continent':
 			return ''
 		output = []
