@@ -10,14 +10,14 @@ from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
 from utils.model_util import copy_complete
 from utilities.search import Search
 
-def list_view(request, model_name, app_name):
+def list_view(request, model_name, app_name, max_entries=500):
 	'''list view of a model.'''
 	extended_search = getextended_search(request)
 	active_fields= get_active_search_buttons(request)
 	special_terms= get_active_special_term_buttons(request)
 	print(special_terms,999)
 	s = Search(request,model_name,app_name,active_fields=active_fields,
-		special_terms = special_terms)
+		special_terms = special_terms, max_entries = max_entries)
 	instances= s.filter()
 	var = {model_name.lower() +'_list':instances,'page_name':model_name,
 		'order':s.order.order_by,'direction':s.order.direction,'app_name':app_name,
