@@ -29,6 +29,13 @@
 	<th></th>
 	</tr>
 	{% for publication in publication_list %}
+	{% if publication.approved %}
+	<tr style="background:#c0edc0;">
+	{% elif publication.complete %}
+	<tr style="background:#fff494;">
+	{% elif publication.incomplete %}
+	<tr style="background:#ffb694;">
+	{% endif %}
 		<td>{{publication.title}}</td>
 		<td>{{publication.form.name}}</td>
 		<td>{{publication.publisher_str}}</td>

@@ -17,6 +17,13 @@
 	<th></th>
 	</tr>
 	{% for movement in movement_list %}
+	{% if movement.approved %}
+	<tr style="background:#c0edc0;">
+	{% elif movement.complete %}
+	<tr style="background:#fff494;">
+	{% elif movement.incomplete %}
+	<tr style="background:#ffb694;">
+	{% endif %}
 		<td>{{movement.name}}</td>
 		<td>{{movement.location_str}}</td>
 		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"

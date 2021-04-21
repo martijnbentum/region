@@ -25,6 +25,13 @@
 	<th></th>
 	</tr>
 	{% for periodical in periodical_list %}
+	{% if periodical.approved %}
+	<tr style="background:#c0edc0;">
+	{% elif periodical.complete %}
+	<tr style="background:#fff494;">
+	{% elif periodical.incomplete %}
+	<tr style="background:#ffb694;">
+	{% endif %}
 		<td>{{periodical.title}}</td>
 		<td>{{periodical.founded}}</td>
 		<td>{{periodical.closue}}</td>

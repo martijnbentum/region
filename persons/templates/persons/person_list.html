@@ -25,6 +25,13 @@
 	<!-- create header -->
 	</tr>
 	{% for person in person_list %}
+	{% if person.approved %}
+	<tr style="background:#c0edc0;">
+	{% elif person.complete %}
+	<tr style="background:#fff494;">
+	{% elif person.incomplete %}
+	<tr style="background:#ffb694;">
+	{% endif %}
 		<td>{{person.first_name|default:''}}</td>
 		<td>{{person.last_name|default:''}}</td>
 		<td>{{person.gender|default:''}}</td>

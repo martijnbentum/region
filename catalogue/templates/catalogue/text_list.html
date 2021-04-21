@@ -30,6 +30,13 @@
 	<th></th>
 	</tr>
 	{% for text in text_list %}
+	{% if text.approved %}
+	<tr style="background:#c0edc0;">
+	{% elif text.complete %}
+	<tr style="background:#fff494;">
+	{% elif text.incomplete %}
+	<tr style="background:#ffb694;">
+	{% endif %}
 		<td>{{text.title}}</td>
 		<td>{{text.language}}</td>
 		<td>{{text.genre}}</td>
