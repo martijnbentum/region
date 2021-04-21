@@ -22,14 +22,22 @@
 	<th></th>
 	</tr>
 	{% for illustration in illustration_list %}
+	{% if illustration.approved %}
+	<tr style="background:#c0edc0;">
+	{% elif illustration.complete %}
+	<tr style="background:#fff494;">
+	{% elif illustration.incomplete %}
+	<tr style="background:#ffb694;">
+	{% endif %}
+
 		<td>{{illustration.caption}}</td>
 		<td>{{illustration.category}}</td>
 		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'catalogue:delete' illustration.pk 'Illustration' %}"
-        role="button"><i class="fa fa-trash text-secondary"></i></a>
+			href ="{% url 'catalogue:delete' illustration.pk 'Illustration' %}"
+			role="button"><i class="fa fa-trash text-secondary"></i></a>
 		<a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'catalogue:edit_illustration' illustration.pk %}"
-        role="button"><i class="far fa-edit text-secondary"></i></a></td>
+			href ="{% url 'catalogue:edit_illustration' illustration.pk %}"
+			role="button"><i class="far fa-edit text-secondary"></i></a></td>
 	</tr>
 	{% endfor %}
 </table>

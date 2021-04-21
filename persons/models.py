@@ -42,6 +42,7 @@ class Person(models.Model, info):
 	description = models.TextField(blank=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
+	incomplete= models.BooleanField(default=False)
 	location_field = 'birth_place'
 	gps = models.CharField(max_length=300,default ='')
 	gps_names = models.CharField(max_length=4000,default='')
@@ -231,6 +232,7 @@ class Movement(models.Model, info):
 	description = models.TextField(blank=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
+	incomplete = models.BooleanField(default=False)
 	gps = models.CharField(max_length=300,default ='')
 	gps_names = models.CharField(max_length=4000,default='')
 	location_field = 'location'

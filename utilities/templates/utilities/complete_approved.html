@@ -1,11 +1,32 @@
 		<table class="table table-borderless table-sm">
 		<tr class ="d-flex">
-		<th class="col-6"><i class="fas fa-check text-secondary"></i></th>
-		<th class ="col-6"><i class="fas fa-check-double text-secondary"></i></th>
+		<th class="col-4 pl-0"><i class="fas fa-check text-secondary"></i></th>
+		<th class ="col-4 pl-0"><i class="fas fa-check-double text-secondary"></i></th>
+		<th class ="col-4 pl-1"><i class="fas fa-exclamation text-secondary"></i></th>
 		</tr>
 		<tr class ="d-flex">
-		<td class="col-6">{{form.complete}} {{form.complete.error}}</td>
-		<td class="col-6">{{form.approved}} {{form.approved.error}}</td>
+		<td class="col-4 pl-0">{{form.complete}} {{form.complete.error}}</td>
+		<td class="col-4 pl-0">{{form.approved}} {{form.approved.error}}</td>
+		<td class="col-4 pl-0">{{form.incomplete}} {{form.incomplete.error}}</td>
 		</tr>
 		</table>
 </form>
+
+
+<script>
+var complete = document.getElementById('id_complete');
+var incomplete = document.getElementById('id_incomplete');
+var approved= document.getElementById('id_approved');
+complete.addEventListener('change', toggle_checkmarks) 
+incomplete.addEventListener('change', toggle_checkmarks) 
+approved.addEventListener('change', toggle_checkmarks) 
+
+function toggle_checkmarks(e) {
+	if (this.name == 'approved' || this.name == 'complete') {
+		incomplete.checked = false; }
+	else if (this.name == 'incomplete') {
+		approved.checked = false;
+		complete.checked = false;
+	}
+}
+</script>

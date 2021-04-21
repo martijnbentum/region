@@ -70,7 +70,7 @@ class PersonForm(ModelForm):
 	class Meta:
 		model = Person
 		m = 'first_name,last_name,sex,birth_year,death_year'
-		m +=',birth_place,death_place,pseudonym,approved,complete'
+		m +=',birth_place,death_place,pseudonym,approved,complete,incomplete'
 		fields = m.split(',')
 
 
@@ -90,7 +90,7 @@ class MovementForm(ModelForm):
 
 	class Meta:
 		model = Movement
-		m = 'name,movement_type,location,founded,closure,notes,complete,approved'
+		m = 'name,movement_type,location,founded,closure,notes,complete,approved,incomplete'
 		fields = m.split(',')
 
 

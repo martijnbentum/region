@@ -48,7 +48,7 @@ for name in names:
 
 
 #fields occuring in all models inheriting from the abstract class Item
-item_fields = 'description,notes,complete,approved,source_link,copyright'
+item_fields = 'description,notes,incomplete,complete,approved,source_link,copyright'
 item_fields = item_fields.split(',')
 
 class ItemForm(ModelForm):

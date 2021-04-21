@@ -31,6 +31,7 @@ class Item(models.Model):
 	notes = models.TextField(default='',blank=True, null=True)
 	complete = models.BooleanField(default=False)
 	approved = models.BooleanField(default=False)
+	incomplete = models.BooleanField(default=False)
 	source_link= models.CharField(max_length=1000,blank=True,null=True)
 	copyright = models.ForeignKey(CopyRight,**dargs)
 	gps = models.CharField(max_length=300,default ='')
