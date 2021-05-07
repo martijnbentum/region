@@ -126,6 +126,7 @@ class Search:
 		and_or 		whether q objects have an and/or relation
 		seperate 	whether the words in the query should be searched seperately or not
 		'''
+		start = time.time()
 		if option == None: option = self.option
 		self.check_and_or(and_or)
 		self.check_combine(combine)
@@ -142,19 +143,19 @@ class Search:
 		for qobject in self.qs:
 			if self.and_or == 'and': self.q &= qobject
 			else: self.q |= qobject
-			
 		self.result = self.model.objects.filter(self.q)
 		self.check_completeness_approval()
 		self.set_ordering_and_direction()
-		self.exclude_doubles() # returns a list of unique instances
+		#self.exclude_doubles() # returns a list of unique instances, commented out because it is very slow
 		if 'empty' in self.query.special_terms:
 			print('selecting empty fields in fields:',self.active_fields)
 			self.select_empty()	
-		self.nentries_found = len(self.result)
+		self.nentries_found = self.result.count()
 		self.nentries = '# Entries: ' + str(self.nentries_found) 
 		if self.nentries_found > self.max_entries:
 			self.nentries += ' (truncated at ' + str(self.max_entries) + ' entries)'
-		return self.result[:self.max_entries]
+		temp =self.result[:self.max_entries]
+		return temp
 
 	@property
 	def n(self):
@@ -296,16 +297,18 @@ class Order:
 			self.set_values()
 
 	def set_values(self):
-		temp = self.request.GET.get('order_by')
-		tquery = self.request.GET.get('query')
-		if temp: 
-			order_by,old_order,old_direction,tquery = temp.split(',')
-			if order_by == old_order:
-				direction = 'descending' if old_direction == 'ascending' else 'ascending'
-			else: direction = 'ascending'
-		else: 
-			order_by = get_foreign_keydict()[self.model_name.lower()]
-			direction = 'ascending'
+		if self.request:
+			temp = self.request.GET.get('order_by')
+			tquery = self.request.GET.get('query')
+			if temp: 
+				order_by,old_order,old_direction,tquery = temp.split(',')
+				if order_by == old_order:
+					direction = 'descending' if old_direction == 'ascending' else 'ascending'
+				else: direction = 'ascending'
+			else: 
+				order_by = get_foreign_keydict()[self.model_name.lower()]
+				direction = 'ascending'
+		else: order_by, direction,tquery = 'name','descending',''
 			
 		if tquery == None: query = ''
 		else: query =tquery
@@ -355,3 +358,5 @@ def get_foreign_keydict():
 		Q(title__icontains=query) | eval('Q(form__name__icontains=query)') |
 		Q(publisher__name__icontains=query) | Q(location__name__icontains=query)).order_by(Lower(order_by))
 '''
+def delta(start,x):
+	print(time.time() - start, x)
