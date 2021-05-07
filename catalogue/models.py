@@ -130,9 +130,6 @@ class Text(Item, info):
 		self.person = '; '.join(names)
 		self.save()
 			
-			
-
-
 	class Meta:
 		unique_together = 'title,setting,language'.split(',')
 
@@ -150,6 +147,24 @@ class Text(Item, info):
 		if not m and self.genre: m += '<p><small>'
 		if self.genre: m += 'genre <b>' + self.genre.name + '</b></small></p>'
 		return pop_up(self,latlng,extra_information=m)
+
+	@property
+	def get_dates(self):
+		'''text object does not contain date, only the linked publication has a date.
+		a text can have multiple dates (if it is linked to multiple publications)
+		the date is the date of publication of the publication instance
+		returns a list of partialdate objects
+		'''
+		if hasattr(self,'_dates'): return self._dates
+		tpr =  self.textpublicationrelation_set.all()
+		if not tpr: return ''
+		o = []
+		for x in tpr:
+			date = x.publication.date
+			if date: o.append(date)
+		self._dates = o
+		return o
+			
 			
 			
 
