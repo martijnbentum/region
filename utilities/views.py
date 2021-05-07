@@ -10,6 +10,10 @@ from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
 from utils.model_util import copy_complete
 from utilities.search import Search
 
+def timeline(request):
+	var = {'text':'hello world'}
+	return render(request,'utilities/timeline.html',var)
+
 def list_view(request, model_name, app_name, max_entries=500):
 	'''list view of a model.'''
 	extended_search = getextended_search(request)
