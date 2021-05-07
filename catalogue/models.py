@@ -101,7 +101,11 @@ class Item(models.Model):
 
 	def latlng2name(self,latlng):
 		return get_location_name(self,latlng)
-	
+
+	@property
+	def identifier(self):
+		return self._meta.app_label + '_' + self._meta.model_name + '_' + str( self.pk )
+
 	class Meta:
 		abstract = True
 
@@ -160,6 +164,7 @@ class Text(Item, info):
 		if not tpr: return ''
 		o = []
 		for x in tpr:
+			if not hasattr(x,'publication'): continue
 			date = x.publication.date
 			if date: o.append(date)
 		self._dates = o
@@ -241,7 +246,6 @@ class Publication(Item, info):
 	form = models.ForeignKey(PublicationType,on_delete=models.SET_NULL,null=True)
 	issue = models.PositiveIntegerField(default=0,blank=True) 
 	volume = models.PositiveIntegerField(default=0,blank=True) 
-	identifier = models.CharField(max_length=100,null=True,blank=True,unique=True) # not shown 
 	year = models.PositiveIntegerField(null=True,blank=True) # obsolete, replace by date
 	date = PartialDateField(null=True,blank=True)
 	location = models.ManyToManyField(Location,blank=True,default=None) 
