@@ -9,9 +9,21 @@ from utils import help_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
 from utils.model_util import copy_complete
 from utilities.search import Search
+import json
 
 def timeline(request):
-	var = {'text':'hello world'}
+	model = apps.get_model('catalogue','Text')
+	t = model.objects.all()
+	o = []
+	print(t)
+	for i,x in enumerate(t):
+		dates = x.get_dates
+		if not dates: continue
+		for d in dates:
+			if not d: continue
+			o.append({'id':x.identifier,'date':str(d)})
+	o =  json.dumps(o)
+	var = {'text':'hello world','text_timeline':o}
 	return render(request,'utilities/timeline.html',var)
 
 def list_view(request, model_name, app_name, max_entries=500):
