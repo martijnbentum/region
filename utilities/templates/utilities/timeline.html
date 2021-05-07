@@ -1,0 +1,58 @@
+{% extends "utilities/base.html" %}
+{% block head %}
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script src="https://d3js.org/d3-scale.v3.min.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<p>{{text}}</p>
+hello
+<svg>
+</svg>
+
+<div id="my_dataviz"></div>
+ooh
+<script>
+// set the dimensions and margins of the graph
+const DUMMY_DATA = [
+	{id:'d1', value:9,region:'usa'},
+	{id:'d2', value:11,region:'nl'},
+	{id:'d3', value:14,region:'fr'},
+	{id:'d4', value:3,region:'eng'},
+]
+
+const xScale = d3
+	.scaleBand()
+	.domain(DUMMY_DATA.map(data => data.region))
+	.rangeRound([0,250])
+	.padding(0.1);
+const yScale = d3.scaleLinear().domain([0,15]).range([200,0]);
+
+const container = d3.select('svg').classed('container',true);
+
+const bars = container
+	.selectAll('.bar')
+	.data(DUMMY_DATA)
+	.enter()
+	.append('rect')
+	.classed('bar',true)
+	.attr('width',xScale.bandwidth())
+	.attr('height', data => 200 - yScale(data.value))
+	.attr('x', data => xScale(data.region))
+	.attr('y', data => yScale(data.value));
+
+</script>
+
+<style>
+.container {
+	width: 250px;
+	height: 250px;
+}
+.bar {
+	fill:#fcba03;
+}
+</style>
+	
+
+{% endblock content %}
