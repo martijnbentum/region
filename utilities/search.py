@@ -72,6 +72,7 @@ class Search:
 	def check_completeness_approval(self):
 		'''check whether complete and or approval should be checked.
 		'''
+		print(self.result,9876)
 		if self.query.completeness != None: 
 			self.result = self.result.filter(complete=self.query.completeness)
 			self.notes += '\ncompleteness: ' + str(self.query.completeness)
@@ -81,6 +82,7 @@ class Search:
 		if self.query.incompleteness !=None: # whether an issue was flagged 
 			self.result = self.result.filter(incomplete=self.query.incompleteness)
 			self.notes += '\nincompleteness (issue): ' + str(self.query.incompleteness)
+		print(self.result,54321)
 
 	def exclude_doubles(self):
 		'''exclude any instances that occur more than one time in the search output.
@@ -107,6 +109,7 @@ class Search:
 		'''selects those instance that do not have a value in the specified fields'''
 		o = []
 		start = time.time()
+		print(self.active_fields,3333)
 		for instance in self.result:
 			empty_fields = instance.empty_fields(self.active_fields)
 			if self.and_or == 'and':
@@ -153,7 +156,7 @@ class Search:
 		if 'empty' in self.query.special_terms:
 			print('selecting empty fields in fields:',self.active_fields)
 			self.select_empty()	
-		self.nentries_found = self.result.count()
+		self.nentries_found = len(self.result)
 		self.nentries = '# Entries: ' + str(self.nentries_found) 
 		if self.nentries_found > self.max_entries:
 			self.nentries += ' (truncated at ' + str(self.max_entries) + ' entries)'
