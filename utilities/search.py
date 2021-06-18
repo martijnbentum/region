@@ -78,6 +78,9 @@ class Search:
 		if self.query.approval != None: 
 			self.result = self.result.filter(approved=self.query.approval)
 			self.notes += '\napproval: ' + str(self.query.approval)
+		if self.query.incompleteness !=None: # whether an issue was flagged 
+			self.result = self.result.filter(incomplete=self.query.incompleteness)
+			self.notes += '\nincompleteness (issue): ' + str(self.query.incompleteness)
 
 	def exclude_doubles(self):
 		'''exclude any instances that occur more than one time in the search output.
@@ -206,12 +209,14 @@ class Query:
 		self.special_terms = [w[1:].lower() for w in self.words if len(w) > 1 and w[0] == '*']
 		if special_terms and type(special_terms) == list:
 			self.special_terms.extend(special_terms)
+		self.completeness,self.approval,self.incompleteness = None, None, None
 		if 'complete' in self.special_terms: self.completeness = True
 		elif 'incomplete' in self.special_terms: self.completeness = False
-		else: self.completeness = None
-		if 'approved' in self.special_terms: self.approval = True
-		elif 'unapproved' in self.special_terms: self.approval = False
-		else: self.approval = None
+		if 'not approved' in self.special_terms:
+			self.approval = False
+			self.completeness = True
+		elif 'issue' in self.special_terms:
+			self.incompleteness = True
 		if 'combine' in self.special_terms or 'combine words' in self.special_terms:
 			self.combine = True
 		else: self.combine = False

@@ -55,6 +55,12 @@ if (active_special_term_buttons.includes('incomplete')) {
 	special_terms.push('complete')
 }
 
+if (active_special_term_buttons.includes('issue')) {
+	special_terms.push('issue')
+} else {
+	special_terms.push('not approved')
+}
+
 for (i = 0; i<search_fields.length; i++) {
 	make_button(search_fields[i],'button_search_field');
 }
@@ -150,10 +156,14 @@ function highlight(event) {
 	if (b.classList.contains('disabled')) {}// do nothing if a button is disabled
 	else if (b.classList.contains('selected')) {
 		if (b.innerHTML == 'complete') {b.innerHTML = 'incomplete'; b.name = 'incomplete';}
+		else if (b.innerHTML== 'not approved') {
+			b.innerHTML = 'issue'; 
+			b.name = 'issue';}
 		else {
 			b.classList.remove('selected') 
 			if (b.innerHTML == 'empty') {toggle_exact_and_combine_words(enable=true);}
 			if (b.innerHTML == 'incomplete') {b.innerHTML = 'complete';b.name = 'complete';}
+			if (b.innerHTML == 'issue') {b.innerHTML = 'not approved';b.name = 'not approved';}
 			}
 		}
 	else {

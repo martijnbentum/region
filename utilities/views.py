@@ -40,7 +40,7 @@ def list_view(request, model_name, app_name, max_entries=500):
 		'query':s.query.query,'nentries':s.nentries,'search_fields':s.search_fields,
 		'name':model_name.lower(),'extended_search':extended_search,
 		'active_search_buttons':active_fields,'active_special_term_buttons':special_terms}
-	print(s.notes,000)
+	print(s.notes,000,'<----')
 	return render(request, app_name+'/'+model_name.lower()+'_list.html',var)
 
 
