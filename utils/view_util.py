@@ -155,7 +155,7 @@ class Crud:
 
 	@property
 	def contributers(self):
-		return ' | '.join([e.user.username for e in self.events])
+		return ', '.join([e.username for e in self.events if e.username])
 
 	@property
 	def created(self):
