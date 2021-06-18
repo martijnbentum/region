@@ -1,0 +1,70 @@
+{% extends "utilities/base.html" %}
+
+{% block navbar%}
+{% endblock %}
+
+{% block head %}
+	{{form.media.css}}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+{% block content %}
+
+
+<form method="post">
+	{% csrf_token %}
+
+<div class="col-md-12 d-flex">
+	<h4 class="mt-2">{{page_name}}</h4>
+</div>
+
+
+<hr class="mt-0 mb-4">
+
+
+	<table class="table table-borderless" >
+		<tr class="d-flex">
+		</tr>
+		{{ formset.management_form }}
+		{% for f in formset.forms %}
+			<tr class ="d-flex">
+				<th class="col-2">subject</th>
+				<th class="col-9">{{f.subject}} {{f.subject.errors}}</th>
+				<th><i class="fa fa-times text-danger"></i></th>
+				<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+			<tr class ="d-flex">
+				<th class="col-2">comment</th>
+				<th class="col-9">{{f.comment}} {{f.comment.errors}}</th>
+			</tr>
+		{% endfor %}
+
+	</table>
+
+<hr class="mt-0 mb-4">
+
+
+
+<div class="col-md-12 d-flex">
+	<div class="comment">
+		<button type="submit" name="save" value="save" class ="btn btn-success">Save</button>
+		<a type="reset" value="Cancel" class ="btn btn-warning"
+			href="{% url 'utilities:close' %}">Cancel</a>
+	</div>
+</div>
+
+
+</form>
+
+{{form.media.js}}
+
+
+<style>
+.comment {
+	margin-left: auto; 
+	margin-right: 0;
+}
+</style>
+{% endblock content %}
+
+

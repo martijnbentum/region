@@ -1,0 +1,71 @@
+{% extends "utilities/base.html" %}
+
+{% block navbar%}
+{% endblock %}
+
+{% block head %}
+	{{form.media.css}}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+{% block content %}
+
+<p style="color:#cad2de; margin-left:15px;"> {{note}}</p>
+
+<form method="post">
+	{% csrf_token %}
+
+<div class="col-md-12 d-flex">
+	<h4 class="mt-2">{{page_name}}</h4>
+	<div class="protocol">
+		<button type="submit" name="save" value="save" class ="btn btn-dark">Save</button>
+		<a type="reset" value="Cancel" class ="btn btn-light"
+			href="{% url 'utilities:close' %}">Cancel</a>
+	</div>
+</div>
+
+
+<hr class="mt-0 mb-4">
+
+
+	<table class="table table-borderless" >
+		<tr class="d-flex">
+			<th class="col-4">field</th>
+			<th class="col-7">explanation</th>
+			<th><i class="fa fa-times text-danger"></i></th>
+		</tr>
+		{{ formset.management_form }}
+		{% for f in formset.forms %}
+			<tr class ="d-flex">
+				<th class="col-4">{{f.field_name}} {{f.field_name.errors}}</th>
+				<th class="col-7">{{f.explanation}} {{f.explanation.errors}}</th>
+				<td class="col-1">{{f.DELETE}} {{f.id}}</td>
+			</tr>
+		{% endfor %}
+
+	</table>
+
+<hr class="mt-0 mb-4">
+
+<div class="col-md-12 d-flex">
+	<div class="protocol">
+		<button type="submit" name="save" value="save" class ="btn btn-dark">Save</button>
+		<a type="reset" value="Cancel" class ="btn btn-light"
+			href="{% url 'utilities:close' %}">Cancel</a>
+	</div>
+</div>
+
+</form>
+
+{{form.media.js}}
+
+
+<style>
+.protocol {
+	margin-left: auto; 
+	margin-right: 0;
+}
+</style>
+{% endblock content %}
+
+

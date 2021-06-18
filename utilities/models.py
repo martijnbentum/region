@@ -3,6 +3,10 @@ from django.db import models
 from django.utils import timezone
 from utils.model_util import id_generator, info, instance2names
 from utils.map_util import pop_up, get_location_name,gps2latlng
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
 
 class RelationModel(models.Model):
 	'''abstract model for relational models, e.g. text person relation model
@@ -99,6 +103,31 @@ class GroupTag(models.Model,info):
 		return m
 
 
+class Comment(models.Model,info):
+	app_name = models.CharField(max_length=100,default ='')
+	model_name = models.CharField(max_length=100,default = '')
+	entry_pk = models.PositiveIntegerField(null=True,blank=True)
+	addressed = models.BooleanField(default=False)
+	subject= models.CharField(max_length=300)
+	description = models.TextField(blank=True,null=True)
+	user_commentator= models.CharField(max_length=1000, default= '')
+	user_addressee= models.CharField(max_length=1000, default='')
+	created = models.DateTimeField(auto_now_add=True,null=True)
+	modified = models.DateTimeField(auto_now_add=False,null=True,blank=True)
+	comment= models.TextField(blank=True)
+
+	def save(self, *args, **kwargs):  
+		if not self.id:
+			self.created = timezone.now()
+		else: self.modified = timezone.now()
+		return super(Comment, self).save(*args,**kwargs)
+
+	def __str__(self):
+		m = self.app_name + ' ' + self.model_name + ' ' + self.subject
+		return m
+
+	def __lt__(self,other):
+		return self.created < other.created
 			
 
 

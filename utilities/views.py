@@ -1,6 +1,7 @@
 from django.apps import apps
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
+from django.forms import modelformset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -9,6 +10,8 @@ from utils import help_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
 from utils.model_util import copy_complete
 from utilities.search import Search
+from .models import Comment
+from .forms import CommentForm
 import json
 
 def timeline(request):
@@ -178,6 +181,7 @@ def get_active_special_term_buttons(request):
 	else: return []
 
 
+
 def show_messages(request,message_type,model_name,form=None):
 	'''provide user feedback on submitting a form.'''
 	print(message_type)
@@ -193,3 +197,38 @@ def show_messages(request,message_type,model_name,form=None):
 def close(request):
 	'''page that closes itself for on the fly creation of model instances (loaded in a new tab).'''
 	return render(request,'utilities/close.html')
+
+def edit_comment(request, app_name, model_name,entry_pk):
+	model = apps.get_model(app_name,model_name)
+	instance = model.objects.get(pk=entry_pk)
+	crud = Crud(instance)
+	print('commentator',request.user)
+	print('addressee',crud.contributers)
+	app_name, model_name = app_name.lower(), model_name.lower()
+	CommentFormset = modelformset_factory(Comment, CommentForm,
+		fields=('subject','comment'), extra=1, can_delete=True)
+	queryset=Comment.objects.filter(app_name=app_name,model_name=model_name,entry_pk=entry_pk)
+	formset =[]
+	if request.method == 'POST':
+		formset = CommentFormset(request.POST,queryset=queryset)
+		if formset.is_valid():
+			instances = formset.save(commit=False)
+			for x in instances:
+				_handle_comment(x,app_name,model_name,entry_pk,crud.contributers,request.user)
+			print('save is a success')
+			return render(request,'utilities/close.html')
+		else: print('not valid',formset.errors,app_name,model_name,entry_pk)
+	if not formset: formset = CommentFormset(queryset=queryset)
+	page_name = 'Comments about: ' + str(instance)
+	var = {'formset':formset,'page_name':page_name}
+	return render(request, 'utilities/add_comment.html',var)
+
+def _handle_comment(instance,app_name,model_name,entry_pk,user_addressee,user_commentator):
+	print('saving comment:',instance,entry_pk,user_addressee,user_commentator)
+	if not instance.app_name: instance.app_name = app_name
+	if not instance.model_name: instance.model_name = model_name
+	if not instance.entry_pk: instance.entry_pk=entry_pk 
+	if not instance.user_addressee: instance.user_addressee=user_addressee
+	if not instance.user_commentator: instance.user_commentator=user_commentator
+	instance.save()
+	
