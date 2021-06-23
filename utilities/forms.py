@@ -31,7 +31,8 @@ def make_select2_attr(field_name = None, input_length = 2,data_placeholder = Non
 dattr = {'attrs':{'style':'width:100%'}}
 dchar = {'widget':forms.TextInput(**dattr),'required':False}
 dchar_required = {'widget':forms.TextInput(**dattr),'required':True}
-dtext = {'widget':forms.Textarea(attrs={'style':'width:100%; font-size: 80%;','rows':9}),
+dtext = {'widget':forms.Textarea(
+	attrs={'style':'width:100%; font-size: 80%;','rows':9}),
 	'required':False}
 dselect2 = make_select2_attr(input_length = 0)
 

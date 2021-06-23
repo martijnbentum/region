@@ -27,6 +27,23 @@
 		</tr>
 		{{ formset.management_form }}
 		{% for f in formset.forms %}
+			<tr class = "d-flex">
+				{% if f.instance.created_by != 'user unknown' %}
+					<td class="col-2"></th>
+					<td class="col-5">
+						<p class="info">
+							Created {{f.instance.created_time}}
+							by {{f.instance.created_by}}
+						</p></th>
+					{% if f.instance.created_time != f.instance.updated_time %}
+							<td class="col-5">
+								<p class="info">
+									Modified {{f.instance.updated_time}}
+									by {{f.instance.updated_by}}
+								</p></th>
+					{% endif %}
+				{% endif %}
+			</tr>
 			<tr class ="d-flex">
 				<th class="col-2">subject</th>
 				<th class="col-9">{{f.subject}} {{f.subject.errors}}</th>
@@ -37,11 +54,20 @@
 				<th class="col-2">comment</th>
 				<th class="col-9">{{f.comment}} {{f.comment.errors}}</th>
 			</tr>
+			<tr class ="d-flex">
+					<td class="col-2"></th>
+				<td class="col-5">
+					<p class="info">
+						Addressee(s) {{f.instance.user_addressee}}
+					</p></th>
+			 </tr>
+			 <tr style="border-top:1px solid lightgrey;">
+				<td colspan="100%"></td>
+			 </tr>
 		{% endfor %}
 
 	</table>
 
-<hr class="mt-0 mb-4">
 
 
 
@@ -63,6 +89,15 @@
 .comment {
 	margin-left: auto; 
 	margin-right: 0;
+}
+
+.info {
+	font-size:85%;
+	margin-bottom:0px;
+	margin-top:0px;
+	padding-top:0px;
+	padding-bottom:0px;
+	color:#91a4b5
 }
 </style>
 {% endblock content %}

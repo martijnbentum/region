@@ -90,8 +90,9 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 	tabs = make_tabs(model_name.lower(), focus_names = focus)
 	page_name = 'Edit ' +model_name.lower() if instance_id else 'Add ' +model_name.lower()
 	helper = help_util.Helper(model_name=model_name)
-	args = {'form':form,'page_name':page_name,'crud':crud,
-		'tabs':tabs, 'view':view,'helper':helper.get_dict()}
+	args = {'form':form,'page_name':page_name,'crud':crud,'model_name':model_name,
+		'app_name':app_name,'tabs':tabs, 'view':view,'helper':helper.get_dict(),
+		'instance':instance}
 	args.update(ffm.dict)
 	return render(request,app_name+'/add_' + model_name.lower() + '.html',args)
 		

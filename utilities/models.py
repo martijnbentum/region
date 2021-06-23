@@ -107,20 +107,13 @@ class Comment(models.Model,info):
 	app_name = models.CharField(max_length=100,default ='')
 	model_name = models.CharField(max_length=100,default = '')
 	entry_pk = models.PositiveIntegerField(null=True,blank=True)
-	addressed = models.BooleanField(default=False)
+	fixed = models.BooleanField(default=False)
 	subject= models.CharField(max_length=300)
 	description = models.TextField(blank=True,null=True)
 	user_commentator= models.CharField(max_length=1000, default= '')
 	user_addressee= models.CharField(max_length=1000, default='')
-	created = models.DateTimeField(auto_now_add=True,null=True)
-	modified = models.DateTimeField(auto_now_add=False,null=True,blank=True)
 	comment= models.TextField(blank=True)
 
-	def save(self, *args, **kwargs):  
-		if not self.id:
-			self.created = timezone.now()
-		else: self.modified = timezone.now()
-		return super(Comment, self).save(*args,**kwargs)
 
 	def __str__(self):
 		m = self.app_name + ' ' + self.model_name + ' ' + self.subject
@@ -128,8 +121,32 @@ class Comment(models.Model,info):
 
 	def __lt__(self,other):
 		return self.created < other.created
-			
 
+	def _add_crud(self):
+		if not hasattr(self,'crud'):
+			from utils.view_util import Crud
+			self.crud = Crud(self)
+			
+	@property
+	def created_time(self):
+		self._add_crud()
+		return self.crud.created_time
+
+	@property
+	def created_by(self):
+		self._add_crud()
+		return self.crud.created_by
+
+	@property
+	def updated_time(self):
+		self._add_crud()
+		return self.crud.last_update_time
+
+	@property
+	def updated_by(self):
+		self._add_crud()
+		return self.crud.last_update_by
+		
 
 
 

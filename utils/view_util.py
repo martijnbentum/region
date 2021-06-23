@@ -164,6 +164,20 @@ class Crud:
 				return  e.username + ' ' + e.time_str
 		return 'user unknown'
 
+	@property
+	def created_time(self):
+		for e in self.events:
+			if e.type == 'Create':
+				return e.time_str
+		return ''
+
+	@property
+	def created_by(self):
+		for e in self.events:
+			if e.type == 'Create':
+				return  e.username 
+		return 'user unknown'
+
 	def _make_change_fields_string(self, e):# changed_fields):
 		m = ''
 		if self.user:
