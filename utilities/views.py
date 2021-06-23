@@ -215,6 +215,8 @@ def edit_comment(request, app_name, model_name,entry_pk):
 			instances = formset.save(commit=False)
 			for x in instances:
 				_handle_comment(x,app_name,model_name,entry_pk,crud.contributers,request.user)
+			for obj in formset.deleted_objects:
+				obj.delete()
 			print('save is a success')
 			return render(request,'utilities/close.html')
 		else: print('not valid',formset.errors,app_name,model_name,entry_pk)
