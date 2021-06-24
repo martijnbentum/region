@@ -44,5 +44,5 @@ class CommentForm(ModelForm):
 
 	class Meta:
 		model =Comment
-		fields='subject,comment'.split(',')
+		fields='subject,comment,fixed'.split(',')
 

@@ -146,6 +146,15 @@ class Comment(models.Model,info):
 	def updated_by(self):
 		self._add_crud()
 		return self.crud.last_update_by
+
+	@property
+	def about(self):
+		try:return apps.get_model(self.app_name,self.model_name).objects.get(pk = self.entry_pk)
+		except: return ''
+
+	@property
+	def edit_url(self):
+		return self.app_name + ':edit_' + self.model_name 
 		
 
 

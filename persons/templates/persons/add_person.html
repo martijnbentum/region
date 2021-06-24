@@ -15,6 +15,12 @@
 	<a class ="btn btn-link ml-auto" 
 		href="{% url 'utilities:list_view' 'Person' 'persons' %}" role="button">
 		<i class="fas fa-list"></i></a>
+	{% if instance.pk %}
+		<a class ="btn btn-link ml-auto" 
+			href="{% url 'utilities:add_comment' app_name model_name instance.pk %}"
+			role="button"
+			target="_blank"><i class="far fa-comments"></i></a>
+	{% endif %}
 </div>
 
 

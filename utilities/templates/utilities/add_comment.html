@@ -1,6 +1,10 @@
 {% extends "utilities/base.html" %}
 
 {% block navbar%}
+	{% if user_comment %}
+		{% include 'utilities/navbar.html' %}
+	{% else %}
+	{% endif %}
 {% endblock %}
 
 {% block head %}
@@ -15,50 +19,72 @@
 	{% csrf_token %}
 
 <div class="col-md-12 d-flex">
-	<h4 class="mt-2">{{page_name}}</h4>
+	<h4 class="mt-2">{{page_name}} </h4>
+	{% if user_comment%}
+		<h4 class="mt-2 comment">{{user}}</h4>
+	{% else %}
+		<h4 class="mt-2 comment">{{model_name}}</h4>
+	{% endif %}
+	</h4>
+		
 </div>
 
 
 <hr class="mt-0 mb-4">
 
 
-	<table class="table table-borderless" >
+	<table class="table table-borderless table-sm" >
 		<tr class="d-flex">
 		</tr>
 		{{ formset.management_form }}
 		{% for f in formset.forms %}
 			<tr class = "d-flex">
 				{% if f.instance.created_by != 'user unknown' %}
-					<td class="col-2"></th>
-					<td class="col-5">
+					<td class="col-2"></td>
+					<td class="col-9"><div class="d-flex">
 						<p class="info">
 							Created {{f.instance.created_time}}
 							by {{f.instance.created_by}}
-						</p></th>
+						</p>
 					{% if f.instance.created_time != f.instance.updated_time %}
-							<td class="col-5">
-								<p class="info">
+								<p class="info comment">
 									Modified {{f.instance.updated_time}}
 									by {{f.instance.updated_by}}
-								</p></th>
+								</p>
 					{% endif %}
+					</div></td>
 				{% endif %}
 			</tr>
+			{% if user_comment %}
+				<tr class ="d-flex">
+					<td class="col-2">about</td>
+					<th class="col-9"><div class = "d-flex">
+						<a class ="text-dark" 
+						   href = "{% url f.instance.edit_url f.instance.entry_pk %}"
+						   role="button">
+						   {{f.instance.about}} 
+						   </a>
+						<p class="info comment">{{f.instance.model_name}}</p><div></th>
+				</tr>
+			{% endif %}
 			<tr class ="d-flex">
-				<th class="col-2">subject</th>
-				<th class="col-9">{{f.subject}} {{f.subject.errors}}</th>
+				<td class="col-2">subject</td>
+				<td class="col-9">{{f.subject}} {{f.subject.errors}}</td>
 				<th><i class="fa fa-times text-danger"></i></th>
 				<td class="col-1">{{f.DELETE}} {{f.id}}</td>
 			</tr>
 			<tr class ="d-flex">
-				<th class="col-2">comment</th>
-				<th class="col-9">{{f.comment}} {{f.comment.errors}}</th>
+				<td class="col-2">comment</td>
+				<td class="col-9">{{f.comment}} {{f.comment.errors}}</td>
 			</tr>
 			<tr class ="d-flex">
-					<td class="col-2"></th>
+					<td class="col-1">
+						<i class="fas fa-check-circle"
+						   style="color:lightgreen;"></i></th>
+					<td class="col-1">{{f.fixed}} {{f.fixed.errors}}</th>
 				<td class="col-5">
 					<p class="info">
-						Addressee(s) {{f.instance.user_addressee}}
+						Addressee(s): {{f.instance.user_addressee}}
 					</p></th>
 			 </tr>
 			 <tr style="border-top:1px solid lightgrey;">
@@ -74,8 +100,12 @@
 <div class="col-md-12 d-flex">
 	<div class="comment">
 		<button type="submit" name="save" value="save" class ="btn btn-success">Save</button>
+
+	{% if user_comment %}
+	{% else %}
 		<a type="reset" value="Cancel" class ="btn btn-warning"
 			href="{% url 'utilities:close' %}">Cancel</a>
+	{% endif %}
 	</div>
 </div>
 
@@ -92,13 +122,14 @@
 }
 
 .info {
-	font-size:85%;
+	font-size:80%;
 	margin-bottom:0px;
 	margin-top:0px;
 	padding-top:0px;
 	padding-bottom:0px;
 	color:#91a4b5
 }
+
 </style>
 {% endblock content %}
 

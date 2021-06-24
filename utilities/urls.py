@@ -12,4 +12,6 @@ urlpatterns = [
 	path('timeline/',views.timeline,name='timeline'),
 	path('add_comment/<str:app_name>/<str:model_name>/<int:entry_pk>/',views.edit_comment,
 		name='add_comment'),
+	path('add_comment/<int:user_pk>/',views.edit_comment,name='add_comment'),
+		
 ]

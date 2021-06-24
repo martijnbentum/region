@@ -76,6 +76,17 @@
 	<ul class = "navbar-nav navbar-right">
 		<li class ="nav-item">
 		  {% if user.username == '' %}
+		  {% else %}
+			<a class="nav-link" href="{% url 'utilities:add_comment' user.pk %}">
+				<i class="far fa-comments"></i></a>
+			</a>
+		  {% endif %}
+		</li>
+	</ul>
+
+	<ul class = "navbar-nav navbar-right">
+		<li class ="nav-item">
+		  {% if user.username == '' %}
 			<a class="nav-link" href="{% url 'login' %}">
 			login<span class="sr-only">(current)</span></a>
 		  {% else %}

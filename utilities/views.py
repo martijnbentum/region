@@ -1,5 +1,6 @@
 from django.apps import apps
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.forms import modelformset_factory
 from django.http import HttpResponse, HttpResponseRedirect
@@ -13,6 +14,7 @@ from utilities.search import Search
 from .models import Comment
 from .forms import CommentForm
 import json
+
 
 def timeline(request):
 	model = apps.get_model('catalogue','Text')
@@ -199,31 +201,44 @@ def close(request):
 	'''page that closes itself for on the fly creation of model instances (loaded in a new tab).'''
 	return render(request,'utilities/close.html')
 
-def edit_comment(request, app_name, model_name,entry_pk):
-	model = apps.get_model(app_name,model_name)
-	instance = model.objects.get(pk=entry_pk)
-	crud = Crud(instance)
-	print('commentator',request.user)
-	print('addressee',crud.contributers)
-	app_name, model_name = app_name.lower(), model_name.lower()
+def edit_comment(request, app_name='', model_name='',entry_pk=None,user_pk=None):
+	if app_name and model_name:
+		model = apps.get_model(app_name,model_name)
+		instance = model.objects.get(pk=entry_pk)
+		crud = Crud(instance)
+		print('commentator',request.user)
+		print('addressee',crud.contributers)
+		app_name, model_name = app_name.lower(), model_name.lower()
+	extra = 0 if user_pk else 1
 	CommentFormset = modelformset_factory(Comment, CommentForm,
-		fields=('subject','comment'), extra=1, can_delete=True)
-	queryset=Comment.objects.filter(app_name=app_name,model_name=model_name,entry_pk=entry_pk)
+		fields=('subject','comment','fixed'), extra=extra, can_delete=True)
+	if user_pk: 
+		user = get_user_model().objects.get(pk = user_pk)
+		queryset = Comment.objects.filter(user_addressee__icontains = user.username)
+	else:
+		queryset=Comment.objects.filter(app_name=app_name,model_name=model_name,entry_pk=entry_pk)
 	formset =[]
 	if request.method == 'POST':
 		formset = CommentFormset(request.POST,queryset=queryset)
 		if formset.is_valid():
 			instances = formset.save(commit=False)
 			for x in instances:
-				_handle_comment(x,app_name,model_name,entry_pk,crud.contributers,request.user)
+				if user_pk: x.save()
+				else:_handle_comment(x,app_name,model_name,entry_pk,crud.contributers,request.user)
 			for obj in formset.deleted_objects:
 				obj.delete()
 			print('save is a success')
-			return render(request,'utilities/close.html')
+			if not user_pk: return render(request,'utilities/close.html')
 		else: print('not valid',formset.errors,app_name,model_name,entry_pk)
 	if not formset: formset = CommentFormset(queryset=queryset)
-	page_name = 'Comments about: ' + str(instance)
-	var = {'formset':formset,'page_name':page_name}
+	if user_pk: 
+		page_name = 'Comments addressed to: ' 
+		user_comment = True
+	else: 
+		page_name = 'Comments about: ' + str(instance)
+		user_comment = False
+	var = {'formset':formset,'page_name':page_name,'model_name':model_name,
+		'user_comment':user_comment}
 	return render(request, 'utilities/add_comment.html',var)
 
 def _handle_comment(instance,app_name,model_name,entry_pk,user_addressee,user_commentator):
