@@ -11,12 +11,14 @@
 
 		<button id ="query" class="btn btn-link mb-0"  type="submit">
 			<i class="fas fa-search"></i></button>
-		<input id="exampleFormControlInput1" type="text" name="query" placeholder=Search
+		<input id="exampleFormControlInput1" type="text" name="query" 
+			placeholder=Search
 			class="col-9 mb-1" style="border-width:0;border-bottom-width:1px;" 
 			value="{{query}}" >
 		<input type="hidden" name="order" id="order" value="{{order}}" />
 		<input type="hidden" name="direction" id="direction" value="{{direction}}" />
-		<input type="hidden" name="active_search_buttons" id="active_search_buttons" value="" />
+		<input type="hidden" name="active_search_buttons" 
+			id="active_search_buttons" value="" />
 		<input type="hidden" name="active_special_term_buttons" 
 			id="active_special_term_buttons" value="" />
 		<input type="hidden" name="extended_search" id="extended_search" 
@@ -44,9 +46,12 @@
 var query= document.getElementById('query')
 query.addEventListener('click',before_search)
 
-var search_fields= JSON.parse(document.getElementById('js_search_fields').textContent);
-var active_search_buttons= JSON.parse(document.getElementById('js_asb').textContent);
-var active_special_term_buttons= JSON.parse(document.getElementById('js_stb').textContent);
+var tmp =document.getElementById('js_search_fields')
+var search_fields= JSON.parse(tmp.textContent);
+var tmp = document.getElementById('js_asb')
+var active_search_buttons= JSON.parse(tmp.textContent);
+var tmp = document.getElementById('js_stb')
+var active_special_term_buttons= JSON.parse(tmp.textContent);
 var special_terms = 'combine words,combine columns,exact,empty'.split(',')
 
 if (active_special_term_buttons.includes('incomplete')) {
@@ -93,13 +98,15 @@ function check_active_buttons() {
 		}
 	}
 	document.getElementById('active_search_buttons').value = search_fields.join()
-	document.getElementById('active_special_term_buttons').value = special_terms.join()
+	var tmp = special_terms.join()
+	document.getElementById('active_special_term_buttons').value = tmp
 	console.log(search_fields,1);
 	console.log(special_terms,2);
 }
 
 function set_active_buttons() {
-	//sets a button active on loading page based on on the value of the input vield
+	//sets a button active on loading page based on 
+	//the value of the input vield
 	// active_search_buttons and active_special_term_buttons
 	var buttons = document.getElementsByClassName('search_button')
 	//console.log(active_search_buttons,12345)
@@ -111,7 +118,9 @@ function set_active_buttons() {
 			if (active_special_term_buttons.includes(buttons[i].name)) {
 				buttons[i].classList.add('selected');
 				console.log(buttons[i].innerHTML)
-				if (buttons[i].innerHTML == 'empty') {toggle_exact_and_combine_words(enable=false);}
+				if (buttons[i].innerHTML == 'empty') {
+					toggle_exact_and_combine_words(enable=false);
+				}
 			}
 		}
 	}
@@ -132,7 +141,8 @@ function make_button(name, button_type) {
 
 
 function show_extended_search_list(){
-	//determines whether search field and special term buttons are shown; on by default
+	//determines whether search field and special term buttons are shown; 
+	//on by default
 	var x = document.getElementById("extended_search_list");
 	var y = document.getElementById("extended_search");
 	if (x.style.display === "none") {
@@ -152,24 +162,35 @@ function show_extended_search_list(){
 
 function highlight(event) {
 	//toggles a button between active or not active i.e. selected or not selected
-	b = event.toElement;
+	console.log(event)
+	b = event.target;
 	if (b.classList.contains('disabled')) {}// do nothing if a button is disabled
 	else if (b.classList.contains('selected')) {
-		if (b.innerHTML == 'complete') {b.innerHTML = 'incomplete'; b.name = 'incomplete';}
+		if (b.innerHTML == 'complete') {
+			b.innerHTML = 'incomplete'; b.name = 'incomplete';
+		}
 		else if (b.innerHTML== 'not approved') {
 			b.innerHTML = 'issue'; 
 			b.name = 'issue';}
 		else {
 			b.classList.remove('selected') 
-			if (b.innerHTML == 'empty') {toggle_exact_and_combine_words(enable=true);}
-			if (b.innerHTML == 'incomplete') {b.innerHTML = 'complete';b.name = 'complete';}
-			if (b.innerHTML == 'issue') {b.innerHTML = 'not approved';b.name = 'not approved';}
+			if (b.innerHTML == 'empty') {
+				toggle_exact_and_combine_words(enable=true);
+			}
+			if (b.innerHTML == 'incomplete') {
+				b.innerHTML = 'complete';b.name = 'complete';
+			}
+			if (b.innerHTML == 'issue') {
+				b.innerHTML = 'not approved';b.name = 'not approved';
 			}
 		}
+	}
 	else {
 		b.classList.add('selected')
-		if (b.innerHTML == 'empty') {toggle_exact_and_combine_words(enable=false);}
+		if (b.innerHTML == 'empty') {
+			toggle_exact_and_combine_words(enable=false);
 		}
+	}
 	//check_active_buttons();
 }
 
@@ -193,9 +214,6 @@ function toggle_exact_and_combine_words(enable) {
 	}
 }
 		
-	
-	
-
 function clear_highlights() {
 	var buttons = getElementsByClassName()
 	for (i = 0; i<buttons.length;i++) {
