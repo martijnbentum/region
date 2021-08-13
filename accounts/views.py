@@ -34,7 +34,7 @@ def log_view(request):
 	'''create a list of all update events performed by a particular user.'''
 	user = User.objects.get(username = request.user.username)
 	crud = Crud(user,user=True) 
-	var = {'crud':crud,'page_name':'logs'}#{'map_name':map_name,'location_name':location_name}
+	var = {'crud':crud,'page_name':'logs'}
 	return render(request,'accounts/log.html',var)
 
 def logs_view(request):
@@ -45,7 +45,8 @@ def logs_view(request):
 	for crud in cruds:
 		events.extend(crud.events)
 	events = sorted(events, reverse=True)
+	#create placeholder to hold all events and create updates_str
+	crud = Crud(users[0],user=True) 
 	crud.events = events
-	updates = crud.updates_str
 	var = {'cruds':cruds,'page_name':'logs','updates':crud.updates_str}
 	return render(request,'accounts/logs.html',var)
