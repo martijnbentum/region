@@ -45,7 +45,7 @@ def logs_view(request):
 	for crud in cruds:
 		events.extend(crud.events)
 	events = sorted(events, reverse=True)
-	crud.events = events[:200]
+	# crud.events = events[:200]
 	updates = crud.updates_str
 	var = {'cruds':cruds,'page_name':'logs','updates':crud.updates_str}
 	return render(request,'accounts/logs.html',var)
