@@ -9,7 +9,10 @@
 	<h5 class="mb-1">{{user.username}}</h5> 
 	<p class="ml-5 mb-1">Last update: {{crud.last_update_time}}</p>
 </div>
+<br>
+<p class="small text-dark">number of edits to database {{nedits}}</p>
 <hr class="mt-0 mb-4">
+
 
 {% for line in crud.updates_str_hide_user %}
 	{% if line.1 %}
