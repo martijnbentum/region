@@ -14,7 +14,14 @@ from utilities.search import Search
 from .models import Comment
 from .forms import CommentForm
 import json
+from utils.get_totals import get_totals
 
+
+def overview(request):
+	totals = get_totals()
+	total = sum(totals.values())
+	var = {'page_name':'overview','totals':totals, 'total':total}
+	return render(request,'utilities/overview.html',var)
 
 def timeline(request):
 	model = apps.get_model('catalogue','Text')
