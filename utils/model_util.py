@@ -179,6 +179,27 @@ def get_empty_fields(instance,fields = [],default_is_empty =False):
 		if empty: empty_fields.append(f.name)
 	return empty_fields
 
+
+def get_all_models(model_names =''):
+	n = 'text,publication,periodical,publisher,illustration,person,movement'
+	if model_names == '': model_names =n
+	if type(model_names) == str: model_names = model_names.split(',')
+	model_names = [n.lower() for n in model_names]
+	all_models = apps.get_models()
+	models = []
+	for model_name in model_names:
+		for model in all_models:
+			if model._meta.model_name == model_name: models.append(model)
+	return models
 		
+def get_all_instances(model_names = ''):
+	models = get_all_models(model_names= model_names)
+	instances =[]
+	for x in models:
+		instances.extend(x.objects.all())
+	return instances
+
+		 
+
 
 
