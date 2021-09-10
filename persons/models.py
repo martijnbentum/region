@@ -9,13 +9,15 @@ from utilities.models import SimpleModel
 
 
 def make_simple_model(name):
-	'''create a simple model for a given name based on the abstract model SimpleModel
+	'''create a simple model for a given name based on the 
+	abstract model SimpleModel
 	'''
 	exec('class '+name + '(SimpleModel,info):\n\tpass',globals())
 
 #for each name listed below, create a simple model
-names = 'Pseudonym,PersonPersonRelationType,PersonLocationRelationType,PersonTextRelationRole'
-names += ',PersonIllustrationRelationRole,MovementType,PersonPeriodicalRelationRole'
+names = 'Pseudonym,PersonPersonRelationType,PersonLocationRelationType'
+names += ',PersonTextRelationRole,PersonPeriodicalRelationRole'
+names += ',PersonIllustrationRelationRole,MovementType'
 names += ',PersonMovementRelationRole'
 names = names.split(',')
 
@@ -31,7 +33,8 @@ class Person(models.Model, info):
 	first_name = models.CharField(max_length=200, null=True, blank=True)
 	last_name = models.CharField(max_length=200, null=True, blank=True)
 	full_name = models.CharField(max_length=900, null=True, blank=True)
-	SEX = [('female','female'),('male','male'),('other','other'),('unknown','unknown')]
+	SEX= [('female','female'),('male','male'),('other','other'),
+		('unknown','unknown')]
 	sex = models.CharField(max_length=15,choices=SEX)
 	pseudonym= models.ManyToManyField(Pseudonym,blank=True)
 	birth_year = models.PositiveIntegerField(null=True,blank=True)
@@ -49,7 +52,8 @@ class Person(models.Model, info):
 	group_tags= models.ManyToManyField(GroupTag,blank=True, default= None)
 	
 	def save(self,*args,**kwargs):
-		'''set gps location information on the person instance to speed up map rendering.
+		'''set gps location information on the person instance to 
+		speed up map rendering.
 		'''
 		super(Person,self).save(*args,**kwargs)
 		old_gps = self.gps
@@ -62,11 +66,13 @@ class Person(models.Model, info):
 		return get_empty_fields(self,fields, default_is_empty = True)
 
 	def _set_gps(self):
-		'''sets the gps coordinates and name of related location to speed up map visualization.'''
+		'''sets the gps coordinates and name of related location to 
+		speed up map visualization.
+		'''
 		locations = field2locations(self,self.location_field)
 		if locations:
-			gps = ' | '.join([location.gps for location in locations if location.gps])
-			names= ' | '.join([location.name for location in locations if location.gps])
+			gps = ' | '.join([l.gps for l in locations if l.gps])
+			names= ' | '.join([l.name for l in locations if l.gps])
 			self.gps = gps
 			self.gps_names = names
 		else: self.gps, self.gps_names = '',''
@@ -77,9 +83,19 @@ class Person(models.Model, info):
 		if pseudonyms: full_name += ', ' + pseudonyms
 		self.full_name = full_name
 			
-
 	class Meta:
 		unique_together = 'first_name,last_name,birth_year'.split(',')
+
+	@property
+	def get_dates(self):
+		if not self.birth_year:return ''
+		return [self.birth_year]
+
+	@property
+	def identifier(self):
+		i = self._meta.app_label + '_' + self._meta.model_name 
+		i += '_' + str( self.pk )
+		return i
 
 	@property
 	def name(self):
@@ -108,7 +124,8 @@ class Person(models.Model, info):
 		if self.born:m += 'born ' + str(self.birth_year) 
 		if self.born and self.died: m += ', '
 		if self.died:m += 'died ' + str(self.death_year)
-		if self.born and self.died: m += ' (age ' + str(self.death_year -self.birth_year) + ')'
+		if self.born and self.died: 
+			m += ' (age ' + str(self.death_year -self.birth_year) + ')'
 		return m
 
 	@property
@@ -136,12 +153,14 @@ class Person(models.Model, info):
 		return ' | '.join([x.name for x in self.pseudonym.all()])
 		
 	def pop_up(self,latlng=None):
-		'''create a pop up for map rendering with information about this instance.
+		'''create a pop up for map rendering with information 
+		about this instance.
 		'''
 		m = ''
 		if self.life: m += '<p><small>' + self.life + '</small></p>'
 		pseudonyms = self.pseudonyms
-		if pseudonyms: m += '<p><small>pseudonym <b>' + pseudonyms + '</b></small></p>'
+		if pseudonyms: 
+			m += '<p><small>pseudonym <b>' + pseudonyms + '</b></small></p>'
 		p = pop_up(self, latlng, extra_information = m)
 		return p
 
@@ -169,7 +188,9 @@ class Person(models.Model, info):
 		
 
 	def latlng2placetype(self,latlng):
-		'''return the relation between the place and the person, e.g. residence.'''
+		'''return the relation between the place and the person,
+		 e.g. residence.
+		'''
 		try:
 			ptd = self.make_placetype_dict()
 			for relation_name in ptd:
@@ -182,7 +203,8 @@ class Person(models.Model, info):
 
 	def latlng2name(self,latlng):
 		'''returns the location name based on on the latlng input
-		uses index of gps corresponding with latlng and gps_names to return correct name
+		uses index of gps corresponding with latlng and 
+		gps_names to return correct name
 		'''
 		ln = get_location_name(self,latlng)
 		if ln == '':
@@ -199,7 +221,8 @@ class Person(models.Model, info):
 		return pt
 		
 	def make_placetype_dict(self):
-		'''creates a dictionary that maps the relation name between the person and location
+		'''creates a dictionary that maps the relation name between the 
+		person and location
 		to the gps string saved on the person instance
 		[relation name] + '_location_name' gives the corresponding location name
 		'''
@@ -211,9 +234,11 @@ class Person(models.Model, info):
 					d[name+'_location_name'] = [getattr(self,name).name]
 				except:continue
 		for plr in self.personlocationrelation_set.all():
-			if None in [getattr(plr,n) for n in 'location,person,relation'.split(',')]:continue
+			names = 'location,person,relation'.split(',')
+			if None in [getattr(plr,n) for n in names]:continue
 			if plr.relation.name not in d.keys():
-				d[plr.relation.name], d[plr.relation.name +'_location_name'] = [], []
+				d[plr.relation.name] = []
+				d[plr.relation.name +'_location_name'] = []
 			d[plr.relation.name].append( plr.location.gps )
 			d[plr.relation.name+'_location_name'].append( plr.location.name )
 		return d
@@ -252,15 +277,28 @@ class Movement(models.Model, info):
 		if self.gps != old_gps:super(Movement,self).save()
 		super(Movement,self).save(*args,**kwargs)
 
+	@property
+	def get_dates(self):
+		if not self.founded:return ''
+		return [self.founded]
+
+	@property
+	def identifier(self):
+		i = self._meta.app_label + '_' + self._meta.model_name 
+		i += '_' + str( self.pk )
+		return i
+
 	def empty_fields(self,fields = []):
 		return get_empty_fields(self,fields, default_is_empty = True)
 
 	def _set_gps(self):
-		'''sets the gps coordinates and name of related location to speed up map visualization.'''
+		'''sets the gps coordinates and name of related location to speed 
+		up map visualization.
+		'''
 		locations = field2locations(self,self.location_field)
 		if locations:
-			gps = ' | '.join([location.gps for location in locations if location.gps])
-			names= ' | '.join([location.name for location in locations if location.gps])
+			gps = ' | '.join([l.gps for l in locations if l.gps])
+			names= ' | '.join([l.name for l in locations if l.gps])
 			self.gps = gps
 			self.gps_names = names
 		else: self.gps, self.gps_names = '',''
@@ -292,12 +330,14 @@ class Movement(models.Model, info):
 	def pop_up(self,latlng):
 		m = ''
 		if self.movement_type: 
-			m += '<p><small><b>' + self.movement_type.name + '</b> movement</small></p>'
+			m += '<p><small><b>' + self.movement_type.name 
+			m += '</b> movement</small></p>'
 		if self.founded: m += '<p><small>founded <b>' + str(self.founded)
 		if self.founded and self.closure: m += '</b>, '
 		else: m += '</b></small></p>'
 		if not m and self.founded: m += '<p><small>'
-		if self.closure: m += 'closure <b>' + str(self.closure) + '</b></small></p>'
+		if self.closure: 
+			m += 'closure <b>' + str(self.closure) + '</b></small></p>'
 		return pop_up(self,latlng,extra_information=m)
 
 
@@ -321,9 +361,12 @@ class Movement(models.Model, info):
 
 class PersonPersonRelation(RelationModel, info):
 	'''Relation between persons. Assumed to be symmetrical.'''
-	person1 = models.ForeignKey(Person, on_delete=models.CASCADE,related_name='person1')
-	person2 = models.ForeignKey(Person, on_delete=models.CASCADE,related_name='person2')
-	relation_type = models.ForeignKey(PersonPersonRelationType, on_delete=models.CASCADE)
+	person1 = models.ForeignKey(Person, on_delete=models.CASCADE,
+		related_name='person1')
+	person2 = models.ForeignKey(Person, on_delete=models.CASCADE,
+		related_name='person2')
+	relation_type = models.ForeignKey(PersonPersonRelationType, 
+		on_delete=models.CASCADE)
 	model_fields = ['person1','person2']
 	relation_field = 'relation_type'
 
@@ -340,8 +383,10 @@ class PersonPersonRelation(RelationModel, info):
 class PersonLocationRelation(RelationModel,info):
 	'''relation between person and location.'''
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
-	location = models.ForeignKey(Location, on_delete=models.CASCADE,default=None,null=True)
-	relation = models.ForeignKey(PersonLocationRelationType, null=True, on_delete=models.SET_NULL)
+	location = models.ForeignKey(Location, on_delete=models.CASCADE,
+		default=None,null=True)
+	relation = models.ForeignKey(PersonLocationRelationType, null=True, 
+		on_delete=models.SET_NULL)
 	start_year = models.PositiveIntegerField(null=True,blank=True)
 	end_year = models.PositiveIntegerField(null=True,blank=True)
 	location_name = models.CharField(max_length=200, default='',null=True)
@@ -440,7 +485,8 @@ class PersonTextRelation(RelationModel, info):
 
 	def pop_up(self,main_instance):
 		m = super().pop_up(main_instance)
-		m += '<small>'+self.person.name + ' is the <b>' +self.relation_name + '</b></small>'
+		m += '<small>'+self.person.name + ' is the <b>' 
+		m += self.relation_name + '</b></small>'
 		return m
 
 	'''
@@ -449,7 +495,8 @@ class PersonTextRelation(RelationModel, info):
 		if not self.other: return 'could not construct relation'
 		latlng = gps2latlng(self.other.gps)
 		m = self.other.pop_up(latlng)
-		m += '<small>'+self.person.name + ' is the <b>' +self.relation_name + '</b></small>'
+		m += '<small>'+self.person.name + ' is the <b>' +self.relation_name 
+		m += '</b></small>'
 		return m
 
 	def set_other(self,main_instance):
@@ -494,12 +541,14 @@ class PersonMovementRelation(RelationModel, info):
 	'''Relation between a movement and a person.'''
 	movement = models.ForeignKey(Movement, on_delete=models.CASCADE)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
-	role = models.ForeignKey(PersonMovementRelationRole, on_delete=models.CASCADE)
+	role = models.ForeignKey(PersonMovementRelationRole, 
+		on_delete=models.CASCADE)
 	model_fields = ['movement','person']
 	relation_field = 'role'
 
 	def __str__(self):
-		m = self.person.__str__() + ' | ' + self.role.__str__() +' | of movement: '
+		m = self.person.__str__() + ' | ' + self.role.__str__() 
+		m +=' | of movement: '
 		m += self.movement.__str__() 
 		return m
 
@@ -541,14 +590,17 @@ class PersonMovementRelation(RelationModel, info):
 
 class PersonPeriodicalRelation(RelationModel, info):
 	'''Relation between a periodical and a person.'''
-	periodical = models.ForeignKey('catalogue.Periodical', on_delete=models.CASCADE)
+	periodical = models.ForeignKey('catalogue.Periodical', 
+		on_delete=models.CASCADE)
 	person = models.ForeignKey(Person, on_delete=models.CASCADE)
-	role = models.ForeignKey(PersonPeriodicalRelationRole, on_delete=models.CASCADE)
+	role = models.ForeignKey(PersonPeriodicalRelationRole, 
+		on_delete=models.CASCADE)
 	model_fields = ['periodical','person']
 	relation_field = 'role'
 
 	def __str__(self):
-		m = self.person.__str__() + ' | ' + self.role.__str__() +' | of periodical: '
+		m = self.person.__str__() + ' | ' + self.role.__str__() 
+		m +=' | of periodical: '
 		m += self.periodical.__str__() 
 		return m
 
