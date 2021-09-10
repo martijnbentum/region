@@ -3,6 +3,9 @@ import random
 import string
 import itertools
 
+
+n='text,publication,periodical,publisher,illustration,person,movement'.split(',')
+
 class info():
 	'''inherit from this class to add extra viewing functionality for models'''
 
@@ -181,8 +184,7 @@ def get_empty_fields(instance,fields = [],default_is_empty =False):
 
 
 def get_all_models(model_names =''):
-	n = 'text,publication,periodical,publisher,illustration,person,movement'
-	if model_names == '': model_names =n
+	if model_names == '': model_names = n
 	if type(model_names) == str: model_names = model_names.split(',')
 	model_names = [n.lower() for n in model_names]
 	all_models = apps.get_models()
@@ -198,6 +200,20 @@ def get_all_instances(model_names = ''):
 	for x in models:
 		instances.extend(x.objects.all())
 	return instances
+
+def _make_modelnames():
+	model = apps.get_model('utilities','Modelname')
+	models = get_all_models()
+	for m in models:
+		model_name = m._meta.model_name
+		app_name = m._meta.app_label
+		qs = model.objects.filter(model_name=model_name)
+		if not qs:
+			print('creating:',model_name)
+			x = model(model_name=model_name,app_name=app_name)
+			x.save()
+		else:print(name,'already exists')
+
 
 		 
 
