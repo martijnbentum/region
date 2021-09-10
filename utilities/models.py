@@ -157,7 +157,11 @@ class Comment(models.Model,info):
 		return self.app_name + ':edit_' + self.model_name 
 		
 
+class Modelname(models.Model,info):
+	model_name = models.CharField(max_length=100,default = '')
+	app_name = models.CharField(max_length=100,default = '')
 
 
-
+	def __repr__(self):
+		return self.model_name
 
