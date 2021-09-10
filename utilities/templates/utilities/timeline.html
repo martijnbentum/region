@@ -1,29 +1,52 @@
 {% extends "utilities/base.html" %}
+
 {% block head %}
-<script src="https://d3js.org/d3.v6.min.js"></script>
-<script src="https://d3js.org/d3-scale.v3.min.js"></script>
+	{{form.media.css}}
+	<title>{{page_name}}</title>
+	<script src="https://d3js.org/d3.v6.min.js"></script>
+	<script src="https://d3js.org/d3-scale.v3.min.js"></script>
 {% endblock %}
 
 {% block content %}
 
-{{text_timeline|json_script:"text-timeline"}}
+<form name="myform" id="myform" enctype="multipart/form-data" 
+method = "post" onsubmit="dosubmit();">
+    {% csrf_token %}
+
+
+<table class="table table-borderless" id="form_table">
+	<tr class="d-flex">
+		<th class="col-2">category</th>
+		<td class="col-8">{{form.model_name}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">location</th>
+		<td class="col-8">{{form.location}}</td>
+	</tr>
+<button type="submit" name="save" value="save" 
+	class ="btn btn-primary">Graph</button>
+</table>
+<form>
+{{timeline|json_script:"timeline"}}
 
 <svg>
 </svg>
+
+{{form.media.js}}
 
 <div id="my_dataviz"></div>
 <script>
 // set the dimensions and margins of the graph
 
-var text_timeline= JSON.parse(document.getElementById('text-timeline').textContent);
-text_timeline = JSON.parse(text_timeline);
+var timeline= JSON.parse(document.getElementById('timeline').textContent);
+timeline = JSON.parse(timeline);
 var dates = []
-for (var i= 0; i<text_timeline.length; i +=1) {
-	x = text_timeline[i]
+for (var i= 0; i<timeline.length; i +=1) {
+	x = timeline[i]
 	dates.push(new Date(x.date));
 	x.date = new Date(x.date);
 }
-console.log(text_timeline);
+console.log(timeline);
 console.log(dates);
 
 // set the dimensions and margins of the graph
@@ -40,6 +63,20 @@ var svg = d3.select("#my_dataviz")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
 
+svg.append("text")
+	.attr("class","x label")
+	.attr("text-anchor","end")
+	.attr("x",width)
+	.attr("y",height-6)
+	.text("Date")
+
+svg.append("text")
+	.attr("class","y label")
+	.attr("text-anchor","end")
+	.attr("y",6)
+	.attr("dy",".75em")
+	.attr("transform","rotate(-90)")
+	.text("Number of items")
 
 var x = d3.scaleLinear()
 	.domain([1810,1960])
@@ -54,16 +91,21 @@ var histogram =d3.histogram()
 	.domain(x.domain())
 	.thresholds(x.ticks(65));
 
-var bins = histogram(text_timeline);
+var bins = histogram(timeline);
 console.log(bins);
 
+var ymax = d3.max(bins, function(d) { return d.length; })
+var nticks =8 
+if (ymax < nticks) { nticks = ymax;}
   // Y axis: scale and draw:
-  var y = d3.scaleLinear()
-      .range([height, 0]);
-      y.domain([0, d3.max(bins, function(d) { return d.length; })]);   // d3.hist has to be called before the Y axis obviously
+var y = d3.scaleLinear()
+	.range([height, 0])
+	.domain([0, ymax +ymax*.1]);   
+	// d3.hist has to be called before the Y axis obviously
+console.log(ymax,nticks);
 
 svg.append("g")
-  .call(d3.axisLeft(y));
+  .call(d3.axisLeft(y).ticks(nticks));
 
 // append the bar rectangles to the svg element
 svg.selectAll("rect")
@@ -71,7 +113,8 @@ svg.selectAll("rect")
   .enter()
   .append("rect")
 	.attr("x", 1)
-	.attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
+	.attr("transform", function(d) 
+		{ return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
 	.attr("width", function(d) { return x(d.x1) - x(d.x0) -1 ; })
 	.attr("height", function(d) { return height - y(d.length); })
 	.style("fill", "#fcba03")
