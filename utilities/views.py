@@ -12,7 +12,7 @@ from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
 from utils.model_util import copy_complete
 from utilities.search import Search
 from .models import Comment
-from .forms import CommentForm
+from .forms import CommentForm, TimelineForm
 import json
 from utils.get_totals import get_totals
 
@@ -24,18 +24,28 @@ def overview(request):
 	return render(request,'utilities/overview.html',var)
 
 def timeline(request):
-	model = apps.get_model('catalogue','Text')
-	t = model.objects.all()
-	o = []
-	print(t)
-	for i,x in enumerate(t):
-		dates = x.get_dates
-		if not dates: continue
-		for d in dates:
-			if not d: continue
-			o.append({'id':x.identifier,'date':str(d)})
-	o =  json.dumps(o)
-	var = {'text':'hello world','text_timeline':o}
+	# model_name = get_timeline_info(request)
+	model = None
+	form = None
+	if request.method == 'POST':
+		form = TimelineForm(request.POST, request.FILES)
+		if form.is_valid(): 
+			print(form.cleaned_data['model_name'])
+			mn = form.cleaned_data['model_name']
+			model = apps.get_model(mn.app_name,mn.model_name)
+	if model:
+		t = model.objects.all()
+		o = []
+		for i,x in enumerate(t):
+			dates = x.get_dates
+			if not dates: continue
+			for d in dates:
+				if not d: continue
+				o.append({'id':x.identifier,'date':str(d)})
+		o =  json.dumps(o)
+	else:o =''
+	if not form: form = TimelineForm()
+	var = {'page_name':'timeline','timeline':o,'form':form}
 	return render(request,'utilities/timeline.html',var)
 
 def list_view(request, model_name, app_name, max_entries=500):
