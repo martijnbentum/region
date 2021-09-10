@@ -15,7 +15,8 @@ def make_simple_model(name):
 	exec('class '+name + '(SimpleModel,info):\n\tpass',globals())
 
 names = 'CopyRight,Genre,TextType,TextTextRelationType,Audience,IllustrationType'
-names += ',PublicationType,IllustrationCategory,IllustrationIllustrationRelationType'
+names += ',PublicationType,IllustrationCategory'
+names += ',IllustrationIllustrationRelationType'
 names = names.split(',')
 
 for name in names:
@@ -24,7 +25,8 @@ for name in names:
 
 class Item(models.Model):
 	'''abstract model for non simple/ non relational catalogue models.
-	sets fields that are used by most models and defines methods used by most models
+	sets fields that are used by most models and defines methods used by 
+	most models
 	'''
 	dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
 	description = models.TextField(blank=True)
@@ -43,7 +45,9 @@ class Item(models.Model):
 		return self.instance_name
 
 	def save(self,*args,**kwargs):
-		'''sets the gps coordinates and names field after saving based on the fk location'''
+		'''sets the gps coordinates and names field after saving based 
+		on the fk location
+		'''
 		super(Item,self).save(*args,**kwargs)
 		old_gps = self.gps
 		self._set_gps()
@@ -51,11 +55,13 @@ class Item(models.Model):
 		super(Item,self).save(*args,**kwargs)
 
 	def _set_gps(self):
-		'''sets the gps coordinates and name of related location to speed up map visualization.'''
+		'''sets the gps coordinates and name of related location to speed 
+		up map visualization.
+		'''
 		locations = field2locations(self,self.location_field)
 		if locations:
-			gps = ' | '.join([location.gps for location in locations if location.gps])
-			names= ' | '.join([location.name for location in locations if location.gps])
+			gps = ' | '.join([l.gps for l in locations if l.gps])
+			names= ' | '.join([l.name for l in locations if l.gps])
 			self.gps = gps
 			self.gps_names = names
 		else: self.gps, self.gps_names = '',''
@@ -104,7 +110,9 @@ class Item(models.Model):
 
 	@property
 	def identifier(self):
-		return self._meta.app_label + '_' + self._meta.model_name + '_' + str( self.pk )
+		i = self._meta.app_label + '_' + self._meta.model_name 
+		i += '_' + str( self.pk )
+		return i
 
 	class Meta:
 		abstract = True
@@ -154,7 +162,8 @@ class Text(Item, info):
 
 	@property
 	def get_dates(self):
-		'''text object does not contain date, only the linked publication has a date.
+		'''text object does not contain date, 
+		only the linked publication has a date.
 		a text can have multiple dates (if it is linked to multiple publications)
 		the date is the date of publication of the publication instance
 		returns a list of partialdate objects
@@ -169,8 +178,6 @@ class Text(Item, info):
 			if date: o.append(date)
 		self._dates = o
 		return o
-			
-			
 			
 
 def make_filename(instance, filename):
@@ -187,14 +194,17 @@ class Illustration(Item, info):
 	caption =  models.CharField(max_length=300,null=True,blank=True)
 	category = models.ForeignKey(IllustrationCategory,on_delete=models.SET_NULL,
 		blank=True,null=True,related_name='Illustration')
-	categories=models.ManyToManyField(IllustrationCategory,blank=True,related_name='Illustrations') 
+	categories=models.ManyToManyField(IllustrationCategory,blank=True,
+		related_name='Illustrations') 
 	page_number = models.CharField(max_length=50, default = '', blank=True)
 	upload= models.ImageField(upload_to=make_filename,null=True,blank=True)
 	relations = models.ManyToManyField('self',
-		through='IllustrationIllustrationRelation',symmetrical=False, default=None)
+		through='IllustrationIllustrationRelation',symmetrical=False, 
+		default=None)
 	illustration_type = models.ForeignKey(IllustrationType, **dargs)
 	location_field = ''
-	image_filename = models.CharField(max_length=500,default='',blank=True,null=True)
+	image_filename = models.CharField(max_length=500,default='',blank=True,
+		null=True)
 	person = models.CharField(max_length=2000,blank=True,null=True)
 
 	def _set_person(self):
@@ -207,6 +217,25 @@ class Illustration(Item, info):
 	class Meta:
 		unique_together = 'caption,image_filename,page_number'.split(',')
 
+	@property
+	def get_dates(self):
+		'''illustration object does not contain date, 
+		only the linked publication has a date.
+		a illustration can have multiple dates 
+		(if it is linked to multiple publications)
+		the date is the date of publication of the publication instance
+		returns a list of partialdate objects
+		'''
+		if hasattr(self,'_dates'): return self._dates
+		tpr =  self.illustrationpublicationrelation_set.all()
+		if not tpr: return ''
+		o = []
+		for x in tpr:
+			if not hasattr(x,'publication'): continue
+			date = x.publication.date
+			if date: o.append(date)
+		self._dates = o
+		return o
 	
 
 class Publisher(Item, info):
@@ -224,10 +253,14 @@ class Publisher(Item, info):
 		self.person = '; '.join(names)
 		self.save()
 
-
 	class Meta:
 		ordering = ['name']
 		unique_together = 'name,founded'.split(',')
+
+	@property
+	def get_dates(self):
+		if not self.founded: return ''
+		return [self.founded]
 
 	def pop_up(self,latlng):
 		m = ''
@@ -246,23 +279,27 @@ class Publication(Item, info):
 	form = models.ForeignKey(PublicationType,on_delete=models.SET_NULL,null=True)
 	issue = models.PositiveIntegerField(default=0,blank=True) 
 	volume = models.PositiveIntegerField(default=0,blank=True) 
-	year = models.PositiveIntegerField(null=True,blank=True) # obsolete, replace by date
+	year = models.PositiveIntegerField(null=True,blank=True) 
+	# obsolete, replace by date
 	date = PartialDateField(null=True,blank=True)
 	location = models.ManyToManyField(Location,blank=True,default=None) 
 	pdf = models.FileField(upload_to='publication/',null=True,blank=True) # ?
 	cover = models.ImageField(upload_to='publication/',null=True,blank=True)
-	publisher_names = models.CharField(max_length = 500, null=True,blank=True,default='')
+	publisher_names = models.CharField(max_length = 500, null=True,
+		blank=True,default='')
 
 	def pop_up(self,latlng):
 		m = ''
 		if self.publisher_names: 
-			m += '<p><small>published by <b>'+self.publisher_names+'</b></small></p>'
+			m += '<p><small>published by <b>'+self.publisher_names
+			m +='</b></small></p>'
 		if self.volume: m+='<p><small>volume <b>' + str(self.volume)
 		if not self.issue: m+= '</b></small></p>'
 		if not self.volume and self.issue:m+= '<p><small>'
 		if self.issue and self.volume: m += '</b>, '
 		if self.issue: m += 'issue <b>'+ str(self.issue) +'</b></small></p>'
-		if self.date: m+= '<p><small>published in <b>' + self.date.name + '</b></small></p>'
+		if self.date: 
+			m+='<p><small>published in <b>'+ self.date.name+'</b></small></p>'
 		return pop_up(self,latlng,extra_information=m)
 
 	class Meta:
@@ -277,6 +314,11 @@ class Publication(Item, info):
 	@property
 	def location_str(self):
 		return ' | '.join([pu.name for pu in self.location.all()])
+
+	@property
+	def get_dates(self):
+		if not self.date: return ''
+		return [self.date]
 
 
 class Periodical(Item, info):
@@ -294,7 +336,10 @@ class Periodical(Item, info):
 		self.person = '; '.join(names)
 		self.save()
 
-
+	@property
+	def get_dates(self):
+		if not self.founded: return ''
+		return [self.founded]
 
 	class Meta:
 		unique_together = 'title,founded'.split(',')
@@ -305,7 +350,8 @@ class Periodical(Item, info):
 		if self.founded and self.closure: m += '</b>, '
 		else: m += '</b></small></p>'
 		if not m and self.founded: m += '<p><small>'
-		if self.closure: m += 'closure <b>' + str(self.closure) + '</b></small></p>'
+		if self.closure: 
+			m += 'closure <b>' + str(self.closure) + '</b></small></p>'
 		x = self.periodicalpublicationrelation_set.all()
 		names = ' | '.join(list(set([y.publication.publisher_names for y in x])))
 		if names: m += '<p><small>published by <b>' + names + '</b></small></p>'
@@ -399,7 +445,8 @@ class TextTextRelation(models.Model, info):
 	model_fields = ['primary','secondary']
 
 	def __str__(self):
-		m =  self.relation_type.name +' relation between ' + self.secondary.title +' and '
+		m =  self.relation_type.name +' relation between ' 
+		m += self.secondary.title +' and '
 		m += self.primary.title
 		return m
 
@@ -417,9 +464,12 @@ class IllustrationIllustrationRelation(models.Model, info):
 
 	def __str__(self):
 		try:
-			m =  self.relation_type.name +' relation between ' + self.secondary.caption+' and '
+			m =  self.relation_type.name +' relation between ' 
+			m += self.secondary.caption+' and '
 			m += self.primary.caption
 		except:
-			print('WARNING, could not create string for IllustrationIllustrationRelation')
+			m='WARNING, could not create string for '
+			m+='IllustrationIllustrationRelation'
+			print(m)
 			return ''
 		return m
