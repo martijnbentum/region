@@ -11,12 +11,13 @@ from partial_date import PartialDateField
 import time
 
 def make_simple_model(name):
-	'''creates a new model based on name, uses the abstract class SimpleModel.'''
+	'''creates a new model based on name, uses the abstract class SimpleModel.
+	'''
 	exec('class '+name + '(SimpleModel,info):\n\tpass',globals())
 
-names = 'CopyRight,Genre,TextType,TextTextRelationType,Audience,IllustrationType'
+names = 'CopyRight,Genre,TextType,TextTextRelationType,Audience'
 names += ',PublicationType,IllustrationCategory'
-names += ',IllustrationIllustrationRelationType'
+names += ',IllustrationIllustrationRelationType,IllustrationType'
 names = names.split(',')
 
 for name in names:
@@ -95,7 +96,10 @@ class Item(models.Model):
 			return self.name
 		if hasattr(self,'caption'):
 			return self.caption
-		else: raise ValueError('please override instance_name property with correct "name" field')
+		else: 
+			m = 'please override instance_name property with '
+			m += 'correct "name" field'
+			raise ValueError(m)
 
 	def plot(self):
 		'''provides information to plot an instance on the map'''
@@ -164,7 +168,8 @@ class Text(Item, info):
 	def get_dates(self):
 		'''text object does not contain date, 
 		only the linked publication has a date.
-		a text can have multiple dates (if it is linked to multiple publications)
+		a text can have multiple dates (if it is linked to 
+		multiple publications)
 		the date is the date of publication of the publication instance
 		returns a list of partialdate objects
 		'''
@@ -192,7 +197,8 @@ class Illustration(Item, info):
 	'''a illustration typically part of publication'''
 	dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
 	caption =  models.CharField(max_length=300,null=True,blank=True)
-	category = models.ForeignKey(IllustrationCategory,on_delete=models.SET_NULL,
+	category = models.ForeignKey(IllustrationCategory,
+		on_delete=models.SET_NULL,
 		blank=True,null=True,related_name='Illustration')
 	categories=models.ManyToManyField(IllustrationCategory,blank=True,
 		related_name='Illustrations') 
@@ -268,7 +274,8 @@ class Publisher(Item, info):
 		if self.founded and self.closure: m += '</b>, '
 		else: m += '</b></small></p>'
 		if not m and self.founded: m += '<p><small>'
-		if self.closure: m += 'closure <b>' + str(self.closure) + '</b></small></p>'
+		if self.closure: 
+			m += 'closure <b>' + str(self.closure) + '</b></small></p>'
 		return pop_up(self,latlng,extra_information=m)
 
 
@@ -276,7 +283,8 @@ class Publication(Item, info):
 	'''The publication of a text or collection of texts and illustrations'''
 	title = models.CharField(max_length=300,null=True)
 	publisher = models.ManyToManyField(Publisher,blank=True)
-	form = models.ForeignKey(PublicationType,on_delete=models.SET_NULL,null=True)
+	form = models.ForeignKey(PublicationType,on_delete=models.SET_NULL,
+		null=True)
 	issue = models.PositiveIntegerField(default=0,blank=True) 
 	volume = models.PositiveIntegerField(default=0,blank=True) 
 	year = models.PositiveIntegerField(null=True,blank=True) 
@@ -303,7 +311,7 @@ class Publication(Item, info):
 		return pop_up(self,latlng,extra_information=m)
 
 	class Meta:
-		unique_together = [['title','publisher_names','date','issue','volume']]
+		unique_together=[['title','publisher_names','date','issue','volume']]
 
 
 	@property
@@ -319,6 +327,22 @@ class Publication(Item, info):
 	def get_dates(self):
 		if not self.date: return ''
 		return [self.date]
+
+	@property
+	def title_exact(self):
+		m = self.title
+		add_bracket = False
+		if self.date or self.issue or self.volume: 
+			m += ' ('
+			add_bracket = True
+		if self.volume: m += 'vol. ' +str(self.volume) 
+		if (self.volume and self.issue) or (self.volume and self.date):
+			m += ', '
+		if self.issue: m += 'n. ' + str(self.issue)
+		if self.issue and self.date:m += ', '
+		if self.date: m += self.date.pretty_string() 
+		if add_bracket: m +=')'
+		return m
 
 
 class Periodical(Item, info):
@@ -353,8 +377,10 @@ class Periodical(Item, info):
 		if self.closure: 
 			m += 'closure <b>' + str(self.closure) + '</b></small></p>'
 		x = self.periodicalpublicationrelation_set.all()
-		names = ' | '.join(list(set([y.publication.publisher_names for y in x])))
-		if names: m += '<p><small>published by <b>' + names + '</b></small></p>'
+		n=' | '.join(list(set([y.publication.publisher_names for y in x])))
+		names = n
+		if names: 
+			m += '<p><small>published by <b>' + names + '</b></small></p>'
 		return pop_up(self,latlng,extra_information=m)
 
 
@@ -416,7 +442,8 @@ class IllustrationPublicationRelation(RelationModel):
 
 
 class PeriodicalPublicationRelation(RelationModel, info):
-	'''linking a periodical to a publication (a specific issue of a periodical).'''
+	'''linking a periodical to a publication 
+	(a specific issue of a periodical).'''
 	periodical= models.ForeignKey(Periodical, on_delete=models.CASCADE)
 	publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
 	volume= models.PositiveIntegerField(null=True,blank=True)
