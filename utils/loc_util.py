@@ -129,7 +129,7 @@ def country2continent_dict(countries):
 	ccd = code2continent_dict()
 	output = {} 
 	for continent in ccd.values():
-		m = str(continent) + ' already in '+str(keys)
+		m = str(continent) + ' already in '+str(output.keys())
 		assert continent not in output.keys(),m 
 		output[continent] = []
 		for country in countries:
