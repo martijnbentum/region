@@ -116,8 +116,10 @@ class PublicationWidget(ModelSelect2Widget):
 	model = Publication
 	search_fields = ['title__icontains']
 	def label_from_instance(self,obj):
-		if obj.location_string == '':return obj.title
-		return obj.title + ' | ' + obj.location_string
+		m = obj.title_exact
+		if not obj.location_str== '':m += ' | ' + obj.location_str
+		return m
+			
 	def get_queryset(self):
 		return Publication.objects.all().order_by('title')
 
