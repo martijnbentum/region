@@ -25,8 +25,9 @@ class LocationRelation(models.Model, info):
 
 	def __str__(self):
 		'''deleting a Location can resultin an error due to the easy audit app.
-		it needed the string representation of this model, while the Location instance
-		did not exist anymore '''
+		it needed the string representation of this model, 
+		while the Location instance did not exist anymore 
+		'''
 		try:return self.contained.name + ' is located in: ' + self.container.name
 		except:return ''
 
@@ -45,7 +46,8 @@ class Location(models.Model, info):
 	relations = models.ManyToManyField('self',
 		through='LocationRelation',symmetrical=False, default=None)
 	geonameid = models.CharField(max_length=12,default= '',unique = True)
-	coordinates_polygon = models.CharField(max_length=3000, blank=True ,null=True)
+	coordinates_polygon = models.CharField(max_length=3000, blank=True ,
+		null=True)
 	latitude=models.DecimalField(**gpsargs)
 	longitude=models.DecimalField(**gpsargs)
 	information = models.TextField(default='',blank=True)
@@ -101,32 +103,38 @@ class Location(models.Model, info):
 
 	@property
 	def contained_by_country(self):
-		'''returns the country a location is in if this is provided within a locationrelation 
+		'''returns the country a location is in if this is provided within 
+		a locationrelation 
 		'''
 		if not self.location_type: return ''
-		if self.location_type.name == 'country' or self.location_type.name == 'continent':
+		lt = self.location_type
+		if lt.name == 'country' or lt.name == 'continent':
 			return ''
 		output = []
 		for location in self.contained.all():
 			container= location.container
-			if container.location_type.name == 'country': output.append(container.name)
+			if container.location_type.name == 'country': 
+				output.append(container.name)
 		return ','.join(list(set(output)))
 
 	@property
 	def contained_by_region(self):
-		'''returns the region a location is in if this provided within a locationrelation
+		'''returns the region a location is in if this provided within 
+		a locationrelation
 		'''
 		output = []
 		for location in self.contained.all():
 			container= location.container
-			if container.location_type.name == 'region': output.append(container.name)
+			if container.location_type.name == 'region': 
+				output.append(container.name)
 		return ','.join(output)
 
 
 	@property
 	def country(self):
-		'''returns the country a location is in, if it is not set in a locationrelation
-		the information field is checked; this is taken from the database which lists the
+		'''returns the country a location is in, if it is not set in 
+		a location relation the information field is checked; 
+		this is taken from the database which lists the
 		country for each city location
 		'''
 		country = self.contained_by_country
@@ -138,8 +146,9 @@ class Location(models.Model, info):
 
 	@property
 	def region(self):
-		'''returns the region a location is in, if it is not set in a locationrelation
-		the information field is checked; this is taken from the database which lists the
+		'''returns the region a location is in, if it is not set in 
+		a locationrelation the information field is checked;
+		this is taken from the database which lists the
 		region for each city location
 		'''
 		region = self.contained_by_region
@@ -154,7 +163,8 @@ class Location(models.Model, info):
 	def gps(self):
 		'''returns string representation of the gps coordinates.
 		'''
-		try: return str(round(self.latitude,4)) + ', ' + str(round(self.longitude,4))
+		lat, lng = self.latitude, self.longitude
+		try: return str(round(lat,4)) + ', ' + str(round(lng,4))
 		except: return ''
 
 	@property
