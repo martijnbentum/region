@@ -50,6 +50,7 @@ class Person(models.Model, info):
 	gps = models.CharField(max_length=300,default ='')
 	gps_names = models.CharField(max_length=4000,default='')
 	group_tags= models.ManyToManyField(GroupTag,blank=True, default= None)
+	source_link= models.CharField(max_length=1000,blank=True,null=True)
 	
 	def save(self,*args,**kwargs):
 		'''set gps location information on the person instance to 

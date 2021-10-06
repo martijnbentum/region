@@ -66,10 +66,11 @@ class PersonForm(ModelForm):
 		queryset=Pseudonym.objects.all().order_by('name'),
 		widget=PseudonymsWidget(**dselect2),
 		required = False)
+	source_link= forms.CharField(**dchar)
 
 	class Meta:
 		model = Person
-		m = 'first_name,last_name,sex,birth_year,death_year'
+		m = 'first_name,last_name,sex,birth_year,death_year,source_link'
 		m +=',birth_place,death_place,pseudonym,approved,complete,incomplete'
 		fields = m.split(',')
 
