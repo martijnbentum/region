@@ -1,3 +1,8 @@
+'''
+work in progress
+challenge is to load the instances in the correct sequence
+'''
+
 import copy
 from django.apps import apps
 from .model_util import instance2names
@@ -20,11 +25,14 @@ class Import:
 		self.filename = filename
 		self.wb = load_workbook(filename)
 		self.fieldtypes = self.wb['fieldtypes']
-		self.amn = list(set([l[:2] for l in list(self.fieldtypes.values)[1:]]))
-		self.app_names,self.model_names = [i for i,j in self.amn],[j for i,j in self.amn]
+		ft = self.fieldtypes
+		self.amn = list(set([l[:2] for l in list(ft.values)[1:]]))
+		an,mn = [i for i,j in self.amn],[j for i,j in self.amn]
+		self.app_names,self.model_names =an, mn 
 		self.models = [apps.get_model(*mn) for mn in self.amn]
 		self.create_column_dicts() 
-		self.names2model = dict([[name,model] for name,model in zip(self.model_names,self.models)])
+		mn,m = self.model_names, self.models
+		self.names2model = dict([[name,model] for name,model in zip(mn,m)])
 		self.import_instances = {}
 		self.all_import_instances = []
 
@@ -40,7 +48,8 @@ class Import:
 		return m
 
 	def create_column_dicts(self):
-		'''a dict of dicts, model name maps to a dictionary, this dictonary contains column
+		'''a dict of dicts, model name maps to a dictionary, 
+		this dictonary contains column
 		names and fieldtype and fk/m2m model names.'''
 		self.column_dicts = {}
 		for model_name in self.model_names:
@@ -55,7 +64,8 @@ class Import:
 		self.import_instances = {}
 		self.complete, self.incomplete = [], []
 		self.pk_not_in_db_instances = []
-		self.equal_instances,self.similar_instances, self.mismatch_instances = [], [], []
+		self.equal_instances,self.similar_instances = [],[]
+		self.mismatch_instances = []
 		for model_name in self.model_names:
 			sheet = self.wb[model_name]
 			cd = self.column_dicts[model_name]
@@ -73,7 +83,7 @@ class Import:
 	def fill_db(self,empty_db=False):
 		if empty_db:
 			print('\n'.join(self.model_names))
-			i = input('do you want to delete the contents of these models (yes/no):')
+			i = input('do you want to delete the contents of these models:')
 		if not empty_db or i != 'yes': 
 			print('did nothing...')
 			return
@@ -85,14 +95,17 @@ class Import:
 		
 		
 class ImportInstances:
-	'''Collects all instances of a specific model based on exported excel sheet
-	the excel sheet should be created with Export function and contain instances of 
+	'''Collects all instances of a specific model based on exported excel 
+	sheet the excel sheet should be created with Export
+	function and contain instances of 
 	as specific model.
 	'''
 	def __init__(self,sheet,column_dict,model_name,names2model):
-		'''sheet 		excel sheet with information for an instance on each row
+		'''sheet 		excel sheet with information for an instance 
+						on each row
 		column dict 	a dictionary that contains the name of each column and
-						field type and optionally the related model (e.g. foreign key field)
+						field type and optionally the related model 
+						(e.g. foreign key field)
 		model_name 		name of the model
 		names2model 	dictionary translating model names to the actual model
 		'''
@@ -103,7 +116,8 @@ class ImportInstances:
 		self.names2model = names2model
 		self.sheet_values= list(sheet.values)
 		self.column_names = self.sheet_values[0]
-		self.coln2i = dict([[name,i] for i,name in enumerate(self.column_names)])
+		cn = self.column_names
+		self.coln2i = dict([[name,i] for i,name in enumerate(cn)])
 		self.import_instances = []
 	
 	def __repr__(self):
@@ -117,12 +131,15 @@ class ImportInstances:
 		
 
 	def make_instances(self):
-		'''create ImportInstances that create an instance based on a row in the excel sheet'''
+		'''create ImportInstances that create an instance based 
+		on a row in the excel sheet'''
 		self.import_instances, self.pk_not_in_db_instances = [], []
-		self.equal_instances,self.similar_instances, self.mismatch_instances = [], [], []
+		self.equal_instances,self.similar_instances=[] , []
+		self.mismatch_instances = []
 		self.complete, self.incomplete= [],[]
 		for row in self.sheet_values[1:]:
-			ii = ImportInstance(row,self.coln2i,self.column_dict,self.model,self.names2model)
+			ii = ImportInstance(row,self.coln2i,self.column_dict,
+				self.model,self.names2model)
 			ii.make_instance()
 			self.import_instances.append(ii)
 			if not ii.db_instance: self.pk_not_in_db_instances.append(ii)
@@ -141,7 +158,8 @@ class ImportInstances:
 			
 
 class ImportInstance:
-	'''import instance for a single row in an excel sheet corresponding to instance
+	'''import instance for a single row in an excel sheet 
+		corresponding to instance
 	of a specific model.'''
 	def __init__(self,row,coln2i,column_dict,model,names2model):
 		self.original_row = row
@@ -156,7 +174,8 @@ class ImportInstance:
 	def __repr__(self):
 		if hasattr(self,'instance'):
 			m = self.instance.__repr__()
-			m += ' complete: '+str(self.complete) + ' equal: ' + str(self.equal)
+			m += ' complete: '+str(self.complete) + ' equal: ' 
+			m += str(self.equal)
 			m += ' in db: ' + str(self.db_instance)
 		return m
 
@@ -193,7 +212,8 @@ class ImportInstance:
 		self.collect_relations()
 
 	def collect_relations(self):
-		'''collect instances of relation fields (foreign keys /many to many relations).
+		'''collect instances of relation fields 
+		(foreign keys /many to many relations).
 		collected in a dictionary of column name: instance
 		only if the column contains a value
 		'''
@@ -212,14 +232,17 @@ class ImportInstance:
 			self.related_instance[key] = []
 			pks = pk.split(';')
 			for pk in pks:
-				self.related_instance[key].append(self._get_related_instance(related_model,pk))
+				ri = self._get_related_instance(related_model,pk)
+				self.related_instance[key].append(ri)
 		else:
-			self.related_instance[key] = self._get_related_instance(related_model,pk)
+			ri = self._get_related_instance(related_model,pk)
+			self.related_instance[key] = ri
 
 	def _get_related_instance(self,related_model,pk):
-		'''check whether an related instance is present and returns it from the database.
-		if related instance is not present it returns the pk and set the related instance present
-		flag to false.
+		'''check whether an related instance is present 
+		and returns it from the database.
+		if related instance is not present it returns the pk and 
+		set the related instance present flag to false.
 		'''
 		try: return related_model.objects.get(pk=pk)
 		except: 
@@ -229,7 +252,8 @@ class ImportInstance:
 	def make_instance(self):
 		'''create an instance based on the excel row.
 		checks whether an instance with the same pk is in the database
-		checks whether the db instance is equal or similar to the created instance
+		checks whether the db instance is equal 
+		or similar to the created instance
 		similar is the case when only fields differ if they are empty or not
 		'''
 		if not hasattr(self,'values'):self.get_values()
@@ -238,14 +262,12 @@ class ImportInstance:
 		self.instance = self.model(**self.non_relational_fields)
 		self.instance.pk = self.values['pk']
 		i,dbi = self.instance, self.db_instance
-		self.equal,self.perc_same,self.similar,self.perc_similar = compare_instances(i,dbi)
-
-
+		s = self
+		s.equal,s.perc_same,s.similar,s.perc_similar=compare_instances(i,dbi)
 
 	@property
 	def complete(self):
 		return self.all_related_instance_present
-
 
 
 def save_instance(self,force =False):
