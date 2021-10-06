@@ -1,6 +1,6 @@
 from django import db
-from locations.models import Location, LocationType, LocationStatus, LocationPrecision
-from locations.models import LocationRelation 
+from locations.models import Location, LocationType, LocationStatus 
+from locations.models import LocationPrecision, LocationRelation
 import pandas as pd
 from utils.model_util import info
 
@@ -59,7 +59,8 @@ class country_info(info):
 		'''set information from columns into attributes and create country
 		(code, name) tuple.'''
 		assert type(line) == list, 'input should be list ' + str(line)
-		assert len(line) == 19, 'lenght should be 19 is: ' + str(len(line)) +' '+str(line)
+		m = 'lenght should be 19 is: ' + str(len(line)) +' '+str(line)
+		assert len(line) == 19,m 
 		self.line = line
 		m = 'iso,iso3,iso_numeric,fips,country,captial,area_km,population'
 		m += ',continent,tld,currency_code,currency_name,phone'
@@ -91,7 +92,8 @@ class admin_info(info):
 		level should be set to the administration level of geonames
 		higher number is a more specific region'''
 		assert type(line) == list, 'input should be list '+str(line)
-		assert len(line) == 4, 'lenght should be 4 is: ' +str(len(line)) +' '+str(line)
+		m = 'lenght should be 4 is: ' +str(len(line)) +' '+str(line)
+		assert len(line) == 4, m
 		self.line = line
 		self.level = level
 		m = 'admin_code,name,name_ascii,geonameid'
@@ -127,7 +129,8 @@ def country2continent_dict(countries):
 	ccd = code2continent_dict()
 	output = {} 
 	for continent in ccd.values():
-		assert continent not in output.keys(), str(continent) + ' already in '+str(keys)
+		m = str(continent) + ' already in '+str(keys)
+		assert continent not in output.keys(),m 
 		output[continent] = []
 		for country in countries:
 			name = country.country
@@ -218,24 +221,36 @@ default_countries += ',Portugal,Austria,Denmark,Norway,Sweden,Finland,Belgium'
 default_countries += ',Luxembourg,Ireland,Poland,slovenia'
 default_countries = default_countries.split(',')
 
-exclud_countries = 'Antigua and Barbuda,Anguilla,Antartica,American Samoa,Aland Islands'
+exclud_countries = 'Antigua and Barbuda,Anguilla,Antartica,American Samoa'
+exclud_countries +=',Aland Islands,Falkland Islands'
 exclud_countries += ',Saint Barthelemy,Bouvet Island,Seychelles,French Polynesia'
-exclud_countries += ',Cocos Islands,Cabo Verde,Christmas Island,Fiji,Falkland Islands'
-exclud_countries += ',Micronesia,FaroeIslands,South Georgia and the South Sandwich Islands'
-exclud_countries += ',Heard Island and McDonald Islands,British Indian Ocean Territory'
-exclud_countries += ',Kiribati,Comoros,Saint Kitts and Nevis,Saint Martin,Marshall Islands'
-exclud_countries += ',Northern Mariana Islands,Martinique,Montserrat,Mauritius,Maldives'
-exclud_countries += ',New Caledonia,Norfolk Island,Nauru,Niue,Saint Pierre and Miquelon'
-exclud_countries += ',Reunion,Solomon Islands,Saint Helena,Svalbard and Jan Mayen,San Marino'
+exclud_countries += ',Cocos Islands,Cabo Verde,Christmas Island,Fiji'
+exclud_countries += ',Micronesia,FaroeIslands'
+exclud_countries += ',South Georgia and the South Sandwich Islands'
+exclud_countries += ',Heard Island and McDonald Islands'
+exclud_countries += ',British Indian Ocean Territory'
+exclud_countries += ',Kiribati,Comoros,Saint Kitts and Nevis,Saint Martin'
+exclud_countries += ',Marshall Islands'
+exclud_countries += ',Northern Mariana Islands,Martinique,Montserrat,Mauritius'
+exclud_countries += ',Maldives'
+exclud_countries += ',New Caledonia,Norfolk Island,Nauru,Niue'
+exclud_countries += ',Saint Pierre and Miquelon'
+exclud_countries += ',Reunion,Solomon Islands,Saint Helena'
+exclud_countries += ',Svalbard and Jan Mayen,San Marino'
 exclud_countries += ',Sao Tome and Principe,Eswatini,Turks and Caicos Islands'
-exclud_countries += ',French Southern Territories,Tokelau,Timor Leste,Tonga,Trinidad and Tobago'
-exclud_countries += ',Tuvalu,United States Minor Outlying Islands,Saint Vincent and the Grenadines'
-exclud_countries += ',Vanuatu,Wallis and Futuna,Samoa,Mayotte,Netherlands Antilles'
-exclud_countries += ',Puerto Rico,British Virgin Islands,U.S. Virgin Islands,Saint Lucia'
+exclud_countries += ',French Southern Territories,Tokelau,Timor Leste,Tonga'
+exclud_countries += ',Trinidad and Tobago'
+exclud_countries += ',Tuvalu,United States Minor Outlying Islands'
+exclud_countries += ',Saint Vincent and the Grenadines'
+exclud_countries += ',Vanuatu,Wallis and Futuna,Samoa,Mayotte'
+exclud_countries += ',Netherlands Antilles'
+exclud_countries += ',Puerto Rico,British Virgin Islands'
+exclud_countries += ',U.S. Virgin Islands,Saint Lucia'
 exclud_countries = exclud_countries.split(',')
 exclud_countries.append('Bonaire, Saint Eustatius and Saba ')
 
-all_countries = [c.country for c in make_countries() if c.country not in exclud_countries]
+ec = exclud_countries
+all_countries = [c.country for c in make_countries() if c.country not in ec]
 
 def make_country2city_dict(countries,cities):
 	cd,cld = {},{}
@@ -394,11 +409,134 @@ def check_region_present(filename = 'data/region_names.xlsx', cities = None):
 		admins = country2admin[country]
 		regions = [i[0] for i in xls.parse(country).values.tolist() if i]
 		print(country,admins,regions)
-		country2missing_region[country], country2present_region[country] = [] , []
+		country2missing_region[country], country2present_region[country]=[],[]
 		for region in regions:
-			if region not in admins: country2missing_region[country].append(region)
+			if region not in admins: 
+				country2missing_region[country].append(region)
 			else: country2present_region[country].append(region)
 	return missing_countries,country2missing_region,country2present_region
+
+
+# add missing region locations (only mentioned in geoinformation) to db
+def find_locations_region_not_in_db():
+	l = Location.objects.all()
+	linked_to_region = [x for x in l if x.region and not x.contained_by_region]
+	return linked_to_region
+
+def find_locations_country_not_in_db():
+	l = Location.objects.all()
+	linked_to_country=[x for x in l if x.country and not x.contained_by_country]
+	return linked_to_country
+
+def add_country_and_link(country_name,location, verbose = True):
+	country = Location.objects.filter(name=country_name,
+		location_type__name = 'country')
+	location_type = LocationType.objects.get(name = 'country')
+	if len(country) < 1:
+		if verbose:print('adding',country_name,'to db')
+		country = Location(name= country_name, location_type=location_type)
+		country.save()
+	if len(country) > 1:
+		raise ValueError('found multiple entries in db',country)
+	else: country = country[0]
+	add_relation(container=country, contained = location, 
+		container_type = 'country')
+	
+	
+
+def add_region_and_link(region_name,location, verbose = True):
+	'''adding a region location to database'''
+	region = Location.objects.filter(name=region_name, 
+		location_type__name='region')
+	location_type = LocationType.objects.get(name='region')
+	if len(region) < 1:
+		# if the region is not in the database add it
+		if verbose:print('adding',region_name,'to db')
+		region= Location(name = region_name,location_type = location_type)
+		region.save()
+		if location.country:
+			# if the location has country information add it to the region
+			country = Location.objects.get(name = location.country,
+				location_type__name='country')
+			lr = LocationRelation(container=country, contained=region)
+			lr.save()
+		print('adding region country relation to db:',lr)
+	elif len(region) > 1: 
+		# if there are multiple regions with the same name, select one with same 
+		# country
+		print('found multiple regions:',region)
+		r = False
+		if location.country:
+			for reg in region:
+				if reg.country == location.country: r = reg
+		else:  
+			for reg in region:
+				if reg.country == '': r = reg
+		if not r: raise ValueError('could not match region',region)
+		else: 
+			print('selected region linked to country:',region.country)
+			print('identical to location country:',location.country)
+			region = r
+	else:
+		region = region[0]
+		add_relation(container = region, contained = location, 
+			container_type = 'region')
+
+def add_relation(container,contained,container_type,verbose=True):
+	lr_check = LocationRelation.objects.filter(container=container,
+		contained=contained)
+	if lr_check:
+		print(container_type,'location relation already exists in db:',lr_check)
+		return
+	lr = LocationRelation(container=container, contained=contained)
+	lr.save()
+	if verbose:
+		print('adding',container_type,'location relation to db:')
+		print(lr)
+	
+def add_location_region_to_db(location,verbose = True):
+	''' add region relation to this location if it is not present in the 
+	database and if there is region information on this location.'''
+	if location.contained_by_region: # this check database region relation
+		if verbose:
+			print(location,'region relation:',location.region, 'already in db')
+		return
+	if not location.region: 
+		# this falls back to geo information and uses region info
+		# potentially not in the database
+		if verbose:print('no region associated with location:',location)
+		return
+	# there is region information not in database, adding this to database
+	region_name = location.region
+	add_region_and_link(region_name,location,verbose)
+
+def add_location_country_to_db(location,verbose = True):
+	if location.contained_by_country:
+		if verbose:
+			print(location,'country relation:',location.region, 'already in db')
+		return
+	if not location.region:
+		if verbose:print('no country associated with location:',location)
+		return
+	country_name = location.country
+	add_country_and_link(country_name,location,verbose)
+
+
+def add_all_location_regions_to_db(verbose = True):
+	''' add all region location relation to the database. '''
+	locations =Location.objects.all()
+	nlocations = locations.count()
+	for i,location in enumerate(locations):
+		if location.location_type.name == 'city':
+			print('handling',location,i,nlocations)
+			add_location_region_to_db(location)
+		else:print('skipping',location,location)
+
+# ----
+
+		
+	
+	
 		
 		
 
@@ -409,21 +547,31 @@ The main 'geoname' table has the following fields :
 ---------------------------------------------------
 geonameid         : integer id of record in geonames database
 name              : name of geographical point (utf8) varchar(200)
-asciiname         : name of geographical point in plain ascii characters, varchar(200)
-alternatenames    : alternatenames, comma separated, ascii names automatically transliterated, convenience attribute from alternatename table, varchar(10000)
+asciiname         : name of geographical point in plain ascii characters, varchar
+					(200)
+alternatenames    : alternatenames, comma separated, ascii names automatically 
+					transliterated, convenience attribute from alternatename 
+					table, varchar(10000)
 latitude          : latitude in decimal degrees (wgs84)
 longitude         : longitude in decimal degrees (wgs84)
 feature class     : see http://www.geonames.org/export/codes.html, char(1)
 feature code      : see http://www.geonames.org/export/codes.html, varchar(10)
 country code      : ISO-3166 2-letter country code, 2 characters
-cc2               : alternate country codes, comma separated, ISO-3166 2-letter country code, 200 characters
-admin1 code       : fipscode (subject to change to iso code), see exceptions below, see file admin1Codes.txt for display names of this code; varchar(20)
-admin2 code       : code for the second administrative division, a county in the US, see file admin2Codes.txt; varchar(80) 
+cc2               : alternate country codes, comma separated, ISO-3166 
+					2-letter country code, 200 characters
+admin1 code       : fipscode (subject to change to iso code), see exceptions 
+					below, see file admin1Codes.txt for display names of this 
+					code; varchar(20)
+admin2 code       : code for the second administrative division, a county in 
+					the US, see file admin2Codes.txt; varchar(80) 
 admin3 code       : code for third level administrative division, varchar(20)
 admin4 code       : code for fourth level administrative division, varchar(20)
 population        : bigint (8 byte int) 
 elevation         : in meters, integer
-dem               : digital elevation model, srtm3 or gtopo30, average elevation of 3''x3'' (ca 90mx90m) or 30''x30'' (ca 900mx900m) area in meters, integer. srtm processed by cgiar/ciat.
+dem               : digital elevation model, srtm3 or gtopo30, average elevation 
+					of 3''x3'' (ca 90mx90m) or 30''x30'' (ca 900mx900m) area 
+					in meters, integer. srtm processed by cgiar/ciat.
 timezone          : the iana timezone id (see file timeZone.txt) varchar(40)
 modification date : date of last modification in yyyy-MM-dd format
+
 '''
