@@ -5,26 +5,31 @@ import time
 
 class Search:
 	'''search a django model on all fields or a subset with Q objects'''
-	def __init__(self,request=None, model_name='',app_name='',query=None, max_entries=500,
-		active_fields = None,special_terms = None):
+	def __init__(self,request=None, model_name='',app_name='',query=None, 
+		max_entries=500,active_fields = None,special_terms = None):
 		'''search object to filter django models
 		query 				search terms provided by user
 		search_fields 		field set to restrict search (obsolete?)
 		model_name 			name of the django model
 		app_name 			name of the app of the model
-		max_entries 		restrict the number of entries in the search result to speed up 
+		max_entries 		restrict the number of entries in the search 
+							result to speed up 
 							rendering
 		active_fields 		extension the set the active field 
 							(can alternetively be done with flags in the query)
-							used in conjunction with buttons that set fields as active or not active
+							used in conjunction with buttons that set fields as 
+							active or not active
 		special_terms 		extension of setting search mode 
-							i.e. combining words or not / combining search fields or not
+							i.e. combining words or not / 
+							combining search fields or not
 							(can alternatively be done with flags in the query
-							used in conjunction with buttons that set the special terms 
+							used in conjunction with buttons that set the 
+							special terms 
 							active or not
 		'''
 		if query:
-			self.query = Query(query=query,active_fields = active_fields,special_terms=special_terms)
+			self.query = Query(query=query,active_fields = active_fields,
+				special_terms=special_terms)
 			self.order = Order(order=get_foreign_keydict()[model_name.lower()])
 		else:
 			self.request = request
@@ -43,7 +48,8 @@ class Search:
 		self.notes = 'Search Fields: (' + ','.join(self.active_fields) + ')'
 
 	def select_fields(self):
-		'''select fields if one or more fields are specified, otherwise all fields
+		'''select fields if one or more fields are specified, 
+		otherwise all fields
 		are searched (except those fields that are exclude by default e.g. id
 		'''
 		if self.query.fields and self.query.fields != ['']:
@@ -52,7 +58,8 @@ class Search:
 				else: field.include = False
 
 	def check_and_or(self, and_or):
-		'''set whether the query should match in for all fields or for one of the fields
+		'''set whether the query should match in for all fields or 
+		for one of the fields
 		'''
 		if and_or == '': 
 			st = self.query.special_terms
@@ -67,7 +74,9 @@ class Search:
 		self.combine = self.query.combine if combine == None else combine
 		if self.combine:
 			self.notes += '\ncombined query term: ' + self.query.clean_query
-		else: self.notes += '\nseperate query terms: ' + ', '.join(self.query.query_terms)
+		else: 
+			self.notes += '\nseperate query terms: ' 
+			self.notes +=  ', '.join(self.query.query_terms)
 
 	def check_completeness_approval(self):
 		'''check whether complete and or approval should be checked.
@@ -81,7 +90,8 @@ class Search:
 			self.notes += '\napproval: ' + str(self.query.approval)
 		if self.query.incompleteness !=None: # whether an issue was flagged 
 			self.result = self.result.filter(incomplete=self.query.incompleteness)
-			self.notes += '\nincompleteness (issue): ' + str(self.query.incompleteness)
+			self.notes += '\nincompleteness (issue): ' 
+			self.notes += str(self.query.incompleteness)
 		print(self.result,54321)
 
 	def exclude_doubles(self):
@@ -106,7 +116,8 @@ class Search:
 		self.notes += '\nordered in ' + self.order.direction + ' order'
 
 	def select_empty(self):
-		'''selects those instance that do not have a value in the specified fields'''
+		'''selects those instance that do not have a value in the specified 
+		fields'''
 		o = []
 		start = time.time()
 		print(self.active_fields,3333)
@@ -121,7 +132,7 @@ class Search:
 				for field in self.active_fields:
 					if field in empty_fields:ok =True 
 			if ok: o.append(instance)
-		print('duration:',time.time()-start)
+		print('selecting empty instances duration:',delta(start))
 		self.result = o
 					
 			
@@ -130,12 +141,15 @@ class Search:
 		'''method to create q objects and filter instance from the database
 		option 		search term for filtering, default capital insensitive search
 		and_or 		whether q objects have an and/or relation
-		seperate 	whether the words in the query should be searched seperately or not
+		seperate 	whether the words in the query should be searched 
+					seperately or not
 		'''
 		start = time.time()
 		if option == None: option = self.option
 		self.check_and_or(and_or)
+		print('and or check:',delta(start),'seconds')
 		self.check_combine(combine)
+		print('combine check:',delta(start),'seconds')
 		self.qs = []
 		for field in self.fields:
 			if field.include: 
@@ -145,22 +159,34 @@ class Search:
 				else:	
 					for term in self.query.query_terms:
 						self.qs.append(field.create_q(term=term,option=option))
+		print('preparing q:',delta(start),'seconds')
 		self.q = Q()
 		for qobject in self.qs:
 			if self.and_or == 'and': self.q &= qobject
 			else: self.q |= qobject
+		print('q made:',delta(start),'seconds')
 		self.result = self.model.objects.filter(self.q)
+		print('filtering with q:',delta(start),'seconds')
 		self.check_completeness_approval()
+		print('check completeness approval:',delta(start),'seconds')
 		self.set_ordering_and_direction()
-		#self.exclude_doubles() # returns a list of unique instances, commented out because it is very slow
+		print('ordering direction:',delta(start),'seconds')
+		#self.exclude_doubles() 
+		# returns a list of unique instances, 
+		# commented out because it is very slow
 		if 'empty' in self.query.special_terms:
 			print('selecting empty fields in fields:',self.active_fields)
 			self.select_empty()	
-		self.nentries_found = len(self.result)
+		print('empty selection:',delta(start),'seconds')
+		self.nentries_found = self.result.count()
+		print('counting entries:',delta(start),'seconds')
 		self.nentries = '# Entries: ' + str(self.nentries_found) 
 		if self.nentries_found > self.max_entries:
-			self.nentries += ' (truncated at ' + str(self.max_entries) + ' entries)'
+			self.nentries += ' (truncated at '  
+			self.nentries +=  str(self.max_entries) + ' entries)'
 		temp =self.result[:self.max_entries]
+		print('selecting max entries:',delta(start),'seconds')
+		print('filtering took:',delta(start),'seconds')
 		return temp
 
 	@property
@@ -170,7 +196,8 @@ class Search:
 
 
 class Query:
-	'''class to parse a http request extract query and extract relevant information.'''
+	'''class to parse a http request extract query and extract relevant 
+	information.'''
 	def __init__(self,request=None, model_name='',query='', active_fields = None,
 		special_terms = None):
 		'''individual words and special terms are extracted from the query.
@@ -189,16 +216,21 @@ class Query:
 		self.query_terms = [w for w in self.words if w and w[0] not in ['*','$']]
 		self.clean_query = ' '.join(self.query_terms)
 		self.extract_field_names()
-		#set the fields and special terms provided in the active_fields & special_terms
+		#set the fields and special terms provided in the 
+		#active_fields & special_terms
 		#i.e. not in the query itself
 		if active_fields and type(active_fields) == list:
 			self.fields.extend(active_fields)
 		self.extract_special_terms(special_terms)
+		if not query and not active_fields and not special_terms:
+			self.empty = True
+		else: self.empty = False
 	
 
 	def extract_field_names(self):
 		'''set the fields that should be active for the search
-		if none are set all fields are active except the default excluded ones e.g. id
+		if none are set all fields are active except the default 
+		excluded ones e.g. id
 		'''
 		temp= [w[1:] for w in self.words if len(w) > 1 and w[0] == '$']
 		self.field_term, self.fields= [],[]
@@ -209,7 +241,9 @@ class Query:
 	def extract_special_terms(self,special_terms):
 		'''set the special terms that should active for the search
 		'''
-		self.special_terms = [w[1:].lower() for w in self.words if len(w) > 1 and w[0] == '*']
+		 
+		x = [w[1:].lower() for w in self.words if len(w) > 1 and w[0] == '*']
+		self.special_terms = x
 		if special_terms and type(special_terms) == list:
 			self.special_terms.extend(special_terms)
 		self.completeness,self.approval,self.incompleteness = None, None, None
@@ -220,7 +254,8 @@ class Query:
 			self.completeness = True
 		elif 'issue' in self.special_terms:
 			self.incompleteness = True
-		if 'combine' in self.special_terms or 'combine words' in self.special_terms:
+		st = self.special_terms
+		if 'combine' in st or 'combine words' in st:
 			self.combine = True
 		else: self.combine = False
 		if 'exact' in self.special_terms:self.option ='iexact'
@@ -233,8 +268,9 @@ class Field:
 		'''representation of a field on a django model
 		name 			the name of the field on the model 	e.g. name or title
 		description 	djangos description of a field to set the field type
-						this allows for the exclusion of certain fields because you
-						cannot filter on them
+						this allows for the exclusion of certain fields because 
+						you cannot filter on them
+						
 		'''
 		self.name = name
 		self.description = description
@@ -270,8 +306,10 @@ class Field:
 			setattr(self,ftd[name],v)
 
 	def check_relation(self):
-		'''checks whether a field is a foreign key or m2m and creates the full name
-		variable to end up with a field to be filtered on (whether it is a relational
+		'''checks whether a field is a foreign key or m2m and creates the 
+		full name
+		variable to end up with a field to be filtered on 
+		(whether it is a relational
 		field or not.'''
 		self.relation = True if self.fk or self.m2m else False
 		fkd = get_foreign_keydict()
@@ -293,8 +331,8 @@ class Field:
 
 class Order:
 	def __init__(self,request=None, model_name=None,order=''):
-		'''get the order and direction from the request and set it in such a way that it 
-		can be used in a filter call.
+		'''get the order and direction from the request and set it in such a 
+		way that it can be used in a filter call.
 		'''
 		if order:
 			self.order_by = order
@@ -354,17 +392,14 @@ def get_foreign_keydict():
 	'''for foreignkey fields, map the model name to the field to search on
 	e.g. for publication search on the field title: publication__title
 	'''
-	m = 'publication:title,text:title,illustration:caption,publisher:name,location:name'
-	m += ',person:first_name,movement:name,periodical:title,language:name,genre:name'
+	m = 'publication:title,text:title,illustration:caption'
+	m += ',publisher:name,location:name'
+	m += ',person:first_name,movement:name,periodical:title,language:name'
+	m += ',genre:name'
 	m += ',category:name,movement_type:name,form:name,userloc:name,loc_type:name'
 	m += ',geoloc:name,style:name,figure:name,birth_place:name,death_place:name'
 	return make_dict(m)
 
 
-'''
-	publications = Publication.objects.filter(
-		Q(title__icontains=query) | eval('Q(form__name__icontains=query)') |
-		Q(publisher__name__icontains=query) | Q(location__name__icontains=query)).order_by(Lower(order_by))
-'''
-def delta(start,x):
-	print(time.time() - start, x)
+def delta(start):
+	return time.time() - start
