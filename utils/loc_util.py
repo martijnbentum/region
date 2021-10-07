@@ -522,15 +522,37 @@ def add_location_country_to_db(location,verbose = True):
 	add_country_and_link(country_name,location,verbose)
 
 
-def add_all_location_regions_to_db(verbose = True):
+def add_all_location_countries_to_db(verbose = True, locations = None):
+	if not locations: locations =Location.objects.all()
+	nlocations = locations.count()
+	error = []
+	for i, location in enumerate(locations):
+		if not location.location_type:
+			error.append(location)
+			continue
+		if location.location_type.name == 'city':
+			print('handling',i,nlocations,location)
+			add_location_country_to_db(location,verbose)
+	return error
+	
+
+def add_all_location_regions_to_db(verbose = True, add_countries = False):
 	''' add all region location relation to the database. '''
 	locations =Location.objects.all()
+	region_error, country_error = [], []
+	if add_countries: 
+		country_error = add_all_location_countries_to_db(verbose,locations)
 	nlocations = locations.count()
 	for i,location in enumerate(locations):
+		if not location.location_type:
+			region_error.append(location)
+			continue
 		if location.location_type.name == 'city':
 			print('handling',location,i,nlocations)
 			add_location_region_to_db(location)
 		else:print('skipping',location,location)
+	if add_countries: return region_error, country_error
+	return region_error
 
 # ----
 
