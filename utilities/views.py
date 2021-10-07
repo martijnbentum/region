@@ -57,6 +57,8 @@ def list_view(request, model_name, app_name, max_entries=500):
 	s = Search(request,model_name,app_name,active_fields=active_fields,
 		special_terms = special_terms, max_entries = max_entries)
 	instances= s.filter()
+	print('done filtering')
+	print('empty query:',s.query.empty)
 	var = {model_name.lower() +'_list':instances,
 		'page_name':model_name,
 		'order':s.order.order_by,'direction':s.order.direction,
