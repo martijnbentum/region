@@ -15,7 +15,7 @@ from .models import Comment
 from .forms import CommentForm, TimelineForm
 import json
 from utils.get_totals import get_totals
-
+import time
 
 def overview(request):
 	totals = get_totals()
@@ -79,11 +79,14 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 	assumes a 'add_{{model_name}}.html template and edit_{{model_name}} function
 	and {{model_name}}Form
 	'''
+	start = time.time()
 	names = formset_names
 	model = apps.get_model(app_name,model_name)
 	modelform = view_util.get_modelform(name_space,model_name+'Form')
+	print('get model and form',delta(start))
 	instance= model.objects.get(pk=instance_id) if instance_id else None
-	crud = Crud(instance) if instance else None
+	crud = Crud(instance) if instance and model_name != 'Location' else None
+	print('get crud',delta(start))
 	ffm, form = None, None
 	if request.method == 'POST':
 		focus, button = getfocus(request), getbutton(request)
@@ -91,6 +94,8 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 			return delete_model(request,name_space,model_name,app_name,instance_id)
 		copy_instance = copy_complete(instance) if button == 'saveas' and instance else False
 		form = modelform(request.POST, request.FILES, instance=instance)
+		print('made form in post',delta(start))
+		
 		if form.is_valid() or copy_instance:
 			print('form is valid: ',form.cleaned_data,type(form))
 			if not button == 'saveas':instance = form.save()
@@ -98,7 +103,9 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 			if view == 'complete':
 				ffm = FormsetFactoryManager(name_space,names,request,instance)
 				valid = ffm.save()
+				print('formset factory manager / form making done',delta(start))
 				if valid:
+					print('validated form',delta(start))
 					show_messages(request,button, model_name)
 					if button== 'add_another':
 						return HttpResponseRedirect(reverse(app_name+':add_'+model_name.lower()))
@@ -110,15 +117,21 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
 		else:
 			print('form invalid:',form.non_field_errors()[0])
 			show_messages(request,'form_invalid', model_name, form)
+
+	print('post part done',delta(start))
 	if not form: form = modelform(instance=instance)
 	if not ffm: ffm = FormsetFactoryManager(name_space,names,instance=instance)
+	print('(after post formset factory manager / form making done',delta(start))
 	tabs = make_tabs(model_name.lower(), focus_names = focus)
+	print('tabs made',delta(start))
 	page_name = 'Edit ' +model_name.lower() if instance_id else 'Add ' +model_name.lower()
 	helper = help_util.Helper(model_name=model_name)
+	print('helper made',delta(start))
 	args = {'form':form,'page_name':page_name,'crud':crud,'model_name':model_name,
 		'app_name':app_name,'tabs':tabs, 'view':view,'helper':helper.get_dict(),
 		'instance':instance}
 	args.update(ffm.dict)
+	print('arg made, start rendering',delta(start))
 	return render(request,app_name+'/add_' + model_name.lower() + '.html',args)
 		
 
@@ -273,3 +286,6 @@ def _handle_comment(instance,app_name,model_name,entry_pk,user_addressee,user_co
 	if not instance.user_commentator: instance.user_commentator=user_commentator
 	instance.save()
 	
+
+def delta(start):
+	return time.time() - start
