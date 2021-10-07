@@ -436,7 +436,7 @@ def add_country_and_link(country_name,location, verbose = True):
 		if verbose:print('adding',country_name,'to db')
 		country = Location(name= country_name, location_type=location_type)
 		country.save()
-	if len(country) > 1:
+	elif len(country) > 1:
 		raise ValueError('found multiple entries in db',country)
 	else: country = country[0]
 	add_relation(container=country, contained = location, 
