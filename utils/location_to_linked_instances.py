@@ -95,12 +95,13 @@ def get_instances_linked_to_locations(locations,instance_type,
 	return output
 			
 def get_instances_linked_to_locations_contained_in_location(location,
-	instance_type, use_publication_link = False):
-	print('searching linked instances for:',location)
-	presaved = _load_presaved(location,instance_type)
-	if presaved != False: 
-		print('returning presaved linked instances of type:',instance_type)
-		return presaved
+	instance_type, use_publication_link = False, use_presave = False):
+	if use_presave:
+		print('searching linked instances for:',location)
+		presaved = _load_presaved(location,instance_type)
+		if presaved != False: 
+			print('returning presaved linked instances of type:',instance_type)
+			return presaved
 	locations = [location]
 	locations.extend( [x.contained for x in location.container.all()] )
 	return get_instances_linked_to_locations(locations,instance_type,
@@ -112,11 +113,11 @@ def get_all_instances_linked_to_contained_location(location):
 	for instance_type in instance_types:
 		instances = []
 		i = get_instances_linked_to_locations_contained_in_location(location,
-			instance_type)
+			instance_type,use_presave = False)
 		instances.extend([x for x in i if x not in instances])
 		if instance_type == 'text':
 			ii=get_instances_linked_to_locations_contained_in_location(location,
-				instance_type, use_publication_link=True)
+				instance_type, use_publication_link=True,use_presave=False)
 			instances.extend([x for x in ii if x not in instances])
 		output[instance_type] = instance_list_to_repr(instances)
 		output[instance_type+'_pk'] = instance_list_to_pk(instances)
