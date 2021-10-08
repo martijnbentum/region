@@ -19,6 +19,8 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 		start = time.time()
 		print('pre saving instances linked to regions and countries')
+		print('removing previous saves')
+		os.system('rm ../location_container_instance_links/*_pk-*')
 		ltli._make_pre_save_instances_linked_to_contained_locations()
 		delta = time.time() -start
 		print('pre saving took: ',round(delta),' seconds')
