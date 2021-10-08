@@ -95,7 +95,7 @@ def get_instances_linked_to_locations(locations,instance_type,
 	return output
 			
 def get_instances_linked_to_locations_contained_in_location(location,
-	instance_type, use_publication_link = False, use_presave = False):
+	instance_type, use_publication_link = False, use_presave = True):
 	if use_presave:
 		print('searching linked instances for:',location)
 		presaved = _load_presaved(location,instance_type)
