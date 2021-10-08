@@ -137,6 +137,8 @@ def _make_pre_save_instances_linked_to_contained_locations():
 	print('handling all regions and countries with over 50 contained locations')
 	print(len(locations), 'satisfy this condition')
 	if not os.path.isdir(directory): os.mkdir(directory)
+	print('removing previous saves')
+	os.system('rm ../location_container_instance_links/*_pk-*')
 	for i,location in enumerate(locations):
 		print('handling location:',location,location.location_type.name)
 		print(i, len(locations))
