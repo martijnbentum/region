@@ -15,6 +15,7 @@ from .models import Comment
 from .forms import CommentForm, TimelineForm
 import json
 from utils.get_totals import get_totals
+from utils import location_to_linked_instances as ltli
 import time
 
 def overview(request):
@@ -30,13 +31,17 @@ def timeline(request):
 	if request.method == 'POST':
 		form = TimelineForm(request.POST, request.FILES)
 		if form.is_valid(): 
-			print(form.cleaned_data['model_name'])
 			mn = form.cleaned_data['model_name']
+			location = form.cleaned_data['location']
 			model = apps.get_model(mn.app_name,mn.model_name)
+			print('model:',model)
+			print('location:',location)
 	if model:
-		t = model.objects.all()
+		get = ltli.get_instances_linked_to_locations_contained_in_location
+		if location: instances = get(location,mn.model_name.lower()) 
+		else: instances = model.objects.all()
 		o = []
-		for i,x in enumerate(t):
+		for i,x in enumerate(instances):
 			dates = x.get_dates
 			if not dates: continue
 			for d in dates:
