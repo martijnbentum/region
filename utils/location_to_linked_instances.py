@@ -1,3 +1,5 @@
+from django.apps import apps
+import glob
 import os
 import string
 from locations.models import Location
@@ -5,6 +7,7 @@ import json
 from utils.model_util import instance2names
 
 instance_types = 'text,illustration,publication,periodical,movement,publisher'
+instance_types += ',person'
 instance_types = instance_types.split(',')
 directory = '../location_container_instance_links/'
 
@@ -40,7 +43,13 @@ def get_linked_instances_of_type(location, instance_type,use_publication_link=Fa
 		m += 'could not use secondary route through publication\n'
 		m += 'as ' + instance_type + ' is not text or illustration'
 		raise ValueError(m)
-	return list(getattr(location,relation_field).all())
+	instances = list(getattr(location,relation_field).all())
+	if instance_type == 'person':
+		output = []
+		for x in instances:
+			if x.person not in output:output.append(x.person)
+		return output
+	return instances
 
 def _get_linked_texts_through_publication_location(location):
 	'''text has a location field, but is also linked to an location via publication.
@@ -67,11 +76,11 @@ def _get_secondary_linked_instance_of_type(location, instance_type):
 		if instance_type == 'illustration':
 			temp = publication.illustrationpublicationrelation_set.all() 
 			illustrations = [x.illustration for x in temp if x.illustration]
-			output.extend( illustrations)
+			output.extend( [x for x in illustrations if x not in output])
 		elif instance_type == 'text':
 			temp = publication.textpublicationrelation_set.all() 
 			texts = [x.text for x in temp if x.text]
-			output.extend( texts )
+			output.extend( [x for x in texts if x not in output])
 		else: raise ValueError(instance_type,'should be text or illustration')
 	return output
 
@@ -82,11 +91,16 @@ def get_instances_linked_to_locations(locations,instance_type,
 		x = get_linked_instances_of_type(location,instance_type,use_publication_link)
 		if type(x) != list: 
 			raise ValueError(x, 'should be type list, type:',type(x))
-		output.extend(x) 
+		output.extend([instance for instance in x if instance not in output]) 
 	return output
 			
 def get_instances_linked_to_locations_contained_in_location(location,
 	instance_type, use_publication_link = False):
+	print('searching linked instances for:',location)
+	presaved = _load_presaved(location,instance_type)
+	if presaved != False: 
+		print('returning presaved linked instances of type:',instance_type)
+		return presaved
 	locations = [location]
 	locations.extend( [x.contained for x in location.container.all()] )
 	return get_instances_linked_to_locations(locations,instance_type,
@@ -154,6 +168,36 @@ def container_location_to_filename(location):
 	return n
 
 
+def _load_presaved(location,instance_type):
+	o = load_json(location)
+	if instance_type == 'all':return o
+	if o == False: return False
+	if o['ninstances'] == 0: return []
+	if instance_type not in o.keys():
+		print(instance_type, o.keys(),'could not find instance type in presave')
+		return False
+	if o[instance_type] == []: return []
+	app_name=o[instance_type + '_app_name']
+	model_name =o[instance_type + '_model_name']
+	print('loading model:',app_name, model_name)
+	model = apps.get_model(app_name,model_name)
+	instances = model.objects.filter(pk__in = o[instance_type + '_pk'])
+	if instances.count() != len(o[instance_type + '_pk']):
+		print('discrapency between presaved number',len(o[instance_type + '_pk']))
+		print('and number of instances returned from database:',instances.count())
+		print('presaved pk list:',o[instance_type + '_pk'])
+	return list(instances)
+
+
+def load_json(location):
+	filename = container_location_to_filename(location)
+	fn = glob.glob(filename + '*')
+	if not len(fn) ==1:
+		print(fn,'did not find a single filename, could not load presaved instances')
+		return False
+	fin = open(fn[0])
+	o = json.load(fin)
+	return o
 
 	
 	
