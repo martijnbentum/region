@@ -22,8 +22,23 @@
 			<td class="col-2">total:</th>
 			<td class="col-4">{{total}}</td>
 		</tr>
+		<tr class="d-flex">
+			<th class="col-4"></th>
+			<td class="col-2">countries represented in the database:</th>
+			<td class="col-4">
+			{% for country in countries %}
+				{% if forloop.last %}
+					{{country}}
+				{% else %}
+					{{country}}, 
+				{% endif %}
+			{% endfor %}
+			</td>
+		</tr>
 	</table>
 </div>
+	
+
 
 <style>
 .block {

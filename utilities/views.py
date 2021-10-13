@@ -14,14 +14,16 @@ from utilities.search import Search
 from .models import Comment
 from .forms import CommentForm, TimelineForm
 import json
-from utils.get_totals import get_totals
+from utils import get_totals as gt
 from utils import location_to_linked_instances as ltli
 import time
 
 def overview(request):
-	totals = get_totals()
+	totals = gt.get_totals()
 	total = sum(totals.values())
+	countries = gt.get_countries()
 	var = {'page_name':'overview','totals':totals, 'total':total}
+	var.update({'countries':countries})
 	return render(request,'utilities/overview.html',var)
 
 def timeline(request):
