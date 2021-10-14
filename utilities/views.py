@@ -22,8 +22,17 @@ def overview(request):
 	totals = gt.get_totals()
 	total = sum(totals.values())
 	countries = gt.get_countries()
+	perc_female_persons = gt.get_perc_female_persons()
+	perc_text_genres = gt.get_perc_text_genres()
+	perc_publication_types= gt.get_perc_publication_types()
+	perc_illustration_types= gt.get_perc_illustration_types()
+	perc_movement_types= gt.get_perc_movement_types()
 	var = {'page_name':'overview','totals':totals, 'total':total}
-	var.update({'countries':countries})
+	var.update({'countries':countries,'perc_female_persons':perc_female_persons})
+	var.update({'perc_text_genres':perc_text_genres})
+	var.update({'perc_publication_types':perc_publication_types})
+	var.update({'perc_illustration_types':perc_illustration_types})
+	var.update({'perc_movement_types':perc_movement_types})
 	return render(request,'utilities/overview.html',var)
 
 def timeline(request):

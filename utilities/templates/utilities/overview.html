@@ -11,28 +11,100 @@
 <div class="block">
 	<table class="table table-borderless center" id="form_table">
 		{% for key, value in totals.items %}
-			<tr class="d-flex">
-				<th class="col-4"></th>
-				<td class="col-2">{{key}}s:</th>
-				<td class="col-4">{{value}}</td>
-			</tr>
+			{% if key == 'person' %}
+				<tr class="d-flex">
+					<th class="col-2"></th>
+					<td class="col-2">{{key}}s:</th>
+					<td class="col-2">{{value}}</td>
+					<td class="col-6">
+						female <small>({{perc_female_persons}}%)</small>
+					</td>
+				</tr>
+			{% elif key == 'text' %}
+				<tr class="d-flex">
+					<th class="col-2"></th>
+					<td class="col-2">{{key}}s:</th>
+					<td class="col-2">{{value}}</td>
+					<td class="col-6">
+					{% for key, value in perc_text_genres.items %}
+						{% if not forloop.last %}
+							{{key}} <small>({{value}}%)</small>,
+						{% else %}
+							 {{key}} <small>({{value}}%)</small>
+						{% endif %}
+					{% endfor %}
+					</td>
+				</tr>
+			{% elif key == 'publication' %}
+				<tr class="d-flex">
+					<th class="col-2"></th>
+					<td class="col-2">{{key}}s:</th>
+					<td class="col-2">{{value}}</td>
+					<td class="col-6">
+					{% for key, value in perc_publication_types.items %}
+						{% if not forloop.last %}
+							{{key}} <small>({{value}}%)</small>,
+						{% else %}
+							 {{key}} <small>({{value}}%)</small>
+						{% endif %}
+					{% endfor %}
+					</td>
+				</tr>
+			{% elif key == 'illustration' %}
+				<tr class="d-flex">
+					<th class="col-2"></th>
+					<td class="col-2">{{key}}s:</th>
+					<td class="col-2">{{value}}</td>
+					<td class="col-6">
+					{% for key, value in perc_illustration_types.items %}
+						{% if not forloop.last %}
+							{{key}} <small>({{value}}%)</small>,
+						{% else %}
+							 {{key}} <small>({{value}}%)</small>
+						{% endif %}
+					{% endfor %}
+					</td>
+				</tr>
+			{% elif key == 'movement' %}
+				<tr class="d-flex">
+					<th class="col-2"></th>
+					<td class="col-2">{{key}}s:</th>
+					<td class="col-2">{{value}}</td>
+					<td class="col-6">
+					{% for key, value in perc_movement_types.items %}
+						{% if not forloop.last %}
+							{{key}} <small>({{value}}%)</small>,
+						{% else %}
+							 {{key}} <small>({{value}}%)</small>
+						{% endif %}
+					{% endfor %}
+					</td>
+				</tr>
+			{% else %}
+				<tr class="d-flex">
+					<th class="col-2"></th>
+					<td class="col-2">{{key}}s:</th>
+					<td class="col-2">{{value}}</td>
+				</tr>
+			{% endif %}
 		{% endfor %}
 		<tr class="d-flex">
-			<th class="col-4"></th>
+			<th class="col-2"></th>
 			<td class="col-2">total:</th>
 			<td class="col-4">{{total}}</td>
 		</tr>
 		<tr class="d-flex">
-			<th class="col-4"></th>
+			<th class="col-2"></th>
 			<td class="col-2">countries represented in the database:</th>
-			<td class="col-4">
-			{% for country in countries %}
-				{% if forloop.last %}
-					{{country}}
-				{% else %}
-					{{country}}, 
-				{% endif %}
-			{% endfor %}
+			<td class="col-2">{{countries|length}}</td>
+			<td class="col-6">
+				{% for key, value in countries.items %}
+					{% if not forloop.last %}
+						{{key}} <small>({{value}}%)</small>,
+					{% else %}
+						 {{key}} <small>({{value}}%)</small>
+					{% endif %}
+				{% endfor %}
 			</td>
 		</tr>
 	</table>
