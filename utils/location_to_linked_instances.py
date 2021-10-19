@@ -2,7 +2,6 @@ from django.apps import apps
 import glob
 import os
 import string
-from locations.models import Location
 import json
 from utils.model_util import instance2names
 
@@ -130,6 +129,7 @@ def get_all_instances_linked_to_contained_location(location):
 	return output
 
 def _make_pre_save_instances_linked_to_contained_locations():
+	Location= apps.get_model('locations','Location')
 	locations = list( Location.objects.filter(location_type__name='region') )
 	locations.extend( Location.objects.filter(location_type__name='country') )
 	print('found',len(locations),'countries and regions')
