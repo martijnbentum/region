@@ -1,3 +1,5 @@
+from .location_to_linked_instances import get_all_linked_instances
+from .model_util import get_all_instances
 from .model_util import instance2name, instance2names
 from django.apps import apps
 import random
@@ -32,11 +34,13 @@ def pop_up(instance,latlng=None, extra_information= ''):
 	m = ''
 	if hasattr(instance,'thumbnail'):
 		if instance.thumbnail.name:
-			m += '<img src="'+self.thumbnail.url+'" width="200" style="broder-radius:3">'
+			m += '<img src="'+self.thumbnail.url
+			m +='" width="200" style="broder-radius:3">'
 	m += instance2icon(instance)
 	m += '<p class="h6 mb-0 mt-1" style="color:'+instance2color(instance)+';">'
 	m += instance.instance_name+'</p>'
-	m += '<hr class="mt-1 mb-0" style="border:1px solid '+instance2color(instance)+';">'
+	m += '<hr class="mt-1 mb-0" style="border:1px solid '
+	m +=instance2color(instance)+';">'
 	m += extra_information
 
 	if instance.description:
@@ -45,7 +49,8 @@ def pop_up(instance,latlng=None, extra_information= ''):
 	if hasattr(instance,'play_field'):
 		link =  getattr(instance,getattr(intance,'play_field'))
 		if link:
-			m += '<a class = "btn btn-link btn-sm mt-1 pl-0 text-dark" target="_blank" href='
+			m += '<a class = "btn btn-link btn-sm mt-1 pl-0 text-dark"'
+			m += ' target="_blank" href='
 			m += link
 			m += 'role="button"><i class="fas fa-play"></i></a>'
 	m += instance2map_buttons(instance)
@@ -55,7 +60,8 @@ def pop_up(instance,latlng=None, extra_information= ''):
 def gps2latlng(gps,return_one = False):
 	'''converts string with gps coordinates to tuple(s) of floats
 	gps 		string with format '43.2, 4.2' or '5.3, 4.5 | 6.4, 3.1'
-	output 		tuple/list of tuples of floats (43.2, 4.2) or [(5.3, 4.5), (6.4, 3.1)] 
+	output 		tuple/list of tuples of floats 
+				(43.2, 4.2) or [(5.3, 4.5), (6.4, 3.1)] 
 	'''
 	try:
 		o = [eval(x) for x in gps.split(' | ')]
@@ -67,7 +73,8 @@ def gps2latlng(gps,return_one = False):
 	
 def latlng2gps(latlng):
 	'''converts tuple or list of tuples with gps coordinates to string
-	latlng 		tuple/list of tuples of floats (43.2, 4.2) or [(5.3, 4.5), (6.4, 3.1)] 
+	latlng 		tuple/list of tuples of floats 
+				(43.2, 4.2) or [(5.3, 4.5), (6.4, 3.1)] 
 	output 		string with format '43.2, 4.2' or '5.3, 4.5 | 6.4, 3.1'
 	'''
 	if type(latlng) == tuple and len(latlng) == 2:
@@ -99,18 +106,60 @@ def instance2map_buttons(instance):
 	m += '/'+app_name+'/edit_' + model_name.lower()+'/' + str(instance.pk) 
 	m += ' role="button"><i class="far fa-edit"></i></a>'
 	m += '<a class = "btn btn-link btn-sm mt-1 pl-0 text-dark"'# href='
-	# m += '/locations/show_links/'+app_name+'/'+ model_name.lower()+'/' + str(instance.pk) +'/'
 	m += ' onclick="getLinks()"'
 	m += ' role="button"><i class="fas fa-project-diagram"></i></a>'
 	return m
 
-names = 'text,illustration,publisher,publication,periodical,person,movement'.split(',')
+names = 'text,illustration,publisher,publication,periodical,person,movement'
+names = names.split(',')
 colors = '#0fba62,#5aa5c4,#e04eed,#ed4c72,#1e662a,#c92f04,#e39817'.split(',')
 icons ='far fa-file-alt,fa fa-picture-o,far fa-building,fa fa-book'
 icons +=',fa fa-newspaper-o,fa fa-male,fa fa-users'
-icons = ['<i class="'+icon+' fa-lg mt-2" aria-hidden="true"></i>' for icon in icons.split(',')]
+s =' fa-lg mt-2" aria-hidden="true"></i>'
+icons = ['<i class="'+icon+s for icon in icons.split(',')]
 color_dict,icon_dict ={}, {}
 for i,name in enumerate(names):
 	color_dict[name] = colors[i]
 	icon_dict[name] = icons[i]
+
+#---
+
+def _locaction_ids2location_instances(ids):
+	'''load location instances based on a list of ids'''
+	model = apps.get_model('locations','Location')
+	return model.objects.filter(pk__in = ids)
+
+def get_all_location_ids_dict(instances = None):
+	'''a dictionary with id numbers of location instances as values, with as keys
+	the modelnames of the instances they are linked to.
+	'''
+	if not instances: instances = get_all_instances()
+	d = {}
+	for instance in instances:
+		if not instance.loc_ids:continue
+		ids = list(map(int,instance.loc_ids.split(',')))
+		for i in ids:
+			if i not in d.keys(): d[i] = {'count':0,'model_names':[]}
+			app_name, model_name = instance2names(instance)
+			name = app_name + '_' + model_name
+			if name not in d[i].keys():d[i][name] = []
+			d[i][name].append(instance.pk)
+			d[i]['count'] += 1
+			if model_name not in d[i]['model_names']:
+				d[i]['model_names'].append(model_name)
+	return d
+					
+
+def get_all_locs_linked_to_instances(ids = None, instances = None):
+	'''get all location instances that are linked to an instance 
+	(e.g. person or text)
+	'''
+	if not ids and not instances: instances = get_all_instances()
+	if not ids:
+		ids = ','.join([x.loc_ids for x in instances if x.loc_ids]).split(',')
+		ids = list(set(ids))
+	return _locs_ids2loc_instances(ids)
+
+def location2linked_instances(location):
+	return get_all_linked_instances(location)
 		

@@ -39,6 +39,7 @@ class Item(models.Model):
 	copyright = models.ForeignKey(CopyRight,**dargs)
 	gps = models.CharField(max_length=300,default ='')
 	gps_names = models.CharField(max_length=4000,default='')
+	loc_ids = models.CharField(max_length=300,default ='')
 	group_tags= models.ManyToManyField(GroupTag,blank=True, default= None)
 	location_field = 'location'
 	
@@ -63,9 +64,11 @@ class Item(models.Model):
 		if locations:
 			gps = ' | '.join([l.gps for l in locations if l.gps])
 			names= ' | '.join([l.name for l in locations if l.gps])
+			ids = ','.join([str(l.pk) for l in locations])
 			self.gps = gps
 			self.gps_names = names
-		else: self.gps, self.gps_names = '',''
+			self.loc_ids = ids
+		else: self.gps, self.gps_names, self.loc_ids = '','',''
 
 	def empty_fields(self,fields = []):
 		return get_empty_fields(self,fields, default_is_empty = True)

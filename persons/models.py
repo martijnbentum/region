@@ -49,6 +49,7 @@ class Person(models.Model, info):
 	location_field = 'birth_place'
 	gps = models.CharField(max_length=300,default ='')
 	gps_names = models.CharField(max_length=4000,default='')
+	loc_ids = models.CharField(max_length=300,default ='')
 	group_tags= models.ManyToManyField(GroupTag,blank=True, default= None)
 	source_link= models.CharField(max_length=1000,blank=True,null=True)
 	
@@ -74,9 +75,11 @@ class Person(models.Model, info):
 		if locations:
 			gps = ' | '.join([l.gps for l in locations if l.gps])
 			names= ' | '.join([l.name for l in locations if l.gps])
+			ids = ','.join([str(l.pk) for l in locations])
 			self.gps = gps
 			self.gps_names = names
-		else: self.gps, self.gps_names = '',''
+			self.loc_ids = ids
+		else: self.gps, self.gps_names,self.loc_ids = '','',''
 
 	def _set_full_name(self):
 		full_name = self.name 
@@ -261,6 +264,7 @@ class Movement(models.Model, info):
 	incomplete = models.BooleanField(default=False)
 	gps = models.CharField(max_length=300,default ='')
 	gps_names = models.CharField(max_length=4000,default='')
+	loc_ids = models.CharField(max_length=300,default ='')
 	location_field = 'location'
 	person = models.CharField(max_length=2000,blank=True,null=True)
 
@@ -300,9 +304,11 @@ class Movement(models.Model, info):
 		if locations:
 			gps = ' | '.join([l.gps for l in locations if l.gps])
 			names= ' | '.join([l.name for l in locations if l.gps])
+			ids = ','.join([str(l.pk) for l in locations])
 			self.gps = gps
 			self.gps_names = names
-		else: self.gps, self.gps_names = '',''
+			self.loc_ids = ids
+		else: self.gps, self.gps_names,self.loc_ids = '','',''
 
 	class Meta:
 		unique_together = 'name,founded'.split(',')
