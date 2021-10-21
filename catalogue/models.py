@@ -3,15 +3,18 @@ from django.conf import settings
 from django.utils import timezone
 import glob
 from locations.models import Location
-from utilities.models import Language, RelationModel, SimpleModel, GroupTag
-from utils.model_util import id_generator, info,instance2names, get_empty_fields
-from utils.map_util import field2locations, pop_up, get_location_name,gps2latlng
+from utilities.models import Language, RelationModel, SimpleModel 
+from utilities.models import GroupTag
+from utils.model_util import id_generator, info,instance2names
+from utils.model_util import get_empty_fields,gps2latlng
+from utils.map_util import field2locations, pop_up, get_location_name
 import os
 from partial_date import PartialDateField
 import time
 
 def make_simple_model(name):
-	'''creates a new model based on name, uses the abstract class SimpleModel.
+	'''creates a new model based on name, 
+	uses the abstract class SimpleModel.
 	'''
 	exec('class '+name + '(SimpleModel,info):\n\tpass',globals())
 
@@ -124,6 +127,14 @@ class Item(models.Model):
 	class Meta:
 		abstract = True
 
+	@property
+	def sidebar_info(self):
+		d = {}
+		d['name'] = self.instance_name
+		d['date'] = ''
+		d['extra'] = ''
+		d['identifier'] = self.identifier
+
 
 
 # --- non simple / non relational catalogue models ---
@@ -136,7 +147,6 @@ class Text(Item, info):
 	language = models.ForeignKey(Language, **dargs)
 	genre = models.ForeignKey(Genre, **dargs)
 	text_type = models.ForeignKey(TextType, **dargs)
-	# upload = models.FileField(upload_to='texts/',blank=True,null=True) # ?
 	relations = models.ManyToManyField('self',
 		through='TextTextRelation',symmetrical=False, default=None)
 	location= models.ManyToManyField(Location,blank=True, default= None)
@@ -160,11 +170,13 @@ class Text(Item, info):
 
 	def pop_up(self,latlng):
 		m = ''
-		if self.language: m += '<p><small>language <b>' + self.language.name 
+		if self.language: 
+			m += '<p><small>language <b>' + self.language.name 
 		if self.language and self.genre: m += '</b>, '
 		else: m += '</b></small></p>'
 		if not m and self.genre: m += '<p><small>'
-		if self.genre: m += 'genre <b>' + self.genre.name + '</b></small></p>'
+		if self.genre: 
+			m += 'genre <b>' + self.genre.name + '</b></small></p>'
 		return pop_up(self,latlng,extra_information=m)
 
 	@property
