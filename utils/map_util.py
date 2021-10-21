@@ -124,22 +124,29 @@ for i,name in enumerate(names):
 
 #---
 
-def _locaction_ids2location_instances(ids):
+def _location_ids2location_instances(ids):
 	'''load location instances based on a list of ids'''
 	model = apps.get_model('locations','Location')
 	return model.objects.filter(pk__in = ids)
 
-def get_all_location_ids_dict(instances = None):
+def get_all_location_ids_dict(instances = None,add_names_gps = False):
 	'''a dictionary with id numbers of location instances as values, with as keys
 	the modelnames of the instances they are linked to.
 	'''
 	if not instances: instances = get_all_instances()
 	d = {}
+	if add_names_gps: 
+		locations = get_all_locs_linked_to_instances(instances=instances)
+		location_dict = dict([[x.pk,x] for x in locations])
 	for instance in instances:
 		if not instance.loc_ids:continue
 		ids = list(map(int,instance.loc_ids.split(',')))
 		for i in ids:
-			if i not in d.keys(): d[i] = {'count':0,'model_names':[]}
+			if i not in d.keys(): 
+				d[i] = {'count':0,'model_names':[]}
+				if add_names_gps:
+					l = location_dict[i]
+					d[i].update( {'name':l.name,'gps':l.gps} )
 			app_name, model_name = instance2names(instance)
 			name = app_name + '_' + model_name
 			if name not in d[i].keys():d[i][name] = []
@@ -158,7 +165,7 @@ def get_all_locs_linked_to_instances(ids = None, instances = None):
 	if not ids:
 		ids = ','.join([x.loc_ids for x in instances if x.loc_ids]).split(',')
 		ids = list(set(ids))
-	return _locs_ids2loc_instances(ids)
+	return _location_ids2location_instances(ids)
 
 def location2linked_instances(location):
 	return get_all_linked_instances(location)
