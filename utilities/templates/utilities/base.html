@@ -3,9 +3,14 @@
     <head>
         <meta charset="utf-8">
         <!-- Latest compiled and minified CSS -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-        <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+
+		<link rel="stylesheet" 
+			href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+		<link 
+			href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" 
+			rel="stylesheet">
+		<link rel="stylesheet" 
+			href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
         <!-- jQuery library -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <!-- Popper JS -->
@@ -32,14 +37,17 @@
 			{% for message in messages %}
 			<div class="alert {{ message.tags }} alert-dismissible mb-0" role="alert"
 			style="height:0;line-height:0">
-				<button type="button" class="close" data-dismiss="alert" aria-label="Close"> 
+				<button type="button" class="close" 
+					data-dismiss="alert" aria-label="Close"> 
 				</button>
 				<p class= "mb-0 mt-0"><small>{{ message | safe }}</small></p>
 			</div>
 			{% endfor %}
 		{% else %}
-			<div class="alert alert-light mb-0" role="alert" style="height:0;line-height:0">
-				<button type="button" class="close" data-dismiss="alert" aria-label="Close"> 
+			<div class="alert alert-light mb-0" role="alert" 
+				style="height:0;line-height:0">
+				<button type="button" class="close" 
+					data-dismiss="alert" aria-label="Close"> 
 				</button>
 				<p class= "mb-0 mt-0"><small></small></p>
 			</div>
@@ -49,6 +57,8 @@
     {% block login %}
     {% endblock %}
 
+	{%block wide %}
+	{% endblock %}
 
 	{% if user.username == '' %}
 	{% else %}
