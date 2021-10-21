@@ -8,15 +8,16 @@ from django.urls import reverse
 from django.forms import inlineformset_factory
 from .models import Location, LocationType, LocationRelation, Figure,Style 
 from .forms import LocationForm, location_relation_formset, StyleForm,FigureForm
-from .forms import LocationRelationForm, LocationTypeForm,LocationStatusForm,LocationPrecisionForm
+from .forms import LocationRelationForm, LocationTypeForm,LocationStatusForm
+from .forms import LocationPrecisionForm
 import json
 import os
 from utils.view_util import make_tabs,FormsetFactoryManager
-# from utils.map_util import instance2related_locations,queryset2maplist,instance2maprows,pop_up
-from utils.map_util import gps2latlng, pop_up
+from utils.map_util import gps2latlng, pop_up, get_all_location_ids_dict
 from utils.model_util import instance2names
 from utils.instance_links import Links
-from utilities.views import getfocus, list_view, delete_model, edit_model, add_simple_model
+from utilities.views import getfocus, list_view, delete_model, edit_model
+from utilities.views import add_simple_model
 from catalogue.models import Text, Illustration, Publication, Publisher, Periodical
 from persons.models import Person, Movement
 
@@ -30,12 +31,13 @@ def make_fname(name):
 
 
 def create_simple_view(name):
-    '''Create a simple view based on the Model name.
-    Assumes the form only has a name field.
-    '''
-    c = 'def add_'+make_fname(name)+'(request,pk =None):\n'
-    c += '\treturn add_simple_model(request,__name__,"'+name+'","locations","add '+name+'",pk=pk)'
-    return exec(c,globals())
+	'''Create a simple view based on the Model name.
+	Assumes the form only has a name field.
+	'''
+	c = 'def add_'+make_fname(name)+'(request,pk =None):\n'
+	c += '\treturn add_simple_model(request,__name__,"'+name
+	c +='","locations","add '+name+'",pk=pk)'
+	return exec(c,globals())
 
 #create simple forms for the following models 
 names = 'LocationType,LocationPrecision,LocationStatus'
@@ -45,13 +47,21 @@ for name in names.split(','):
 
 
 def map_ll(request):
-	'''test view for new map implementation; now default map view
-	the new map view uses ajax/ lazy loading to speed up map rendering
+	'''current map view with new map implementation; 
+	this new map view uses ajax/ lazy loading to speed up map rendering
 	'''
 	maplist = [x.plot() for x in get_querysets()]
 	args = {'page_name':'map','maplist':maplist}
 	return render(request,'locations/map_ll.html',args)
 
+
+def map_ll_alpha(request):
+	'''current map view with new map implementation; 
+	this new map view uses ajax/ lazy loading to speed up map rendering
+	'''
+	d = get_all_location_ids_dict(add_names_gps = True)
+	args = {'page_name':'map','d':d}
+	return render(request,'locations/map_ll_alpha.html',args)
 
 
 def map(request):
@@ -150,6 +160,28 @@ def ajax_links(request,markerid):
 	model = apps.get_model(app_name,model_name)
 	instance = model.objects.get(pk=pk)
 	return JsonResponse({'links':Links(instance).plots})
+
+def ajax_instance(request,app_name,model_name,pk):
+	'''returns an instance base on app_name model_name and pk.'''
+	model = apps.get_model(app_name,model_name)
+	print(model,'model')
+	instance = model.objects.get(pk=pk)
+	print(instance,'instance')
+	f = serializers.serialize('json',[instance])
+	print(f,'serial')
+	return JsonResponse({'instance':f})
+
+def ajax_instances(request,app_name,model_name,pks):
+	'''returns an instance base on app_name model_name and pk.'''
+	model = apps.get_model(app_name,model_name)
+	print(model,'model')
+	pks = pks.split(',')
+	instances = model.objects.filter(pk__in = pks)
+	print(instances,'instances')
+	d = serializers.serialize('json',instances)
+	print(d,'serial')
+	return JsonResponse({'instances':d})
+	
 	
 
 def geojson_file(request,filename):
