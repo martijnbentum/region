@@ -247,6 +247,15 @@ class Person(models.Model, info):
 			d[plr.relation.name+'_location_name'].append( plr.location.name )
 		return d
 
+	@property
+	def sidebar_info(self):
+		d = {}
+		d['name'] = self.instance_name
+		d['date'] = self.life
+		d['extra'] = self.gender
+		d['identifier'] = self.identifier
+		return d
+
 
 	
 class Movement(models.Model, info):
@@ -286,6 +295,14 @@ class Movement(models.Model, info):
 	def get_dates(self):
 		if not self.founded:return ''
 		return [self.founded]
+
+	@property
+	def date(self):
+		o =''
+		if self.founded: o += 'founded in: ' +self.founded + ' '
+		if self.closure: o += 'closure in: ' +self.closure
+		return date
+		
 
 	@property
 	def identifier(self):
@@ -362,6 +379,16 @@ class Movement(models.Model, info):
 	def latlng2name(self,latlng):
 		return get_location_name(self,latlng)
 
+
+	@property
+	def sidebar_info(self):
+		d = {}
+		d['name'] = self.instance_name
+		d['date'] = self.date
+		if self.movement_type: d['extra'] = self.movement_type.name
+		else: d['extra'] =''
+		d['identifier'] = self.identifier
+		return d
 
 
 # --- relational models ---
