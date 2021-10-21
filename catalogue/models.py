@@ -6,8 +6,8 @@ from locations.models import Location
 from utilities.models import Language, RelationModel, SimpleModel 
 from utilities.models import GroupTag
 from utils.model_util import id_generator, info,instance2names
-from utils.model_util import get_empty_fields,gps2latlng
-from utils.map_util import field2locations, pop_up, get_location_name
+from utils.model_util import get_empty_fields
+from utils.map_util import field2locations, pop_up, get_location_name,gps2latlng
 import os
 from partial_date import PartialDateField
 import time
@@ -96,6 +96,8 @@ class Item(models.Model):
 
 	@property
 	def instance_name(self):
+		if hasattr(self,'title_exact'):
+			return self.title
 		if hasattr(self,'title'):
 			return self.title
 		if hasattr(self,'name'):
@@ -131,9 +133,11 @@ class Item(models.Model):
 	def sidebar_info(self):
 		d = {}
 		d['name'] = self.instance_name
-		d['date'] = ''
-		d['extra'] = ''
+		d['date'] = self.dates
+		if hasattr(self,'type_info'):d['extra'] = self.type_info
+		else: d['extra'] = ''
 		d['identifier'] = self.identifier
+		return d
 
 
 
@@ -198,6 +202,21 @@ class Text(Item, info):
 			if date: o.append(date)
 		self._dates = o
 		return o
+
+	@property
+	def dates(self):
+		dates = self.get_dates
+		if not dates: return ''
+		o = 'Published in: '
+		for date in dates:
+			o += str(date.year) + ' '
+		return o
+
+	@property
+	def type_info(self):
+		if self.text_type: return self.text_type.name
+		return '' 
+			
 			
 
 def make_filename(instance, filename):
@@ -239,6 +258,11 @@ class Illustration(Item, info):
 		unique_together = 'caption,image_filename,page_number'.split(',')
 
 	@property
+	def type_info(self):
+		if self.category: return self.category.name
+		return '' 
+
+	@property
 	def get_dates(self):
 		'''illustration object does not contain date, 
 		only the linked publication has a date.
@@ -256,6 +280,15 @@ class Illustration(Item, info):
 			date = x.publication.date
 			if date: o.append(date)
 		self._dates = o
+		return o
+
+	@property
+	def dates(self):
+		dates = self.get_dates
+		if not dates: return ''
+		o = 'Published in: '
+		for date in dates:
+			o += str(date.year) + ' '
 		return o
 	
 
@@ -282,6 +315,13 @@ class Publisher(Item, info):
 	def get_dates(self):
 		if not self.founded: return ''
 		return [self.founded]
+
+	@property
+	def dates(self):
+		o =''
+		if self.founded: o += 'founded in: ' +str(self.founded) + ' '
+		if self.closure: o += 'closure in: ' +str(self.closure)
+		return o
 
 	def pop_up(self,latlng):
 		m = ''
@@ -325,6 +365,11 @@ class Publication(Item, info):
 			m+='<p><small>published in <b>'+ self.date.name+'</b></small></p>'
 		return pop_up(self,latlng,extra_information=m)
 
+	@property
+	def type_info(self):
+		if self.category: return self.form.name
+		return '' 
+
 	class Meta:
 		unique_together=[['title','publisher_names','date','issue','volume']]
 
@@ -358,6 +403,15 @@ class Publication(Item, info):
 		if self.date: m += self.date.pretty_string() 
 		if add_bracket: m +=')'
 		return m
+
+	@property
+	def dates(self):
+		dates = self.get_dates
+		if not dates: return ''
+		o = 'Published in: '
+		for date in dates:
+			o += str(date.year) + ' '
+		return o
 
 
 class Periodical(Item, info):
@@ -398,6 +452,12 @@ class Periodical(Item, info):
 			m += '<p><small>published by <b>' + names + '</b></small></p>'
 		return pop_up(self,latlng,extra_information=m)
 
+	@property
+	def dates(self):
+		o =''
+		if self.founded: o += 'founded in: ' +str(self.founded) + ' '
+		if self.closure: o += 'closure in: ' +str(self.closure)
+		return o
 
 # ---- relation objects, e.g text publication relation etc. ----
 

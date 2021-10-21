@@ -297,11 +297,11 @@ class Movement(models.Model, info):
 		return [self.founded]
 
 	@property
-	def date(self):
+	def dates(self):
 		o =''
-		if self.founded: o += 'founded in: ' +self.founded + ' '
-		if self.closure: o += 'closure in: ' +self.closure
-		return date
+		if self.founded: o += 'founded in: ' +str(self.founded) + ' '
+		if self.closure: o += 'closure in: ' +str(self.closure)
+		return o
 		
 
 	@property
@@ -379,14 +379,17 @@ class Movement(models.Model, info):
 	def latlng2name(self,latlng):
 		return get_location_name(self,latlng)
 
+	@property
+	def type_info(self):
+		if self.movement_type: return self.movement_type.name
+		return '' 
 
 	@property
 	def sidebar_info(self):
 		d = {}
 		d['name'] = self.instance_name
-		d['date'] = self.date
-		if self.movement_type: d['extra'] = self.movement_type.name
-		else: d['extra'] =''
+		d['date'] = self.dates
+		d['extra'] = self.type_info
 		d['identifier'] = self.identifier
 		return d
 
