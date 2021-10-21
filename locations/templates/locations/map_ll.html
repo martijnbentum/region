@@ -61,9 +61,6 @@ function make_marker(marker_dict,add_main_instance = false) {
 	for (var i= 0; i<latlng.length; i +=2) {
 		gps = latlng.slice(i,i+2)
 		markerid= marker_dict2markerid(marker_dict,gps)
-		//if (Object.keys(markerid2marker).includes(markerid)){
-		//	return markerid2marker[markerid];
-		//}
 		if (add_main_instance) {mi = main_instance_markerid}
 		else { mi = false}
 		if (Object.keys(marker_dict).includes('layer_name')) 
