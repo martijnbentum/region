@@ -160,6 +160,20 @@ async function get_instance(instance_id,instance_category) {
 	console.log(path,data)
 }
 
+function add_instance(instance, instance_category) {
+	var sidebar= document.getElementById('sidebar-content');
+	p =document.createElement("p");
+	sidebar.appendChild(p);
+	p.innerHTML = instance.name;
+	p.classList.add("small_text");
+	entries.push(p)
+	p =document.createElement("p");
+	sidebar.appendChild(p);
+	p.innerHTML = instance_category.split('_')[1];
+	p.classList.add("small_text");
+	entries.push(p)
+}
+
 async function get_instances(instance_ids,instance_category) {
 	//latlng = '/' + e.target._latlng.lat + '/' + e.target._latlng.lng
 	var path = '/locations/ajax_instances/';
@@ -167,8 +181,11 @@ async function get_instances(instance_ids,instance_category) {
 	path += instance_ids.join(',');	
 	const response = await fetch(path); 
 	data = await response.json();
-	instances= JSON.parse(data.instances);
-	console.log(path,instances)
+	//instances= JSON.parse(data.instances);
+	console.log(path,data)
+	for (const instance of data.instances) {
+		add_instance(instance,instance_category);
+	}
 }
 
 function show_entry(instance_ids, entry_category) {
@@ -326,7 +343,7 @@ hr {
 
 .grid-container {
 	display:grid;
-	grid-template-columns: 9fr 1fr;
+	grid-template-columns: 6fr 2fr;
 	grid-gap: 3px;
 	align-items: top;
 }
@@ -344,6 +361,10 @@ hr {
 	background-color:#d2d8d9;
 	justify-self:center;
 	font-size:20px
+}
+
+.small_text {
+	font-size:14px;
 }
 
 

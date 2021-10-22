@@ -178,7 +178,8 @@ def ajax_instances(request,app_name,model_name,pks):
 	pks = pks.split(',')
 	instances = model.objects.filter(pk__in = pks)
 	print(instances,'instances')
-	d = serializers.serialize('json',instances)
+	d = [x.sidebar_info for x in instances]
+	#d = serializers.serialize('json',instances)
 	print(d,'serial')
 	return JsonResponse({'instances':d})
 	
