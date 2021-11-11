@@ -290,7 +290,7 @@ class Field:
 		self.include = True 
 		self.exclude = False
 		exclude = 'id,gps,gps_names,source_link,publisher_names,identifier,year'
-		exclude += ',group_tags,relations,copyright'
+		exclude += ',group_tags,relations,copyright,loc_ids'
 		exclude = exclude.split(',')
 		if self.name in exclude or self.bool or self.file or self.image: 
 			self.include = False 
