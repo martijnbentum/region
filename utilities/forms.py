@@ -64,7 +64,15 @@ class TimelineForm(Form):
 		queryset = Location.objects.all(),
 		widget=LocationCountryWidget(**dselect2),
 		required = False)
+	location2= forms.ModelChoiceField(
+		queryset = Location.objects.all(),
+		widget=LocationCountryWidget(**dselect2),
+		required = False)
 	model_name= forms.ModelChoiceField(
+		queryset=Modelname.objects.all().order_by('model_name'),
+		widget=ModelnameWidget(**dselect2),
+		required = False)
+	model_name2= forms.ModelChoiceField(
 		queryset=Modelname.objects.all().order_by('model_name'),
 		widget=ModelnameWidget(**dselect2),
 		required = False)
