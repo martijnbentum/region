@@ -1,0 +1,235 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+	{{form.media.css}}
+	<title>{{page_name}}</title>
+	<script src="https://d3js.org/d3.v6.min.js"></script>
+	<script src="https://d3js.org/d3-scale.v3.min.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<form name="myform" id="myform" enctype="multipart/form-data" 
+method = "post" onsubmit="dosubmit();">
+    {% csrf_token %}
+
+
+<table class="table table-borderless" id="form_table">
+	<tr class="d-flex">
+		<th class="col-2">category</th>
+		<td class="col-4">{{form.model_name}}</td>
+		<td class="col-4">{{form.model_name2}}</td>
+	</tr>
+	<tr class="d-flex">
+		<th class="col-2">location</th>
+		<td class="col-4">{{form.location}}</td>
+		<td class="col-4">{{form.location2}}</td>
+	</tr>
+<button type="submit" name="save" value="save" 
+	class ="btn btn-primary">Graph</button>
+</table>
+<form>
+{{timeline|json_script:"timeline"}}
+{{timeline2|json_script:"timeline2"}}
+
+<p id="empty-result"></p>
+
+<svg>
+</svg>
+
+
+{{form.media.js}}
+
+<div id="my_dataviz"></div>
+<script>
+// set the dimensions and margins of the graph
+
+var timeline= JSON.parse(document.getElementById('timeline').textContent);
+var timeline2= JSON.parse(document.getElementById('timeline2').textContent);
+if (timeline == '') {timeline=[];}
+else {timeline = JSON.parse(timeline);}
+if (timeline2 == '') {timeline2=[];}
+else {timeline2 = JSON.parse(timeline2);}
+var dates = []
+for (var i= 0; i<timeline.length; i +=1) {
+	x = timeline[i]
+	dates.push(new Date(x.date));
+	x.date = new Date(x.date);
+}
+var dates2 = []
+for (var i= 0; i<timeline2.length; i +=1) {
+	x = timeline2[i]
+	dates2.push(new Date(x.date));
+	x.date = new Date(x.date);
+}
+console.log('timeline:',timeline);
+console.log('dates:',dates);
+console.log('t2:',timeline2);
+console.log('d2:',dates2);
+
+// set the dimensions and margins of the graph
+if (dates.length > 0 || dates2.length > 0) {
+	var margin = {top: 10, right: 30, bottom: 30, left: 30},
+		width = 800 - margin.left - margin.right,
+		height = 400 - margin.top - margin.bottom;
+
+	// append the svg object to the body of the page
+	var svg = d3.select("#my_dataviz")
+	  .append("svg")
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+	  .append("g")
+		.attr("transform",
+			  "translate(" + margin.left + "," + margin.top + ")");
+
+	svg.append("text")
+		.attr("class","x label")
+		.attr("text-anchor","end")
+		.attr("x",width)
+		.attr("y",height-6)
+		.text("Date")
+
+	svg.append("text")
+		.attr("class","y label")
+		.attr("text-anchor","end")
+		.attr("y",6)
+		.attr("dy",".75em")
+		.attr("transform","rotate(-90)")
+		.text("Number of items")
+
+	var x = d3.scaleLinear()
+		.domain([1810,1960])
+		.range([0,width]);
+
+	svg.append("g")
+	  .attr("transform", "translate(0," + height + ")")
+	  .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+
+	var histogram =d3.histogram()
+		.value(function(d) { return d.date.getFullYear()})
+		.domain(x.domain())
+		.thresholds(x.ticks(65));
+
+	if (timeline) {var bins = histogram(timeline);}
+	if (timeline) {var bins2 = histogram(timeline2);}
+	console.log('bins',bins);
+	console.log('bins2',bins2);
+
+	var ym = d3.max(bins, function(d) { return d.length; })
+	var ymax2 = d3.max(bins2, function(d) { return d.length; })
+	if (ym < ymax2) {ymax = ymax2;}
+	else {ymax = ym;}
+	var nticks =8 
+	if (ymax < nticks) { nticks = ymax;}
+	  // Y axis: scale and draw:
+	var y = d3.scaleLinear()
+		.range([height, 0])
+		.domain([0, ymax +ymax*.1]);   
+		// d3.hist has to be called before the Y axis obviously
+	console.log(ym,ymax,ymax2,nticks);
+
+	svg.append("g")
+	  .call(d3.axisLeft(y).ticks(nticks));
+
+	// append the bar rectangles to the svg element
+	var all_bins = []
+
+	function _make_height(d) {
+	 return height - y(d.length);}
+
+	function _make_with(d) {
+	 return (d.x1) - x(d.x0) -1;}
+
+	function add_bins(b,color) {
+		svg.selectAll("rect")
+		  .data(b)
+		  .enter()
+		  .append("rect")
+			.attr("x", 1)
+			.attr("transform", function(d) { 
+				o = "translate(" + x(d.x0) + "," + y(d.length) + ")"; 
+				//console.log(d,'<--',o,color);
+				return o
+			})
+			.attr("width", function(d) { 
+				o = x(d.x1) - x(d.x0);
+				if (o > 0) { o -= 1;}
+				//console.log('-->',o,color);
+				return o
+			})
+			.attr("height", function(d) { return height - y(d.length); })
+			.style("fill", color)
+		svg.selectAll("rect")
+		  .data(b)
+		  .append("rect")
+			.attr("x", 1)
+			.attr("transform", function(d) { 
+				o = "translate(" + x(d.x0) + "," + y(d.length) + ")"; 
+				//console.log(d,'<--',o,color);
+				return o
+			})
+			.attr("width", function(d) { 
+				o = x(d.x1) - x(d.x0);
+				if (o > 0) { o -= 1;}
+				return o
+			})
+			.attr("height", function(d) { 
+				o = height - y(d.length); 
+				//console.log('-->',o,color);
+				return o
+			})
+			.style("fill", color)
+	}
+
+	if (bins) {;add_bins(bins, "#fcba03"); }
+	if (bins2) {add_bins(bins2, "black"); }
+console.log(bins.length,bins2.length)
+}
+else {
+	document.getElementById('empty-result').innerHTML = "no entries found";
+}
+
+
+/*
+const DUMMY_DATA = [
+	{id:'d1', value:9,region:'usa'},
+	{id:'d2', value:11,region:'nl'},
+	{id:'d3', value:14,region:'fr'},
+	{id:'d4', value:3,region:'eng'},
+]
+
+const xScale = d3
+	.scaleBand()
+	.domain(DUMMY_DATA.map(data => data.region))
+	.rangeRound([0,250])
+	.padding(0.1);
+const yScale = d3.scaleLinear().domain([0,15]).range([200,0]);
+
+const container = d3.select('svg').classed('container',true);
+
+const bars = container
+	.selectAll('.bar')
+	.data(DUMMY_DATA)
+	.enter()
+	.append('rect')
+	.classed('bar',true)
+	.attr('width',xScale.bandwidth())
+	.attr('height', data => 200 - yScale(data.value))
+	.attr('x', data => xScale(data.region))
+	.attr('y', data => yScale(data.value));
+*/
+
+</script>
+
+<style>
+.container {
+	width: 250px;
+	height: 250px;
+}
+.bar {
+	fill:#fcba03;
+}
+</style>
+	
+
+{% endblock content %}
