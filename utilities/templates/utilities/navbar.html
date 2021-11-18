@@ -1,6 +1,10 @@
 <nav class="navbar navbar-expand-md navbar-light bg-light">
-  <a class="navbar-brand" href={% url 'utilities:list_view' 'Text' 'catalogue'%}>Region</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  <a class="navbar-brand" href={% url 'utilities:list_view' 'Text' 'catalogue'%}>
+	Region
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" 
+	data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" 
+	aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
@@ -8,7 +12,9 @@
     <ul class="navbar-nav mr-auto">
 
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" 
+			role="button" data-toggle="dropdown" aria-haspopup="true" 
+			aria-expanded="false">
           View
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -21,7 +27,8 @@
           <a class="dropdown-item" href=
 			"{% url 'utilities:list_view' 'Publisher' 'catalogue' %}">publisher</a>
           <a class="dropdown-item" href=
-			"{% url 'utilities:list_view' 'Illustration' 'catalogue' %}">illustration</a>
+			"{% url 'utilities:list_view' 'Illustration' 'catalogue' %}">
+			illustration</a>
           <a class="dropdown-item" href=
 			"{% url 'utilities:list_view' 'Person' 'persons' %}">person</a>
           <a class="dropdown-item" href=
