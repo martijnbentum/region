@@ -34,7 +34,7 @@ def overview(request):
 	var.update({'perc_movement_types':perc_movement_types})
 	return render(request,'utilities/overview.html',var)
 
-def timeline_test(request):
+def timeline(request):
 	# model_name = get_timeline_info(request)
 	model = None
 	form = None
@@ -48,34 +48,6 @@ def timeline_test(request):
 	var = {'page_name':'timeline','form':form,'tjson':tjson}
 	return render(request,'utilities/timeline_test.html',var)
 
-def timeline(request):
-	# model_name = get_timeline_info(request)
-	model = None
-	form = None
-	if request.method == 'POST':
-		form = TimelineForm(request.POST, request.FILES)
-		if form.is_valid(): 
-			mn = form.cleaned_data['model_name1']
-			location = form.cleaned_data['location1']
-			model = apps.get_model(mn.app_name,mn.model_name)
-			print('model:',model)
-			print('location:',location)
-	if model:
-		get = ltli.get_instances_linked_to_locations_contained_in_location
-		if location: instances = get(location,mn.model_name.lower()) 
-		else: instances = model.objects.all()
-		o = []
-		for i,x in enumerate(instances):
-			dates = x.get_dates
-			if not dates: continue
-			for d in dates:
-				if not d: continue
-				o.append({'id':x.identifier,'date':str(d)})
-		o =  json.dumps(o)
-	else:o =''
-	if not form: form = TimelineForm()
-	var = {'page_name':'timeline','timeline':o,'form':form}
-	return render(request,'utilities/timeline.html',var)
 
 def list_view(request, model_name, app_name, max_entries=500):
 	'''list view of a model.'''
