@@ -151,6 +151,11 @@ class Person(models.Model, info):
 		except: return None
 
 	@property
+	def location_string(self):
+		try:return ', '.join(self.latlng_names)
+		except: return ''
+
+	@property
 	def pseudonyms(self):
 		'''string representation of listed pseudonyms.
 		'''
