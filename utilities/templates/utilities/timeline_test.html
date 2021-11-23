@@ -14,22 +14,31 @@ method = "post" onsubmit="dosubmit();">
     {% csrf_token %}
 
 
-<table class="table table-borderless" id="form_table">
+<table class="table table-sm" id="form_table">
 	<tr class="d-flex">
 		<th class="col-2">category</th>
-		<td class="col-4">{{form.model_name}}</td>
-		<td class="col-4">{{form.model_name2}}</td>
+		<td class="col-3">{{form.model_name1}}</td>
+		<td class="col-3">{{form.model_name2}}</td>
+		<td class="col-3">{{form.model_name3}}</td>
 	</tr>
 	<tr class="d-flex">
 		<th class="col-2">location</th>
-		<td class="col-4">{{form.location}}</td>
-		<td class="col-4">{{form.location2}}</td>
+		<td class="col-3">{{form.location1}}</td>
+		<td class="col-3">{{form.location2}}</td>
+		<td class="col-3">{{form.location3}}</td>
 	</tr>
-<button type="submit" name="save" value="save" 
-	class ="btn btn-primary">Graph</button>
+	<tr class="d-flex">
+		<th class="col-2"></th>
+		<td class="col-3"></td>
+		<td class="col-3"></td>
+		<td class="col-3"></td>
+	</tr>
 </table>
+<button type="submit" name="save" value="save" 
+	class ="btn btn-primary" style="margin:3px">Graph</button>
 <form>
 {{timeline|json_script:"timeline"}}
+{{tjson|json_script:"tjson"}}
 
 <p id="empty-result"></p>
 
@@ -44,21 +53,15 @@ method = "post" onsubmit="dosubmit();">
 // set the dimensions and margins of the graph
 
 var timeline= JSON.parse(document.getElementById('timeline').textContent);
-timeline = JSON.parse(timeline);
-var dates = []
-for (var i= 0; i<timeline.length; i +=1) {
-	x = timeline[i]
-	dates.push(new Date(x.date));
-	x.date = new Date(x.date);
-}
-console.log(timeline);
-console.log(dates);
+var tjson= JSON.parse(document.getElementById('tjson').textContent);
+tjson= JSON.parse(tjson);
+console.log('tjson ---->',tjson)
 
 // set the dimensions and margins of the graph
-if (dates.length > 0) {
-	var margin = {top: 10, right: 30, bottom: 30, left: 30},
-		width = 800 - margin.left - margin.right,
-		height = 400 - margin.top - margin.bottom;
+if (tjson) {
+	var margin = {top: 90, right: 30, bottom: 30, left: 50},
+		width = 900 - margin.left - margin.right,
+		height = 600 - margin.top - margin.bottom;
 
 	// append the svg object to the body of the page
 	var svg = d3.select("#my_dataviz")
@@ -68,6 +71,97 @@ if (dates.length > 0) {
 	  .append("g")
 		.attr("transform",
 			  "translate(" + margin.left + "," + margin.top + ")");
+
+
+	var x = d3.scaleLinear()
+		.domain([tjson.start_year,tjson.end_year])
+		.range([0,width]);
+
+	svg.append("g")
+	  .attr("transform", "translate(0," + height + ")")
+	  .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+
+	var active_bar = null;
+	var bins = tjson.bins;
+	console.log(bins);
+
+	var ymax = tjson.max_bin_count
+	var nticks =8 
+	if (ymax < nticks) { nticks = ymax;}
+	  // Y axis: scale and draw:
+	var y = d3.scaleLinear()
+		.range([height, 0])
+		.domain([0, ymax +ymax*.1]);   
+	console.log(ymax,nticks);
+
+	svg.append("g")
+	  .call(d3.axisLeft(y).ticks(nticks));
+
+	function show_bar(d){
+		console.log(d,'<---- click',active_bar,'active bar')
+		console.log(d.target.__data__,'<-date')
+		if (active_bar) {active_bar.style.strokeWidth = 0;}
+		active_bar = d.target
+		active_bar.style.strokeWidth = "3px";
+		active_bar.style.stroke= "#329c4a";
+	}
+
+	// append the bar rectangles to the svg element
+	svg.selectAll("rect")
+	  .data(bins)
+	  .enter()
+	  .append("rect")
+		.attr("x", 1)
+		.attr("transform", function(d) {
+			if (d.name == 'background') { count = height;} 
+			else { count = d.count;}
+			return "translate(" + x(d.start) + "," + y(count) + ")"; })
+		.attr("width", function(d) { 
+			o = x(d.end) - x(d.start)  ; 
+			if (o > 0) o -= 0;
+			return o
+		})
+		.attr("height", function(d) { 
+			if (d.name == 'background') { count = height;} 
+			else { count = d.count;}
+			return height - y(count); })
+		.attr("class","bar")
+		.style("fill", function(d) {return d.color;})
+
+	svg.selectAll('.bar')
+		.on("click",show_bar);
+	
+	var legend_padding = 250;
+	var legend = svg.append('g')
+		.attr('class','legend')
+
+	legend.selectAll('rect')
+		.data(tjson.names)
+		.enter()
+		.append('rect')
+		.attr('x',width - legend_padding)
+		.attr('y', function(d, i) {
+			return i *18 -margin.top;
+		})
+		.attr('width', 12)
+		.attr('height', 12)
+		.attr('fill', function(d, i) {
+			return tjson[i + '_color']
+		});
+		
+	legend.selectAll('text')
+		.data(tjson.names)
+		.enter()
+		.append('text')
+		.text(function(d) {
+			return d;
+		})
+		.attr('x',width -legend_padding + 18)
+		.attr('y', function(d ,i) {
+			return i * 18 -margin.top;
+		})
+		.attr('text-anchor','start')
+		.attr('alignment-baseline','hanging');
 
 	svg.append("text")
 		.attr("class","x label")
@@ -83,51 +177,7 @@ if (dates.length > 0) {
 		.attr("dy",".75em")
 		.attr("transform","rotate(-90)")
 		.text("Number of items")
-
-	var x = d3.scaleLinear()
-		.domain([1810,1960])
-		.range([0,width]);
-
-	svg.append("g")
-	  .attr("transform", "translate(0," + height + ")")
-	  .call(d3.axisBottom(x).tickFormat(d3.format("d")));
-
-	var histogram =d3.histogram()
-		.value(function(d) { return d.date.getFullYear()})
-		.domain(x.domain())
-		.thresholds(x.ticks(65));
-
-	var bins = histogram(timeline);
-	console.log(bins);
-
-	var ymax = d3.max(bins, function(d) { return d.length; })
-	var nticks =8 
-	if (ymax < nticks) { nticks = ymax;}
-	  // Y axis: scale and draw:
-	var y = d3.scaleLinear()
-		.range([height, 0])
-		.domain([0, ymax +ymax*.1]);   
-		// d3.hist has to be called before the Y axis obviously
-	console.log(ymax,nticks);
-
-	svg.append("g")
-	  .call(d3.axisLeft(y).ticks(nticks));
-
-	// append the bar rectangles to the svg element
-	svg.selectAll("rect")
-	  .data(bins)
-	  .enter()
-	  .append("rect")
-		.attr("x", 1)
-		.attr("transform", function(d) 
-			{ return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
-		.attr("width", function(d) { 
-			o = x(d.x1) - x(d.x0)  ; 
-			if (o > 0) o -= 1;
-			return o
-		})
-		.attr("height", function(d) { return height - y(d.length); })
-		.style("fill", "#fcba03")
+	
 }
 else {
 	document.getElementById('empty-result').innerHTML = "no entries found";
@@ -171,7 +221,12 @@ const bars = container
 	height: 250px;
 }
 .bar {
-	fill:#fcba03;
+	stroke:black;
+	stroke-width:0px;
+}
+.bar:hover {
+	stroke:blue;
+	stroke-width:2px;
 }
 </style>
 	
