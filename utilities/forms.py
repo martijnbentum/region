@@ -60,7 +60,7 @@ class CommentForm(ModelForm):
 class TimelineForm(Form):
 	c = Q(location_type__name= 'country')
 	r = Q(location_type__name= 'region')
-	location= forms.ModelChoiceField(
+	location1= forms.ModelChoiceField(
 		queryset = Location.objects.all(),
 		widget=LocationCountryWidget(**dselect2),
 		required = False)
@@ -68,11 +68,27 @@ class TimelineForm(Form):
 		queryset = Location.objects.all(),
 		widget=LocationCountryWidget(**dselect2),
 		required = False)
-	model_name= forms.ModelChoiceField(
+	location3= forms.ModelChoiceField(
+		queryset = Location.objects.all(),
+		widget=LocationCountryWidget(**dselect2),
+		required = False)
+	location4= forms.ModelChoiceField(
+		queryset = Location.objects.all(),
+		widget=LocationCountryWidget(**dselect2),
+		required = False)
+	model_name1= forms.ModelChoiceField(
 		queryset=Modelname.objects.all().order_by('model_name'),
 		widget=ModelnameWidget(**dselect2),
 		required = False)
 	model_name2= forms.ModelChoiceField(
+		queryset=Modelname.objects.all().order_by('model_name'),
+		widget=ModelnameWidget(**dselect2),
+		required = False)
+	model_name3= forms.ModelChoiceField(
+		queryset=Modelname.objects.all().order_by('model_name'),
+		widget=ModelnameWidget(**dselect2),
+		required = False)
+	model_name4= forms.ModelChoiceField(
 		queryset=Modelname.objects.all().order_by('model_name'),
 		widget=ModelnameWidget(**dselect2),
 		required = False)
