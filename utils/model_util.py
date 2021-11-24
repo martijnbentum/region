@@ -164,7 +164,6 @@ def make_models_image_file_dict():
 			d[app_name, model_name] = file_field_names
 	return d
 
-
 def get_empty_fields(instance,fields = [],default_is_empty =False):
 	if not fields: fields = instance._meta.fields
 	empty_values = ['',None]
@@ -215,6 +214,26 @@ def _make_modelnames():
 		else:print(name,'already exists')
 
 
+def identifier2instance(identifier):
+	app_name, model_name, pk = identifier.split('_')
+	model = apps.get_model(app_name,model_name)
+	return model.objects.get(pk=pk)
+	
+def identifiers2instances(identifiers):
+	d = {}
+	for identifier in identifiers:
+		app_name,model_name, pk = identifier.split('_')
+		name = model_name,app_name
+		if not name in d.keys(): d[name] =[]
+		if pk not in d[name]:d[name].append(pk)
+	instances = []
+	for key, value in d.items():
+		model_name,app_name = key
+		model = apps.get_model(app_name,model_name)
+		instances.extend(model.objects.filter(pk__in=value))
+	return instances
+		
+	
 
 		 
 
