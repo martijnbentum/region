@@ -14,5 +14,6 @@ urlpatterns = [
 	path('add_comment/<str:app_name>/<str:model_name>/<int:entry_pk>/',views.edit_comment,
 		name='add_comment'),
 	path('add_comment/<int:user_pk>/',views.edit_comment,name='add_comment'),
-		
+	path('ajax_identifiers_to_instances/<str:identifiers>/',
+		views.ajax_identifiers_to_instances, name='ajax_identifiers_to_instances'),
 ]
