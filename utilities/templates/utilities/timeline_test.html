@@ -42,29 +42,82 @@ method = "post" onsubmit="dosubmit();">
 
 <p id="empty-result"></p>
 
-<svg>
-</svg>
-
+<div id="barplot">
+</div>
+<br>
+<div class="grid-container col-6", id="sidebar-content">
+</div>
 
 {{form.media.js}}
 
-<div id="my_dataviz"></div>
 <script>
 // set the dimensions and margins of the graph
-
+var entries = [];
 var timeline= JSON.parse(document.getElementById('timeline').textContent);
 var tjson= JSON.parse(document.getElementById('tjson').textContent);
 tjson= JSON.parse(tjson);
 console.log('tjson ---->',tjson)
 
+function remove_entries() {
+	console.log('removing entries')
+	var sidebar= document.getElementById('sidebar-content');
+	for (const x of entries) {
+		sidebar.removeChild(x)
+	}
+	entries = []
+}
 // set the dimensions and margins of the graph
+function add_instance(instance, grey) {
+	console.log(instance,'adding')
+	var sidebar= document.getElementById('sidebar-content');
+	p =document.createElement("p");
+	sidebar.appendChild(p);
+	p.innerHTML = instance.name; 
+	p.classList.add("grid-child");
+	if (grey) {p.classList.add("grey");}
+	entries.push(p)
+	p =document.createElement("p");
+	sidebar.appendChild(p);
+	p.innerHTML = instance.date;
+	p.classList.add("grid-child");
+	if (grey) {p.classList.add("grey");}
+	entries.push(p)
+}
+
+async function get_instances(instance_identifiers) {
+	var path = '/utilities/ajax_identifiers_to_instances/';
+	path +=  instance_identifiers.join(',');
+	const response = await fetch(path); 
+	data = await response.json();
+	console.log(path,data)
+	var i = 0;
+	for (const instance of data.instances) {
+		if (i%2 ==0) {grey = false;}
+		else {grey = true;}
+		console.log(instance)
+		add_instance(instance,grey);
+		i += 1
+	}
+}
+
+function show_bar(d){
+	console.log(d,'<---- click',active_bar,'active bar')
+	console.log(d.target.__data__,'<-date')
+	if (active_bar) {active_bar.style.strokeWidth = 0;}
+	active_bar = d.target
+	active_bar.style.strokeWidth = "3px";
+	active_bar.style.stroke= "#329c4a";
+	remove_entries()
+	get_instances(d.target.__data__.ids)
+}
+
 if (tjson) {
 	var margin = {top: 90, right: 30, bottom: 30, left: 50},
-		width = 900 - margin.left - margin.right,
+		width = 980 - margin.left - margin.right,
 		height = 600 - margin.top - margin.bottom;
 
 	// append the svg object to the body of the page
-	var svg = d3.select("#my_dataviz")
+	var svg = d3.select("#barplot")
 	  .append("svg")
 		.attr("width", width + margin.left + margin.right)
 		.attr("height", height + margin.top + margin.bottom)
@@ -97,14 +150,6 @@ if (tjson) {
 	svg.append("g")
 	  .call(d3.axisLeft(y).ticks(nticks));
 
-	function show_bar(d){
-		console.log(d,'<---- click',active_bar,'active bar')
-		console.log(d.target.__data__,'<-date')
-		if (active_bar) {active_bar.style.strokeWidth = 0;}
-		active_bar = d.target
-		active_bar.style.strokeWidth = "3px";
-		active_bar.style.stroke= "#329c4a";
-	}
 
 	// append the bar rectangles to the svg element
 	svg.selectAll("rect")
@@ -228,6 +273,29 @@ const bars = container
 	stroke:blue;
 	stroke-width:2px;
 }
+.grid-container {
+	display:grid;
+	grid-template-columns: 600px 300px;
+	align-items: top;
+	margin-left:30px;
+	padding-top:0px;
+}
+
+
+.grid-child {
+	padding-left:10px;
+	padding-right:10px;
+	padding-top: 5px;
+	padding-bottom:5px;
+	margin:0px;
+	margin-left:0px;
+	margin-right:0px;
+}
+
+.grey {
+	background-color:#edebe4;
+}
+
 </style>
 	
 
