@@ -3,11 +3,11 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.forms import modelformset_factory
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
-from utils.model_util import copy_complete
+from utils.model_util import copy_complete, identifiers2instances 
 from utilities.search import Search
 from .models import Comment
 from .forms import CommentForm, TimelineForm
@@ -48,6 +48,17 @@ def timeline(request):
 	var = {'page_name':'timeline','form':form,'tjson':tjson}
 	return render(request,'utilities/timeline_test.html',var)
 
+def ajax_identifiers_to_instances(request,identifiers):
+	'''returns an instance based on identifier: app_name model_name and pk.
+	e.g. catalogue_text_644
+	'''
+	if type(identifiers) == str:identifiers = identifiers.split(',')
+	instances = identifiers2instances(identifiers)
+	print(instances,'instances')
+	d = [x.sidebar_info for x in instances]
+	#d = serializers.serialize('json',instances)
+	print(d,'serial')
+	return JsonResponse({'instances':d})
 
 def list_view(request, model_name, app_name, max_entries=500):
 	'''list view of a model.'''
