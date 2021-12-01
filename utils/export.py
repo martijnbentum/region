@@ -18,7 +18,7 @@ for m in all_models:
 	selected_models.append(m)
 		
 class Exports:
-	def __init__(self, model_names= []):
+	def __init__(self, model_names= [], export_all = None):
 		'''export all instances of all or a set of model names
 		export_all 		export all models in the selected_models 
 						this excludes models from the exclude apps and non_primary apps
@@ -27,8 +27,11 @@ class Exports:
 		model_names 	export all instances from each model in model_names 
 						instances of other models linked to these are also include
 		'''
-		self.export_all = True if not model_names else False
-		if model_names:models = [m for m in all_models if instance2names(m)[1] in model_names]
+		if export_all == None:
+			self.export_all = True if not model_names else False
+		else: self.export_all = export_all
+		if model_names:
+			models = [m for m in all_models if instance2names(m)[1] in model_names]
 		else: model_names = [instance2names(m)[1] for m in selected_models]
 		self.model_names = model_names
 		self.models = selected_models if self.export_all else models
@@ -106,7 +109,7 @@ class Export:
 
 	@property
 	def instances(self):
-		'''returns all instances (these also include instance related to the original set'''
+		'''returns all instances these also include instance related to the original set'''
 		return self.connection_set.instances
 
 	@property
@@ -146,7 +149,8 @@ class Export:
 class Relations:
 	'''finds all models that have a relation with this models.
 	there are three types of relations:
-		-a relation model (connecting this models with another models with potential other fields
+		-a relation model (connecting this models with another models 
+			with potential other fields
 		-a foreign key, a relation to another model
 		-m2m, a relation to 1 one or more instances of another model
 	these relation type are stored seperatly
@@ -163,13 +167,15 @@ class Relations:
 		self.fk_fields_str= [f.get_cache_name() for f in self.fk_fields]
 		self.fk_models = [f.related_model for f in self.fk_fields]
 		#retrieve m2m fields and models
-		self.m2m_fields = [f for f in model._meta.local_many_to_many if f.related_model != model]
+		m2m = model._meta.local_many_to_many 
+		self.m2m_fields = [f for f in m2m if f.related_model != model]
 		self.m2m_fields_str = [f.get_attname() for f in self.m2m_fields]
 		self.m2m_models = [f.related_model for f in self.m2m_fields]
 		self.reverse_m2m_fields = [f for f in model._meta.get_fields()
 			if f.many_to_many]
 		try:
-			self.reverse_m2m_fields_str = [f.get_accessor_name() for f in self.reverse_m2m_fields]
+			temp =  [f.get_accessor_name() for f in self.reverse_m2m_fields]
+			self.reverse_m2m_fields_str = temp
 			self.reverse_m2m_models = [f.related_model for f in self.reverse_m2m_fields]
 		except: 
 			self.reverse_m2m_fields_str = []
@@ -187,7 +193,8 @@ class Relations:
 		m += 'relation models:\n\t' + model_list2str(self.relation_models,'\n\t') + '\n\n'
 		m += 'fk models:\n\t' + model_list2str(self.fk_models,'\n\t') + '\n\n'
 		m += 'm2m models:\n\t' + model_list2str(self.m2m_models, '\n\t')+'\n\n'
-		m += 'reverse m2m models:\n\t' + model_list2str(self.reverse_m2m_models, '\n\t')+'\n\n'
+		m += 'reverse m2m models:\n\t' 
+		m += model_list2str(self.reverse_m2m_models, '\n\t')+'\n\n'
 		return m
 
 
@@ -227,6 +234,7 @@ class ConnectionSet:
 	def _run_recursive(self):
 		self.counter += 1
 		dif = list(set(self.instances) - set(self.input_instances))
+		dif = purge_non_primary_instances(dif)
 		print('finding connections recursively, order:',self.counter,'instances:',len(dif))
 		if dif: self.add_instances(dif,True)
 		
@@ -237,7 +245,9 @@ class ConnectionSet:
 
 
 class Connections:
-	'''find all pk, app_name and model name of all connected instances of a given instance.'''
+	'''find all pk, app_name and model name of all connected instances 
+	of a given instance.
+	'''
 	def __init__(self,instance):
 		self.instance = instance
 		self.app_name, self.model_name = instance2names(instance)
@@ -457,5 +467,16 @@ class XmlFieldObject:
 		return m
 		
 			
+
+def purge_non_primary_instances(instances):
+	'''removes instances that are part of non primary apps to 
+	eliminate export explosion with e.g. locations
+	'''
+	o = []
+	for instance in instances:
+		if instances._meta.app_label == 'locations': continue
+		else: o.append(instance)
+	return o
+
 
 
