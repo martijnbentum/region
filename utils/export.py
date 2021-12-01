@@ -18,7 +18,7 @@ for m in all_models:
 	selected_models.append(m)
 		
 class Exports:
-	def __init__(self, model_names= [], export_all = None):
+	def __init__(self, model_names= []):
 		'''export all instances of all or a set of model names
 		export_all 		export all models in the selected_models 
 						this excludes models from the exclude apps and non_primary apps
@@ -27,9 +27,7 @@ class Exports:
 		model_names 	export all instances from each model in model_names 
 						instances of other models linked to these are also include
 		'''
-		if export_all == None:
-			self.export_all = True if not model_names else False
-		else: self.export_all = export_all
+		self.export_all = True if not model_names else False
 		if model_names:
 			models = [m for m in all_models if instance2names(m)[1] in model_names]
 		else: model_names = [instance2names(m)[1] for m in selected_models]
@@ -41,7 +39,9 @@ class Exports:
 		self.exports = []
 		self._instances = []
 		recursive = True if not self.export_all else False
+		print('recursive:',recursive)
 		for i, model in enumerate(self.models):
+			print('model:',model,i,len(self.models))
 			instances = model.objects.all()
 			e = Export(instances,recursive)
 			self.exports.append(e)
@@ -218,7 +218,8 @@ class ConnectionSet:
 
 	def add_instances(self,instances, recursive = False):
 		for instance in instances:
-			if hasattr(instance,'endnode'):
+			non_primary = instance._meta.app_label in non_primary_apps
+			if hasattr(instance,'endnode') or non_primary: 
 				self.input_instances.append(instance)
 				continue
 			self.add_instance(instance)
@@ -234,7 +235,7 @@ class ConnectionSet:
 	def _run_recursive(self):
 		self.counter += 1
 		dif = list(set(self.instances) - set(self.input_instances))
-		dif = purge_non_primary_instances(dif)
+		# dif = purge_non_primary_instances(dif)
 		print('finding connections recursively, order:',self.counter,'instances:',len(dif))
 		if dif: self.add_instances(dif,True)
 		
@@ -474,7 +475,7 @@ def purge_non_primary_instances(instances):
 	'''
 	o = []
 	for instance in instances:
-		if instances._meta.app_label == 'locations': continue
+		if instance._meta.app_label in non_primary_apps: continue
 		else: o.append(instance)
 	return o
 
