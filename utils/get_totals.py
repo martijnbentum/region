@@ -22,16 +22,30 @@ def get_countries(totals = None):
 	d = dict(output)
 	return d
 
-def get_perc_female_persons():
+def get_perc_gender():
 	Person = apps.get_model('persons','Person')
 	p = Person.objects.all()
+	sex = [x.sex for x in p]
+	genders = list(set(sex))
 	npersons = p.count()
-	nfemales = len([x for x in p if x.sex == 'female'])
-	perc_females = round(nfemales / npersons * 100,2)
-	return perc_females
+	temp = []
+	for gender in genders:
+		perc = round(sex.count(gender) /npersons *100,2)
+		temp.append([gender,perc])
+	temp = sorted(temp,key=lambda x:x[1],reverse=True)
+	d = dict(temp)
+	return d
 
 def get_perc_text_genres():
 	return _make_category_dict('Text','Genre','catalogue')
+
+def get_perc_text_types():
+	d= _make_category_dict('Text','TextType','catalogue')
+	original = 100 - sum(d.values())
+	o = ({'original':original})
+	for key,value in d.items():
+		o[key] = value
+	return o
 
 def get_perc_publication_types():
 	return _make_category_dict('Publication','PublicationType','catalogue')
