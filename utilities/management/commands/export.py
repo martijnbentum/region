@@ -10,8 +10,10 @@ Filename is region_[date]
 At the current db size this takes a minute or two
 
 -output 		filetypes xlsx / xlm / json
--path 			destination folder (checked to exist, otherwise saved in repository directory)
---dryrun 		do not actually create export and save files, but run through everything else
+-path 			destination folder (checked to exist, 
+				otherwise saved in repository directory)
+--dryrun 		do not actually create export and save files, 
+				but run through everything else
 				(print filename and path)
 '''
 
