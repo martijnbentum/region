@@ -28,6 +28,7 @@ def overview(request):
 	perc_illustration_categories= gt.get_perc_illustration_categories()
 	perc_illustration_types= gt.get_perc_illustration_types()
 	perc_movement_types= gt.get_perc_movement_types()
+	perc_countries_periodical= gt.get_periodical_countries()
 	var = {'page_name':'overview','totals':totals, 'total':total}
 	var.update({'countries':countries,'perc_gender':perc_gender})
 	var.update({'perc_text_genres':perc_text_genres})
@@ -36,6 +37,7 @@ def overview(request):
 	var.update({'perc_illustration_categories':perc_illustration_categories})
 	var.update({'perc_illustration_types':perc_illustration_types})
 	var.update({'perc_movement_types':perc_movement_types})
+	var.update({'perc_countries_periodical':perc_countries_periodical})
 	return render(request,'utilities/overview.html',var)
 
 def timeline(request):

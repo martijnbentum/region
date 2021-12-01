@@ -114,6 +114,21 @@
 					{% endfor %}
 					</td>
 				</tr>
+			{% elif key == 'periodical' %}
+				<tr class="d-flex">
+					<th class="col-2"></th>
+					<td class="col-2">{{key}}s:</th>
+					<td class="col-2">{{value}}</td>
+					<td class="col-6">
+					{% for key, value in perc_countries_periodical.items %}
+						{% if not forloop.last %}
+							{{key}} <small>({{value}}%)</small>,
+						{% else %}
+							 {{key}} <small>({{value}}%)</small>
+						{% endif %}
+					{% endfor %}
+					</td>
+				</tr>
 			{% else %}
 				<tr class="d-flex">
 					<th class="col-2"></th>

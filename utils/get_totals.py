@@ -1,6 +1,12 @@
 from django.apps import apps
 from utils.model_util import get_all_models
 import glob
+import os
+import time
+import json
+
+to_old_seconds = 3600 * 24 * 7
+directory = '../totals/'
 
 def get_totals(model_names = ''):
 	o = {}
@@ -10,6 +16,10 @@ def get_totals(model_names = ''):
 	return o
 
 def get_periodical_countries():
+	filename = 'periodical_percentage_countries'
+	d, to_old = check_load(filename)
+	if not to_old: return d
+	print('computing the percentage breakdown of countries for Periodicals')
 	Periodical= apps.get_model('catalogue','Periodical')
 	d = {}
 	for x in Periodical.objects.all():
@@ -19,7 +29,24 @@ def get_periodical_countries():
 			if country:
 				if country not in d.keys():d[country] =1
 				else: d[country] +=1
-	return count_dict_to_sorted_perc_dict(d)
+	d = count_dict_to_sorted_perc_dict(d)
+	save_total(d,filename)
+	return d
+
+def check_load(filename):
+	if not os.path.isdir(directory): os.mkdir(directory)
+	f = directory + filename
+	if not os.path.isfile(f): return None, True
+	# if last modification is longer then a week ago
+	if time.time() - os.path.getmtime(f) > to_old_seconds:
+		return None, True
+	else: return json.load(open(f)), False
+
+def save_total(d,filename):
+	print('saving:',filename)
+	if not os.path.isdir(directory): os.mkdir(directory)
+	fout = open(directory + filename, 'w')
+	json.dump(d,fout)
 				
 
 def get_countries(totals = None):
