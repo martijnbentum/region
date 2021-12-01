@@ -9,6 +9,19 @@ def get_totals(model_names = ''):
 		o[x._meta.model_name] = x.objects.all().count()
 	return o
 
+def get_periodical_countries():
+	Periodical= apps.get_model('catalogue','Periodical')
+	d = {}
+	for x in Periodical.objects.all():
+		locations =  x.location.all()
+		for location in locations:
+			country = location.country
+			if country:
+				if country not in d.keys():d[country] =1
+				else: d[country] +=1
+	return count_dict_to_sorted_perc_dict(d)
+				
+
 def get_countries(totals = None):
 	if totals == None: totals = sum(get_totals().values())
 	fn = glob.glob('../location_container_instance_links/*country*')
@@ -85,6 +98,16 @@ def _make_category_dict(base_model_name,category_model_name,
 	temp = sorted(temp,key=lambda x:x[1],reverse=True)
 	d = dict(temp)
 	return d
+
+
+def count_dict_to_sorted_perc_dict(d):
+	total = sum(d.values())
+	o = []
+	for key,value in d.items():
+		o.append([key,round(value /total *100,2)])
+	o= sorted(o,key=lambda x:x[1],reverse=True)
+	return dict(o)
+
 
 
 
