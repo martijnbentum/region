@@ -75,7 +75,8 @@ def _make_category_dict(base_model_name,category_model_name,
 	category_instances= category_model.objects.all()
 	temp = []
 	for instance in category_instances:
-		if base_model_name == 'Illustration':
+		category = category_model_name == 'IllustrationCategory'
+		if base_model_name == 'Illustration' and category: 
 			n = getattr(instance,base_model_name).all().count()
 		else:
 			n = getattr(instance,base_model_name.lower() + '_set').all().count()

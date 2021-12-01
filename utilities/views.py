@@ -25,6 +25,7 @@ def overview(request):
 	perc_text_genres = gt.get_perc_text_genres()
 	perc_text_types= gt.get_perc_text_types()
 	perc_publication_types= gt.get_perc_publication_types()
+	perc_illustration_categories= gt.get_perc_illustration_categories()
 	perc_illustration_types= gt.get_perc_illustration_types()
 	perc_movement_types= gt.get_perc_movement_types()
 	var = {'page_name':'overview','totals':totals, 'total':total}
@@ -32,6 +33,7 @@ def overview(request):
 	var.update({'perc_text_genres':perc_text_genres})
 	var.update({'perc_text_types':perc_text_types})
 	var.update({'perc_publication_types':perc_publication_types})
+	var.update({'perc_illustration_categories':perc_illustration_categories})
 	var.update({'perc_illustration_types':perc_illustration_types})
 	var.update({'perc_movement_types':perc_movement_types})
 	return render(request,'utilities/overview.html',var)
