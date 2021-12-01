@@ -47,11 +47,22 @@ def get_perc_text_types():
 		o[key] = value
 	return o
 
+
 def get_perc_publication_types():
-	return _make_category_dict('Publication','PublicationType','catalogue')
+	return _make_category_dict('Publication','PublicationType',
+		'catalogue')
+
+def get_perc_illustration_categories():
+	return _make_category_dict('Illustration','IllustrationCategory',
+		'catalogue')
 
 def get_perc_illustration_types():
-	return _make_category_dict('Illustration','IllustrationCategory','catalogue')
+	d= _make_category_dict('Illustration','IllustrationType','catalogue')
+	original = 100 - sum(d.values())
+	o = ({'original':original})
+	for key,value in d.items():
+		o[key] = value
+	return o
 
 def get_perc_movement_types():
 	return _make_category_dict('Movement','MovementType','persons')
