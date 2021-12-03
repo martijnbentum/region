@@ -15,18 +15,50 @@ from .forms import TextTextRelationTypeForm, CopyRightForm, GenreForm
 from .forms import publicationtext_formset, publicationillustration_formset
 from .forms import textpublication_formset, illustrationpublication_formset
 from .forms import texttext_formset, texttextr_formset, publicationperiodical_formset
-from .forms import periodicalpublication_formset, TextTypeForm, textreviewpublication_formset
+from .forms import periodicalpublication_formset, TextTypeForm
+from .forms import textreviewpublication_formset
 from .forms import publicationreviewedbytext_formset,illustrationillustration_formset
 from .forms import illustrationillustration_formsetr, IllustrationTypeForm
 from .forms import IllustrationIllustrationRelationTypeForm
 from persons.models import Person, PersonLocationRelation
-from persons.forms import textperson_formset, illustrationperson_formset, periodicalperson_formset
+from persons.forms import textperson_formset, illustrationperson_formset
+from persons.forms import periodicalperson_formset
 from utils import view_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
-from utilities.views import add_simple_model, edit_model, getfocus, delete_model,list_view
+from utilities.views import add_simple_model, edit_model, getfocus, delete_model
+from utilities.views import list_view
 import os
 
 
+def detail_illustration(request,pk):
+	illustration = Illustration.objects.get(pk = pk)
+	var = {'page_name':illustration.caption}
+	var.update({'instance':illustration})
+	return render(request,'catalogue/d_illustration.html',var)
+
+def detail_publication(request,pk):
+	publication = Publication.objects.get(pk = pk)
+	var = {'page_name':publication.title}
+	var.update({'instance':publication})
+	return render(request,'catalogue/d_publication.html',var)
+
+def detail_periodical(request,pk):
+	periodical= Periodical.objects.get(pk = pk)
+	var = {'page_name':periodical.title}
+	var.update({'instance':periodical})
+	return render(request,'catalogue/d_periodical.html',var)
+
+def detail_publisher(request,pk):
+	publisher= Publisher.objects.get(pk = pk)
+	var = {'page_name':publisher.name}
+	var.update({'instance':publisher})
+	return render(request,'catalogue/d_publisher.html',var)
+
+def detail_text(request,pk):
+	text= Text.objects.get(pk = pk)
+	var = {'page_name':text.title}
+	var.update({'instance':text})
+	return render(request,'catalogue/d_text.html',var)
 
 def text_list(request):
 	'''list view of text.'''
