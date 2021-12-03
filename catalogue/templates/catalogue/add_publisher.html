@@ -14,6 +14,7 @@
 		{% if page_name == "Edit publisher"%}
 			<a class ="btn btn-link ml-auto" href="{% url 'catalogue:add_publisher' %}"
 				role="button"><i class="fa fa-plus"></i></a>
+			{% include 'utilities/detail_view_link.html' %}
 		{% endif %}
 		<a class ="btn btn-link ml-auto" 
 			href="{% url 'utilities:list_view' 'Publisher' 'catalogue'%}"

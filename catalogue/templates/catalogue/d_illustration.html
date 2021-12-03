@@ -1,0 +1,58 @@
+{% extends "utilities/base.html" %}
+{% load getattribute %} 
+
+{% block head %}
+	<title>{{page_name}}</title>
+	{% include 'utilities/detail_style.html' %}
+{% endblock %}
+
+{% block content%}
+
+
+
+
+{% if instance.upload %}
+	<img 
+	src="{{instance.upload.url}}" 
+	alt="{{instance.upload.url}}" > 
+{% endif %}
+
+<p class="title">{{instance.caption}}
+	<a class = "btn btn-link btn-sm ml-auto"
+		href ="{% url instance.edit_url instance.pk %}"
+		role="button"><i class="far fa-edit text-secondary"></i></a>
+</p>
+<p class="date">{{instance.dates}}</p>
+<hr>
+
+{% for key, persons in instance.roles_to_persons_dict.items %}
+	<div clas="one-line">
+		<span class="info-header">
+			{{key}}: 
+		</span>
+		{%for person in persons %}
+			<a class="link-color"
+			href="{% url person.edit_url person.pk %}"
+			role="button">
+				{{person.full_name}} 
+			</a>&nbsp<small>{{person.life_concise}}</small>&nbsp
+		{%endfor%}
+	</div>
+{%endfor%}
+
+<p>publications: {{instance.publications}}</p>
+
+<style>
+img {
+	display:block;
+	height:600px;
+	object-fit:cover;
+	border-radius:5px;
+	max-width:100%;
+	max-height:100%;
+	margin-left: auto;
+	margin-right:auto;
+	}
+</style>
+
+{% endblock %}
