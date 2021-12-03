@@ -59,6 +59,14 @@ class Item(models.Model):
 		if self.gps != old_gps:super(Item,self).save()
 		super(Item,self).save(*args,**kwargs)
 
+	@property
+	def edit_url(self):
+		return self._meta.app_label + ':edit_' + self._meta.model_name
+
+	@property
+	def detail_url(self):
+		return self._meta.app_label + ':detail_' + self._meta.model_name
+
 	def _set_gps(self):
 		'''sets the gps coordinates and name of related location to speed 
 		up map visualization.
@@ -254,6 +262,16 @@ class Illustration(Item, info):
 		self.person = '; '.join(names)
 		self.save()
 
+	@property
+	def roles_to_persons_dict(self):
+		d ={}
+		pirs = self.personillustrationrelation_set.all()
+		for pir in pirs:
+			if pir.role.name not in d.keys(): d[pir.role.name] = []
+			d[pir.role.name].append(pir.person)
+		return d
+
+
 	class Meta:
 		unique_together = 'caption,image_filename,page_number'.split(',')
 
@@ -261,6 +279,15 @@ class Illustration(Item, info):
 	def type_info(self):
 		if self.category: return self.category.name
 		return '' 
+
+	@property
+	def publications(self):
+		tpr =  self.illustrationpublicationrelation_set.all()
+		if not tpr: return ''
+		o = []
+		for x in tpr:
+			o.append( x.publication )
+		return o
 
 	@property
 	def get_dates(self):
@@ -272,12 +299,11 @@ class Illustration(Item, info):
 		returns a list of partialdate objects
 		'''
 		if hasattr(self,'_dates'): return self._dates
-		tpr =  self.illustrationpublicationrelation_set.all()
-		if not tpr: return ''
+		publications = self.publications
+		if not publications: return ''
 		o = []
-		for x in tpr:
-			if not hasattr(x,'publication'): continue
-			date = x.publication.date
+		for x in publications:
+			date = x.date
 			if date: o.append(date)
 		self._dates = o
 		return o
@@ -290,6 +316,7 @@ class Illustration(Item, info):
 		for date in dates:
 			o += str(date.year) + ' '
 		return o
+
 	
 
 class Publisher(Item, info):
