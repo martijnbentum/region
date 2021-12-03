@@ -29,11 +29,14 @@ urlpatterns = [
 	path('persons/',include('persons.urls')),
 	path('utilities/',include('utilities.urls')),
 	re_path(r'^select2/', include('django_select2.urls')),
-	re_path(r'media/(?P<filename>.*)$', views.protected_media, name='protected_media'),
 	path('', include('catalogue.urls')),
 	]
 
 if settings.DEBUG:
+	print('debug')
 	urlpatterns += staticfiles_urlpatterns()
 	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+	print('live')
+	re_path(r'media/(?P<filename>.*)$', views.protected_media, name='protected_media'),
 
