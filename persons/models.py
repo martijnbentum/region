@@ -52,6 +52,7 @@ class Person(models.Model, info):
 	loc_ids = models.CharField(max_length=300,default ='')
 	group_tags= models.ManyToManyField(GroupTag,blank=True, default= None)
 	source_link= models.CharField(max_length=1000,blank=True,null=True)
+
 	
 	def save(self,*args,**kwargs):
 		'''set gps location information on the person instance to 
@@ -130,6 +131,16 @@ class Person(models.Model, info):
 		if self.died:m += 'died ' + str(self.death_year)
 		if self.born and self.died: 
 			m += ' (age ' + str(self.death_year -self.birth_year) + ')'
+		return m
+
+	@property
+	def life_concise(self):
+		m =''
+		if self.born and not self.died: m += 'born '
+		if self.born:m += str(self.birth_year) 
+		if self.born and self.died: m += ' - '
+		if self.died and not self.born: m += 'died '
+		if self.died:m += str(self.death_year)
 		return m
 
 	@property
@@ -261,6 +272,13 @@ class Person(models.Model, info):
 		d['identifier'] = self.identifier
 		return d
 
+	@property
+	def edit_url(self):
+		return self._meta.app_label + ':edit_' + self._meta.model_name
+
+	@property
+	def detail_url(self):
+		return self._meta.app_label + ':detail_' + self._meta.model_name
 
 	
 class Movement(models.Model, info):
