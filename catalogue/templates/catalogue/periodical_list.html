@@ -36,12 +36,23 @@
 		<td>{{periodical.founded}}</td>
 		<td>{{periodical.closue}}</td>
 		<td>{{periodical.location_str}}</td>
-		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'catalogue:delete' periodical.pk 'Periodical' %}"
-        role="button"><i class="fa fa-trash text-secondary"></i></a>
-		<a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'catalogue:edit_periodical' periodical.pk %}"
-        role="button"><i class="far fa-edit text-secondary"></i></a></td>
+		<td style="white-space:nowrap;">
+			<a class = "btn btn-link btn-sm ml-auto"
+				href ="{% url 'catalogue:delete' periodical.pk 'Periodical' %}"
+				role="button">
+					<i class="fa fa-trash text-secondary"></i>
+			</a>
+			<a class = "btn btn-link btn-sm ml-auto"
+				href ="{% url 'catalogue:edit_periodical' periodical.pk %}"
+				role="button">
+					<i class="far fa-edit text-secondary"></i>
+			</a>
+			<a class="btn btn-link btn-sm ml-auto" 
+				href="{% url periodical.detail_url periodical.pk %}"
+				role="button">
+				   <i class="fas fa-eye text-secondary"></i>
+			</a>
+		</td>
 	</tr>
 	{% endfor %}
 </table>

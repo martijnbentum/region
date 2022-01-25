@@ -41,12 +41,23 @@
 		<td>{{text.language}}</td>
 		<td>{{text.genre}}</td>
 		<td>{{text.setting}}</td>
-		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'catalogue:delete' text.pk 'Text' %}"
-        role="button"><i class="fa fa-trash text-secondary"></i></a>
-		<a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'catalogue:edit_text' text.pk %}"
-        role="button"><i class="far fa-edit text-secondary"></i></a></td>
+		<td style="white-space:nowrap;">
+			<a class = "btn btn-link btn-sm ml-auto"
+				href="{% url 'catalogue:delete' text.pk 'Text' %}"
+				role="button">
+					<i class="fa fa-trash text-secondary"></i>
+			</a>
+			<a class="btn btn-link btn-sm ml-auto"
+				href="{% url 'catalogue:edit_text' text.pk %}"
+				role="button">
+					<i class="far fa-edit text-secondary"></i>
+			</a>
+			<a class="btn btn-link btn-sm ml-auto" 
+				href="{% url text.detail_url text.pk %}"
+				role="button">
+				   <i class="fas fa-eye text-secondary"></i>
+			</a>
+		</td>
 	</tr>
 	{% endfor %}
 </table>

@@ -23,12 +23,23 @@
 	{% for publisher in publisher_list %}
 		<td>{{publisher.name}}</td>
 		<td>{{publisher.location_string}}</td>
-		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'catalogue:delete' publisher.pk 'Publisher' %}"
-        role="button"><i class="fa fa-trash text-secondary"></i></a>
-		<a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'catalogue:edit_publisher' publisher.pk %}"
-        role="button"><i class="far fa-edit text-secondary"></i></a></td>
+		<td style="white-space:nowrap;">
+			<a class = "btn btn-link btn-sm ml-auto"
+				href ="{% url 'catalogue:delete' publisher.pk 'Publisher' %}"
+				role="button">
+					<i class="fa fa-trash text-secondary"></i>
+			</a>
+			<a class = "btn btn-link btn-sm ml-auto"
+				href ="{% url 'catalogue:edit_publisher' publisher.pk %}"
+				role="button">
+					<i class="far fa-edit text-secondary"></i>
+			</a>
+			<a class="btn btn-link btn-sm ml-auto" 
+				href="{% url publisher.detail_url publisher.pk %}"
+				role="button">
+				   <i class="fas fa-eye text-secondary"></i>
+			</a>
+		</td>
 	</tr>
 	{% endfor %}
 </table>
