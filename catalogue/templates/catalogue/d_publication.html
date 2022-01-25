@@ -37,7 +37,20 @@
 	</div>
 {%endfor%}
 
-<p>publications: {{instance.publications}}</p>
+
+<p>texts: </p>
+{%for text in instance.texts%}
+	<p>{{text.title}} <small>{{text.genre}}</small> 
+		(p. {{text.start_page}} - {{text.end_page}})</p>
+{%endfor%}
+<br>
+<p>illustrations: </p>
+{%for image in instance.illustrations %}
+	{% if image.url_image %}
+		<img src="{{image.url_image}}" alt="{{image.url_image}}">
+	{% endif %}
+	<p>{{image.caption}} p. {{image.page}}</p>
+{%endfor%}
 
 <style>
 img {
@@ -47,8 +60,6 @@ img {
 	border-radius:5px;
 	max-width:100%;
 	max-height:100%;
-	margin-left: auto;
-	margin-right:auto;
 	}
 </style>
 
