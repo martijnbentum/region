@@ -440,6 +440,46 @@ class Publication(Item, info):
 			o += str(date.year) + ' '
 		return o
 
+	@property
+	def illustrations(self):
+		output = []
+		ipr = self.illustrationpublicationrelation_set.all()
+		if not ipr: return output
+		for x in ipr:
+			d = {}
+			try: order = int(x.page)
+			except: order = 0
+			d['order'] = order
+			d['page'] = x.page
+			if x.illustration.upload: d['url_image'] = x.illustration.upload.url
+			else:d['url_image'] = ''
+			d['caption'] = x.illustration.caption
+			output.append(d)
+		return sorted(output, key=lambda x: x['order'])
+
+	@property
+	def texts(self):
+		output = []
+		tpr = self.textpublicationrelation_set.all()
+		if not tpr:return output
+		for x in tpr:
+			d ={}
+			try: order = int(x.start_page)
+			except: order = 0
+			d['order'] = order
+			d['start_page'] = x.start_page
+			d['end_page'] = x.end_page
+			d['title'] = x.text.title
+			if x.text.genre: d['genre'] = x.text.genre.name
+			else: d['genre'] = ''
+			output.append(d)
+		return sorted(output, key=lambda x: x['order'])
+		
+
+			
+		
+		
+
 
 class Periodical(Item, info):
 	'''Recurrent publication.'''
