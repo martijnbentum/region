@@ -145,6 +145,13 @@ class Location(models.Model, info):
 		return country
 
 	@property
+	def full_name(self):
+		name = self.name
+		country = self.country
+		if country: name += ', ' + country
+		return name
+
+	@property
 	def region(self):
 		'''returns the region a location is in, if it is not set in 
 		a locationrelation the information field is checked;
