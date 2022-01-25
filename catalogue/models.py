@@ -215,9 +215,11 @@ class Text(Item, info):
 	def dates(self):
 		dates = self.get_dates
 		if not dates: return ''
+		output = []
 		o = 'Published in: '
-		for date in dates:
-			o += str(date.year) + ' '
+		for i,date in enumerate(dates):
+			o += str(date.year) 
+			if i != len(dates) -1:o += ', '
 		return o
 
 	@property
@@ -287,6 +289,7 @@ class Illustration(Item, info):
 		o = []
 		for x in tpr:
 			o.append( x.publication )
+		o = sorted(o, key = lambda x: x.date)
 		return o
 
 	@property
@@ -411,9 +414,25 @@ class Publication(Item, info):
 		return ' | '.join([pu.name for pu in self.location.all()])
 
 	@property
+	def location_names(self):
+		o = []
+		for l in self.location.all():
+			o.append(l.full_name)
+		return ' | '.join(o)
+
+	@property
 	def get_dates(self):
 		if not self.date: return ''
 		return [self.date]
+
+	@property
+	def dates(self):
+		dates = self.get_dates
+		if not dates: return ''
+		o = 'Published in: '
+		for date in dates:
+			o += str(date.year) + ' '
+		return o
 
 	@property
 	def title_exact(self):
@@ -432,15 +451,6 @@ class Publication(Item, info):
 		return m
 
 	@property
-	def dates(self):
-		dates = self.get_dates
-		if not dates: return ''
-		o = 'Published in: '
-		for date in dates:
-			o += str(date.year) + ' '
-		return o
-
-	@property
 	def illustrations(self):
 		output = []
 		ipr = self.illustrationpublicationrelation_set.all()
@@ -454,6 +464,8 @@ class Publication(Item, info):
 			if x.illustration.upload: d['url_image'] = x.illustration.upload.url
 			else:d['url_image'] = ''
 			d['caption'] = x.illustration.caption
+			d['detail_url'] = x.illustration.detail_url
+			d['pk'] = x.illustration.pk
 			output.append(d)
 		return sorted(output, key=lambda x: x['order'])
 
@@ -470,17 +482,33 @@ class Publication(Item, info):
 			d['start_page'] = x.start_page
 			d['end_page'] = x.end_page
 			d['title'] = x.text.title
+			d['detail_url'] = x.text.detail_url
+			d['pk'] = x.text.pk
 			if x.text.genre: d['genre'] = x.text.genre.name
 			else: d['genre'] = ''
 			output.append(d)
 		return sorted(output, key=lambda x: x['order'])
+
+	@property
+	def publishers(self):
+		if hasattr(self,'_publishers'): return self._publishers
+		o = []
+		for publisher in self.publisher.all():
+			o.append(publisher)
+		self._publishers = o
+		return self._publishers
+
+	@property
+	def reviews(self):
+		if hasattr(self,'_reviews'): return self._reviews
+		o = []
+		for tpr in self.textreviewpublicationrelation_set.all():
+			o.append(tpr.text)
+		self._reviews= o
+		return self._reviews
 		
 
-			
 		
-		
-
-
 class Periodical(Item, info):
 	'''Recurrent publication.'''
 	title = models.CharField(max_length=300)
@@ -495,11 +523,6 @@ class Periodical(Item, info):
 			names.append(ppr.person.full_name)
 		self.person = '; '.join(names)
 		self.save()
-
-	@property
-	def get_dates(self):
-		if not self.founded: return ''
-		return [self.founded]
 
 	class Meta:
 		unique_together = 'title,founded'.split(',')
@@ -518,6 +541,38 @@ class Periodical(Item, info):
 		if names: 
 			m += '<p><small>published by <b>' + names + '</b></small></p>'
 		return pop_up(self,latlng,extra_information=m)
+
+	@property
+	def location_names(self):
+		o = []
+		for l in self.location.all():
+			o.append(l.full_name)
+		return ' | '.join(o)
+
+	@property
+	def publications(self):
+		if hasattr(self,'_publications'): return self._publications
+		output = []
+		for ppr in self.periodicalpublicationrelation_set.all():
+			output.append(ppr.publication)			
+		self._publications = sorted(output, key = lambda x: x.date)
+		return self._publications
+
+	@property
+	def roles_to_persons_dict(self):
+		if hasattr(self,'_role_person_dict'): return self._role_person_dict
+		d ={}
+		pprs = self.personperiodicalrelation_set.all()
+		for ppr in pprs:
+			if ppr.role.name.lower() not in d.keys(): d[ppr.role.name.lower()] = []
+			d[ppr.role.name.lower()].append(ppr.person)
+		self._role_person_dict = d
+		return self._role_person_dict
+
+	@property
+	def get_dates(self):
+		if not self.founded: return ''
+		return [self.founded]
 
 	@property
 	def dates(self):
