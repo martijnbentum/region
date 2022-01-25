@@ -26,12 +26,23 @@
 	{% endif %}
 		<td>{{movement.name}}</td>
 		<td>{{movement.location_str}}</td>
-		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'persons:delete' movement.pk 'Movement' %}"
-        role="button"><i class="fa fa-trash text-secondary"></i></a>
-		<a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'persons:edit_movement' movement.pk %}"
-        role="button"><i class="far fa-edit text-secondary"></i></a></td>
+		<td style="white-space:nowrap;">
+			<a class = "btn btn-link btn-sm ml-auto"
+				href ="{% url 'persons:delete' movement.pk 'Movement' %}"
+				role="button">
+					<i class="fa fa-trash text-secondary"></i>
+			</a>
+			<a class = "btn btn-link btn-sm ml-auto"
+				href ="{% url 'persons:edit_movement' movement.pk %}"
+				role="button">
+					<i class="far fa-edit text-secondary"></i>
+			</a>
+			<a class="btn btn-link btn-sm ml-auto" 
+				href="{% url movement.detail_url movement.pk %}"
+				role="button">
+				   <i class="fas fa-eye text-secondary"></i>
+			</a>
+		</td>
 	</tr>
 	{% endfor %}
 </table>

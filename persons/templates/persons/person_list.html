@@ -38,12 +38,23 @@
 		<td>{{person.birth_year|default:''}}</td>
 		<td>{{person.death_year|default:''}}</td>
 		<td>{{person.birth_place|default:''}}</td>
-		<td style="white-space:nowrap;"><a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'persons:delete' person.pk 'Person' %}"
-        role="button"><i class="fa fa-trash text-secondary"></i></a>
-		<a class = "btn btn-link btn-sm ml-auto"
-        href ="{% url 'persons:edit_person' person.pk %}"
-        role="button"><i class="far fa-edit text-secondary"></i></a></td>
+		<td style="white-space:nowrap;">
+			<a class = "btn btn-link btn-sm ml-auto"
+				href ="{% url 'persons:delete' person.pk 'Person' %}"
+				role="button">
+					<i class="fa fa-trash text-secondary"></i>
+			</a>
+			<a class = "btn btn-link btn-sm ml-auto"
+				href ="{% url 'persons:edit_person' person.pk %}"
+				role="button">
+					<i class="far fa-edit text-secondary"></i>
+			</a>
+			<a class="btn btn-link btn-sm ml-auto" 
+				href="{% url person.detail_url person.pk %}"
+				role="button">
+				   <i class="fas fa-eye text-secondary"></i>
+			</a>
+		</td>
 	</tr>
 	{% endfor %}
 </table>

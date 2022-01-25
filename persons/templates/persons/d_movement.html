@@ -1,0 +1,25 @@
+{% extends "utilities/base.html" %}
+{% load getattribute %} 
+
+{% block head %}
+	<title>{{page_name}}</title>
+	{% include 'utilities/detail_style.html' %}
+{% endblock %}
+
+{% block content%}
+
+<div class="one-line">
+	<p class="title">{{instance.name}} 
+	<a class = "btn btn-link btn-sm ml-auto"
+		href ="{% url instance.edit_url instance.pk %}"
+		role="button"><i class="far fa-edit text-secondary"></i></a>
+	</p>
+</div>
+
+<p class="date">{{instance.dates}}</p>
+<hr>
+
+<style>
+</style>
+
+{% endblock %}
