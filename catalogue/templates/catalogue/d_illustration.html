@@ -39,15 +39,17 @@
 		{%endfor%}
 	</div>
 {%endfor%}
-
+<br>
 <span class="info-header">publications:</span><br>
 {%for publication in instance.publications%}
-	<a class="link-color"
-	href="{% url publication.detail_url publication.pk %}"
-	role="button">
-		{{publication.title}}
-	</a>
-	&nbsp<small>{{publication.dates}}</small>
+	<div>
+		<a class="link-color"
+		href="{% url publication.detail_url publication.pk %}"
+		role="button">
+			{{publication.title}}
+		</a>
+		&nbsp<small>{{publication.dates}}</small>
+	</div>
 {%endfor%}
 
 <style>

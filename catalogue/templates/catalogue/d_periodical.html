@@ -16,6 +16,11 @@
 <p class="date">{{instance.dates}}</p>
 <hr>
 
+{% if instance.location_names %}
+	<span class="info-header">location: </span>{{instance.location_names}}
+	<br>
+{% endif %}
+
 {% for key, persons in instance.roles_to_persons_dict.items %}
 	<div clas="one-line">
 		<span class="info-header">
@@ -31,7 +36,18 @@
 	</div>
 {%endfor%}
 
-<p>publications: {{instance.publications}}</p>
+<br>
+<span class="info-header">publications:</span><br>
+{%for publication in instance.publications%}
+	<div>
+		<a class="link-color"
+		href="{% url publication.detail_url publication.pk %}"
+		role="button">
+			{{publication.title}}
+		</a>
+		&nbsp<small>{{publication.dates}}</small>
+	</div>
+{%endfor%}
 
 <style>
 </style>
