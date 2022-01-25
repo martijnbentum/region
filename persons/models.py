@@ -333,6 +333,14 @@ class Movement(models.Model, info):
 		i += '_' + str( self.pk )
 		return i
 
+	@property
+	def edit_url(self):
+		return self._meta.app_label + ':edit_' + self._meta.model_name
+
+	@property
+	def detail_url(self):
+		return self._meta.app_label + ':detail_' + self._meta.model_name
+
 	def empty_fields(self,fields = []):
 		return get_empty_fields(self,fields, default_is_empty = True)
 
