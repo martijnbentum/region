@@ -32,7 +32,7 @@
 		</span>
 		{%for person in persons %}
 			<a class="link-color"
-			href="{% url person.edit_url person.pk %}"
+			href="{% url person.detail_url person.pk %}"
 			role="button">
 				{{person.full_name}} 
 			</a>&nbsp<small>{{person.life_concise}}</small>&nbsp
@@ -40,7 +40,15 @@
 	</div>
 {%endfor%}
 
-<p>publications: {{instance.publications}}</p>
+<span class="info-header">publications:</span><br>
+{%for publication in instance.publications%}
+	<a class="link-color"
+	href="{% url publication.detail_url publication.pk %}"
+	role="button">
+		{{publication.title}}
+	</a>
+	&nbsp<small>{{publication.dates}}</small>
+{%endfor%}
 
 <style>
 img {
