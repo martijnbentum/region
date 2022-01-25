@@ -5,14 +5,16 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
 # from utilities.models import Date 
-from .models import Person, PersonLocationRelation, PersonLocationRelationType, Movement, MovementType
+from .models import Person, PersonLocationRelation, PersonLocationRelationType, Movement 
+from .models import MovementType
 from .forms import PersonForm, PersonLocationRelationForm, PersonLocationRelationTypeForm
 from .forms import location_formset, persontext_formset, personillustration_formset
 from .forms import personpublisher_formset, PseudonymForm, MovementForm
 from .forms import PersonTextRelationRoleForm, PersonIllustrationRelationRoleForm
 from .forms import movementperson_formset, personmovement_formset
 from .forms import PersonMovementRelationRoleForm, MovementTypeForm
-from .forms import personperson_formset, personpersonr_formset, PersonPersonRelationTypeForm
+from .forms import personperson_formset, personpersonr_formset 
+from .forms import PersonPersonRelationTypeForm
 from .forms import PersonPeriodicalRelationRoleForm, personperiodical_formset
 from django.forms import inlineformset_factory
 import json
@@ -20,12 +22,17 @@ from utils import view_util
 from utils.view_util import Crud, make_tabs, get_modelform, FormsetFactoryManager
 from utilities.views import add_simple_model, getfocus, edit_model, delete_model,list_view
 	
+def detail_movement(request,pk):
+	movement = Movement.objects.get(pk = pk)
+	var = {'page_name':movement.name}
+	var.update({'instance':movement})
+	return render(request,'persons/d_movement.html',var)
 
-def person_detail(request, person_id):
-	'''work in progress.'''
-	p = Person.objects.get(pk=person_id)
-	var = {'person':p,'map_name':'europe.js','location_name':'europe'}
-	return render(request,'persons/person_detail.html',var)
+def detail_person(request,pk):
+	person= Person.objects.get(pk = pk)
+	var = {'page_name':person.name}
+	var.update({'instance':person})
+	return render(request,'persons/d_person.html',var)
 
 def make_fname(name):
 	'''replace capitalized letter to lower case and insert an underscore before

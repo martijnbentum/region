@@ -17,10 +17,13 @@ urlpatterns = [
 		name='edit_movement'),
 	path('edit_movement/<int:pk>/<str:focus>', views.edit_movement, 
 		name='edit_movement'),
-	path('person/<int:person_id>',views.person_detail,name='person_detail'),
 	path('person/add_pseudonym',views.add_pseudonym,
 		name='add_pseudonym'),
 	path('delete/<int:pk>/<str:model_name>', views.delete, name='delete'),
+	path('d_movement/<int:pk>',views.detail_movement,
+		name='detail_movement'),
+	path('d_person/<int:pk>',views.detail_person,
+		name='detail_person'),
 ]
 
 def create_simple_path(name):
