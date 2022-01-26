@@ -8,6 +8,7 @@
 
 {% block content%}
 
+<p class="category">Publication</p>
 {% if instance.cover%}
 	<img class="cover-image"
 	src="{{instance.cover.url}}" 
@@ -31,6 +32,42 @@
 	<span class="info-header">location published: </span>
 	{{instance.location_names}}
 	<br>
+	<br>
+{% endif %}
+
+{% if instance.authors %}
+	{% if instance.translators %}
+		<span class="info-header">orginal authors:</span><br>
+	{% else %}
+		<span class="info-header">authors:</span><br>
+	{% endif %}
+		
+	{%for person in instance.authors%}
+		<div>
+			<a class="link-color"
+			href="{% url person.detail_url person.pk %}"
+			role="button">
+				{{person.full_name}}
+			</a>
+			</a>&nbsp<small>{{person.life_concise}}</small>&nbsp
+		</div>
+	{%endfor%}
+	<br>
+{% endif %}
+
+{% if instance.translators %}
+	<span class="info-header">translators:</span><br>
+		
+	{%for person in instance.translators%}
+		<div>
+			<a class="link-color"
+			href="{% url person.detail_url person.pk %}"
+			role="button">
+				{{person.full_name}}
+			</a>
+			</a>&nbsp<small>{{person.life_concise}}</small>&nbsp
+		</div>
+	{%endfor%}
 	<br>
 {% endif %}
 
@@ -59,13 +96,15 @@
 		</a>&nbsp
 		<small>
 			{{text.genre}}&nbsp
-			(p. {{text.start_page}} - {{text.end_page}})&nbsp
+			{% if text.start_page and text.end_page %}
+				(p. {{text.start_page}} - {{text.end_page}})&nbsp
+			{% endif %}
 		</small>
 	</div>
 {%endfor%}
 <br>
 {% if instance.reviews%}
-	<span class="info-header">reviews:</span><br>
+	<span class="info-header">reviewed by:</span><br>
 	{%for review in instance.reviews%}
 		<div>
 			<a class="link-color"
@@ -80,25 +119,28 @@
 	{%endfor%}
 	<br>
 {% endif %}
-<span class="info-header">illustrations:</span><br>
-{%for image in instance.illustrations %}
-	<div class="row">
-		<div class="col-1">
-			{% if image.url_image %}
-				<img class="small-image" 
-					src="{{image.url_image}}" 
-					alt="{{image.url_image}}">
-			{% endif %}
+
+{% if instance.illustrations %}
+	<span class="info-header">illustrations:</span><br>
+	{%for image in instance.illustrations %}
+		<div class="row">
+			<div class="col-1">
+				{% if image.url_image %}
+					<img class="small-image" 
+						src="{{image.url_image}}" 
+						alt="{{image.url_image}}">
+				{% endif %}
+			</div>
+			<div class="col-11">
+				<a class="link-color image-caption"
+				href="{% url image.detail_url image.pk %}"
+				role="button">
+					{{image.caption}} 
+				</a>&nbsp<small>p. {{image.page}}</small>&nbsp
+			</div>
 		</div>
-		<div class="col-11">
-			<a class="link-color image-caption"
-			href="{% url image.detail_url image.pk %}"
-			role="button">
-				{{image.caption}} 
-			</a>&nbsp<small>p. {{image.page}}</small>&nbsp
-		</div>
-	</div>
-{%endfor%}
+	{%endfor%}
+{% endif %}
 
 <style>
 img {
