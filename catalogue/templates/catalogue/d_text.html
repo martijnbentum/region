@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block content%}
+<p class="category">Text</p>
 <p class="title">{{instance.title}}
 	<a class = "btn btn-link btn-sm ml-auto"
 		href ="{% url instance.edit_url instance.pk %}"
@@ -14,6 +15,29 @@
 </p>
 <p class="date">{{instance.dates}}</p>
 <hr>
+
+{% if instance.description %}
+	<span class="info-header">description: </span>
+	<p>{{instance.description}}</p>
+	<br>
+{%endif%}
+
+
+{% if instance.genre%}
+	<span class="info-header">genre: </span>
+	{{instance.genre}}
+	<br>
+{% endif %}
+{% if instance.language%}
+	<span class="info-header">language: </span>
+	{{instance.language}}
+	<br>
+{% endif %}
+{% if instance.setting%}
+	<span class="info-header">setting: </span>
+	{{instance.setting}}
+	<br>
+{% endif %}
 
 {% for key, persons in instance.roles_to_persons_dict.items %}
 	<div clas="one-line">
@@ -29,10 +53,57 @@
 		{%endfor%}
 	</div>
 {%endfor%}
+<br>
+<span class="info-header">publications:</span><br>
+{%for publication in instance.publications%}
+	<div>
+		<a class="link-color"
+		href="{% url publication.detail_url publication.pk %}"
+		role="button">
+			{{publication.title}}
+		</a>
+		&nbsp<small>{{publication.dates}}</small>
+	</div>
+{%endfor%}
+<br>
 
-<p>publications: {{instance.publications}}</p>
-<p>Genre: {{instance.genre}}</p>
-<p>Language: {{instance.language}}</p>
+{% if instance.type_to_linked_texts_dict%}
+	{%for type, texts in instance.type_to_linked_texts_dict.items %}
+		{% if instance.type_info == 'translation' and type == 'translation' %}
+			<span class="info-header">{{type}} of:</span><br>
+		{% else %}
+			<span class="info-header">{{type}}:</span><br>
+		{%endif%}
+		{% for text in texts %}
+			<div>
+				<a class="link-color"
+				href="{% url text.detail_url text.pk %}"
+				role="button">
+					{{text.title}}
+				</a>
+				{% if type == 'translation' %}
+					&nbsp<small>{{text.language}}</small>
+				{%endif%}
+			</div>
+		{% endfor %}
+	{% endfor %}
+{%endif%}
+		
+
+
+{% if instance.reviews %}
+	<span class="info-header">{{instance.reviews.type}}:</span><br>
+	{%for review in instance.reviews.reviews%}
+		<div>
+			<a class="link-color"
+			href="{% url review.detail_url review.pk %}"
+			role="button">
+				{{review.title}}
+			</a>
+			&nbsp<small>{{review.dates}}</small>
+		</div>
+	{%endfor%}
+{% endif %}
 
 <style>
 </style>
