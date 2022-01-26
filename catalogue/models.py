@@ -223,9 +223,81 @@ class Text(Item, info):
 		return o
 
 	@property
+	def roles_to_persons_dict(self):
+		if hasattr(self,'_roles_to_persons_dict'): return self._roles_to_persons_dict
+		d ={}
+		ptrs = self.persontextrelation_set.all()
+		for ptr in ptrs:
+			if ptr.role.name not in d.keys(): d[ptr.role.name] = []
+			d[ptr.role.name].append(ptr.person)
+		self._roles_to_persons_dict = d
+		return self._roles_to_persons_dict
+
+	@property
+	def publications(self):
+		tpr =  self.textpublicationrelation_set.all()
+		if not tpr: return ''
+		o = []
+		for x in tpr:
+			o.append( x.publication )
+		o = sorted(o, key = lambda x: x.date)
+		return o
+
+	@property
 	def type_info(self):
 		if self.text_type: return self.text_type.name
 		return '' 
+
+	@property
+	def reviews(self):
+		if hasattr(self,'_reviews'): return self._reviews
+		d = {'reviews':[]}
+		trp = self.textreviewpublicationrelation_set.all()
+		reviews = [x.publication for x in trp]
+		if self.text_type and self.text_type.name.lower() == 'review' or reviews: 
+			d['type'] = 'review of'
+		else: d['type'] = 'reviewed by'
+		reviews.extend(self.get_linked_texts('review'))
+		for review in reviews:
+			d['reviews'].append(review)
+		if len(reviews) == 0: d = {}
+		self._reviews = d
+		return self._reviews
+
+	@property
+	def type_to_linked_texts_dict(self):
+		if hasattr(self,'_linked_texts'): return self._linked_texts
+		relation_types = TextTextRelationType.objects.all()
+		d = {}
+		for t in relation_types:
+			if t.name.lower() == 'review': continue
+			texts =  self.get_linked_texts(t.name)
+			if texts: 
+				d[t.name.lower()] = self.get_linked_texts(t.name)
+		self._linked_texts = d
+		return self._linked_texts
+
+		
+	def get_linked_texts(self, relation_type):
+		output = []
+		ttr = self.secondary.filter(relation_type__name__icontains = relation_type)
+		output.extend([x.primary for x in ttr])
+		ttr = self.primary.filter(relation_type__name__icontains = relation_type)
+		output.extend([x.secondary for x in ttr])
+		return output
+
+	@property
+	def authors(self):
+		d = self.roles_to_persons_dict
+		if 'author' in d.keys(): return d['author']
+		else: return []
+		
+		
+		
+
+		
+			
+		
 			
 			
 
@@ -471,6 +543,7 @@ class Publication(Item, info):
 
 	@property
 	def texts(self):
+		if hasattr(self,'_texts'): return self._texts
 		output = []
 		tpr = self.textpublicationrelation_set.all()
 		if not tpr:return output
@@ -484,10 +557,15 @@ class Publication(Item, info):
 			d['title'] = x.text.title
 			d['detail_url'] = x.text.detail_url
 			d['pk'] = x.text.pk
+			d['authors'] = x.text.authors
+			if 'translator' in x.text.roles_to_persons_dict.keys():
+				d['translators'] = x.text.roles_to_persons_dict['translator']
+			else: d['translators'] = []
 			if x.text.genre: d['genre'] = x.text.genre.name
 			else: d['genre'] = ''
 			output.append(d)
-		return sorted(output, key=lambda x: x['order'])
+		self._texts = sorted(output, key=lambda x: x['order'])
+		return self._texts
 
 	@property
 	def publishers(self):
@@ -498,6 +576,24 @@ class Publication(Item, info):
 		self._publishers = o
 		return self._publishers
 
+	@property
+	def authors(self):
+		if hasattr(self,'_authors'): return self._authors
+		output = []
+		for text in self.texts:
+			if text['authors']: output.extend(text['authors'])
+		self._authors = list(set(output))
+		return self._authors
+
+	@property
+	def translators(self):
+		if hasattr(self,'_translators'): return self._translators
+		output = []
+		for text in self.texts:
+			if text['translators']: output.extend(text['translators'])
+		self._translators= list(set(output))
+		return self._translators
+		
 	@property
 	def reviews(self):
 		if hasattr(self,'_reviews'): return self._reviews
