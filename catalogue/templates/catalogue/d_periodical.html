@@ -38,17 +38,19 @@
 {%endfor%}
 
 <br>
-<span class="info-header">publications:</span><br>
-{%for publication in instance.publications%}
-	<div>
-		<a class="link-color"
-		href="{% url publication.detail_url publication.pk %}"
-		role="button">
-			{{publication.title}}
-		</a>
-		&nbsp<small>{{publication.dates}}</small>
-	</div>
-{%endfor%}
+{% if instance.publications %}
+	<span class="info-header">publications:</span><br>
+	{%for publication in instance.publications%}
+		<div>
+			<a class="link-color"
+			href="{% url publication.detail_url publication.pk %}"
+			role="button">
+				{{publication.title}}
+			</a>
+			&nbsp<small>{{publication.dates}}</small>
+		</div>
+	{%endfor%}
+{% endif %}
 
 <style>
 </style>
