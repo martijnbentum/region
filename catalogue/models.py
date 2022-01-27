@@ -425,6 +425,32 @@ class Publisher(Item, info):
 		if self.closure: o += 'closure in: ' +str(self.closure)
 		return o
 
+	@property
+	def location_names(self):
+		o = []
+		for l in self.location.all():
+			o.append(l.full_name)
+		return ' | '.join(o)
+
+	@property
+	def persons(self):
+		if hasattr(self,'_persons'):return self._persons
+		o = []
+		for publisher_manager_relation in self.publisher.all():
+			o.append(publisher_manager_relation.manager)
+		self._persons = o
+		return self._persons
+	
+	@property
+	def publications(self):
+		if hasattr(self,'_publications'): return self._publications
+		output = []
+		for publication in self.publication_set.all():
+			output.append(publication)			
+		self._publications = sorted(output, key = lambda x: x.date)
+		return self._publications
+			
+
 	def pop_up(self,latlng):
 		m = ''
 		if self.founded: m += '<p><small>founded <b>' + str(self.founded)
