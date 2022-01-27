@@ -85,7 +85,7 @@ class Person(models.Model, info):
 	def _set_full_name(self):
 		full_name = self.name 
 		pseudonyms = self.pseudonyms
-		if pseudonyms: full_name += ', ' + pseudonyms
+		if pseudonyms: full_name += ' (' + pseudonyms + ')'
 		self.full_name = full_name
 			
 	class Meta:
