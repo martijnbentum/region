@@ -171,6 +171,157 @@ class Person(models.Model, info):
 		'''string representation of listed pseudonyms.
 		'''
 		return ' | '.join([x.name for x in self.pseudonym.all()])
+
+	@property
+	def type_to_locations_dict(self):
+		if hasattr(self,'_type_location_dict'): return self._type_location_dict
+		d ={}
+		plrs = self.personlocationrelation_set.all()
+		for plr in plrs:
+			if plr.relation.name.lower() not in d.keys(): 
+				d[plr.relation.name.lower()] = []
+			d[plr.relation.name.lower()].append(plr.location.full_name)
+		self._type_location_dict= d
+		return self._type_location_dict
+
+	@property
+	def texts(self):
+		if hasattr(self,'_texts'): return self._texts
+		output = []
+		for texts in self.role_to_text_dict.values():
+			output.extend(texts)
+		self._texts= sorted(output, key = lambda x: x.title)
+		return self._texts
+
+	@property
+	def illustrations(self):
+		if hasattr(self,'_illustrations'): return self._illustrations
+		output = []
+		for illustrations in self.role_to_illustration_dict.values():
+			output.extend(illustrations)
+		self._illustrations= sorted(output, key = lambda x: x.caption)
+		return self._illustrations
+
+	@property
+	def publications(self):
+		if hasattr(self,'_publications'): return self._publications
+		items = self.texts + self.illustrations
+		output = []
+		for item in items:
+			for publication in item.publications:
+				if not publication in output: output.append(publication)
+		self._publications = sorted(output, key = lambda x: x.date)
+		return self._publications
+
+	@property
+	def role_to_person_dict(self):
+		if hasattr(self,'_role_to_person_dict'): return self._role_to_person_dict
+		d ={}
+		for relation_type in PersonPersonRelationType.objects.all():
+			persons = self.get_linked_persons(relation_type.name)
+			if not persons: continue
+			d[relation_type.name.lower()] = sorted(persons, key = lambda x:x.last_name)
+		return d
+
+	def get_linked_persons(self,relation_type):
+		persons = []
+		person_links = self.person1.filter(relation_type__name__icontains=relation_type) 
+		for person_link in person_links:
+			person = person_link.person2
+			if person not in persons:persons.append(person)
+		person_links = self.person2.filter(relation_type__name__icontains=relation_type) 
+		for person_link in person_links:
+			person = person_link.person1
+			if person not in persons:persons.append(person)
+		return persons
+
+
+	@property
+	def role_to_text_dict(self):
+		if hasattr(self,'_role_to_text_dict'): return self._role_to_text_dict
+		d ={}
+		for ptr in self.persontextrelation_set.all():
+			if ptr.relation_name.lower() not in d.keys(): 
+				d[ptr.relation_name.lower()] = []
+			d[ptr.relation_name.lower()].append(ptr.text)
+		for role,texts in d.items():
+			d[role] = sorted(texts, key = lambda x:x.title)
+		self._role_to_text_dict= d
+		return self._role_to_text_dict
+
+	@property
+	def role_to_movement_dict(self):
+		if hasattr(self,'_role_to_movement_dict'): return self._role_to_movement_dict
+		d ={}
+		for pmr in self.personmovementrelation_set.all():
+			if pmr.role.name.lower() not in d.keys(): 
+				d[pmr.role.name.lower()] = []
+			d[pmr.role.name.lower()].append(pmr.movement)
+		for role,movements in d.items():
+			d[role] = sorted(movements, key = lambda x:x.name)
+		self._role_to_movement_dict= d
+		return self._role_to_movement_dict
+
+	@property
+	def role_to_periodical_dict(self):
+		if hasattr(self,'_role_to_periodical_dict'): return self._role_to_periodical_dict
+		d ={}
+		for ppr in self.personperiodicalrelation_set.all():
+			if ppr.role.name.lower() not in d.keys(): 
+				d[ppr.role.name.lower()] = []
+			d[ppr.role.name.lower()].append(ppr.periodical)
+		for role,periodicals in d.items():
+			d[role] = sorted(periodicals, key = lambda x:x.title)
+		self._role_to_periodical_dict= d
+		return self._role_to_periodical_dict
+
+	@property
+	def role_to_illustration_dict(self):
+		if hasattr(self,'_role_to_illustration_dict'): 
+			return self._role_to_illustration_dict
+		d ={}
+		for pir in self.personillustrationrelation_set.all():
+			if pir.role.name.lower() not in d.keys(): 
+				d[pir.role.name.lower()] = []
+			d[pir.role.name.lower()].append(pir.illustration)
+		for role,texts in d.items():
+			d[role] = sorted(texts, key = lambda x:x.caption)
+		self._role_to_illustration_dict= d
+		return self.role_to_illustration_dict
+
+	@property
+	def roles(self):
+		if hasattr(self,'_roles'): return self._roles
+		roles = []
+		s = self
+		relation_sets = [s.personillustrationrelation_set,s.persontextrelation_set]
+		relation_sets.append(s.personmovementrelation_set)
+		relation_sets.append(s.personperiodicalrelation_set)
+		for relation_set in relation_sets:
+			for x in relation_set.all():
+				if x.role.name not in roles:roles.append(x.role.name)
+		self._roles = roles
+		return self._roles
+
+	@property
+	def vocations(self):
+		output = []
+		vocation_list = 'author,illustrator'.split(',')
+		for vocation in vocation_list:
+			if vocation in self.roles: output.append(vocation)
+		publisher_relations = self.manager.all() 
+		if publisher_relations: output.append('publisher')
+		return ', '.join(output)
+
+	@property
+	def publishers(self):
+		if hasattr(self,'_publishers'): return self._publishers
+		publisher_relations = self.manager.all() 
+		output = []
+		for pr in publisher_relations:
+			output.append(pr.publisher)
+		self._publishers = output
+		return self._publishers
 		
 	def pop_up(self,latlng=None):
 		'''create a pop up for map rendering with information 
