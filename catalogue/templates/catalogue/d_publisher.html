@@ -27,20 +27,21 @@
 	<br>
 {% endif %}
 
-{% for person in instance.persons%}
-	<div> 
-		<span class="info-header">
-			managers: 
-		</span>
-		<p>
-			<a class="link-color"
-			href="{% url person.edit_url person.pk %}"
-			role="button">
-				{{person.full_name}} 
-			</a>&nbsp<small>{{person.life_concise}}</small>&nbsp
-		</p>
-	</div>
-{%endfor%}
+{% if instance.persons %}
+	<span class="info-header">
+		managers: 
+	</span>
+	{% for person in instance.persons%}
+		<div> 
+				<a class="link-color"
+				href="{% url person.detail_url person.pk %}"
+				role="button">
+					{{person.full_name}} 
+				</a>&nbsp<small>{{person.life_concise}}</small>&nbsp
+		</div>
+	{%endfor%}
+	<br>
+{% endif %}
 
 <span class="info-header">publications:</span><br>
 {%for publication in instance.publications%}
