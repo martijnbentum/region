@@ -24,7 +24,6 @@ names = names.split(',')
 for name in names:
 	make_simple_model(name)
 
-
 # --- main models ---
 
 class Person(models.Model, info):
@@ -221,7 +220,8 @@ class Person(models.Model, info):
 			persons = self.get_linked_persons(relation_type.name)
 			if not persons: continue
 			d[relation_type.name.lower()] = sorted(persons, key = lambda x:x.last_name)
-		return d
+		self._role_to_person_dict = d
+		return self._role_to_person_dict
 
 	def get_linked_persons(self,relation_type):
 		persons = []
@@ -494,6 +494,20 @@ class Movement(models.Model, info):
 
 	def empty_fields(self,fields = []):
 		return get_empty_fields(self,fields, default_is_empty = True)
+
+	@property
+	def role_to_person_dict(self):
+		if hasattr(self,'_role_to_person_dict'): return self._role_to_person_dict
+		d ={}
+		for pmr in self.personmovementrelation_set.all():
+			role = pmr.role.name.lower()
+			if not role in d.keys(): d[role] = []
+			d[role].append(pmr.person)
+		for role,persons in d.items():
+			d[role] = sorted(persons, key = lambda x:x.last_name)
+		self._role_to_person_dict = d
+		return self._role_to_person_dict
+		
 
 	def _set_gps(self):
 		'''sets the gps coordinates and name of related location to speed 

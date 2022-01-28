@@ -20,6 +20,38 @@
 <p class="date">{{instance.dates}}</p>
 <hr>
 
+
+{% if instance.movement_type%}
+	<span class="info-header">type: </span>{{instance.movement_type.name}}
+	<br>
+{% endif %}
+{% if instance.location%}
+	<span class="info-header">location: </span>{{instance.location.full_name}}
+	<br>
+{% endif %}
+
+{% if instance.role_to_person_dict %}
+	<br>
+	<span class="info-header">persons involved:</span><br>
+	{% for role, persons in instance.role_to_person_dict.items %}
+		<span class="info-italic">
+			{{role}}: <br> 
+		</span>
+		{%for person in persons %}
+			<div class="indent">
+				<a class="link-color"
+				href="{% url person.detail_url person.pk %}"
+				role="button">
+					{{person.full_name}}
+				</a>&nbsp
+				{% if person.life_concise%}
+					<small>({{person.life_concise}})</small><br>
+				{% endif %}
+			</div>
+		{%endfor%}
+	{%endfor%}
+{% endif %}
+
 <style>
 </style>
 
