@@ -147,6 +147,8 @@ class Location(models.Model, info):
 	@property
 	def full_name(self):
 		name = self.name
+		if self.location_type:
+			if self.location_type.name == 'country': return name
 		country = self.country
 		if country: name += ', ' + country
 		return name
