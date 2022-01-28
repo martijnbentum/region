@@ -291,15 +291,7 @@ class Text(Item, info):
 		d = self.roles_to_persons_dict
 		if 'author' in d.keys(): return d['author']
 		else: return []
-		
-		
-		
 
-		
-			
-		
-			
-			
 
 def make_filename(instance, filename):
 	'''creates a filename for uploaded images'''
