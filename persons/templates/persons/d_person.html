@@ -17,8 +17,192 @@
 	</p>
 </div>
 
-<p class="date">{{instance.dates}}</p>
+<p class="date">{{instance.life}}</p>
 <hr>
+
+{% if instance.pseudonyms%}
+	<span class="info-header">pseudonyms: </span>{{instance.pseudonyms}}
+	<br>
+{% endif %}
+{% if instance.gender%}
+	<span class="info-header">gender: </span>{{instance.gender}}
+	<br>
+{% endif %}
+{% if instance.birth_place%}
+	<span class="info-header">born in: </span>{{instance.birth_place.full_name}}
+	<br>
+{% endif %}
+{% if instance.death_place%}
+	<span class="info-header">died in: </span>{{instance.birth_place.full_name}}
+	<br>
+{% endif %}
+{% if instance.vocations%}
+	<span class="info-header">vocations: </span>{{instance.vocations}}
+	<br>
+{% endif %}
+
+{% for type, locations in instance.type_to_locations_dict.items %}
+	<div clas="one-line">
+		<span class="info-header">
+			{{type}}: 
+		</span>
+		{%for location in locations %}
+			{{location}} &nbsp
+			{% if not forloop.last %} 
+				|&nbsp
+			{% endif %}
+		{%endfor%}
+	</div>
+{%endfor%}
+
+{% for role, texts in instance.role_to_text_dict.items %}
+		<br>
+		<span class="info-header">
+			{{role}} of the following texts ({{texts|length}}):<br> 
+		</span>
+	<div class="indent">
+		{%for text in texts%}
+			<a class="link-color"
+			href="{% url text.detail_url text.pk %}"
+			role="button">
+				{{text.title}}
+			</a>&nbsp
+			{% if text.dates %}
+				<small>({{text.dates}})</small>
+			{% endif %}
+			<br>
+		{%endfor%}
+	</div>
+{%endfor%}
+
+{% for role, illustrations in instance.role_to_illustration_dict.items %}
+		<br>
+		<span class="info-header">
+			{{role}} of the following illustrations ({{illustrations|length}}):<br> 
+		</span>
+	<div class="indent">
+		{%for illustration in illustrations %}
+			<a class="link-color"
+			href="{% url illustration.detail_url illustration.pk %}"
+			role="button">
+				{{illustration.caption}}
+			</a>&nbsp
+			{% if illustration.dates %}
+				<small>({{illustration.dates}})</small>
+			{% endif %}
+			<br>
+		{%endfor%}
+	</div>
+{%endfor%}
+
+{% if instance.publications %}
+	<br>
+	<span class="info-header">
+		publications ({{instance.publications|length}}):<br> 
+	</span>
+	{%for publication in instance.publications%}
+		<div class="indent">
+			<a class="link-color"
+			href="{% url publication.detail_url publication.pk %}"
+			role="button">
+				{{publication.title}}
+			</a>&nbsp
+			{% if publication.dates %}
+				<small>({{publication.dates}})</small>
+			{% endif %}
+			<br>
+		</div>
+	{%endfor%}
+{% endif %}
+
+{% if instance.publishers%}
+	<br>
+	<span class="info-header">
+		manager at the following publishers:<br> 
+	</span>
+	{%for publisher in instance.publishers%}
+		<div class="indent">
+			<a class="link-color"
+			href="{% url publisher.detail_url publisher.pk %}"
+			role="button">
+				{{publisher.name}}
+			</a>&nbsp
+			{% if publisher.dates %}
+				<small>({{publisher.dates}})</small>
+			{% endif %}
+			<br>
+		</div>
+	{%endfor%}
+{% endif %}
+
+{% if instance.role_to_person_dict %}
+	<br>
+	<span class="info-header">Relations to other persons:</span><br>
+	{% for role, persons in instance.role_to_person_dict.items %}
+		<span class="info-italic">
+			{{role}}: <br> 
+		</span>
+		{%for person in persons %}
+			<div class="indent">
+				<a class="link-color"
+				href="{% url person.detail_url person.pk %}"
+				role="button">
+					{{person.full_name}}
+				</a>&nbsp
+				{% if person.life_concise%}
+					<small>({{person.life_concise}})</small><br>
+				{% endif %}
+			</div>
+		{%endfor%}
+	{%endfor%}
+{% endif %}
+
+{% if instance.role_to_periodical_dict%}
+	<br>
+	<span class="info-header">Periodicals:</span><br>
+	{% for role, periodical in instance.role_to_periodical_dict.items %}
+		<span class="info-italic">
+			{{role}}: <br> 
+		</span>
+		{%for periodical in periodical %}
+			<div class="indent">
+				<a class="link-color"
+				href="{% url periodical.detail_url periodical.pk %}"
+				role="button">
+					{{periodical.title}}
+				</a>&nbsp
+				{% if periodical.dates%}
+					<small>({{periodical.dates}})</small><br>
+				{% endif %}
+			</div>
+		{%endfor%}
+	{%endfor%}
+{% endif %}
+
+{% if instance.role_to_movement_dict%}
+	<br>
+	<span class="info-header">Involved with the following movements:</span><br>
+	{% for role, movements in instance.role_to_movement_dict.items %}
+		<span class="info-italic">
+			{{role}}: <br> 
+		</span>
+		{%for movement in movements %}
+			<div class="indent">
+				<a class="link-color"
+				href="{% url movement.detail_url movement.pk %}"
+				role="button">
+					{{movement.name}}
+				</a>&nbsp
+				{% if movement.dates%}
+					<small>({{movement.dates}})</small><br>
+				{% endif %}
+			</div>
+		{%endfor%}
+	{%endfor%}
+{% endif %}
+
+
+<br><br><br>
 
 <style>
 </style>
