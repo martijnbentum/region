@@ -29,7 +29,7 @@
 		</span>
 		{%for person in persons %}
 			<a class="link-color"
-			href="{% url person.edit_url person.pk %}"
+			href="{% url person.detail_url person.pk %}"
 			role="button">
 				{{person.full_name}} 
 			</a>&nbsp<small>{{person.life_concise}}</small>&nbsp
