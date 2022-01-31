@@ -11,7 +11,7 @@ def rename_file(instance,file_fieldname,new_name, overwrite = False):
 	setattr(instance,file_fieldname,new_name)
 	instance.save()
 
-def remove_diacritics_filename(instance,file_fieldname):
+def remove_diacritics_filename_existing_file(instance,file_fieldname):
 	file_field = getattr(instance,file_fieldname)
 	if not dcl.has_diacritics(file_field.name):return
 	new_name = dcl.clean_diacritics(file_field.name)
@@ -23,5 +23,10 @@ def rename_all_dicritic_illustration_filenames():
 	i = Illustration.objects.all()
 	for x in i:
 		if not x.upload: continue
-		remove_diacritics_filename(x,'upload')
+		remove_diacritics_filename_existing_file(x,'upload')
+
+def remove_diacritics_filename(filename):
+	return dcl.clean_diacritics(filename)
+
+
 
