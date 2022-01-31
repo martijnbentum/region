@@ -16,7 +16,7 @@ def remove_diacritics_filename_existing_file(instance,file_fieldname):
 	if not dcl.has_diacritics(file_field.name):return
 	new_name = dcl.clean_diacritics(file_field.name)
 	rename_file(instance,file_fieldname,new_name)
-	print(new_name[-10:],'updated filename')
+	print(new_name,'updated filename\n')
 
 def rename_all_dicritic_illustration_filenames():
 	from catalogue.models import Illustration
@@ -30,3 +30,11 @@ def remove_diacritics_filename(filename):
 
 
 
+def rename_all_dicritic_publication_filenames():
+	from catalogue.models import Publication
+	i = Publication.objects.all()
+	for x in i:
+		if not x.pdf: pass
+		else:remove_diacritics_filename_existing_file(x,'pdf')
+		if not x.cover: pass
+		else:remove_diacritics_filename_existing_file(x,'cover')
