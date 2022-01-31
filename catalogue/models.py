@@ -8,6 +8,7 @@ from utilities.models import GroupTag
 from utils.model_util import id_generator, info,instance2names
 from utils.model_util import get_empty_fields
 from utils.map_util import field2locations, pop_up, get_location_name,gps2latlng
+from utils.cleanup_filenames import remove_diacritics_filename
 import os
 from partial_date import PartialDateField
 import time
@@ -299,6 +300,7 @@ def make_filename(instance, filename):
 	name,ext = os.path.splitext(filename)
 	name += '_django-'+time.strftime('%y-%m-%d-%H-%M') + ext
 	pn = model_name.lower() +'/'+ name
+	pn = remove_diacritics_filename(pn)
 	return pn
 
 class Illustration(Item, info):
