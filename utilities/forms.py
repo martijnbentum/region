@@ -17,7 +17,7 @@ User = get_user_model()
 
 class LanguageWidget(ModelSelect2Widget):
 	model = Language
-	search_fields = ['name__startswith']
+	search_fields = ['name__icontains']
 
 	def label_from_instance(self,obj):
 		return obj.name
