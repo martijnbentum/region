@@ -1,6 +1,7 @@
 from .models import Text, Illustration, Genre, Publisher, PublicationType, Publication
 from .models import Periodical, CopyRight, TextType, IllustrationType
-from .models import IllustrationCategory, TextTextRelationType,IllustrationIllustrationRelationType
+from .models import IllustrationCategory, TextTextRelationType
+from .models import IllustrationIllustrationRelationType, UsePermission
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
 #all select2 widgets related to catalogue models are defined here
@@ -17,6 +18,13 @@ class CopyRightWidget(ModelSelect2Widget):
 	def get_queryset(self):
 		return CopyRight.objects.all().order_by('name')
 
+class UsePermissionWidget(ModelSelect2Widget):
+	model = UsePermission
+	search_fields = ['name__icontains']
+	def label_from_instance(self,obj):
+		return obj.name
+	def get_queryset(self):
+		return UsePermission.objects.all().order_by('name')
 
 class TextTypeWidget(ModelSelect2Widget):
 	model = TextType

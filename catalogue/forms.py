@@ -6,7 +6,7 @@ from .models import TextPublicationRelation, TextTextRelation,PublicationType
 from .models import TextTextRelationType, PeriodicalPublicationRelation
 from .models import CopyRight, TextType, TextReviewPublicationRelation, Item
 from .models import IllustrationIllustrationRelation, IllustrationIllustrationRelationType
-from .models import IllustrationType
+from .models import IllustrationType, UsePermission
 from locations.models import Location
 from persons.models import Person, PersonLocationRelation, PersonTextRelation
 from persons.models import PersonTextRelationRole, PersonIllustrationRelation
@@ -20,7 +20,8 @@ from .widgets import GenreWidget, PublicationTypeWidget, PublishersWidget
 from .widgets import IllustrationCategoryWidget,IllustrationWidget,TextWidget
 from .widgets import IllustrationCategoriesWidget,CopyRightWidget
 from .widgets import TextTextRelationTypeWidget, PublicationWidget, PeriodicalWidget
-from .widgets import TextTypeWidget, IllustrationTypeWidget,IllustrationIllustrationRelationTypeWidget
+from .widgets import TextTypeWidget, IllustrationTypeWidget
+from .widgets import IllustrationIllustrationRelationTypeWidget, UsePermissionWidget
 from utilities.forms import make_select2_attr 
 
 # setting default kwargs to clean up form definition
@@ -74,6 +75,12 @@ class PublicationForm(ItemForm):
 			data_placeholder ='Select publication form... e.g., novel',
 			input_length = 0)),
 		required = False)
+	use_permission = forms.ModelChoiceField(
+		queryset=UsePermission.objects.all().order_by('name'),
+		widget=UsePermissionWidget(**make_select2_attr(
+			data_placeholder ='Select whether attached files can be made public',
+			input_length = 0)),
+		required = False)
 	publisher = forms.ModelMultipleChoiceField(
 		queryset=Publisher.objects.all().order_by('name'),
 		widget=PublishersWidget(**dselect2),
@@ -88,7 +95,7 @@ class PublicationForm(ItemForm):
 	class Meta:
 		model = Publication
 		m = 'title,form,publisher,date,location,pdf,cover'
-		m += ',volume,issue,publisher_names'
+		m += ',volume,issue,publisher_names,use_permission'
 		fields = item_fields + m.split(',')
 
 
@@ -152,10 +159,17 @@ class IllustrationForm(ItemForm):
 		queryset=IllustrationType.objects.all().order_by('name'),
 		widget=IllustrationTypeWidget(**dselect2),
 		required = False)
+	use_permission = forms.ModelChoiceField(
+		queryset=UsePermission.objects.all().order_by('name'),
+		widget=UsePermissionWidget(**make_select2_attr(
+			data_placeholder ='Select whether attached files can be made public',
+			input_length = 0)),
+		required = False)
 
 	class Meta:
 		model = Illustration
 		fields = 'caption,categories,page_number,upload,illustration_type,image_filename'
+		fields += ',use_permission'
 		fields = item_fields + fields.split(',')
 
 

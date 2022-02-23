@@ -21,7 +21,7 @@ def make_simple_model(name):
 
 names = 'CopyRight,Genre,TextType,TextTextRelationType,Audience'
 names += ',PublicationType,IllustrationCategory'
-names += ',IllustrationIllustrationRelationType,IllustrationType'
+names += ',IllustrationIllustrationRelationType,IllustrationType,UsePermission'
 names = names.split(',')
 
 for name in names:
@@ -322,6 +322,8 @@ class Illustration(Item, info):
 	image_filename = models.CharField(max_length=500,default='',blank=True,
 		null=True)
 	person = models.CharField(max_length=2000,blank=True,null=True)
+	use_permission= models.ForeignKey(UsePermission,on_delete=models.SET_NULL,
+		null=True)
 
 	def _set_person(self):
 		names = [] 
@@ -472,6 +474,8 @@ class Publication(Item, info):
 	cover = models.ImageField(upload_to='publication/',null=True,blank=True)
 	publisher_names = models.CharField(max_length = 500, null=True,
 		blank=True,default='')
+	use_permission= models.ForeignKey(UsePermission,on_delete=models.SET_NULL,
+		null=True)
 
 	def pop_up(self,latlng):
 		m = ''
