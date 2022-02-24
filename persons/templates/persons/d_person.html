@@ -41,6 +41,7 @@
 	<br>
 {% endif %}
 
+
 {% for type, locations in instance.type_to_locations_dict.items %}
 	<div clas="one-line">
 		<span class="info-header">
@@ -130,6 +131,32 @@
 			{% if publisher.dates %}
 				<small>({{publisher.dates}})</small>
 			{% endif %}
+			<br>
+		</div>
+	{%endfor%}
+{% endif %}
+
+{% if instance.text_settings%}
+	<br>
+	<span class="info-header">
+		text settings:<br> 
+	</span>
+	{%for setting in instance.text_settings%}
+		<div class="indent">
+			{{setting}}
+			<br>
+		</div>
+	{%endfor%}
+{% endif %}
+
+{% if instance.publication_locations%}
+	<br>
+	<span class="info-header">
+		publication locations:<br> 
+	</span>
+	{%for location in instance.publication_locations%}
+		<div class="indent">
+			{{location}}
 			<br>
 		</div>
 	{%endfor%}

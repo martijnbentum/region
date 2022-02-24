@@ -52,7 +52,6 @@ class Person(models.Model, info):
 	group_tags= models.ManyToManyField(GroupTag,blank=True, default= None)
 	source_link= models.CharField(max_length=1000,blank=True,null=True)
 
-	
 	def save(self,*args,**kwargs):
 		'''set gps location information on the person instance to 
 		speed up map rendering.
@@ -193,6 +192,16 @@ class Person(models.Model, info):
 		return self._texts
 
 	@property
+	def text_settings(self):
+		if hasattr(self,'_text_settings'): return self._text_settings
+		settings = []
+		for text in self.texts:
+			if text.setting and text.setting not in settings: 
+				settings.append(text.setting)
+		self._text_settings = sorted(settings)
+		return self._text_settings
+
+	@property
 	def illustrations(self):
 		if hasattr(self,'_illustrations'): return self._illustrations
 		output = []
@@ -212,6 +221,17 @@ class Person(models.Model, info):
 		self._publications = sorted(output, key = lambda x: x.date)
 		return self._publications
 
+	@property
+	def publication_locations(self):
+		if hasattr(self,'_publication_locations'): return self._publication_locations
+		locations = []
+		for publication in self.publications:
+			for location in publication.location.all():
+				if location and location.name not in locations:
+					locations.append(location.name)
+		self._publication_locations = sorted(locations)
+		return self._publication_locations
+		
 	@property
 	def role_to_person_dict(self):
 		if hasattr(self,'_role_to_person_dict'): return self._role_to_person_dict
