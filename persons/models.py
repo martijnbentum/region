@@ -439,6 +439,7 @@ class Person(models.Model, info):
 		d = {}
 		d['name'] = self.instance_name
 		d['date'] = self.life
+		d['detail_url'] = urls.reverse_lazy(self.detail_url, args = [self.pk])
 		d['extra'] = self.gender
 		d['identifier'] = self.identifier
 		return d
@@ -605,6 +606,7 @@ class Movement(models.Model, info):
 		d = {}
 		d['name'] = self.instance_name
 		d['date'] = self.dates
+		d['detail_url'] = urls.reverse_lazy(self.detail_url, args = [self.pk])
 		d['extra'] = self.type_info
 		d['identifier'] = self.identifier
 		return d
