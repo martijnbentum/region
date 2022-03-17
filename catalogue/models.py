@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django import urls
 import glob
 from locations.models import Location
 from utilities.models import Language, RelationModel, SimpleModel 
@@ -143,6 +144,8 @@ class Item(models.Model):
 		d = {}
 		d['name'] = self.instance_name
 		d['date'] = self.dates
+
+		d['detail_url'] = urls.reverse_lazy(self.detail_url, args = [self.pk])
 		if hasattr(self,'type_info'):d['extra'] = self.type_info
 		else: d['extra'] = ''
 		d['identifier'] = self.identifier
