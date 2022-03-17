@@ -21,17 +21,18 @@
 
 <div class="map_screen" id="content">
 	<div class="sidebar" id="mySidebar">
-		<div class="grid-container", id="sidebar-content">
-			<div class="grid-child title-sidebar">
+		<div class="", id="sidebar-content">
+			<div class="title-sidebar">
 				<p id="title"></p>
 			</div>
-			<div class="grid-child close-sidebar">
+			<div class="close-sidebar">
 				<a href="javascript:void(0)" 
 					class="closebtn" onclick="closeNav()">
 					<i class="fas fa-times-circle"></i>
 				</a>
 			</div>
 		</div>
+		<br><br><br><br><br><br><br>
 	</div>
 	<p id="city_label", class ="city_label">&nbsp;</p>
 	<div id="mapid" class="mt-0 map"></div>
@@ -93,9 +94,12 @@ function make_circle_marker(loc,i) {
 	var marker=L.circleMarker(latlng,{color:marker_color,weight:2,
 		fillOpacity:0.3,
 		className:loc.name, index:i})
+	/*
 	var radius = Math.log2(loc.count)
 	if (radius < 1) {radius = 1}
 	radius = radius * 4;
+	*/
+	var radius = 4;
 	marker.setRadius(radius)
 	add_marker_behavior(marker);
 	layerDict['circle'].push(marker)
@@ -160,22 +164,20 @@ async function get_instance(instance_id,instance_category) {
 	console.log(path,data)
 }
 
-function add_instance(instance, instance_category) {
-	var sidebar= document.getElementById('sidebar-content');
-	p =document.createElement("p");
-	sidebar.appendChild(p);
-	p.innerHTML = instance.name;
-	p.classList.add("small_text");
-	entries.push(p)
-	p =document.createElement("p");
-	sidebar.appendChild(p);
-	p.innerHTML = instance_category.split('_')[1];
-	p.classList.add("small_text");
-	entries.push(p)
+function add_instance(instance, model_name) {
+	var dlinks= document.getElementById(model_name + '-links');
+	//var sidebar= document.getElementById('sidebar-content');
+	a =document.createElement("a");
+	dlinks.appendChild(a);
+	a.setAttribute('href',instance.detail_url);
+	a.innerHTML = instance.name;
+	a.classList.add("small_text");
+	entries.push(a)
 }
 
 async function get_instances(instance_ids,instance_category) {
 	//latlng = '/' + e.target._latlng.lat + '/' + e.target._latlng.lng
+	var model_name = instance_category.split('_')[1]
 	var path = '/locations/ajax_instances/';
 	path += instance_category.replaceAll('_','/') + '/';
 	path += instance_ids.join(',');	
@@ -183,31 +185,37 @@ async function get_instances(instance_ids,instance_category) {
 	data = await response.json();
 	//instances= JSON.parse(data.instances);
 	console.log(path,data)
+	var dall = document.getElementById(model_name + '-all');
+	var dlinks = document.createElement('div');
+	dlinks.id = model_name + '-links'
+	dall.appendChild(dlinks)
 	for (const instance of data.instances) {
-		add_instance(instance,instance_category);
+		add_instance(instance,model_name);
 	}
 }
 
 function show_entry(instance_ids, entry_category) {
 	//get_instance(entry[0],entry_category)
-	get_instances(instance_ids, entry_category)
+	model_name = entry_category.split('_')[1]
 	var sidebar= document.getElementById('sidebar-content');
-	console.log(instance_ids);
-	console.log(sidebar);
-	p =document.createElement("p");
-	sidebar.appendChild(p);
-	p.innerHTML = entry_category.split('_')[1];
-	entries.push(p)
-	p =document.createElement("p");
-	sidebar.appendChild(p);
-	p.innerHTML = instance_ids.length;
-	entries.push(p)
+	console.log(instance_ids,model_name);
+	var d = document.createElement('div')
+	entries.push(d);
+	d.id = model_name + '-all';
+	sidebar.appendChild(d);
+	get_instances(instance_ids, entry_category)
+	var a =document.createElement("a");
+	a.setAttribute('href',"javascript:void(0)");
+	a.setAttribute('onclick', 'toggle_sidebar_category(this)');
+	a.setAttribute('data-links_id', model_name + '-links');
+	d.appendChild(a);
+	a.innerHTML = model_name + ' <small>(' + instance_ids.length + ')</small>';
+	a.classList.add('category-header');
+	//entries.push(p)
 }
 
 function show_entries(info) {
 	for (const [key, instance_ids] of Object.entries(info)) {
-		console.log(key, '<key>');
-		console.log(instance_ids, '<value>');
 		if ('count,model_names,name,gps'.split(',').includes(key)){
 			console.log('skipping',key);
 		} else {
@@ -218,10 +226,12 @@ function show_entries(info) {
 }
 
 function remove_entries() {
-	console.log('removing entries')
+	console.log('removing entries',entries);
 	var sidebar= document.getElementById('sidebar-content');
 	for (const x of entries) {
-		sidebar.removeChild(x)
+	//while (parent.lastChild) {
+		//sidebar.removeChild(sidebar.lastChild)
+		x.remove()
 	}
 	entries = [];
 }
@@ -235,6 +245,19 @@ function show_sidebar(index) {
 	title.innerHTML = html
 	remove_entries();
 	show_entries(info);
+}
+
+function toggle_sidebar_category(element) {
+	console.log(element);
+	var dlinks = document.getElementById(element.dataset.links_id);
+	console.log(dlinks);
+	if (dlinks.style.display == "") {
+		element.style.color = "grey";
+		dlinks.style.display = "none";
+	} else {
+		element.style.color = "black";
+		dlinks.style.display = "";
+	}
 }
 
 function onmarkerClick(e) {
@@ -257,7 +280,8 @@ function showMarkers(marker_ids = 'circle') {
 		overlayMarkers[layername]= lg
 		if ( key == marker_ids) {lg.addTo(mymap);}
 	}
-	L.control.layers({},overlayMarkers,{collapsed:false}).addTo(mymap);
+	// uncomment to show layer control
+	//L.control.layers({},overlayMarkers,{collapsed:false}).addTo(mymap);
 }
 
 
@@ -273,7 +297,7 @@ var d = Object.values(d)
 for (i = 0; i<d.length; i++) {
 	console.log(d[i]);
 	make_circle_marker(d[i],i);
-	make_marker(d[i],i);
+	//make_marker(d[i],i);
 }
 
 var controlLayers;
@@ -316,6 +340,18 @@ function closeNav() {
 	transition: 0.5s;
 }
 
+.sidebar a {
+	text-decoration: none;
+	color: #585e66;
+	display: block;
+	transition: 0.3;
+	font-size: 14px;
+	margin-left: 25px;
+}
+
+.sidebar a:hover {
+	color: black;
+}
 
 .leaflet-control-layers-selector {
 	display:none;
@@ -326,7 +362,11 @@ function closeNav() {
 }
 
 .closebtn {
+	position: absolute;
+	right: 15px;
+	top: 9px;
 	color:black;
+	margin-left: 5px;
 }
 
 
@@ -365,6 +405,18 @@ hr {
 
 .small_text {
 	font-size:14px;
+}
+
+.sidebar a.category-header {
+	color:black;
+	font-size:18px;
+	margin-left:15px;
+	margin-bottom: 0px;
+	margin-top: 10px;
+}
+
+.sidebar a.category-header:hover {
+	color:red;
 }
 
 
