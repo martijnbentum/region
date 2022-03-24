@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django import urls
 import json
 from locations.models import Location
 from utilities.models import Language, RelationModel,GroupTag 
