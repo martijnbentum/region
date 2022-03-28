@@ -54,10 +54,12 @@ tiles.addTo(mymap);
 
 var marker_color = '#4287f5'
 var highlight_color = "#e6da09"
+var click_color = "#fc0352"
 var html_icon = '<a style="color:'+marker_color
 html_icon +=';"><i class="fas fa-map-marker-alt"></i></i></a>'
 var html_highlight_icon = '<a style="color:'+highlight_color
 html_highlight_icon+=';"><i class="fas fa-map-marker-alt"></i></i></a>'
+var last_clicked_marker = false;
 var last_activated = false;
 var last_deactivated = false;
 var entries = [];
@@ -87,6 +89,7 @@ function add_marker_behavior(marker) {
 }
 
 function make_circle_marker(loc,i) {
+	//create a marker circle
 	latlng = loc2latlng(loc);
 	if (latlng == false) { return false;}
 	name = loc.name
@@ -108,6 +111,7 @@ function make_circle_marker(loc,i) {
 }
 
 function make_marker(loc,i) {
+	// create a marker icon
 	latlng = loc2latlng(loc);
 	if (latlng == false) { return false;}
 	var marker = L.marker(latlng,{icon:icon, className:loc.name, index:i})
@@ -117,16 +121,33 @@ function make_marker(loc,i) {
 }
 
 function activate_marker(marker) {
+	if (marker == last_clicked_marker) { return false}
 	try {marker.setStyle({fillColor:highlight_color, color:highlight_color});}
 	catch {marker._icon.innerHTML = html_highlight_icon;}
 	last_activated = marker;
 }
 	
 function deactivate_marker(marker) {
+	if (marker == last_clicked_marker) { return false}
 	if (last_activated == false) { return false }
 	try {marker.setStyle({fillColor:marker_color,color:marker_color});}
 	catch {marker._icon.innerHTML = html_icon;}
 	last_deactivated = marker;
+}
+
+function set_marker_clicked(marker) {
+	set_marker_unclicked();
+	try {marker.setStyle({fillColor:click_color, color:click_color});}
+	catch {marker._icon.innerHTML = html_highlight_icon;}
+	last_clicked_marker = marker;
+}
+
+function set_marker_unclicked() {
+	if (last_clicked_marker == false) { return false }
+	var marker = last_clicked_marker;
+	try {marker.setStyle({fillColor:marker_color,color:marker_color});}
+	catch {marker._icon.innerHTML = html_icon;}
+	last_clicked_marker = false
 }
 
 function show_info(index) {
@@ -139,23 +160,32 @@ function show_info(index) {
 	}
 	html += '</small>'
 	label.innerHTML = html
-
 }
 
 function onmarkerHover(e) {
+	//activate a if an element on the map is hovered
 	deactivate_marker(last_activated);
 	activate_marker(this);
 	show_info(this.options.index);
 }
 
 function onmarkerLeave(e) {
-	console.log('leave')
+	//what to do after cursor leaves element
 	var s = this.options.className;
-	console.log(s, this);
+}
+
+function onmarkerClick(e) {
+	var s = this.options.className;
+	console.log('click')
+	console.log(s);
+	console.log(this);
+	set_marker_clicked(this)
+	show_sidebar(this.options.index);
+	openNav();
 }
 
 async function get_instance(instance_id,instance_category) {
-	//latlng = '/' + e.target._latlng.lat + '/' + e.target._latlng.lng
+	//get information ofa single instance via ajax call
 	var path = '/locations/ajax_instance/'
 	path += instance_category.replaceAll('_','/') + '/'
 	path += instance_id	
@@ -164,9 +194,10 @@ async function get_instance(instance_id,instance_category) {
 	console.log(path,data)
 }
 
-function add_instance(instance, model_name) {
+function _add_instance(instance, model_name) {
+	// display a single instance to the sidebar
+	// helper function of get_instances
 	var dlinks= document.getElementById(model_name + '-links');
-	//var sidebar= document.getElementById('sidebar-content');
 	a =document.createElement("a");
 	dlinks.appendChild(a);
 	a.setAttribute('href',instance.detail_url);
@@ -176,7 +207,7 @@ function add_instance(instance, model_name) {
 }
 
 async function get_instances(instance_ids,instance_category) {
-	//latlng = '/' + e.target._latlng.lat + '/' + e.target._latlng.lng
+	// load instances associated with a given category (e.g. Text) via ajax
 	var model_name = instance_category.split('_')[1]
 	var path = '/locations/ajax_instances/';
 	path += instance_category.replaceAll('_','/') + '/';
@@ -190,12 +221,13 @@ async function get_instances(instance_ids,instance_category) {
 	dlinks.id = model_name + '-links'
 	dall.appendChild(dlinks)
 	for (const instance of data.instances) {
-		add_instance(instance,model_name);
+		_add_instance(instance,model_name);
 	}
 }
 
 function show_entry(instance_ids, entry_category) {
-	//get_instance(entry[0],entry_category)
+	// get entry information and create an html element to display it in the sidebar
+	// this a category / model (e.g. Text) the corresponding instances are loaded via ajax
 	model_name = entry_category.split('_')[1]
 	var sidebar= document.getElementById('sidebar-content');
 	console.log(instance_ids,model_name);
@@ -211,10 +243,10 @@ function show_entry(instance_ids, entry_category) {
 	d.appendChild(a);
 	a.innerHTML = model_name + ' <small>(' + instance_ids.length + ')</small>';
 	a.classList.add('category-header');
-	//entries.push(p)
 }
 
 function show_entries(info) {
+	//show entries in the sidebar linked to a given location 
 	for (const [key, instance_ids] of Object.entries(info)) {
 		if ('count,model_names,name,gps'.split(',').includes(key)){
 			console.log('skipping',key);
@@ -226,17 +258,16 @@ function show_entries(info) {
 }
 
 function remove_entries() {
-	console.log('removing entries',entries);
+	//remove old entries from sidebar
 	var sidebar= document.getElementById('sidebar-content');
 	for (const x of entries) {
-	//while (parent.lastChild) {
-		//sidebar.removeChild(sidebar.lastChild)
 		x.remove()
 	}
 	entries = [];
 }
 
 function show_sidebar(index) {
+	//show sidebar with entries from selectie location
 	info =d[index];
 	console.log(info);
 	var title = document.getElementById('title');
@@ -260,14 +291,6 @@ function toggle_sidebar_category(element) {
 	}
 }
 
-function onmarkerClick(e) {
-	var s = this.options.className;
-	console.log('click')
-	console.log(s);
-	console.log(this);
-	show_sidebar(this.options.index);
-	openNav();
-}
 
 function showMarkers(marker_ids = 'circle') {
 	//var controlLayers;
