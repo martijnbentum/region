@@ -2,6 +2,95 @@ from django.apps import apps
 from django.db.models.functions import Lower
 from django.db.models import Q
 import time
+from utils.model_util import get_all_models, instance2names
+
+
+class SearchAll:
+	def __init__(self,request = None, models = [], query = None, 
+		max_entries=False, special_terms = None ):
+		'''searches all (specified/relevant) models. 
+		request  		contains query, direction, sorting_option which
+						can be overwritten by the parameters
+		models 			list of models to search by default it contains
+						all relevant models defined in model_util
+		query 			parameter to directly pass a query overwrites
+						query passed in the request. A query is a string
+						with optional special terms starting with $ or *
+		special_terms 	parameter to pass optional special terms such as combine
+		'''
+							
+		if not models: models = get_all_models()
+		self.models = models
+		self.query =query
+		self.special_terms = special_terms
+		self.searches = []
+		for model in self.models:
+			an, mn = instance2names(model)
+			s = Search(request,mn,an,query,max_entries,special_terms = special_terms)
+			self.searches.append(s)
+		self.query = self.searches[0].query.query
+
+	def __repr__(self):
+		m = 'Search all object\n'
+		m += '\n'.join([x.__repr__() for x in self.searches])
+		return m
+
+	def filter(self, verbose= False, separate = False):
+		if hasattr(self,'_instances'): return self._instances
+		self._instances = []
+		for s in self.searches:
+			self._instances.extend(s.filter())
+		if verbose:self.searches[0].n
+		return self._instances
+
+
+	def country_filter(self, countries = []):
+		if not hasattr(self,'instances'):self.filter()
+		if not hasattr(self,'_country_counts'):
+			i = self._instances
+			self._country_counts, self._country_instances= instances2country_counts(i)
+			self._country_identifiers=_instance2identifier_dict(self._country_instances)
+		if countries:
+			instances = filter_on_list(self._country_instances, countries)
+			return instances
+
+	def model_filter(self, model_names = []):
+		if not hasattr(self,'instances'): self.filter()
+		if not hasattr(self,'_model_counts'):
+			c,i = instances2model_counts(self._instances)
+			self._model_counts, self._model_instances = c,i
+			self._model_identifiers=_instance2identifier_dict(i)
+		if model_names:
+			instances = filter_on_list(self._model_instances, model_names)
+			return instances
+
+	def century_filter(self, centuries = []):
+		if not hasattr(self,'instances'): self.filter()
+		if not hasattr(self,'_century_counts'):
+			c,i = instances2century_counts(self._instances)
+			self._century_counts, self._century_instances = c,i
+			self._century_identifiers=_instance2identifier_dict(i)
+		century_names = _handle_centuries_input(centuries)
+		if century_names:
+			instances = filter_on_list(self._century_instances, century_names)
+			return instances
+
+	@property
+	def country_counts(self):
+		if not hasattr(self,'_country_counts'):self.country_filter()
+		return self._country_counts
+
+	@property
+	def model_counts(self):
+		if not hasattr(self,'_model_counts'):self.model_filter()
+		return self._model_counts
+
+	@property
+	def century_counts(self):
+		if not hasattr(self,'_century_counts'):self.century_filter()
+		return self._century_counts
+
+
 
 class Search:
 	'''search a django model on all fields or a subset with Q objects'''
@@ -109,6 +198,7 @@ class Search:
 		'''set on which field the search results should be orded and whether the
 		ordering should be descending or ascending.
 		'''
+		if not self.order.order_results: return
 		self.result = self.result.order_by(Lower(self.order.order_by))
 		self.notes += '\nordered on field: ' + self.order.order_by
 		if self.order.direction == 'descending': 
@@ -181,11 +271,13 @@ class Search:
 		self.nentries_found = self.result.count()
 		print('counting entries:',delta(start),'seconds')
 		self.nentries = '# Entries: ' + str(self.nentries_found) 
-		if self.nentries_found > self.max_entries:
-			self.nentries += ' (truncated at '  
-			self.nentries +=  str(self.max_entries) + ' entries)'
-		temp =self.result[:self.max_entries]
-		print('selecting max entries:',delta(start),'seconds')
+		if self.max_entries:
+			if self.nentries_found > self.max_entries:
+				self.nentries += ' (truncated at '  
+				self.nentries +=  str(self.max_entries) + ' entries)'
+			temp =self.result[:self.max_entries]
+			print('selecting max entries:',delta(start),'seconds')
+		else: temp = self.result
 		print('filtering took:',delta(start),'seconds')
 		return temp
 
@@ -337,10 +429,12 @@ class Order:
 		if order:
 			self.order_by = order
 			self.direction = 'ascending'
+			self.order_results = True if order else False
 		else:
 			self.request = request
 			self.model_name = model_name
 			self.set_values()
+			self.order_results = True if request else False
 
 	def set_values(self):
 		if self.request:
@@ -354,7 +448,8 @@ class Order:
 			else: 
 				order_by = get_foreign_keydict()[self.model_name.lower()]
 				direction = 'ascending'
-		else: order_by, direction,tquery = 'name','descending',''
+		else: 
+			tquery, order_by, direction = None, None, None
 			
 		if tquery == None: query = ''
 		else: query =tquery
