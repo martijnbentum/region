@@ -1,0 +1,101 @@
+/* css to customize Leaflet default styles  */
+
+.map_screen {
+	margin-left:25px;
+	margin-right:25px;
+	transition:0.5s;
+	background-color:#d2d8d9;
+}
+
+.sidebar {
+	height: 100%;
+	width: 0px;
+	position: fixed;
+	z-index: 1;
+	top: 82px;
+	left: 0;
+	background-color: #d2d8d9;
+	overflow-x: hidden;
+	transition: 0.5s;
+}
+
+.sidebar a {
+	text-decoration: none;
+	color: #585e66;
+	display: block;
+	transition: 0.3;
+	font-size: 14px;
+	margin-left: 25px;
+}
+
+.sidebar a:hover {
+	color: black;
+}
+
+.leaflet-control-layers-selector {
+	display:none;
+}
+
+.map {
+	transition:0.5s;
+}
+
+.closebtn {
+	position: absolute;
+	right: 15px;
+	top: 9px;
+	color:black;
+	margin-left: 5px;
+}
+
+
+p {
+	margin-left: 10px;
+	margin-bottom:10px;
+}
+hr {
+	margin: 10px;
+}
+.city_label {
+	text-align:center;
+}
+
+.grid-container {
+	display:grid;
+	grid-template-columns: 6fr 2fr;
+	grid-gap: 3px;
+	align-items: top;
+}
+.grid-child {
+	background-color:#e6e2da;
+	padding-left:10px;
+	padding-right:10px;
+	padding-top: 5px;
+}
+.close-sidebar {
+	background-color:#d2d8d9;
+	justify-self:right;
+}
+.title-sidebar {
+	background-color:#d2d8d9;
+	justify-self:center;
+	font-size:20px
+}
+
+.small_text {
+	font-size:14px;
+}
+
+.sidebar a.category-header {
+	color:black;
+	font-size:18px;
+	margin-left:15px;
+	margin-bottom: 0px;
+	margin-top: 10px;
+}
+
+.sidebar a.category-header:hover {
+	color:red;
+}
+
+
