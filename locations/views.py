@@ -63,6 +63,14 @@ def map_ll_alpha(request):
 	args = {'page_name':'map','d':d}
 	return render(request,'locations/map_ll_alpha.html',args)
 
+def map_search(request):
+	sa = search.SearchAll(request)
+	instances = sa.filter()
+	d = get_all_location_ids_dict(instances = instances, add_names_gps = True)
+	args = {'page_name':'map search','d':d}
+	return render(request, 'locations/map_search.html',args)
+
+
 
 def map(request):
 	'''old style map rendering, all data is prepared beforehand which 

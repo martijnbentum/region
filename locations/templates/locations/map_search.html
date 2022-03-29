@@ -1,0 +1,448 @@
+{% extends "utilities/base.html" %}
+
+{% load getattribute %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+	integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+	crossorigin=""/>
+	<!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+   integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+   crossorigin=""></script>
+	<style>
+		#mapid {height: 820px;}
+	</style>
+{% endblock %}
+
+{% block wide %}
+{% include 'locations/icons.html' %}
+
+<div class="map_screen" id="content">
+	<div class="sidebar" id="mySidebar">
+		<div class="", id="sidebar-content">
+			<div class="title-sidebar">
+				<p id="title"></p>
+			</div>
+			<div class="close-sidebar">
+				<a href="javascript:void(0)" 
+					class="closebtn" onclick="closeNav()">
+					<i class="fas fa-times-circle"></i>
+				</a>
+			</div>
+		</div>
+		<br><br><br><br><br><br><br>
+	</div>
+	<p id="city_label", class ="city_label">&nbsp;</p>
+	<div id="mapid" class="mt-0 map"></div>
+</div>
+
+
+{{d|json_script:"d"}}
+
+
+<script>
+var mymap = L.map('mapid').setView([52.0055328,4.67565177],5);
+
+const attribution = 
+	'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors &copy; <a href="https://carto.com/attribution">CARTO</a>'
+const tileUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+
+const tiles = L.tileLayer(tileUrl,{attribution});
+tiles.addTo(mymap);
+
+var marker_color = '#4287f5'
+var highlight_color = "#e6da09"
+var click_color = "#fc0352"
+var html_icon = '<a style="color:'+marker_color
+html_icon +=';"><i class="fas fa-map-marker-alt"></i></i></a>'
+var html_highlight_icon = '<a style="color:'+highlight_color
+html_highlight_icon+=';"><i class="fas fa-map-marker-alt"></i></i></a>'
+var last_clicked_marker = false;
+var last_activated = false;
+var last_deactivated = false;
+var entries = [];
+var icon = L.divIcon({
+	className:name,
+	html:html_icon,
+	iconAnchor:[3,15]
+	})
+
+function loc2latlng(loc) {
+	try { latlng = loc.gps.split(',').map(Number); }
+	catch {latlng = [] }
+	if (latlng.length != 2) {
+		return false
+	}
+	if (typeof(latlng[0]) != 'number' || typeof(latlng[1]) != 'number') {
+		return false
+	}
+	return latlng
+	}
+
+	
+function add_marker_behavior(marker) {
+	marker.on('mouseover',onmarkerHover)
+	marker.on('mouseout',onmarkerLeave)
+	marker.on('click',onmarkerClick)
+}
+
+function make_circle_marker(loc,i) {
+	//create a marker circle
+	latlng = loc2latlng(loc);
+	if (latlng == false) { return false;}
+	name = loc.name
+
+	var marker=L.circleMarker(latlng,{color:marker_color,weight:2,
+		fillOpacity:0.3,
+		className:loc.name, index:i})
+	/*
+	var radius = Math.log2(loc.count)
+	if (radius < 1) {radius = 1}
+	radius = radius * 4;
+	*/
+	var radius = 4;
+	marker.setRadius(radius)
+	add_marker_behavior(marker);
+	layerDict['circle'].push(marker)
+	//marker.addTo(mymap);
+	return marker;
+}
+
+function make_marker(loc,i) {
+	// create a marker icon
+	latlng = loc2latlng(loc);
+	if (latlng == false) { return false;}
+	var marker = L.marker(latlng,{icon:icon, className:loc.name, index:i})
+	add_marker_behavior(marker);
+	layerDict['icon'].push(marker)
+	return marker;
+}
+
+function activate_marker(marker) {
+	if (marker == last_clicked_marker) { return false}
+	try {marker.setStyle({fillColor:highlight_color, color:highlight_color});}
+	catch {marker._icon.innerHTML = html_highlight_icon;}
+	last_activated = marker;
+}
+	
+function deactivate_marker(marker) {
+	if (marker == last_clicked_marker) { return false}
+	if (last_activated == false) { return false }
+	try {marker.setStyle({fillColor:marker_color,color:marker_color});}
+	catch {marker._icon.innerHTML = html_icon;}
+	last_deactivated = marker;
+}
+
+function set_marker_clicked(marker) {
+	set_marker_unclicked();
+	try {marker.setStyle({fillColor:click_color, color:click_color});}
+	catch {marker._icon.innerHTML = html_highlight_icon;}
+	last_clicked_marker = marker;
+}
+
+function set_marker_unclicked() {
+	if (last_clicked_marker == false) { return false }
+	var marker = last_clicked_marker;
+	try {marker.setStyle({fillColor:marker_color,color:marker_color});}
+	catch {marker._icon.innerHTML = html_icon;}
+	last_clicked_marker = false
+}
+
+function show_info(index) {
+	info =d[index];
+	var label = document.getElementById('city_label');
+	var html = info.name;
+	html += '<small> (' + info.count + ' entries) ';
+	for (const x of info.model_names) {
+		if (x) { html += x.toLowerCase() + ' '}
+	}
+	html += '</small>'
+	label.innerHTML = html
+}
+
+function onmarkerHover(e) {
+	//activate a if an element on the map is hovered
+	deactivate_marker(last_activated);
+	activate_marker(this);
+	show_info(this.options.index);
+}
+
+function onmarkerLeave(e) {
+	//what to do after cursor leaves element
+	var s = this.options.className;
+}
+
+function onmarkerClick(e) {
+	var s = this.options.className;
+	console.log('click')
+	console.log(s);
+	console.log(this);
+	set_marker_clicked(this)
+	show_sidebar(this.options.index);
+	openNav();
+}
+
+async function get_instance(instance_id,instance_category) {
+	//get information ofa single instance via ajax call
+	var path = '/locations/ajax_instance/'
+	path += instance_category.replaceAll('_','/') + '/'
+	path += instance_id	
+	const response = await fetch(path); 
+	const data = await response.json()
+	console.log(path,data)
+}
+
+function _add_instance(instance, model_name) {
+	// display a single instance to the sidebar
+	// helper function of get_instances
+	var dlinks= document.getElementById(model_name + '-links');
+	a =document.createElement("a");
+	dlinks.appendChild(a);
+	a.setAttribute('href',instance.detail_url);
+	a.innerHTML = instance.name;
+	a.classList.add("small_text");
+	entries.push(a)
+}
+
+async function get_instances(instance_ids,instance_category) {
+	// load instances associated with a given category (e.g. Text) via ajax
+	var model_name = instance_category.split('_')[1]
+	var path = '/locations/ajax_instances/';
+	path += instance_category.replaceAll('_','/') + '/';
+	path += instance_ids.join(',');	
+	const response = await fetch(path); 
+	data = await response.json();
+	//instances= JSON.parse(data.instances);
+	console.log(path,data)
+	var dall = document.getElementById(model_name + '-all');
+	var dlinks = document.createElement('div');
+	dlinks.id = model_name + '-links'
+	dall.appendChild(dlinks)
+	for (const instance of data.instances) {
+		_add_instance(instance,model_name);
+	}
+}
+
+function show_entry(instance_ids, entry_category) {
+	// get entry information and create an html element to display it in the sidebar
+	// this a category / model (e.g. Text) the corresponding instances are loaded via ajax
+	model_name = entry_category.split('_')[1]
+	var sidebar= document.getElementById('sidebar-content');
+	console.log(instance_ids,model_name);
+	var d = document.createElement('div')
+	entries.push(d);
+	d.id = model_name + '-all';
+	sidebar.appendChild(d);
+	get_instances(instance_ids, entry_category)
+	var a =document.createElement("a");
+	a.setAttribute('href',"javascript:void(0)");
+	a.setAttribute('onclick', 'toggle_sidebar_category(this)');
+	a.setAttribute('data-links_id', model_name + '-links');
+	d.appendChild(a);
+	a.innerHTML = model_name + ' <small>(' + instance_ids.length + ')</small>';
+	a.classList.add('category-header');
+}
+
+function show_entries(info) {
+	//show entries in the sidebar linked to a given location 
+	for (const [key, instance_ids] of Object.entries(info)) {
+		if ('count,model_names,name,gps'.split(',').includes(key)){
+			console.log('skipping',key);
+		} else {
+			console.log('showing',key);
+			show_entry(instance_ids, key);
+		}
+	}
+}
+
+function remove_entries() {
+	//remove old entries from sidebar
+	var sidebar= document.getElementById('sidebar-content');
+	for (const x of entries) {
+		x.remove()
+	}
+	entries = [];
+}
+
+function show_sidebar(index) {
+	//show sidebar with entries from selectie location
+	info =d[index];
+	console.log(info);
+	var title = document.getElementById('title');
+	var html = info.name;
+	html += '<small> (' + info.count + ' entries) ' + '</small>';
+	title.innerHTML = html
+	remove_entries();
+	show_entries(info);
+}
+
+function toggle_sidebar_category(element) {
+	console.log(element);
+	var dlinks = document.getElementById(element.dataset.links_id);
+	console.log(dlinks);
+	if (dlinks.style.display == "") {
+		element.style.color = "grey";
+		dlinks.style.display = "none";
+	} else {
+		element.style.color = "black";
+		dlinks.style.display = "";
+	}
+}
+
+
+function showMarkers(marker_ids = 'circle') {
+	//var controlLayers;
+	console.log(marker_ids)
+	for (const [key, markers] of Object.entries(layerDict)) {
+		var color = marker_color;
+		var layername = '<span style="color:'+color+';">'+key+'</span>'
+		console.log(layername);
+		var lg = L.layerGroup(markers)
+		overlayMarkers[layername]= lg
+		if ( key == marker_ids) {lg.addTo(mymap);}
+	}
+	// uncomment to show layer control
+	//L.control.layers({},overlayMarkers,{collapsed:false}).addTo(mymap);
+}
+
+
+var names = 'circle,icon'.split(',');
+layerDict = {}
+for (i = 0; i<names.length; i++) {
+	layerDict[names[i]] = []
+	console.log(colorDict[names[i]],names[i],i);
+}
+
+var d= JSON.parse(document.getElementById('d').textContent);
+var d = Object.values(d)
+for (i = 0; i<d.length; i++) {
+	console.log(d[i]);
+	make_circle_marker(d[i],i);
+	//make_marker(d[i],i);
+}
+
+var controlLayers;
+var overlayMarkers= {};
+showMarkers('circle');
+
+// side bar
+function openNav() {
+	document.getElementById("mySidebar").style.width = "420px";
+	document.getElementById("content").style.marginLeft = "423px";
+}
+
+function closeNav() {
+	document.getElementById("mySidebar").style.width = "0px";
+	document.getElementById("content").style.marginLeft = "25px";
+}
+
+
+</script>
+ 
+<style>
+/* css to customize Leaflet default styles  */
+
+.map_screen {
+	margin-left:25px;
+	margin-right:25px;
+	transition:0.5s;
+	background-color:#d2d8d9;
+}
+
+.sidebar {
+	height: 100%;
+	width: 0px;
+	position: fixed;
+	z-index: 1;
+	top: 82px;
+	left: 0;
+	background-color: #d2d8d9;
+	overflow-x: hidden;
+	transition: 0.5s;
+}
+
+.sidebar a {
+	text-decoration: none;
+	color: #585e66;
+	display: block;
+	transition: 0.3;
+	font-size: 14px;
+	margin-left: 25px;
+}
+
+.sidebar a:hover {
+	color: black;
+}
+
+.leaflet-control-layers-selector {
+	display:none;
+}
+
+.map {
+	transition:0.5s;
+}
+
+.closebtn {
+	position: absolute;
+	right: 15px;
+	top: 9px;
+	color:black;
+	margin-left: 5px;
+}
+
+
+p {
+	margin-left: 10px;
+	margin-bottom:10px;
+}
+hr {
+	margin: 10px;
+}
+.city_label {
+	text-align:center;
+}
+
+.grid-container {
+	display:grid;
+	grid-template-columns: 6fr 2fr;
+	grid-gap: 3px;
+	align-items: top;
+}
+.grid-child {
+	background-color:#e6e2da;
+	padding-left:10px;
+	padding-right:10px;
+	padding-top: 5px;
+}
+.close-sidebar {
+	background-color:#d2d8d9;
+	justify-self:right;
+}
+.title-sidebar {
+	background-color:#d2d8d9;
+	justify-self:center;
+	font-size:20px
+}
+
+.small_text {
+	font-size:14px;
+}
+
+.sidebar a.category-header {
+	color:black;
+	font-size:18px;
+	margin-left:15px;
+	margin-bottom: 0px;
+	margin-top: 10px;
+}
+
+.sidebar a.category-header:hover {
+	color:red;
+}
+
+
+</style>
+{% endblock %}
+
