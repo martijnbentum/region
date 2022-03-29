@@ -18,6 +18,7 @@ from utils.model_util import instance2names
 from utils.instance_links import Links
 from utilities.views import getfocus, list_view, delete_model, edit_model
 from utilities.views import add_simple_model
+from utilities import search
 from catalogue.models import Text, Illustration, Publication, Publisher, Periodical
 from persons.models import Person, Movement
 
