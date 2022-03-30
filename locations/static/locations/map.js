@@ -244,17 +244,39 @@ function toggle_sidebar_category(element) {
 	}
 }
 
-function showMarkers(marker_ids = 'circle') {
+function showMarkers(markers, make_point = true) {
 	//var controlLayers;
-	for (const [key, markers] of Object.entries(layerDict)) {
-		var color = marker_color;
-		var layername = '<span style="color:'+color+';">'+key+'</span>'
-		var lg = L.layerGroup(markers)
-		overlayMarkers[layername]= lg
-		if ( key == marker_ids) {lg.addTo(mymap);}
+	hideMarkers(markers);
+	for (i = 0; i<markers.length; i++) {
+		var marker = markers[i];
+		if (make_point) {
+			marker.addTo(mymap);
+		} else if ( clustered_marker_indices.includes(marker.options.index) ) {
+			if (clustered_marker_dict[marker.options.index].plotted) {
+				continue;
+			}
+			clustered_marker_dict[marker.options.index].center_element.addTo(mymap);
+			clustered_marker_dict[marker.options.index].plotted = true;
+		} else {
+			marker.addTo(mymap);
+		}
 	}
-	// uncomment to show layer control
-	//L.control.layers({},overlayMarkers,{collapsed:false}).addTo(mymap);
+}
+
+function updateMarkers(markers) {
+	showMarkers(layerDict['circle'], make_point = true);
+	[clustered_marker_dict, clustered_marker_indices] = cluster(c)
+	showMarkers(layerDict['circle'], make_point = false);
+}
+
+
+
+function hideMarkers(markers) {
+	//var controlLayers;
+	for (i = 0; i<markers.length; i++) {
+		var marker = markers[i];
+		marker.remove();
+	}
 }
 
 
@@ -262,9 +284,12 @@ function showMarkers(marker_ids = 'circle') {
 // for now only the circle markers are made
 var names = 'circle,icon'.split(',');
 layerDict = {}
-for (i = 0; i<names.length; i++) {
+for (var i = 0; i<names.length; i++) {
 	layerDict[names[i]] = []
 }
+
+//cluster markers based on overlap
+var c = layerDict['circle'];
 
 // the d element contains all information linking locations to instances
 var d= JSON.parse(document.getElementById('d').textContent);
@@ -276,7 +301,12 @@ for (i = 0; i<d.length; i++) {
 
 var controlLayers;
 var overlayMarkers= {};
-showMarkers('circle');
+var clustered_markers = [];
+var clustered_marker_indices = [];
+var clustered_marker_dict = {};
+showMarkers(layerDict['circle']);
+c.sort(sort_on_x);
+updateMarkers(layerDict['circle']);
 
 function openNav() {
 	// open sidebar
@@ -290,4 +320,10 @@ function closeNav() {
 	document.getElementById("content").style.marginLeft = "25px";
 }
 
+
+mymap.on('zoomend', function() {
+	console.log('zoomed')
+	console.log(c);
+	updateMarkers(layerDict['circle']);
+});
 
