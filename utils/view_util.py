@@ -344,7 +344,8 @@ class Change:
 		self.time = time
 		self.field= related_name + ' | ' + field_name if related_name else field_name
 		self.old_state = state[0]
-		if not related_instance or not related_name: self.new_state = state[1]
+		if len(state) < 2: self.new_state = 'no new state'
+		elif not related_instance or not related_name: self.new_state = state[1]
 		else: self.new_state = state[1] + ' (' + related_instance.__str__() +')'
 			
 		self.related_name = related_name
