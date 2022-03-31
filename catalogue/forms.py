@@ -165,11 +165,16 @@ class IllustrationForm(ItemForm):
 			data_placeholder ='Select whether attached files can be made public',
 			input_length = 0)),
 		required = False)
+	location= forms.ModelMultipleChoiceField(
+		queryset=Location.objects.all().order_by('name'),
+		widget=LocationsWidget(**dselect2n2),
+		required = False)
+	setting= forms.CharField(**dchar)
 
 	class Meta:
 		model = Illustration
 		fields = 'caption,categories,page_number,upload,illustration_type,image_filename'
-		fields += ',use_permission'
+		fields += ',use_permission,location,setting'
 		fields = item_fields + fields.split(',')
 
 

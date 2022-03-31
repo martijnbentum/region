@@ -321,7 +321,9 @@ class Illustration(Item, info):
 		through='IllustrationIllustrationRelation',symmetrical=False, 
 		default=None)
 	illustration_type = models.ForeignKey(IllustrationType, **dargs)
-	location_field = ''
+	location= models.ManyToManyField(Location,blank=True, default= None)
+	setting = models.CharField(max_length=300,blank=True)
+	location_field = 'location'
 	image_filename = models.CharField(max_length=500,default='',blank=True,
 		null=True)
 	person = models.CharField(max_length=2000,blank=True,null=True)
