@@ -87,7 +87,7 @@ hr {
 }
 
 .sidebar a.category-header {
-	color:black;
+	color:#2f3030;
 	font-size:18px;
 	margin-left:15px;
 	margin-bottom: 0px;
@@ -95,7 +95,19 @@ hr {
 }
 
 .sidebar a.category-header:hover {
-	color:red;
+	color:black;
 }
+
+.sidebar a.city-header {
+	color:#4287f5;
+	font-size:20px;
+	margin-left:10px;
+	margin-bottom: 0px;
+	margin-top: 10px;
+}
+.sidebar a.city-header:hover {
+	color:#13499e;
+}
+
 
 
