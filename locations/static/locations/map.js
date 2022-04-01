@@ -110,14 +110,30 @@ function set_marker_unclicked() {
 function show_info(index) {
 	// shows general information (number of linked instances) 
 	// about a location at the top of the screen
-	info =d[index];
 	var label = document.getElementById('city_label');
-	var html = info.name;
-	html += '<small> (' + info.count + ' entries) ';
-	for (const x of info.model_names) {
-		if (x) { html += x.toLowerCase() + ' '}
+	if (clustered_marker_indices.includes(index)) {
+		var elements = clustered_marker_dict[index].elements;
+		var html = ''
+		for (let i=0; i < elements.length; i++) {
+			var el= elements[i];
+			var info = d[el.options.index];
+			html += info.name
+			html += '<small> (' + info.count + ')</small>';
+			if (html.length > 240) {
+				html += '<small> [...] + ' + (elements.length - 1 - i) + ' locations'
+				break
+			}
+			if (i != elements.length -1) { html += ', '; }
+		}
+	} else {
+		var info =d[index];
+		var html = info.name;
+		html += '<small> (' + info.count + ' entries) ';
+		for (const x of info.model_names) {
+			if (x) { html += x.toLowerCase() + ' '}
+		}
+		html += '</small>'
 	}
-	html += '</small>'
 	label.innerHTML = html
 }
 
@@ -151,10 +167,10 @@ async function get_instance(instance_id,instance_category) {
 	const data = await response.json()
 }
 
-function _add_instance(instance, model_name) {
+function _add_instance(instance, model_name, city_div) {
 	// display a single instance to the sidebar
 	// helper function of get_instances
-	var dlinks= document.getElementById(model_name + '-links');
+	var dlinks= document.getElementById(model_name + '-links-'+city_div.id);
 	a =document.createElement("a");
 	dlinks.appendChild(a);
 	a.setAttribute('href',instance.detail_url);
@@ -163,7 +179,7 @@ function _add_instance(instance, model_name) {
 	entries.push(a)
 }
 
-async function get_instances(instance_ids,instance_category) {
+async function get_instances(instance_ids,instance_category,city_div) {
 	// load instances associated with a given category (e.g. Text) via ajax
 	// when a location is clicked this function is used to 
 	// retrieve information from server
@@ -173,46 +189,72 @@ async function get_instances(instance_ids,instance_category) {
 	path += instance_ids.join(',');	
 	const response = await fetch(path); 
 	data = await response.json();
-	var dall = document.getElementById(model_name + '-all');
+	var dall = document.getElementById(model_name + '-all-'+city_div.id);
 	var dlinks = document.createElement('div');
-	dlinks.id = model_name + '-links'
+	dlinks.id = model_name + '-links-' +city_div.id
 	dall.appendChild(dlinks)
 	for (const instance of data.instances) {
-		_add_instance(instance,model_name);
+		_add_instance(instance,model_name, city_div);
 	}
 }
 
-function show_entry(instance_ids, entry_category) {
+function show_category(instance_ids, category,city_div) {
 	// get category information and create an html element to display it in the sidebar
 	// the category (e.g. Text) the corresponding instances are loaded via ajax
-	model_name = entry_category.split('_')[1]
-	var sidebar= document.getElementById('sidebar-content');
+	model_name = category.split('_')[1]
+	// var sidebar= document.getElementById('sidebar-content');
 	var d = document.createElement('div')
 	entries.push(d);
-	d.id = model_name + '-all';
-	sidebar.appendChild(d);
-	get_instances(instance_ids, entry_category)
+	d.id = model_name + '-all-' + city_div.id;
+	city_div.appendChild(d);
+	get_instances(instance_ids, category, city_div)
 	var a =document.createElement("a");
 	a.setAttribute('href',"javascript:void(0)");
 	a.setAttribute('onclick', 'toggle_sidebar_category(this)');
-	a.setAttribute('data-links_id', model_name + '-links');
+	a.setAttribute('data-links_id', model_name + '-links-'+city_div.id);
 	d.appendChild(a);
 	a.innerHTML = model_name + ' <small>(' + instance_ids.length + ')</small>';
 	a.classList.add('category-header');
 }
 
-function show_entries(info) {
-	// show entries (categories e.g. Text, Person) in the sidebar 
+function show_categories(info) {
+	// show categories (e.g. Text, Person) in the sidebar 
 	// linked to a given location 
+	var sidebar= document.getElementById('sidebar-content');
+	var city_div =document.createElement("d");
+	sidebar.appendChild(city_div)
+	city_div.id = info.pk + "-links";
+	entries.push(city_div)
+	console.log(city_div)
 	for (const [key, instance_ids] of Object.entries(info)) {
-		if ('count,model_names,name,gps'.split(',').includes(key)){
+		if ('count,model_names,name,gps,pk'.split(',').includes(key)){
 		} else {
-			show_entry(instance_ids, key);
+			show_category(instance_ids, key, city_div);
 		}
 	}
 }
 
-function remove_entries() {
+function show_city(info) {
+	var sidebar= document.getElementById('sidebar-content');
+	var div =document.createElement("d");
+	sidebar.appendChild(div);
+	entries.push(div)
+	var a =document.createElement("a");
+	a.setAttribute('href',"javascript:void(0)");
+	a.setAttribute('onclick', 'toggle_sidebar_category(this)');
+	a.setAttribute('data-links_id', info.pk + '-links');
+	a.setAttribute('data-color_inactive', 'grey');
+	a.setAttribute('data-color_active', '#2f3030');
+	a.classList.add("city-header");
+	div.appendChild(a);
+	// var title = document.getElementById('title');
+	var html = info.name;
+	html += '<small> (' + info.count + ' entries) ' + '</small>';
+	a.innerHTML = html
+	show_categories(info);
+}
+
+function clear_sidebar() {
 	//remove old entries from sidebar
 	var sidebar= document.getElementById('sidebar-content');
 	for (const x of entries) {
@@ -223,23 +265,30 @@ function remove_entries() {
 
 function show_sidebar(index) {
 	//show sidebar with entries from selected location
-	info =d[index];
-	var title = document.getElementById('title');
-	var html = info.name;
-	html += '<small> (' + info.count + ' entries) ' + '</small>';
-	title.innerHTML = html
-	remove_entries();
-	show_entries(info);
+	clear_sidebar();
+	if (clustered_marker_indices.includes(index)) {
+		var elements = clustered_marker_dict[index].elements;
+		console.log(elements)
+		for (let i=0; i < elements.length; i++) {
+			var el= elements[i];
+			var info = d[el.options.index];
+			show_city(info)
+		}
+	} else {
+		var info =d[index];
+		show_city(info)
+	}
 }
 
 function toggle_sidebar_category(element) {
 	//hide reveal category items (e.g. Text) from sidebar
 	var dlinks = document.getElementById(element.dataset.links_id);
+	console.log(element,dlinks)
 	if (dlinks.style.display == "") {
-		element.style.color = "grey";
+		element.style.color = element.data_color_inactive;//"grey";
 		dlinks.style.display = "none";
 	} else {
-		element.style.color = "black";
+		element.style.color = element.data_color_active;//"#2f3030";
 		dlinks.style.display = "";
 	}
 }
