@@ -42,9 +42,9 @@ function loc2latlng(loc) {
 	
 function add_marker_behavior(marker) {
 	// adds marker behavior
-	marker.on('mouseover',onmarkerHover)
-	marker.on('mouseout',onmarkerLeave)
-	marker.on('click',onmarkerClick)
+	marker.on('mouseover',on_marker_hover)
+	marker.on('mouseout',on_marker_leave)
+	marker.on('click',on_marker_click)
 }
 
 function make_circle_marker(loc,i) {
@@ -137,24 +137,24 @@ function show_info(index) {
 	label.innerHTML = html
 }
 
-function onmarkerHover(e) {
+function on_marker_hover(e) {
 	//show info and change color of an element on the map when hovered
 	deactivate_marker(last_activated);
 	activate_marker(this);
 	show_info(this.options.index);
 }
 
-function onmarkerLeave(e) {
+function on_marker_leave(e) {
 	//nothing to do now
 }
 
-function onmarkerClick(e) {
+function on_marker_click(e) {
 	// opens sidebar (if closed) removes old elements (if present) 
 	// shows instances linked to location in sidebar
 	var s = this.options.className;
 	set_marker_clicked(this)
 	show_sidebar(this.options.index);
-	openNav();
+	open_nav();
 }
 
 async function get_instance(instance_id,instance_category) {
@@ -293,9 +293,9 @@ function toggle_sidebar_category(element) {
 	}
 }
 
-function showMarkers(markers, make_point = true) {
+function show_markers(markers, make_point = true) {
 	//var controlLayers;
-	hideMarkers(markers);
+	hide_markers(markers);
 	for (i = 0; i<markers.length; i++) {
 		var marker = markers[i];
 		if (make_point) {
@@ -312,15 +312,15 @@ function showMarkers(markers, make_point = true) {
 	}
 }
 
-function updateMarkers(markers) {
-	showMarkers(layerDict['circle'], make_point = true);
+function update_markers(markers) {
+	show_markers(layerDict['circle'], make_point = true);
 	[clustered_marker_dict, clustered_marker_indices] = cluster(c)
-	showMarkers(layerDict['circle'], make_point = false);
+	show_markers(layerDict['circle'], make_point = false);
 }
 
 
 
-function hideMarkers(markers) {
+function hide_markers(markers) {
 	//var controlLayers;
 	for (i = 0; i<markers.length; i++) {
 		var marker = markers[i];
@@ -353,17 +353,17 @@ var overlayMarkers= {};
 var clustered_markers = [];
 var clustered_marker_indices = [];
 var clustered_marker_dict = {};
-showMarkers(layerDict['circle']);
+show_markers(layerDict['circle']);
 c.sort(sort_on_x);
-updateMarkers(layerDict['circle']);
+update_markers(layerDict['circle']);
 
-function openNav() {
+function open_nav() {
 	// open sidebar
 	document.getElementById("mySidebar").style.width = "420px";
 	document.getElementById("content").style.marginLeft = "423px";
 }
 
-function closeNav() {
+function close_nav() {
 	// close sidebar
 	document.getElementById("mySidebar").style.width = "0px";
 	document.getElementById("content").style.marginLeft = "25px";
@@ -371,8 +371,9 @@ function closeNav() {
 
 
 mymap.on('zoomend', function() {
+	// update the clustering after zooming in or out
 	console.log('zoomed')
 	console.log(c);
-	updateMarkers(layerDict['circle']);
+	update_markers(layerDict['circle']);
 });
 
