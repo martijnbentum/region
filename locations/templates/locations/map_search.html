@@ -14,25 +14,56 @@
    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
    crossorigin=""></script>
 	<style>
-		#mapid {height: 820px;}
+		#mapid {height: 780px;}
 	</style>
 {% endblock %}
 
 {% block wide %}
 {% include 'locations/icons.html' %}
 
+<div class="d-flex">
+	<div class="col-10">
+		<form>
+			<div class="d-flex">
+				<button id ="query" class="btn btn-link mb-0"  type="submit">
+					<i class="fas fa-search"></i></button>
+				<input id="exampleFormControlInput1" type="text" name="query" 
+					placeholder=Search
+					class="col-6 mb-1" style="border-width:0;border-bottom-width:1px;" 
+					value="{{query}}" >
+				<p class="nentries" ># entries: {{nentries}}<p>
+			</div>
+		</form>
+	</div>
+</div>
+
+
 <div class="map_screen" id="content">
-	<div class="sidebar" id="mySidebar">
-		<div class="", id="sidebar-content">
+
+	<div class="sidebar" id="left_sidebar">
+		<div class="", id="left_sidebar_content">
 			<div class="close-sidebar">
 				<a href="javascript:void(0)" 
-					class="closebtn" onclick="close_nav()">
+					class="closebtn" onclick="close_left_nav()">
 					<i class="fas fa-times-circle"></i>
 				</a>
 			</div>
 		</div>
 		<br><br><br><br><br><br><br>
 	</div>
+
+	<div class="sidebar" id="right_sidebar">
+		<div class="", id="right_sidebar_content">
+			<div class="close-sidebar">
+				<a href="javascript:void(0)" 
+					class="closebtn" onclick="close_right_nav()">
+					<i class="fas fa-times-circle"></i>
+				</a>
+			</div>
+		</div>
+		<br><br><br><br><br><br><br>
+	</div>
+
 	<p id="city_label", class ="city_label">&nbsp;</p>
 	<div id="mapid" class="mt-0 map"></div>
 </div>
