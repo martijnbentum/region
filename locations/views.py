@@ -68,7 +68,7 @@ def map_search(request):
 	sa = search.SearchAll(request)
 	instances = sa.filter()
 	d = get_all_location_ids_dict(instances = instances, add_names_gps = True)
-	args = {'page_name':'map search','d':d}
+	args = {'page_name':'map search','d':d,'query':' ','nentries': len(instances)}
 	return render(request, 'locations/map_search.html',args)
 
 
