@@ -1,4 +1,15 @@
 /* css to customize Leaflet default styles  */
+.nentries {
+	margin-top: 12px;
+	margin-bottom: 0px;
+	padding-bottom: 0px;
+	font-size: 12px;
+	color:grey;
+}
+
+#query {
+	margin-left:400px;
+}
 
 .map_screen {
 	margin-left:25px;
@@ -7,13 +18,20 @@
 	background-color:#d2d8d9;
 }
 
+#left_sidebar {
+	left: 0;
+}
+
+#right_sidebar {
+	right: 0;
+}
+
 .sidebar {
 	height: 100%;
 	width: 0px;
 	position: fixed;
 	z-index: 1;
 	top: 82px;
-	left: 0;
 	background-color: #d2d8d9;
 	overflow-x: hidden;
 	transition: 0.5s;
