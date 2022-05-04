@@ -154,7 +154,7 @@ function on_marker_click(e) {
 	var s = this.options.className;
 	set_marker_clicked(this)
 	show_sidebar(this.options.index);
-	open_nav();
+	open_right_nav();
 }
 
 async function get_instance(instance_id,instance_category) {
@@ -220,7 +220,7 @@ function show_category(instance_ids, category,city_div) {
 function show_categories(info) {
 	// show categories (e.g. Text, Person) in the sidebar 
 	// linked to a given location 
-	var sidebar= document.getElementById('sidebar-content');
+	var sidebar= document.getElementById('right_sidebar_content');
 	var city_div =document.createElement("d");
 	sidebar.appendChild(city_div)
 	city_div.id = info.pk + "-links";
@@ -235,7 +235,7 @@ function show_categories(info) {
 }
 
 function show_city(info) {
-	var sidebar= document.getElementById('sidebar-content');
+	var sidebar= document.getElementById('right_sidebar_content');
 	var div =document.createElement("d");
 	sidebar.appendChild(div);
 	entries.push(div)
@@ -256,7 +256,7 @@ function show_city(info) {
 
 function clear_sidebar() {
 	//remove old entries from sidebar
-	var sidebar= document.getElementById('sidebar-content');
+	var sidebar= document.getElementById('right_sidebar_content');
 	for (const x of entries) {
 		x.remove()
 	}
@@ -357,16 +357,28 @@ show_markers(layerDict['circle']);
 c.sort(sort_on_x);
 update_markers(layerDict['circle']);
 
-function open_nav() {
+function open_left_nav() {
 	// open sidebar
-	document.getElementById("mySidebar").style.width = "420px";
-	document.getElementById("content").style.marginLeft = "423px";
+	document.getElementById("left_sidebar").style.width = "320px";
+	document.getElementById("content").style.marginLeft = "323px";
 }
 
-function close_nav() {
+function close_left_nav() {
 	// close sidebar
-	document.getElementById("mySidebar").style.width = "0px";
+	document.getElementById("left_sidebar").style.width = "0px";
 	document.getElementById("content").style.marginLeft = "25px";
+}
+
+function open_right_nav() {
+	// open sidebar
+	document.getElementById("right_sidebar").style.width = "400px";
+	document.getElementById("content").style.marginRight = "403px";
+}
+
+function close_right_nav() {
+	// close sidebar
+	document.getElementById("right_sidebar").style.width = "0px";
+	document.getElementById("content").style.marginRight= "25px";
 }
 
 
@@ -377,3 +389,4 @@ mymap.on('zoomend', function() {
 	update_markers(layerDict['circle']);
 });
 
+open_left_nav();
