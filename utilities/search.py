@@ -2,7 +2,7 @@ from django.apps import apps
 from django.db.models.functions import Lower
 from django.db.models import Q
 import time
-from utils.model_util import get_all_models, instance2names
+from utils.model_util import get_all_models, instance2names, instances2model_counts
 
 
 class SearchAll:
@@ -498,3 +498,22 @@ def get_foreign_keydict():
 
 def delta(start):
 	return time.time() - start
+
+def filter_on_list(instance_dict, filter_list):
+	instances = []
+	for key,inst in instance_dict.items():
+		if key in filter_list:
+			for instance in inst:
+				if instance not in instances: instances.append(instance)
+	return instances
+
+def _instance2identifier_dict(d):
+	o = {}
+	for key,instances in d.items():
+		o[key] = [x.identifier for x in instances]
+	o['all'] = []
+	for ids in o.values():
+		o['all'].extend(ids)
+	return o
+
+		
