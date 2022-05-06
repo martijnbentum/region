@@ -15,6 +15,7 @@ import os
 from utils.view_util import make_tabs,FormsetFactoryManager
 from utils.map_util import gps2latlng, pop_up, get_all_location_ids_dict
 from utils.model_util import instance2names
+from utils.search_view_helper import SearchView
 from utils.instance_links import Links
 from utilities.views import getfocus, list_view, delete_model, edit_model
 from utilities.views import add_simple_model
@@ -67,9 +68,11 @@ def map_ll_alpha(request):
 def map_search(request):
 	sa = search.SearchAll(request)
 	instances = sa.filter()
+	s = SearchView(request)
 	d = get_all_location_ids_dict(instances = instances, add_names_gps = True)
-	args = {'page_name':'map search','d':d,'query':' ','nentries': len(instances)}
-	return render(request, 'locations/map_search.html',args)
+	s.var['page_name']='map search'
+	s.var['d']=d
+	return render(request, 'locations/map_search.html',s.var)
 
 
 
