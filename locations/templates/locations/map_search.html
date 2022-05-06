@@ -21,7 +21,10 @@
 {% block wide %}
 {% include 'locations/icons.html' %}
 
-<div class="d-flex">
+{{id_dict|json_script:'id-dict'}}
+{{filter_active_dict|json_script:'filter-active-dict'}}
+
+<div class="d-flex" id="search_div">
 	<div class="col-10">
 		<form>
 			<div class="d-flex">
@@ -31,7 +34,7 @@
 					placeholder=Search
 					class="col-6 mb-1" style="border-width:0;border-bottom-width:1px;" 
 					value="{{query}}" >
-				<p class="nentries" ># entries: {{nentries}}<p>
+				<p id="nentries" >{{nentries}}<p>
 			</div>
 		</form>
 	</div>
@@ -48,9 +51,31 @@
 					<i class="fas fa-times-circle"></i>
 				</a>
 			</div>
+
+			<a
+				href="javascript:void(0)"
+				id="category_filter"
+				onclick="toggle_filters_visible('category')"
+				>
+				Categories
+			</a>
+			<div id = 'category_filters'>
+				<hr>
+				{% for key, value in model_counts.items %}
+					<a
+						class='indent'
+						href="javascript:void(0)"
+						id='model,{{key}}'
+						onclick="toggle_filter('model,{{key}}')">
+							{{key}} <small>({{value}})</small>
+					</a>
+				{% endfor %}
+			</div>
+
 		</div>
 		<br><br><br><br><br><br><br>
 	</div>
+
 
 	<div class="sidebar" id="right_sidebar">
 		<div class="", id="right_sidebar_content">
