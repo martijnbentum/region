@@ -1,5 +1,5 @@
 /* css to customize Leaflet default styles  */
-.nentries {
+#nentries {
 	margin-top: 12px;
 	margin-bottom: 0px;
 	padding-bottom: 0px;
@@ -8,7 +8,12 @@
 }
 
 #query {
-	margin-left:400px;
+	margin-left:185px;
+}
+
+#search_div {
+	margin-right:100px;
+	transition:0.5s;
 }
 
 .map_screen {
