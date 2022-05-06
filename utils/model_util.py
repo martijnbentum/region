@@ -2,6 +2,7 @@ from django.apps import apps
 import random
 import string
 import itertools
+from utils.general import sort_count_dict, sort_dict_on_keys
 
 
 n='text,publication,periodical,publisher,illustration,person,movement'.split(',')
@@ -232,6 +233,24 @@ def identifiers2instances(identifiers):
 		model = apps.get_model(app_name,model_name)
 		instances.extend(model.objects.filter(pk__in=value))
 	return instances
+
+
+def _add_to_count_instance_dict(count_d,instances_d,names, instance):
+	for name in names:
+		if name not in count_d.keys(): count_d[name] ,instances_d[name] = 0, []
+		count_d[name] +=1
+		instances_d[name].append(instance)
+
+def instances2model_counts(instances):
+	'''names and counts of models that are linked to a list of instance.'''
+	count_d = {}
+	instances_d = {}
+	for instance in instances:
+		name = instance2name(instance)
+		_add_to_count_instance_dict(count_d,instances_d,[name],instance)
+	count_d = sort_count_dict(count_d)
+	return count_d, instances_d
+
 		
 	
 
