@@ -143,7 +143,7 @@ def get_all_location_ids_dict(instances = None,add_names_gps = False):
 		ids = list(map(int,instance.loc_ids.split(',')))
 		for i in ids:
 			if i not in d.keys(): 
-				d[i] = {'count':0,'model_names':[]}
+				d[i] = {'count':0,'model_names':[],'identifiers':[]}
 				if add_names_gps:
 					l = location_dict[i]
 					d[i].update( {'name':l.name,'gps':l.gps, 'pk':l.pk} )
@@ -151,6 +151,7 @@ def get_all_location_ids_dict(instances = None,add_names_gps = False):
 			name = app_name + '_' + model_name
 			if name not in d[i].keys():d[i][name] = []
 			d[i][name].append(instance.pk)
+			d[i]['identifiers'].append(instance.identifier)
 			d[i]['count'] += 1
 			if model_name not in d[i]['model_names']:
 				d[i]['model_names'].append(model_name)
