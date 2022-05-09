@@ -119,6 +119,7 @@ function show_info(index) {
 	// about a location at the top of the screen
 	var label = document.getElementById('city_label');
 	if (clustered_marker_indices.includes(index)) {
+		//multiple locations are clustered into 1 marker
 		var elements = clustered_marker_dict[index].elements;
 		var html = ''
 		for (let i=0; i < elements.length; i++) {
@@ -160,7 +161,7 @@ function on_marker_click(e) {
 	// shows instances linked to location in sidebar
 	var s = this.options.className;
 	set_marker_clicked(this)
-	show_sidebar(this.options.index);
+	show_right_sidebar(this.options.index);
 	open_right_nav();
 }
 
@@ -232,9 +233,8 @@ function show_categories(info) {
 	sidebar.appendChild(city_div)
 	city_div.id = info.pk + "-links";
 	entries.push(city_div)
-	console.log(city_div)
 	for (const [key, instance_ids] of Object.entries(info)) {
-		if ('count,model_names,name,gps,pk'.split(',').includes(key)){
+		if ('count,model_names,name,gps,pk,identifiers'.split(',').includes(key)){
 		} else {
 			show_category(instance_ids, key, city_div);
 		}
@@ -242,6 +242,7 @@ function show_categories(info) {
 }
 
 function show_city(info) {
+	//show all information linked to specific location
 	var sidebar= document.getElementById('right_sidebar_content');
 	var div =document.createElement("d");
 	sidebar.appendChild(div);
@@ -261,7 +262,7 @@ function show_city(info) {
 	show_categories(info);
 }
 
-function clear_sidebar() {
+function clear_right_sidebar() {
 	//remove old entries from sidebar
 	var sidebar= document.getElementById('right_sidebar_content');
 	for (const x of entries) {
@@ -270,12 +271,11 @@ function clear_sidebar() {
 	entries = [];
 }
 
-function show_sidebar(index) {
+function show_right_sidebar(index) {
 	//show sidebar with entries from selected location
-	clear_sidebar();
+	clear_right_sidebar();
 	if (clustered_marker_indices.includes(index)) {
 		var elements = clustered_marker_dict[index].elements;
-		console.log(elements)
 		for (let i=0; i < elements.length; i++) {
 			var el= elements[i];
 			var info = d[el.options.index];
@@ -290,7 +290,6 @@ function show_sidebar(index) {
 function toggle_sidebar_category(element) {
 	//hide reveal category items (e.g. Text) from sidebar
 	var dlinks = document.getElementById(element.dataset.links_id);
-	console.log(element,dlinks)
 	if (dlinks.style.display == "") {
 		element.style.color = element.data_color_inactive;//"grey";
 		dlinks.style.display = "none";
@@ -302,7 +301,7 @@ function toggle_sidebar_category(element) {
 
 function show_markers(markers, make_point = true) {
 	//var controlLayers;
-	hide_markers(markers);
+	hide_markers(layerDict['circle']);
 	for (i = 0; i<markers.length; i++) {
 		var marker = markers[i];
 		if (make_point) {
@@ -319,16 +318,19 @@ function show_markers(markers, make_point = true) {
 	}
 }
 
-function update_markers(markers) {
-	show_markers(layerDict['circle'], make_point = true);
-	[clustered_marker_dict, clustered_marker_indices] = cluster(c)
-	show_markers(layerDict['circle'], make_point = false);
+function update_markers() {
+	// show markers on map;
+	//apply clustering to markers (cluster overlapping markers together
+	//filter out markers without any active ids
+	show_markers(active_markers, make_point = true);
+	[clustered_marker_dict, clustered_marker_indices] = cluster(active_markers)
+	show_markers(active_markers, make_point = false);
 }
 
 
 
 function hide_markers(markers) {
-	//var controlLayers;
+	//remove markers from map
 	for (i = 0; i<markers.length; i++) {
 		var marker = markers[i];
 		marker.remove();
@@ -344,8 +346,6 @@ for (var i = 0; i<names.length; i++) {
 	layerDict[names[i]] = []
 }
 
-//cluster markers based on overlap
-var c = layerDict['circle'];
 
 // the d element contains all information linking locations to instances
 var d= JSON.parse(document.getElementById('d').textContent);
@@ -360,9 +360,10 @@ var overlayMarkers= {};
 var clustered_markers = [];
 var clustered_marker_indices = [];
 var clustered_marker_dict = {};
-show_markers(layerDict['circle']);
-c.sort(sort_on_x);
-update_markers(layerDict['circle']);
+var active_markers = [...layerDict['circle']];
+show_markers(active_markers);
+active_markers.sort(sort_on_x);
+update_markers(active_markers);
 
 function open_left_nav() {
 	// open sidebar
@@ -394,8 +395,7 @@ function close_right_nav() {
 mymap.on('zoomend', function() {
 	// update the clustering after zooming in or out
 	console.log('zoomed')
-	console.log(c);
-	update_markers(layerDict['circle']);
+	update_markers();
 });
 
 open_left_nav();
@@ -528,7 +528,6 @@ function update_active_ids() {
 		if (temp.length == 1) {active_ids = Array.from(...temp);}
 		else {active_ids = intersection(temp);}
 	}
-	console.log('active',active_ids)
 
 }
 
@@ -564,10 +563,13 @@ function toggle_filter(name) {
 		//current filter name is inactive, activate it and linked instances
 		set_filter_active_dict(active=name,inactive=NaN,category_name=category_name);
 	}
-	update_active_ids();
-	update_count_dict();
-	update_filter_sidebar();
-	set_nentries();
+	update_active_ids(); // set the active identifiers based on active filters
+	update_count_dict(); // update the counts (besides the filters)
+	update_filter_sidebar(); // show the filters and counts in the side bar
+	set_nentries(); //update the entry counts
+	update_info_count(); // update the count for each info in d 
+	update_active_markers()// update marker list to include only markers with active ids
+	update_markers(); // show the markers with active ids
 }
 
 
@@ -637,8 +639,34 @@ function update_filter_sidebar() {
 }
 
 function intersection(array_of_arrays) {
+	// returns an array of items that occur in all arrays
 	var data = array_of_arrays;
 	var result = data.reduce( (a,b) => a.filter( c => b.includes(c) ) );
 	return result
 
+}
+
+
+function update_info_count() {
+	//for each info in d (location information with linked instances)
+	// check whether the identifiers are in active_ids and update the count
+	for (let i=0;i<d.length;i++) {
+		var info = d[i];
+		var identifiers = info.identifiers
+		info.count = intersection([identifiers,active_ids]).length
+	}
+}
+
+function update_active_markers(){
+	//filter out info in d (location information with linked instances)
+	// with a count of 0
+	var markers = layerDict['circle'];
+	active_markers= []
+	for (let i=0; i<markers.length;i++) {
+		var marker = markers[i];
+		if (d[marker.options.index].count > 0)
+			// check if the marker info object has any active identifiers
+			active_markers.push(marker);
+	}
+	active_markers.sort(sort_on_x);
 }
