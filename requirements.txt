@@ -22,7 +22,7 @@ parso==0.7.1
 partial-date @ file:///home/mbentum/partial_date/dist/partial-date-0.1.tar.gz
 pexpect==4.8.0
 pickleshare==0.7.5
-Pillow==8.1.0
+Pillow==9.0.1
 prompt-toolkit==3.0.9
 ptyprocess==0.7.0
 Pygments==2.7.3
