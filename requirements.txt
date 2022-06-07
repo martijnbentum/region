@@ -32,7 +32,7 @@ pytz==2020.5
 redis==3.5.3
 six==1.16.0
 soupsieve==2.1
-sqlparse==0.4.1
+sqlparse==0.4.2
 traitlets==5.0.5
 uWSGI==2.0.19.1
 wcwidth==0.2.5
