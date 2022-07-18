@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import permission_required
-from django.utils.translation import ugettext_lazy as _
+# from django.utils.translation import ugettext_lazy as _
 import os
 import mimetypes
 from django.conf import settings
@@ -22,7 +22,8 @@ def protected_media(request, filename):
 
 	# Check whether the file exist
 	if not os.path.exists(full_path):
-		raise Http404(_("The requested file does not exist"))
+		# raise Http404(_("The requested file does not exist"))
+		raise Http404("The requested file does not exist")
 
 	# Let Django serve it if the XSENDFILE setting is false
 	if not settings.XSENDFILE:
