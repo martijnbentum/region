@@ -220,6 +220,8 @@ function show_category(instance_ids, category,city_div) {
 	a.setAttribute('href',"javascript:void(0)");
 	a.setAttribute('onclick', 'toggle_sidebar_category(this)');
 	a.setAttribute('data-links_id', model_name + '-links-'+city_div.id);
+	var identifiers=pks_and_category_to_identifiers(instance_ids,category);
+	a.setAttribute('data-identifiers',identifiers);
 	d.appendChild(a);
 	a.innerHTML = model_name + ' <small>(' + instance_ids.length + ')</small>';
 	a.classList.add('category-header');
@@ -669,4 +671,36 @@ function update_active_markers(){
 			active_markers.push(marker);
 	}
 	active_markers.sort(sort_on_x);
+}
+
+
+function update_category_headers() {
+	var category_headers = document.getElementsByClassName('category-header');
+	for (let i=0;i<category_headers.length;i++) {
+		var category_header = category_headers[i];
+		ids = category_header.getAttribute('data-identifiers').split(',');
+		var count = intersection([ids,active_ids]).length;
+		console.log(category_header,ids,count);
+		if (count > 0) {
+			var t = category_header.innerHTML;
+			category_header.style.display = '';
+			category_header.innerHTML= t.replace(/\(.*\)/,'('+count+')');
+		}
+		else {category_header.style.display = 'none';}
+	}
+}
+
+function pk_and_category_to_identifier(pk,category) {
+	//create an identifier string from a number and class and model name (ie. category)
+	return category.toLowerCase() + '_' + pk
+}
+
+function pks_and_category_to_identifiers(pks,category) {
+	//create an identifier string from a numbers and class and model name (ie. category)
+	var identifiers = []
+	for (let i=0;i<pks.length;i++) {
+		var pk = pks[i];
+		identifiers.push(pk_and_category_to_identifier(pk,category));
+	}
+	return identifiers
 }
