@@ -55,7 +55,6 @@ INSTALLED_APPS = [
 	'colorfield'
 ]
 
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -177,3 +176,8 @@ try:
     }
 except Exception as e:
     pass
+
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField' 
+CSRF_TRUSTED_ORIGINS = ['https://heritagesofhunger.cls.ru.nl']
+
