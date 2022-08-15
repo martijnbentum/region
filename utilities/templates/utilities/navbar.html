@@ -83,14 +83,20 @@
     </ul>
 
 	<ul class = "navbar-nav navbar-right">
+      {% if user.is_staff %}
 		<li class ="nav-item">
-		  {% if user.username == '' %}
-		  {% else %}
+			<a class="nav-link" href="{% url 'admin:index' %}">
+                admin
+			</a>
+		</li>
+      {% endif %}
+      {% if user.username %}
+		<li class ="nav-item">
 			<a class="nav-link" href="{% url 'utilities:add_comment' user.pk %}">
 				<i class="far fa-comments"></i></a>
 			</a>
-		  {% endif %}
 		</li>
+      {% endif %}
 	</ul>
 
 	<ul class = "navbar-nav navbar-right">
