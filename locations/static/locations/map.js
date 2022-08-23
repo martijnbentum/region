@@ -16,6 +16,10 @@ var active_ids = id_dict['all']
 var selected_filters = [];
 var count_dict = {};
 
+var right_sidebar_active = false;
+var right_sidebar_index = false;
+var right_sidebar_elements = false;
+
 var marker_color = '#4287f5'
 var highlight_color = "#e6da09"
 var click_color = "#fc0352"
@@ -128,7 +132,8 @@ function show_info(index) {
 			html += info.name
 			html += '<small> (' + info.count + ')</small>';
 			if (html.length > 140) {
-				html += '<small> [...] + ' + (elements.length - 1 - i) + ' locations'
+				html += '<small> [...] + ' + (elements.length - 1 - i) 
+                html += ' locations'
 				break
 			}
 			if (i != elements.length -1) { html += ', '; }
@@ -207,9 +212,11 @@ async function get_instances(instance_ids,instance_category,city_div) {
 }
 
 function show_category(instance_ids, category,city_div) {
-	// get category information and create an html element to display it in the sidebar
+	// get category information and create an html element to 
+    //display it in the sidebar
 	// the category (e.g. Text) the corresponding instances are loaded via ajax
 	model_name = category.split('_')[1]
+    if (filter_active_dict['model,'+model_name] == 'inactive') { return; }
 	// var sidebar= document.getElementById('sidebar-content');
 	var d = document.createElement('div')
 	entries.push(d);
@@ -283,11 +290,45 @@ function show_right_sidebar(index) {
 			var info = d[el.options.index];
 			show_city(info)
 		}
+        right_sidebar_elements = clustered_marker_dict[index].elements;
 	} else {
+        right_sidebar_elements = false;
 		var info =d[index];
 		show_city(info)
 	}
+    right_sidebar_active = true;
+    right_sidebar_index = index;
 }
+
+function update_right_sidebar() {
+    if (right_sidebar_active == false || right_sidebar_index == false) {return;}
+    if (right_sidebar_elements == false) {
+        show_right_sidebar(right_sidebar_index);    
+        return;
+    }
+    if (right_sidebar_elements == false) { return; }
+    console.log(right_sidebar_elements)
+    var indices = []
+    for (let i = 0; i < right_sidebar_elements.length; i++) {
+        var el = right_sidebar_elements[i]
+        if (clustered_marker_indices.includes(el.options.index)) {
+            show_right_sidebar(el.options.index) 
+            return
+        } else {
+            indices.push(el.options.index)
+        }
+    }
+    for (let i = 0; i < indices.length; i++) {
+        var index = indices[i];
+        if ( d[index] != undefined) { 
+            show_right_sidebar(index);
+            return;
+        }
+    }
+    console.log('could not update right sidebar, closing')
+    close_right_nav();
+}
+        
 
 function toggle_sidebar_category(element) {
 	//hide reveal category items (e.g. Text) from sidebar
@@ -560,18 +601,23 @@ function toggle_filter(name) {
 	} else if (filter_active_dict[name] == 'active') {
 		//this filter name is active and possibly one or more other filter names
 		// in this category are active
-		set_filter_active_dict(active=NaN,inactive=name,category_name=category_name);
+		set_filter_active_dict(active=NaN,inactive=name,
+            category_name=category_name);
 	} else {
 		//current filter name is inactive, activate it and linked instances
-		set_filter_active_dict(active=name,inactive=NaN,category_name=category_name);
+		set_filter_active_dict(active=name,inactive=NaN,
+            category_name=category_name);
 	}
 	update_active_ids(); // set the active identifiers based on active filters
 	update_count_dict(); // update the counts (besides the filters)
 	update_filter_sidebar(); // show the filters and counts in the side bar
 	set_nentries(); //update the entry counts
 	update_info_count(); // update the count for each info in d 
-	update_active_markers()// update marker list to include only markers with active ids
+    // update marker list to include only markers with active ids
+	update_active_markers();
 	update_markers(); // show the markers with active ids
+    console.log(filter_active_dict)
+    update_right_sidebar(); // update entries shown in right sidebar
 }
 
 
@@ -691,12 +737,14 @@ function update_category_headers() {
 }
 
 function pk_and_category_to_identifier(pk,category) {
-	//create an identifier string from a number and class and model name (ie. category)
+	//create an identifier string from a number and class and 
+    //model name (ie. category)
 	return category.toLowerCase() + '_' + pk
 }
 
 function pks_and_category_to_identifiers(pks,category) {
-	//create an identifier string from a numbers and class and model name (ie. category)
+	//create an identifier string from a numbers and class and 
+    //model name (ie. category)
 	var identifiers = []
 	for (let i=0;i<pks.length;i++) {
 		var pk = pks[i];
