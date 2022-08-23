@@ -64,6 +64,7 @@ class SearchView:
 			'combine':self.combine,
 			'exact':self.exact,
 			'model_counts':self.search.model_counts,
+			'texttype_counts':self.search.texttype_counts,
 			'id_dict':self.id_dict,
 			'filter_active_dict':self.filter_active_dict,
 			# 'date_range':self.date_range,
@@ -77,6 +78,7 @@ class SearchView:
 		if hasattr(self,'_id_dict'): return self._id_dict
 		self._id_dict = {
 			'model':self.search._model_identifiers,
+			'texttype':self.search._texttype_identifiers,
 		}
 		all_ids = [x.identifier for x in self.instances]
 		for key in self._id_dict:
