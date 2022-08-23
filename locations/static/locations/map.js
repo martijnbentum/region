@@ -320,7 +320,7 @@ function update_right_sidebar() {
     }
     for (let i = 0; i < indices.length; i++) {
         var index = indices[i];
-        if ( d[index] != undefined) { 
+        if ( d[index] != undefined && d[index].count > 0) { 
             show_right_sidebar(index);
             return;
         }
