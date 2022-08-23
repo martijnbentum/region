@@ -48,8 +48,10 @@ class SearchAll:
 		if not hasattr(self,'instances'):self.filter()
 		if not hasattr(self,'_country_counts'):
 			i = self._instances
-			self._country_counts, self._country_instances= instances2country_counts(i)
-			self._country_identifiers=_instance2identifier_dict(self._country_instances)
+			cc, ci= instances2country_counts(i)
+			self._country_counts, self._country_instances=cc, ci
+			country_identifiers=_instance2identifier_dict(self._country_instances)
+			self._country_identifiers=country_identifiers
 		if countries:
 			instances = filter_on_list(self._country_instances, countries)
 			return instances
