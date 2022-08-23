@@ -207,8 +207,19 @@ async function get_instances(instance_ids,instance_category,city_div) {
 	dlinks.id = model_name + '-links-' +city_div.id
 	dall.appendChild(dlinks)
 	for (const instance of data.instances) {
-		_add_instance(instance,model_name, city_div);
+        if (active_ids.includes(instance.identifier)) {
+            _add_instance(instance,model_name, city_div);
+        }
 	}
+    
+}
+
+function count_active_identifiers(identifiers) {
+    var count = 0;
+    for (const identifier of identifiers) {
+        if (active_ids.includes(identifier)) { count += 1;}
+    }
+    return count;
 }
 
 function show_category(instance_ids, category,city_div) {
@@ -217,6 +228,9 @@ function show_category(instance_ids, category,city_div) {
 	// the category (e.g. Text) the corresponding instances are loaded via ajax
 	model_name = category.split('_')[1]
     if (filter_active_dict['model,'+model_name] == 'inactive') { return; }
+	var identifiers=pks_and_category_to_identifiers(instance_ids,category);
+    var count_active = count_active_identifiers(identifiers) 
+    if (count_active == 0) { return;}
 	// var sidebar= document.getElementById('sidebar-content');
 	var d = document.createElement('div')
 	entries.push(d);
@@ -230,7 +244,7 @@ function show_category(instance_ids, category,city_div) {
 	var identifiers=pks_and_category_to_identifiers(instance_ids,category);
 	a.setAttribute('data-identifiers',identifiers);
 	d.appendChild(a);
-	a.innerHTML = model_name + ' <small>(' + instance_ids.length + ')</small>';
+	a.innerHTML = model_name + ' <small>(' + count_active + ')</small>';
 	a.classList.add('category-header');
 }
 
