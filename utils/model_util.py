@@ -251,6 +251,22 @@ def instances2model_counts(instances):
 	count_d = sort_count_dict(count_d)
 	return count_d, instances_d
 
+def instances2texttype_counts(instances):
+    from . import publication_to_texttype as ptt
+    publication_d = ptt.load_json()
+    count_d = {}
+    instances_d = {}
+    for instance in instances:
+        if instance._meta.model_name == 'publication':
+            if instance.identifier not in publication_d.keys():continue
+            name = ', '.join(publication_d[instance.identifier])
+        elif not hasattr(instance,'text_type'): continue
+        elif not instance.text_type: name = 'original' 
+        else: name = instance.text_type.name
+        _add_to_count_instance_dict(count_d,instances_d,[name],instance)
+    count_d = sort_count_dict(count_d)
+    return count_d, instances_d
+
 		
 	
 
