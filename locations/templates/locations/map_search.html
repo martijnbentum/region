@@ -71,6 +71,26 @@
 					</a>
 				{% endfor %}
 			</div>
+            <br>
+			<a
+				href="javascript:void(0)"
+				id="texttype_filter"
+				onclick="toggle_filters_visible('texttype')"
+				>
+				Text types
+			</a>
+			<div id = 'texttype_filters'>
+				<hr>
+				{% for key, value in texttype_counts.items %}
+					<a
+						class='indent'
+						href="javascript:void(0)"
+						id='texttype,{{key}}'
+						onclick="toggle_filter('texttype,{{key}}')">
+							{{key}} <small>({{value}})</small>
+					</a>
+				{% endfor %}
+			</div>
 
 		</div>
 		<br><br><br><br><br><br><br>
