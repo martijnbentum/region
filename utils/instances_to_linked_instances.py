@@ -4,6 +4,14 @@ import os
 import string
 import json
 
+def make_all():
+    make_text_identifier_to_genre_dict()
+    make_text_identifier_to_languages_dict()
+    make_text_identifier_to_texttype_dict()
+    make_publication_identifier_to_genre_dict()
+    make_publication_identifier_to_languages_dict()
+    make_publication_identifier_to_texttype_dict()
+        
 def make_publication_identifier_to_texttype_dict(save = True):
     Publication= apps.get_model('catalogue','Publication')
     p = Publication.objects.all()
@@ -118,4 +126,5 @@ def load_json_text_texttypes():
 def load_json_text_genre():
     filename = 'data/text_genre_dict.json'
     return load_json(filename)
+
         
