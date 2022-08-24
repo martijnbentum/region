@@ -69,6 +69,7 @@ class SearchView:
             'texttype_counts':self.search.texttype_counts,
             'language_counts':self.search.language_counts,
             'genre_counts':self.search.genre_counts,
+            'gender_counts':self.search.gender_counts,
             'id_dict':self.id_dict,
             'filter_active_dict':self.filter_active_dict,
             # 'date_range':self.date_range,
@@ -85,6 +86,7 @@ class SearchView:
             'texttype':self.search._texttype_identifiers,
             'language':self.search._language_identifiers,
             'genre':self.search._genre_identifiers,
+            'gender':self.search._gender_identifiers,
         }
         all_ids = [x.identifier for x in self.instances]
         for key in self._id_dict:
