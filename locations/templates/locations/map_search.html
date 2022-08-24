@@ -53,6 +53,7 @@
 			</div>
 
 			<a
+                class="category-header"
 				href="javascript:void(0)"
 				id="category_filter"
 				onclick="toggle_filters_visible('category')"
@@ -71,8 +72,9 @@
 					</a>
 				{% endfor %}
 			</div>
-            <br>
+
 			<a
+                class="category-header"
 				href="javascript:void(0)"
 				id="texttype_filter"
 				onclick="toggle_filters_visible('texttype')"
@@ -87,6 +89,48 @@
 						href="javascript:void(0)"
 						id='texttype,{{key}}'
 						onclick="toggle_filter('texttype,{{key}}')">
+							{{key}} <small>({{value}})</small>
+					</a>
+				{% endfor %}
+			</div>
+
+			<a
+                class="category-header"
+				href="javascript:void(0)"
+				id="genre_filter"
+				onclick="toggle_filters_visible('genre')"
+				>
+			    Genres	
+			</a>
+			<div id = 'genre_filters'>
+				<hr>
+				{% for key, value in genre_counts.items %}
+					<a
+						class='indent'
+						href="javascript:void(0)"
+						id='genre,{{key}}'
+						onclick="toggle_filter('genre,{{key}}')">
+							{{key}} <small>({{value}})</small>
+					</a>
+				{% endfor %}
+			</div>
+
+			<a
+                class="category-header"
+				href="javascript:void(0)"
+				id="language_filter"
+				onclick="toggle_filters_visible('language')"
+				>
+				Languages
+			</a>
+			<div id = 'language_filters'>
+				<hr>
+				{% for key, value in language_counts.items %}
+					<a
+						class='indent'
+						href="javascript:void(0)"
+						id='language,{{key}}'
+						onclick="toggle_filter('language,{{key}}')">
 							{{key}} <small>({{value}})</small>
 					</a>
 				{% endfor %}
