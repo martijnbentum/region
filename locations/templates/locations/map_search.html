@@ -76,6 +76,27 @@
 			<a
                 class="category-header"
 				href="javascript:void(0)"
+				id="gender_filter"
+				onclick="toggle_filters_visible('gender')"
+				>
+				Gender
+			</a>
+			<div id = 'gender_filters'>
+				<hr>
+				{% for key, value in gender_counts.items %}
+					<a
+						class='indent'
+						href="javascript:void(0)"
+						id='gender,{{key}}'
+						onclick="toggle_filter('gender,{{key}}')">
+							{{key}} <small>({{value}})</small>
+					</a>
+				{% endfor %}
+			</div>
+
+			<a
+                class="category-header"
+				href="javascript:void(0)"
 				id="texttype_filter"
 				onclick="toggle_filters_visible('texttype')"
 				>
