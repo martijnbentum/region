@@ -2,8 +2,9 @@ from django.apps import apps
 from django.db.models.functions import Lower
 from django.db.models import Q
 import time
-from utils.model_util import get_all_models, instance2names, instances2model_counts
-from utils.model_util import instances2texttype_counts
+from utils.model_util import get_all_models, instance2names
+from utils.model_util import instances2model_counts, instances2genre_counts
+from utils.model_util import instances2texttype_counts, instances2language_counts
 
 
 class SearchAll:
@@ -78,6 +79,28 @@ class SearchAll:
         if texttype_names:
             instances = filter_on_list(instances, texttype_names)
             return instances
+
+    def language_filter(self, language_names = []):
+        if not hasattr(self,'instances'): self.filter()
+        if not hasattr(self,'_language_counts'):
+            counts, instances = instances2language_counts(self._instances)
+            self._language_counts = counts
+            self._language_instances = instances
+            self._language_identifiers = _instance2identifier_dict(instances)
+        if language_names:
+            instances = filter_on_list(instances, language_names)
+            return instances
+
+    def genre_filter(self, genre_names = []):
+        if not hasattr(self,'instances'): self.filter()
+        if not hasattr(self,'_genre_counts'):
+            counts, instances = instances2genre_counts(self._instances)
+            self._genre_counts = counts
+            self._genre_instances = instances
+            self._genre_identifiers = _instance2identifier_dict(instances)
+        if genre_names:
+            instances = filter_on_list(instances, language_names)
+            return instances
         
 
     def century_filter(self, centuries = []):
@@ -105,6 +128,16 @@ class SearchAll:
     def texttype_counts(self):
         if not hasattr(self,'_texttype_counts'):self.texttype_filter()
         return self._texttype_counts
+
+    @property
+    def language_counts(self):
+        if not hasattr(self,'_language_counts'):self.language_filter()
+        return self._language_counts
+
+    @property
+    def genre_counts(self):
+        if not hasattr(self,'_genre_counts'):self.genre_filter()
+        return self._genre_counts
 
     @property
     def century_counts(self):
