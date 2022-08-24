@@ -5,6 +5,7 @@ import time
 from utils.model_util import get_all_models, instance2names
 from utils.model_util import instances2model_counts, instances2genre_counts
 from utils.model_util import instances2texttype_counts, instances2language_counts
+from utils.model_util import instances2gender_counts
 
 
 class SearchAll:
@@ -101,6 +102,17 @@ class SearchAll:
         if genre_names:
             instances = filter_on_list(instances, language_names)
             return instances
+
+    def gender_filter(self, gender_names = []):
+        if not hasattr(self,'instances'): self.filter()
+        if not hasattr(self,'_gender_counts'):
+            counts, instances = instances2gender_counts(self._instances)
+            self._gender_counts = counts
+            self._gender_instances = instances
+            self._gender_identifiers = _instance2identifier_dict(instances)
+        if gender_names:
+            instances = filter_on_list(instances, gender_names)
+            return instances
         
 
     def century_filter(self, centuries = []):
@@ -138,6 +150,11 @@ class SearchAll:
     def genre_counts(self):
         if not hasattr(self,'_genre_counts'):self.genre_filter()
         return self._genre_counts
+
+    @property
+    def gender_counts(self):
+        if not hasattr(self,'_gender_counts'):self.gender_filter()
+        return self._gender_counts
 
     @property
     def century_counts(self):
