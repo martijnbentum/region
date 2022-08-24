@@ -1,4 +1,8 @@
-/* css to customize Leaflet default styles  */
+
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
+
 #nentries {
 	margin-top: 12px;
 	margin-bottom: 0px;
@@ -47,7 +51,7 @@
 	color: #585e66;
 	display: block;
 	transition: 0.3;
-	font-size: 14px;
+	font-size: 13px;
 	margin-left: 25px;
 }
 
@@ -77,7 +81,7 @@ p {
 	margin-bottom:10px;
 }
 hr {
-	margin: 10px;
+	margin: 1px;
 }
 .city_label {
 	text-align:center;
@@ -111,7 +115,7 @@ hr {
 
 .sidebar a.category-header {
 	color:#2f3030;
-	font-size:18px;
+	font-size:14px;
 	margin-left:15px;
 	margin-bottom: 0px;
 	margin-top: 10px;
