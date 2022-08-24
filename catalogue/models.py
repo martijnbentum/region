@@ -196,6 +196,20 @@ class Text(Item, info):
         return pop_up(self,latlng,extra_information=m)
 
     @property
+    def persons(self):
+        if hasattr(self,'_persons'): return self._persons
+        self._persons = []
+        ptrs = self.persontextrelation_set.all()
+        for ptr in ptrs:
+            self._persons.append(ptr.person)
+        return self._persons
+
+    @property
+    def genders(self):
+        'return list of genders of persons linked to this text.'
+        return list(set([x.sex for x in self.persons]))
+
+    @property
     def get_dates(self):
         '''text object does not contain date, 
         only the linked publication has a date.
@@ -336,6 +350,20 @@ class Illustration(Item, info):
             names.append(pir.person.full_name)
         self.person = '; '.join(names)
         self.save()
+
+    @property
+    def persons(self):
+        if hasattr(self,'_persons'): return self._persons
+        self._persons = []
+        pirs = self.personillustrationrelation_set.all()
+        for pir in pirs:
+            self._persons.append(pir.person)
+        return self._persons
+
+    @property
+    def genders(self):
+        'return list of genders of persons linked to this illustration.'
+        return list(set([x.sex for x in self.persons]))
 
     @property
     def roles_to_persons_dict(self):
@@ -504,6 +532,27 @@ class Publication(Item, info):
     class Meta:
         unique_together=[['title','publisher_names','date','issue','volume']]
 
+    @property
+    def persons(self):
+        if hasattr(self,'_persons'): return self._persons
+        self._persons = []
+        for text_dict in self.texts:
+            text = text_dict['text']
+            if len(text.persons) > 0:
+                self._persons.extend(text.persons)
+        for illustration_dict in self.illustrations:
+            illustration = illustration_dict['illustration']
+            if len(illustration.persons) > 0:
+                self._persons.extend(illustration.persons)
+        self._persons = list(set(self._persons))
+        return self._persons
+
+    @property
+    def genders(self):
+        'return list of genders of persons linked to this publication.'
+        return list(set([x.sex for x in self.persons]))
+        
+
 
     @property
     def publisher_str(self):
@@ -567,6 +616,7 @@ class Publication(Item, info):
             d['caption'] = x.illustration.caption
             d['detail_url'] = x.illustration.detail_url
             d['pk'] = x.illustration.pk
+            d['illustration'] = x.illustration
             output.append(d)
         return sorted(output, key=lambda x: x['order'])
 
