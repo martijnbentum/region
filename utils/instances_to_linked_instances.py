@@ -1,96 +1,88 @@
 from django.apps import apps
 import glob
+from operator import attrgetter
 import os
 import string
 import json
 
 def make_all():
-    make_text_identifier_to_genre_dict()
-    make_text_identifier_to_languages_dict()
-    make_text_identifier_to_texttype_dict()
-    make_publication_identifier_to_genre_dict()
-    make_publication_identifier_to_languages_dict()
-    make_publication_identifier_to_texttype_dict()
+    make_instances_identifier_to_texttype_dict()
+    make_instances_identifier_to_language_dict()
+    make_instances_identifier_to_genre_dict()
+    make_instances_identifier_to_gender_dict()
+
+
+def make_identifier_to_attribute_dict(model,attribute_name,filename = ''):
+    instances = model.objects.all()
+    d = {}
+    f = attrgetter(attribute_name)
+    for instance in instances:
+        try: attribute = f(instance)
+        except AttributeError: continue
+        if attribute:
+            d[instance.identifier] = attribute
+    if filename: save_json(d,filename)
+    return d
         
-def make_publication_identifier_to_texttype_dict(save = True):
+        
+def make_instances_identifier_to_texttype_dict(save = True):
     Publication= apps.get_model('catalogue','Publication')
-    p = Publication.objects.all()
-    d = {}
-    for x in p:
-        if not x.text_types: continue
-        text_types = x.text_types
-        if len(text_types) > 1 and 'original' in text_types:
-            text_types.pop(text_types.index('original'))
-        d[x.identifier] = text_types
-    if save: 
-        filename = 'data/publication_texttype_dict.json'
+    Text= apps.get_model('catalogue','Text')
+    d = make_identifier_to_attribute_dict(Publication,'text_types')
+    d.update(make_identifier_to_attribute_dict(Text,'text_type.name'))
+    if save:
+        filename = 'data/instances_texttype_dict.json'
         save_json(d, filename)
     return d
 
-def make_publication_identifier_to_languages_dict(save = True):
+def make_instances_identifier_to_language_dict(save = True):
     Publication= apps.get_model('catalogue','Publication')
-    p = Publication.objects.all()
-    d = {}
-    for x in p:
-        if not x.languages: continue
-        languages= x.languages
-        d[x.identifier] = languages 
-    if save: 
-        filename = 'data/publication_language_dict.json'
+    Text= apps.get_model('catalogue','Text')
+    d = make_identifier_to_attribute_dict(Publication,'languages')
+    d.update(make_identifier_to_attribute_dict(Text,'language.name'))
+    if save:
+        filename = 'data/instances_language_dict.json'
         save_json(d, filename)
     return d
 
-def make_publication_identifier_to_genre_dict(save = True):
+def make_instances_identifier_to_genre_dict(save = True):
     Publication= apps.get_model('catalogue','Publication')
-    p = Publication.objects.all()
-    d = {}
-    for x in p:
-        if not x.genres : continue
-        genres= x.genres
-        d[x.identifier] = genres
-    if save: 
-        filename = 'data/publication_genre_dict.json'
+    Text= apps.get_model('catalogue','Text')
+    d = make_identifier_to_attribute_dict(Publication,'genres')
+    d.update(make_identifier_to_attribute_dict(Text,'genre.name'))
+    if save:
+        filename = 'data/instances_genre_dict.json'
         save_json(d, filename)
     return d
 
-def make_text_identifier_to_texttype_dict(save = True):
+def make_instances_identifier_to_gender_dict(save = True):
+    Publication= apps.get_model('catalogue','Publication')
     Text= apps.get_model('catalogue','Text')
-    t = Text.objects.all()
-    d = {}
-    for x in t:
-        if not x.text_type: continue
-        language= x.text_type.name
-        d[x.identifier] = language 
-    if save: 
-        filename = 'data/text_texttype_dict.json'
+    Illustration= apps.get_model('catalogue','Illustration')
+    d = make_identifier_to_attribute_dict(Publication,'genders')
+    d.update(make_identifier_to_attribute_dict(Text,'genders'))
+    d.update(make_identifier_to_attribute_dict(Illustration,'genders'))
+    if save:
+        filename = 'data/instances_gender_dict.json'
         save_json(d, filename)
     return d
+    
 
-def make_text_identifier_to_languages_dict(save = True):
-    Text= apps.get_model('catalogue','Text')
-    t = Text.objects.all()
-    d = {}
-    for x in t:
-        if not x.language: continue
-        language= x.language.name
-        d[x.identifier] = language 
-    if save: 
-        filename = 'data/text_language_dict.json'
-        save_json(d, filename)
-    return d
+def load_json_texttype():
+    filename = 'data/instances_texttype_dict.json'
+    return load_json(filename)
 
-def make_text_identifier_to_genre_dict(save=True):
-    Text= apps.get_model('catalogue','Text')
-    t = Text.objects.all()
-    d = {}
-    for x in t:
-        if not x.genre: continue
-        genre= x.genre.name
-        d[x.identifier] = genre 
-    if save: 
-        filename = 'data/text_genre_dict.json'
-        save_json(d, filename)
-    return d
+def load_json_language():
+    filename = 'data/instances_language_dict.json'
+    return load_json(filename)
+
+def load_json_genre():
+    filename = 'data/instances_genre_dict.json'
+    return load_json(filename)
+
+def load_json_gender():
+    filename = 'data/instances_gender_dict.json'
+    return load_json(filename)
 
 
 def save_json(d, filename ):
@@ -103,28 +95,3 @@ def load_json(filename):
         d = json.load(fin)
     return d
 
-def load_json_publication_texttypes():
-    filename = 'data/publication_texttype_dict.json'
-    return load_json(filename)
-
-def load_json_publication_languages():
-    filename = 'data/publication_language_dict.json'
-    return load_json(filename)
-
-def load_json_publication_genre():
-    filename = 'data/publication_genre_dict.json'
-    return load_json(filename)
-
-def load_json_text_languages():
-    filename = 'data/text_language_dict.json'
-    return load_json(filename)
-
-def load_json_text_texttypes():
-    filename = 'data/text_texttype_dict.json'
-    return load_json(filename)
-
-def load_json_text_genre():
-    filename = 'data/text_genre_dict.json'
-    return load_json(filename)
-
-        
