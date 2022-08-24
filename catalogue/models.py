@@ -471,8 +471,8 @@ class Publication(Item, info):
         null=True)
     issue = models.PositiveIntegerField(default=0,blank=True) 
     volume = models.PositiveIntegerField(default=0,blank=True) 
-    year = models.PositiveIntegerField(null=True,blank=True) 
     # obsolete, replace by date
+    year = models.PositiveIntegerField(null=True,blank=True) 
     date = PartialDateField(null=True,blank=True)
     location = models.ManyToManyField(Location,blank=True,default=None) 
     pdf = models.FileField(upload_to='publication/',null=True,blank=True) # ?
@@ -588,6 +588,8 @@ class Publication(Item, info):
             d['pk'] = x.text.pk
             d['authors'] = x.text.authors
             d['text'] = x.text
+            if x.text.language: d['language'] = x.text.language.name
+            else: d['language'] = ''
             if x.text.text_type: d['text_type'] = x.text.text_type.name
             else: d['text_type'] = ''
             if 'translator' in x.text.roles_to_persons_dict.keys():
@@ -611,6 +613,27 @@ class Publication(Item, info):
         self._text_types = temp
         return self._text_types
 
+    @property
+    def languages(self):
+        if hasattr(self,'_languages'): return self._languages
+        temp = []
+        for text_dict in self.texts:
+            if text_dict['language'] == '': continue
+            if text_dict['language'] not in temp:
+                temp.append(text_dict['language'])
+        self._languages = temp
+        return self._languages
+
+    @property
+    def genres(self):
+        if hasattr(self,'_genres'): return self._genres
+        temp = []
+        for text_dict in self.texts:
+            if text_dict['genre'] == '': continue
+            if text_dict['genre'] not in temp:
+                temp.append(text_dict['genre'])
+        self._genres = temp
+        return self._genres
 
     @property
     def publishers(self):
