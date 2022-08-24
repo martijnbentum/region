@@ -252,62 +252,49 @@ def instances2model_counts(instances):
 	count_d = sort_count_dict(count_d)
 	return count_d, instances_d
 
-def instances2texttype_counts(instances):
-    from . import instances_to_linked_instances as itli
-    publication_d = itli.load_json_publication_texttypes()
-    text_d = itli.load_json_text_texttypes()
+def _instances2attribute_counts(instances, identifier2attribute_dict):
     count_d = {}
     instances_d = {}
+    d = identifier2attribute_dict
     for instance in instances:
-        if instance._meta.model_name == 'publication':
-            if instance.identifier not in publication_d.keys():continue
-            names = publication_d[instance.identifier]
-        elif instance.identifier not in text_d.keys(): continue
-        else: names = [ text_d[instance.identifier] ]
+        if instance.identifier not in d.keys(): continue
+        names = d[instance.identifier]
+        if type(names) != list: names = [names]
         _add_to_count_instance_dict(count_d,instances_d,names,instance)
     count_d = sort_count_dict(count_d)
     return count_d, instances_d
 
-def instances2language_counts(instances, languages = None):
-    start = time.time()
+def instances2texttype_counts(instances):
     from . import instances_to_linked_instances as itli
+    d = itli.load_json_texttype()
+    count_d, instances_d = _instances2attribute_counts(instances,d)
+    return count_d, instances_d
+
+def instances2language_counts(instances, languages = None):
+    from . import instances_to_linked_instances as itli
+    d = itli.load_json_language()
     if languages == None: 
         languages = 'English,French,German,Dutch,Swedish,Danish'
         languages += ',Italian'
         languages = languages.split(',')
-    count_d = {}
-    publication_d = itli.load_json_publication_languages()
-    text_d = itli.load_json_text_languages()
-    instances_d = {}
-    for instance in instances:
-        if instance._meta.model_name == 'publication': 
-            if instance.identifier not in publication_d.keys():continue
-            names= publication_d[instance.identifier]
-        elif instance.identifier not in text_d.keys(): continue
-        else: names = [ text_d[instance.identifier] ]
-        selected_names = []
-        for name in names:
-            if name in languages: selected_names.append(name)
-        if len(selected_names) == 0: continue
-        _add_to_count_instance_dict(count_d,instances_d,selected_names,instance)
-    count_d = sort_count_dict(count_d)
+    count_d, instances_d = _instances2attribute_counts(instances,d)
+    language_keys = list(count_d.keys())
+    for language in language_keys:
+        if language not in languages:
+            del count_d[language]
+            del instances_d[language]
     return count_d, instances_d
 
 def instances2genre_counts(instances):
     from . import instances_to_linked_instances as itli
-    count_d = {}
-    publication_d = itli.load_json_publication_genre()
-    text_d = itli.load_json_text_genre()
-    instances_d = {}
-    for instance in instances:
-        if instance._meta.model_name == 'publication': 
-            if instance.identifier not in publication_d.keys():continue
-            names= publication_d[instance.identifier]
-        elif instance.identifier not in text_d.keys(): continue
-        else: names = [ text_d[instance.identifier] ]
-        _add_to_count_instance_dict(count_d,instances_d,names,instance)
-    count_d = sort_count_dict(count_d)
-    print('count_d',count_d)
+    d = itli.load_json_genre()
+    count_d, instances_d = _instances2attribute_counts(instances,d)
+    return count_d, instances_d
+
+def instances2gender_counts(instances):
+    from . import instances_to_linked_instances as itli
+    d = itli.load_json_gender()
+    count_d, instances_d = _instances2attribute_counts(instances,d)
     return count_d, instances_d
     
 		
