@@ -1,3 +1,10 @@
+select {
+    background-color: transparent;
+    border: none;
+	color: #585e66;
+    margin-left:25px;
+    font-size:14px;
+}
 
 .sidebar::-webkit-scrollbar {
   display: none;
