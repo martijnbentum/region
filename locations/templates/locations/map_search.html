@@ -56,6 +56,26 @@
                 class="category-header"
 				href="javascript:void(0)"
 				id="category_filter"
+				onclick="toggle_filters_visible('location')"
+				>
+				Location type
+			</a>
+			<div id = 'location_filters'>
+                <hr>
+                <select 
+                    name="location_type" 
+                    id="location_type"
+                    onchange="set_location_type()">
+                        <option value="all">all</option>
+                        <option value="setting">setting</option>
+                        <option value="publication">publication</option>
+                </select>
+            </div>
+
+			<a
+                class="category-header"
+				href="javascript:void(0)"
+				id="category_filter"
 				onclick="toggle_filters_visible('category')"
 				>
 				Categories
