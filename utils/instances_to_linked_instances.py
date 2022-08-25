@@ -11,6 +11,7 @@ def make_all():
     make_instances_identifier_to_language_dict()
     make_instances_identifier_to_genre_dict()
     make_instances_identifier_to_gender_dict()
+    make_instances_identifier_to_locationtype_dict()
 
 
 def make_identifier_to_attribute_dict(model,attribute_name,filename = ''):
@@ -74,8 +75,8 @@ def make_instances_identifier_to_locationtype_dict(save = True):
     for instance in instances:
         if hasattr(instance,'setting_location_pks'):
             names = []
-            if instance.setting_location_pks: names.append('setting_location')
-            if instance.publication_location_pks: names.append('publication_location')
+            if instance.setting_location_pks: names.append('setting')
+            if instance.publication_location_pks: names.append('publication')
             if names: d[instance.identifier] = names
     if save:
         filename = 'data/instances_locationtype_dict.json'
