@@ -67,23 +67,11 @@ def map_ll_alpha(request):
     return render(request,'locations/map_ll_alpha.html',args)
 
 def map_search(request):
-    start = time.time()
-    print(start)
-    '''
-    sa = search.SearchAll(request)
-    print(time.time()-start, 'search')
-    instances = sa.filter()
-    print(time.time()-start, 'filter')
-    '''
     s = SearchView(request)
-    print(time.time()-start, 'searchview')
     instances = s.search.filter()
-    print(time.time()-start, 'filter')
     d = get_all_location_ids_dict(instances = instances, add_names_gps = True)
-    print(time.time()-start, 'get locations')
     s.var['page_name']='map search'
     s.var['d']=d
-    print(time.time()-start, 'rendering')
     return render(request, 'locations/map_search.html',s.var)
 
 
