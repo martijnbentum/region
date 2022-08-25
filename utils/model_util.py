@@ -297,7 +297,13 @@ def instances2gender_counts(instances):
     count_d, instances_d = _instances2attribute_counts(instances,d)
     return count_d, instances_d
     
+def instances2locationtype_counts(instances):
+    from . import instances_to_linked_instances as itli
+    d = itli.load_json_locationtype()
+    count_d, instances_d = _instances2attribute_counts(instances,d)
+    return count_d, instances_d
 		
+
 	
 
 		 
