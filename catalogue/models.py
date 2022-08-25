@@ -74,6 +74,7 @@ class Item(models.Model):
         up map visualization.
         '''
         locations = field2locations(self,self.location_field)
+        self.loc_ids = ''
         if locations:
             gps = ' | '.join([l.gps for l in locations if l.gps])
             names= ' | '.join([l.name for l in locations if l.gps])
@@ -81,6 +82,13 @@ class Item(models.Model):
             self.gps = gps
             self.gps_names = names
             self.loc_ids = ids
+        if hasattr(self,'setting_location_pks'):
+            ids = self.setting_location_pks + self.publication_location_pks
+            if self.loc_ids:
+                ids += self.loc_ids.split(',')
+            if ids:
+                ids = list(set(map(str,ids)))
+                self.loc_ids = ','.join(ids)
         else: self.gps, self.gps_names, self.loc_ids = '','',''
 
     def empty_fields(self,fields = []):
@@ -149,6 +157,9 @@ class Item(models.Model):
         if hasattr(self,'type_info'):d['extra'] = self.type_info
         else: d['extra'] = ''
         d['identifier'] = self.identifier
+        if hasattr(self,'setting_location_pks'):
+            d['setting_location_pks']= self.setting_location_pks
+            d['publication_location_pks']= self.publication_location_pks
         return d
 
 
@@ -174,6 +185,29 @@ class Text(Item, info):
             names.append(ptr.person.full_name)
         self.person = '; '.join(names)
         self.save()
+
+    @property
+    def setting_location_pks(self):
+        '''return location pk for the setting of the text (place text is situated).'''
+        if hasattr(self,'_setting_location_pks'):return self._setting_location_pks
+        locations = self.location.all()
+        pks = []
+        for location in locations:
+            if location.pk not in pks: pks.append(location.pk)
+        self._setting_location_pks = pks 
+        return self._setting_location_pks
+
+    @property
+    def publication_location_pks(self):
+        '''return location pk for publication of the text.'''
+        if hasattr(self,'_publication_location_pks'):return self._publication_location_pks
+        pks = []
+        for publication in self.publications:
+            for pk in publication.publication_location_pks:
+                if pk not in pks: pks.append(pk)
+        self._publication_location_pks = pks
+        return self._publication_location_pks
+
             
     class Meta:
         unique_together = 'title,setting,language'.split(',')
@@ -343,6 +377,30 @@ class Illustration(Item, info):
     person = models.CharField(max_length=2000,blank=True,null=True)
     use_permission= models.ForeignKey(UsePermission,on_delete=models.SET_NULL,
         null=True)
+
+    @property
+    def setting_location_pks(self):
+        '''return location pk for the setting of the illustration 
+        (place text is situated).
+        '''
+        if hasattr(self,'_setting_location_pks'):return self._setting_location_pks
+        locations = self.location.all()
+        pks = []
+        for location in locations:
+            if location.pk not in pks: pks.append(location.pk)
+        self._setting_location_pks = pks 
+        return self._setting_location_pks
+
+    @property
+    def publication_location_pks(self):
+        '''return location pk for publication of the text.'''
+        if hasattr(self,'_publication_location_pks'):return self._publication_location_pks
+        pks = []
+        for publication in self.publications:
+            for pk in publication.publication_location_pks:
+                if pk not in pks: pks.append(pk)
+        self._publication_location_pks = pks
+        return self._publication_location_pks
 
     def _set_person(self):
         names = [] 
@@ -552,6 +610,33 @@ class Publication(Item, info):
         'return list of genders of persons linked to this publication.'
         return list(set([x.sex for x in self.persons]))
         
+
+    @property
+    def setting_location_pks(self):
+        '''return location pk for the setting of the text (place text is situated).'''
+        if hasattr(self,'_setting_location_pks'):return self._setting_location_pks
+        pks = []
+        for text_dict in self.texts:
+            text = text_dict['text']
+            for pk in text.setting_location_pks:
+                if pk not in pks: pks.append(pk)
+        for illustration_dict in self.illustrations:
+            illustration = illustration_dict['illustration']
+            for pk in illustration.setting_location_pks:
+                if pk not in pks: pks.append(pk)
+        self._setting_location_pks = pks
+        return self._setting_location_pks
+
+    @property
+    def publication_location_pks(self):
+        '''return location pk for publication of the publication.'''
+        if hasattr(self,'_publication_location_pks'):return self._publication_location_pks
+        locations = self.location.all()
+        pks = []
+        for location in locations:
+            if location.pk not in pks: pks.append(location.pk)
+        self._publication_location_pks = pks 
+        return self._publication_location_pks
 
 
     @property
