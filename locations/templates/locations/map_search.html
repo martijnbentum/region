@@ -56,20 +56,21 @@
                 class="category-header"
 				href="javascript:void(0)"
 				id="category_filter"
-				onclick="toggle_filters_visible('location')"
+				onclick="toggle_filters_visible('locationtype')"
 				>
 				Location type
 			</a>
-			<div id = 'location_filters'>
+			<div id = 'locationtype_filters'>
                 <hr>
-                <select 
-                    name="location_type" 
-                    id="location_type"
-                    onchange="set_location_type()">
-                        <option value="all">all</option>
-                        <option value="setting">setting</option>
-                        <option value="publication">publication</option>
-                </select>
+				{% for key, value in locationtype_counts.items %}
+					<a
+						class='indent'
+						href="javascript:void(0)"
+						id='locationtype,{{key}}'
+						onclick="toggle_filter('locationtype,{{key}}')">
+							{{key}} <small>({{value}})</small>
+					</a>
+				{% endfor %}
             </div>
 
 			<a
