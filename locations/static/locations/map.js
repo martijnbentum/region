@@ -190,27 +190,23 @@ async function get_instance(instance_id,instance_category) {
 function _add_instance(instance, model_name, city_div) {
 	// display a single instance to the sidebar
 	// helper function of get_instances
-    /*
       
     var location_pk = parseInt(city_div.id.split('-')[0]);
-    if (location_type.value == 'all') {
-        console.log('all set, adding instance')
-    } else if (model_name != 'Publication' && model_name != 'Text') {
-        console.log('other model adding instance');
-    } else if (location_type.value == 'setting') {
+    if (filter_active_dict['locationtype'] == 'active'){
+        // adding instance (not filtering on locationtype)
+    } else if (!'Text,Publication,Illustration'.split(',').includes(model_name)) {
+        console.log('this should not occur',model_name,'should be filtered out')
+    } else if (filter_active_dict['locationtype,setting'] == 'active') {
         if (!instance['setting_location_pks'].includes(location_pk)) {
-            console.log(instance, 'this is not a setting location, skipping instance')
-            console.log(location_pk, instance['setting_location_pks'])
+            //this instance is not linked as setting location, skipping
             return
         }
-    } else if (location_type.value == 'publication') {
+    } else if (filter_active_dict['locationtype,publication'] == 'active') {
         if (!instance['publication_location_pks'].includes(location_pk)) {
-            console.log(instance, 'this is not a publication location, skipping instance')
-            console.log(location_pk, instance['publication_location_pks'])
+            //this instance is not linked as publication location, skipping
             return
         }
     }
-    */
 	var dlinks= document.getElementById(model_name + '-links-'+city_div.id);
 	a =document.createElement("a");
 	dlinks.appendChild(a);
@@ -279,7 +275,6 @@ function show_category(instance_ids, category,city_div) {
 function show_categories(info) {
 	// show categories (e.g. Text, Person) in the sidebar 
 	// linked to a given location 
-    console.log('info',info); 
 	var sidebar= document.getElementById('right_sidebar_content');
 	var city_div =document.createElement("d");
 	sidebar.appendChild(city_div)
