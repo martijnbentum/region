@@ -1,5 +1,6 @@
 from django.apps import apps
 import glob
+from . import model_util
 from operator import attrgetter
 import os
 import string
@@ -66,6 +67,20 @@ def make_instances_identifier_to_gender_dict(save = True):
         filename = 'data/instances_gender_dict.json'
         save_json(d, filename)
     return d
+
+def make_instances_identifier_to_locationtype_dict(save = True):
+    instances = model_util.get_all_instances()
+    d = {}
+    for instance in instances:
+        if hasattr(instance,'setting_location_pks'):
+            names = []
+            if instance.setting_location_pks: names.append('setting_location')
+            if instance.publication_location_pks: names.append('publication_location')
+            if names: d[instance.identifier] = names
+    if save:
+        filename = 'data/instances_locationtype_dict.json'
+        save_json(d, filename)
+    return d
     
 
 def load_json_texttype():
@@ -82,6 +97,10 @@ def load_json_genre():
 
 def load_json_gender():
     filename = 'data/instances_gender_dict.json'
+    return load_json(filename)
+
+def load_json_locationtype():
+    filename = 'data/instances_locationtype_dict.json'
     return load_json(filename)
 
 
