@@ -1,6 +1,7 @@
 from utilities.search import SearchAll
 from utils.general import remove_keys_from_dict
 from utils.model_util import identifier2instance
+from utils.map_util import locationtype_filter_dict
 import copy
 import json
 import time
@@ -71,6 +72,7 @@ class SearchView:
             'genre_counts':self.search.genre_counts,
             'gender_counts':self.search.gender_counts,
             'locationtype_counts':self.search.locationtype_counts,
+            'locationtype_filter_dict':locationtype_filter_dict(load=True),
             'id_dict':self.id_dict,
             'filter_active_dict':self.filter_active_dict,
             # 'date_range':self.date_range,
