@@ -12,6 +12,8 @@ tiles.addTo(mymap);
 var id_dict = JSON.parse(document.getElementById('id-dict').textContent);
 var temp = document.getElementById('filter-active-dict').textContent;
 var filter_active_dict= JSON.parse(temp);
+var temp = document.getElementById('locationtype_filter_dict').textContent;
+var locationtype_filter_dict= JSON.parse(temp);
 var active_ids = id_dict['all']
 var selected_filters = [];
 var count_dict = {};
@@ -654,7 +656,6 @@ function toggle_filter(name) {
     // update marker list to include only markers with active ids
 	update_active_markers();
 	update_markers(); // show the markers with active ids
-    console.log(filter_active_dict)
     update_right_sidebar(); // update entries shown in right sidebar
 }
 
@@ -732,6 +733,36 @@ function intersection(array_of_arrays) {
 
 }
 
+function filter_based_on_locationtype(identifiers,info) {
+    if (identifiers.length == 0) { 
+        // if there are no identifiers there is nothing to filter
+        return identifiers
+    }
+    if (filter_active_dict['locationtype'] == 'active'){
+        // if locationtype filter is not set to either setting or
+        // publication do not filter
+        return identifiers
+    }
+    var pk = (info.pk).toString();
+    if (!Object.keys(locationtype_filter_dict).includes(pk)) {
+        // if location identifier not in locationtype dict
+        // there is nothing to filter
+        return identifiers
+    }
+    // assume locationtype publication filter is active
+    var name = 'publication';
+    if (filter_active_dict['locationtype,setting'] == 'active') {
+        // setting filter is active change name to 'setting'
+        name = 'setting';
+    }
+    //get the identifiers linked to the current locationtype filter
+    var lt_identifiers = locationtype_filter_dict[info.pk][name]
+    // return the identifiers that are in both arrays
+    identifiers = intersection([lt_identifiers,identifiers])
+    return identifiers
+}
+
+
 
 function update_info_count() {
 	//for each info in d (location information with linked instances)
@@ -739,7 +770,9 @@ function update_info_count() {
 	for (let i=0;i<d.length;i++) {
 		var info = d[i];
 		var identifiers = info.identifiers
-		info.count = intersection([identifiers,active_ids]).length
+		identifiers = intersection([identifiers,active_ids])
+        identifiers = filter_based_on_locationtype(identifiers,info)
+		info.count = identifiers.length
 	}
 }
 
