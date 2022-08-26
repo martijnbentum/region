@@ -1,7 +1,8 @@
 from .location_to_linked_instances import get_all_linked_instances
-from .model_util import get_all_instances
+from .model_util import get_all_instances, identifier2instance
 from .model_util import instance2name, instance2names
 from django.apps import apps
+import json
 import random
 
 def field2locations(instance, field_name):
@@ -130,7 +131,8 @@ def _location_ids2location_instances(ids):
 	return model.objects.filter(pk__in = ids)
 
 def get_all_location_ids_dict(instances = None,add_names_gps = False):
-	'''a dictionary with id numbers of location instances as values, with as keys
+	'''a dictionary with id numbers of location instances as values, 
+    with as keys
 	the modelnames of the instances they are linked to.
 	'''
 	if not instances: instances = get_all_instances()
@@ -157,6 +159,34 @@ def get_all_location_ids_dict(instances = None,add_names_gps = False):
 				d[i]['model_names'].append(model_name)
 	return d
 					
+def locationtype_filter_dict(d = None, save = False, load = True,
+    filename = 'data/locationtype_filter_dict.json'):
+    if not save and load:
+        with open(filename) as fin:
+            d = json.load(fin)
+        return d
+    if d == None:d = get_all_location_ids_dict()
+    output = {}
+    for location_id, info in d.items():
+        temp = {'setting':[],'publication':[]}
+        for identifier in info['identifiers']:
+            model_name = identifier.split('_')[1]
+            if model_name not in 'text,publication,illustration'.split(','):
+                continue
+            instance = identifier2instance(identifier)
+            if location_id in instance.setting_location_pks:
+                temp['setting'].append(identifier)
+            if location_id in instance.publication_location_pks:
+                temp['publication'].append(identifier)
+        if temp['setting'] or temp['publication']:
+            output[location_id] = temp
+    if save:
+        with open(filename,'w') as fout:
+            json.dump(output,fout)
+    return output
+
+            
+    
 
 def get_all_locs_linked_to_instances(ids = None, instances = None):
 	'''get all location instances that are linked to an instance 
