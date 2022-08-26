@@ -31,11 +31,13 @@ def get_all_linked_instances(location):
     if l: output.extend(l)
     return output
 
-def get_linked_instances_of_type(location, instance_type,use_publication_link=False):
+def get_linked_instances_of_type(location, instance_type,
+    use_publication_link=False):
     '''get all instance of a specific type (e.g. text) linked to a location.'''
     relation_field = find_relation_field(location, instance_type)
     if use_publication_link or not relation_field:
-        instances = _get_secondary_linked_instance_of_type(location,instance_type)
+        instances = _get_secondary_linked_instance_of_type(location,
+            instance_type)
         if instances != False: return instances
         elif use_publication_link: 
             print('no link found on publication trying direct route')
@@ -55,7 +57,8 @@ def get_linked_instances_of_type(location, instance_type,use_publication_link=Fa
     return instances
 
 def _get_linked_texts_through_publication_location(location):
-    '''text has a location field, but is also linked to an location via publication.
+    '''text has a location field, but is also linked to an location via 
+    publication.
     this function retrieves texts linked to a location based on that location.
     the get_linked_instances_of_type gets the texts directly linked to location
     '''
@@ -91,7 +94,8 @@ def get_instances_linked_to_locations(locations,instance_type,
     use_publication_link=False):
     output = []
     for location in locations:
-        x = get_linked_instances_of_type(location,instance_type,use_publication_link)
+        x = get_linked_instances_of_type(location,instance_type,
+            use_publication_link)
         if type(x) != list: 
             raise ValueError(x, 'should be type list, type:',type(x))
         output.extend([instance for instance in x if instance not in output]) 
@@ -119,7 +123,8 @@ def get_all_instances_linked_to_contained_location(location):
             instance_type,use_presave = False)
         instances.extend([x for x in i if x not in instances])
         if instance_type == 'text':
-            ii=get_instances_linked_to_locations_contained_in_location(location,
+            ii=get_instances_linked_to_locations_contained_in_location(
+                location,
                 instance_type, use_publication_link=True,use_presave=False)
             instances.extend([x for x in ii if x not in instances])
         output[instance_type] = instance_list_to_repr(instances)
@@ -138,7 +143,7 @@ def _make_pre_save_instances_linked_to_contained_locations():
     locations.extend( Location.objects.filter(location_type__name='country') )
     print('found',len(locations),'countries and regions')
     locations = [l for l in locations if l.container.all().count() > 50]
-    print('handling all regions and countries with over 50 contained locations')
+    print('handling all locations with over 50 contained locations')
     print(len(locations), 'satisfy this condition')
     if not os.path.isdir(directory): os.mkdir(directory)
     print('removing previous saves')
