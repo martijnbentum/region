@@ -5,23 +5,19 @@ import time
 import os
 
 '''
-CRUDEvent creates an db instance for each change to the database.
-This can blow up the size of the database, especially with 
-programatic changes to instances.
-
-CRUD events without changes (saving an instance without changing anything
-or wihtout a user (programmatic changes) are deleted to save disk space
+it slow to retrieve all instances linked to a region /country
+therefore these links are pre saved
 '''
 
 
 class Command(BaseCommand):
 
-	def handle(self, *args, **options):
-		start = time.time()
-		print('pre saving instances linked to regions and countries')
-		ltli._make_pre_save_instances_linked_to_contained_locations()
-		delta = time.time() -start
-		print('pre saving took: ',round(delta),' seconds')
+    def handle(self, *args, **options):
+        start = time.time()
+        print('pre saving instances linked to regions and countries')
+        ltli._make_pre_save_instances_linked_to_contained_locations()
+        delta = time.time() -start
+        print('pre saving took: ',round(delta),' seconds')
 
 
 
