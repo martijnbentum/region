@@ -699,6 +699,7 @@ function update_filter_sidebar() {
 				filter_btn.style.display = '';
 			}
 			filter_btn.innerText = t.replace(/\(.*\)/,r);
+            t = filter_btn.innerText;
 		}
 		// mark slected filters with a dot
 		if (selected_filters.includes(key)) {
