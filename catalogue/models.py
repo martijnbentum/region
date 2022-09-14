@@ -83,7 +83,7 @@ class Item(models.Model):
             self.gps_names = names
             self.loc_ids = ids
         if hasattr(self,'setting_location_pks'):
-            ids = self.setting_location_pks + self.publication_location_pks
+            ids = self.get_setting_location_pks + self.get_publication_location_pks
             if self.loc_ids:
                 ids += self.loc_ids.split(',')
             if ids:
@@ -158,8 +158,8 @@ class Item(models.Model):
         else: d['extra'] = ''
         d['identifier'] = self.identifier
         if hasattr(self,'setting_location_pks'):
-            d['setting_location_pks']= self.setting_location_pks
-            d['publication_location_pks']= self.publication_location_pks
+            d['setting_location_pks']= self.get_setting_location_pks
+            d['publication_location_pks']= self.get_publication_location_pks
         return d
 
 
@@ -178,6 +178,8 @@ class Text(Item, info):
         through='TextTextRelation',symmetrical=False, default=None)
     location= models.ManyToManyField(Location,blank=True, default= None)
     person = models.CharField(max_length=2000,blank=True,null=True)
+    setting_location_pks = models.CharField(max_length = 600, blank=True,null=True)
+    publication_location_pks = models.CharField(max_length = 600, blank=True,null=True)
 
     def _set_person(self):
         names = [] 
@@ -187,26 +189,35 @@ class Text(Item, info):
         self.save()
 
     @property
-    def setting_location_pks(self):
+    def get_setting_location_pks(self):
+        if self.setting_location_pks == None: return [] 
+        if self.setting_location_pks == '': return []
+        return self.setting_location_pks.split(',')
+
+    @property
+    def get_publication_location_pks(self):
+        if self.publication_location_pks == None: return [] 
+        if self.publication_location_pks == '': return []
+        return self.publication_location_pks.split(',')
+
+    def _set_setting_location_pks(self):
         '''return location pk for the setting of the text (place text is situated).'''
-        if hasattr(self,'_setting_location_pks'):return self._setting_location_pks
         locations = self.location.all()
         pks = []
         for location in locations:
             if location.pk not in pks: pks.append(location.pk)
-        self._setting_location_pks = pks 
-        return self._setting_location_pks
+        self.setting_location_pks = ','.join(map(str,pks))
+        self.save()
 
-    @property
-    def publication_location_pks(self):
+    def _set_publication_location_pks(self):
         '''return location pk for publication of the text.'''
-        if hasattr(self,'_publication_location_pks'):return self._publication_location_pks
         pks = []
         for publication in self.publications:
-            for pk in publication.publication_location_pks:
+            publication._set_publication_location_pks()
+            for pk in publication.get_publication_location_pks:
                 if pk not in pks: pks.append(pk)
-        self._publication_location_pks = pks
-        return self._publication_location_pks
+        self.publication_location_pks = ','.join(map(str,pks))
+        self.save()
 
             
     class Meta:
@@ -377,30 +388,41 @@ class Illustration(Item, info):
     person = models.CharField(max_length=2000,blank=True,null=True)
     use_permission= models.ForeignKey(UsePermission,on_delete=models.SET_NULL,
         null=True)
+    setting_location_pks = models.CharField(max_length=600,blank=True,null=True)
+    publication_location_pks = models.CharField(max_length=600,blank=True,null=True)
 
     @property
-    def setting_location_pks(self):
+    def get_setting_location_pks(self):
+        if self.setting_location_pks == None: return [] 
+        if self.setting_location_pks == '': return [] 
+        return self.setting_location_pks.split(',')
+
+    @property
+    def get_publication_location_pks(self):
+        if self.publication_location_pks == None: return [] 
+        if self.publication_location_pks == '': return [] 
+        return self.publication_location_pks.split(',')
+
+    def _set_setting_location_pks(self):
         '''return location pk for the setting of the illustration 
         (place text is situated).
         '''
-        if hasattr(self,'_setting_location_pks'):return self._setting_location_pks
         locations = self.location.all()
         pks = []
         for location in locations:
             if location.pk not in pks: pks.append(location.pk)
-        self._setting_location_pks = pks 
-        return self._setting_location_pks
+        self.setting_location_pks = ','.join(map(str,pks))
+        self.save()
 
-    @property
-    def publication_location_pks(self):
+    def _set_publication_location_pks(self):
         '''return location pk for publication of the text.'''
-        if hasattr(self,'_publication_location_pks'):return self._publication_location_pks
         pks = []
         for publication in self.publications:
-            for pk in publication.publication_location_pks:
+            publication._set_publication_location_pks()
+            for pk in publication.get_publication_location_pks:
                 if pk not in pks: pks.append(pk)
-        self._publication_location_pks = pks
-        return self._publication_location_pks
+        self.publication_location_pks = ','.join(map(str,pks))
+        self.save()
 
     def _set_person(self):
         names = [] 
@@ -567,6 +589,8 @@ class Publication(Item, info):
         blank=True,default='')
     use_permission= models.ForeignKey(UsePermission,on_delete=models.SET_NULL,
         null=True)
+    setting_location_pks = models.CharField(max_length = 600, blank=True,null=True)
+    publication_location_pks = models.CharField(max_length = 600, blank=True,null=True)
 
     def pop_up(self,latlng):
         m = ''
@@ -609,34 +633,45 @@ class Publication(Item, info):
     def genders(self):
         'return list of genders of persons linked to this publication.'
         return list(set([x.sex for x in self.persons]))
-        
 
     @property
-    def setting_location_pks(self):
+    def get_setting_location_pks(self):
+        if self.setting_location_pks == None: return [] 
+        if self.setting_location_pks == '': return [] 
+        return self.setting_location_pks.split(',')
+
+    @property
+    def get_publication_location_pks(self):
+        if self.publication_location_pks == None: return [] 
+        if self.publication_location_pks == '': return [] 
+        return self.publication_location_pks.split(',')
+
+    def _set_setting_location_pks(self):
         '''return location pk for the setting of the text (place text is situated).'''
-        if hasattr(self,'_setting_location_pks'):return self._setting_location_pks
         pks = []
         for text_dict in self.texts:
             text = text_dict['text']
-            for pk in text.setting_location_pks:
+            text._set_setting_location_pks()
+            for pk in text.get_setting_location_pks:
+                if not pk: continue
                 if pk not in pks: pks.append(pk)
         for illustration_dict in self.illustrations:
             illustration = illustration_dict['illustration']
-            for pk in illustration.setting_location_pks:
+            illustration._set_setting_location_pks()
+            for pk in illustration.get_setting_location_pks:
+                if not pk: continue
                 if pk not in pks: pks.append(pk)
-        self._setting_location_pks = pks
-        return self._setting_location_pks
+        self.setting_location_pks = ','.join(map(str,pks))
+        self.save()
 
-    @property
-    def publication_location_pks(self):
+    def _set_publication_location_pks(self):
         '''return location pk for publication of the publication.'''
-        if hasattr(self,'_publication_location_pks'):return self._publication_location_pks
         locations = self.location.all()
         pks = []
         for location in locations:
             if location.pk not in pks: pks.append(location.pk)
-        self._publication_location_pks = pks 
-        return self._publication_location_pks
+        self.publication_location_pks = ','.join(map(str,pks))
+        self.save()
 
 
     @property
