@@ -185,14 +185,18 @@ def ajax_instance(request,app_name,model_name,pk):
 
 def ajax_instances(request,app_name,model_name,pks):
     '''returns an instance base on app_name model_name and pk.'''
+    start = time.time()
     model = apps.get_model(app_name,model_name)
+    print('model',time.time() - start)
     print(model,'model')
     pks = pks.split(',')
     instances = model.objects.filter(pk__in = pks)
+    print('instances',time.time() - start)
     print(instances,'instances')
     d = [x.sidebar_info for x in instances]
+    print('info',time.time() - start)
     #d = serializers.serialize('json',instances)
-    print(d,'serial')
+    # print(d,'serial')
     return JsonResponse({'instances':d})
     
     
