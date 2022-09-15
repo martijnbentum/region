@@ -149,10 +149,10 @@ class Item(models.Model):
 
     @property
     def sidebar_info(self):
+        start = time.time()
         d = {}
         d['name'] = self.instance_name
-        d['date'] = self.dates
-
+        d['years'] = self.get_years
         d['detail_url'] = urls.reverse_lazy(self.detail_url, args = [self.pk])
         if hasattr(self,'type_info'):d['extra'] = self.type_info
         else: d['extra'] = ''
@@ -180,6 +180,7 @@ class Text(Item, info):
     person = models.CharField(max_length=2000,blank=True,null=True)
     setting_location_pks = models.CharField(max_length = 600, blank=True,null=True)
     publication_location_pks = models.CharField(max_length = 600, blank=True,null=True)
+    publication_years = models.CharField(max_length = 600, blank = True, null=True)
 
     def _set_person(self):
         names = [] 
@@ -253,6 +254,19 @@ class Text(Item, info):
     def genders(self):
         'return list of genders of persons linked to this text.'
         return list(set([x.sex for x in self.persons]))
+
+    @property
+    def get_years(self):
+        if self.publication_years== None: return [] 
+        if self.publication_years== '': return []
+        return list(map(int,self.publication_years.split(',')))
+        
+
+    def _set_publication_years(self):
+        dates = self.get_dates
+        years = [str(date.year) for date in dates]
+        self.publication_years = ','.join(years)
+        self.save()
 
     @property
     def get_dates(self):
@@ -390,6 +404,7 @@ class Illustration(Item, info):
         null=True)
     setting_location_pks = models.CharField(max_length=600,blank=True,null=True)
     publication_location_pks = models.CharField(max_length=600,blank=True,null=True)
+    publication_years = models.CharField(max_length=600,blank=True,null=True)
 
     @property
     def get_setting_location_pks(self):
@@ -474,6 +489,19 @@ class Illustration(Item, info):
         return o
 
     @property
+    def get_years(self):
+        if self.publication_years== None: return [] 
+        if self.publication_years== '': return []
+        return list(map(int,self.publication_years.split(',')))
+        
+
+    def _set_publication_years(self):
+        dates = self.get_dates
+        years = [str(date.year) for date in dates]
+        self.publication_years = ','.join(years)
+        self.save()
+
+    @property
     def get_dates(self):
         '''illustration object does not contain date, 
         only the linked publication has a date.
@@ -521,6 +549,11 @@ class Publisher(Item, info):
     class Meta:
         ordering = ['name']
         unique_together = 'name,founded'.split(',')
+
+    @property
+    def get_years(self):
+        if not self.founded: return []
+        return [self.founded]
 
     @property
     def get_dates(self):
@@ -689,6 +722,11 @@ class Publication(Item, info):
         for l in self.location.all():
             o.append(l.full_name)
         return ' | '.join(o)
+
+    @property
+    def get_years(self):
+        if not self.date: return []
+        return [self.date.year]
 
     @property
     def get_dates(self):
@@ -902,6 +940,11 @@ class Periodical(Item, info):
             d[ppr.role.name.lower()].append(ppr.person)
         self._role_person_dict = d
         return self._role_person_dict
+
+    @property
+    def get_years(self):
+        if not self.founded: return []
+        return [self.founded]
 
     @property
     def get_dates(self):
