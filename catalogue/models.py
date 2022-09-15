@@ -193,13 +193,13 @@ class Text(Item, info):
     def get_setting_location_pks(self):
         if self.setting_location_pks == None: return [] 
         if self.setting_location_pks == '': return []
-        return self.setting_location_pks.split(',')
+        return list(map(int,self.setting_location_pks.split(',')))
 
     @property
     def get_publication_location_pks(self):
         if self.publication_location_pks == None: return [] 
         if self.publication_location_pks == '': return []
-        return self.publication_location_pks.split(',')
+        return list(map(int,self.publication_location_pks.split(',')))
 
     def _set_setting_location_pks(self):
         '''return location pk for the setting of the text (place text is situated).'''
@@ -410,13 +410,13 @@ class Illustration(Item, info):
     def get_setting_location_pks(self):
         if self.setting_location_pks == None: return [] 
         if self.setting_location_pks == '': return [] 
-        return self.setting_location_pks.split(',')
+        return list(map(int,self.setting_location_pks.split(',')))
 
     @property
     def get_publication_location_pks(self):
         if self.publication_location_pks == None: return [] 
         if self.publication_location_pks == '': return [] 
-        return self.publication_location_pks.split(',')
+        return list(map(int,self.publication_location_pks.split(',')))
 
     def _set_setting_location_pks(self):
         '''return location pk for the setting of the illustration 
@@ -671,13 +671,13 @@ class Publication(Item, info):
     def get_setting_location_pks(self):
         if self.setting_location_pks == None: return [] 
         if self.setting_location_pks == '': return [] 
-        return self.setting_location_pks.split(',')
+        return list(map(int,self.setting_location_pks.split(',')))
 
     @property
     def get_publication_location_pks(self):
         if self.publication_location_pks == None: return [] 
         if self.publication_location_pks == '': return [] 
-        return self.publication_location_pks.split(',')
+        return list(map(int,self.publication_location_pks.split(',')))
 
     def _set_setting_location_pks(self):
         '''return location pk for the setting of the text (place text is situated).'''
