@@ -193,9 +193,7 @@ function _add_instance(instance, model_name, city_div) {
 	// display a single instance to the sidebar
 	// helper function of get_instances
       
-    console.log(instance)
     var location_pk = parseInt(city_div.id.split('-')[0]);
-    console.log(location_pk)
     if (filter_active_dict['locationtype'] == 'active'){
         // adding instance (not filtering on locationtype)
     } else if (!'Text,Publication,Illustration'.split(',').includes(model_name)) {
