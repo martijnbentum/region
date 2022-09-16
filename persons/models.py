@@ -65,6 +65,12 @@ class Person(models.Model, info):
         if self.gps != old_gps:super(Person,self).save()
         super(Person,self).save(*args,**kwargs)
 
+    def _set_connection_count(self):
+        from utils import instance_links
+        links = instance_links.Links(self)
+        self.connection_count = links.n_connections
+        self.save()
+
     def empty_fields(self,fields = []):
         return get_empty_fields(self,fields, default_is_empty = True)
 
@@ -473,6 +479,13 @@ class Movement(models.Model, info):
     loc_ids = models.CharField(max_length=300,default ='')
     location_field = 'location'
     person = models.CharField(max_length=2000,blank=True,null=True)
+    connection_count = models.PositiveIntegerField(null=True,blank=True) 
+
+    def _set_connection_count(self):
+        from utils import instance_links
+        links = instance_links.Links(self)
+        self.connection_count = links.n_connections
+        self.save()
 
     def _set_person(self):
         names = [] 
