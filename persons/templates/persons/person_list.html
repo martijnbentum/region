@@ -21,6 +21,8 @@
 		style="text-decoration:none;">Died</a></th>
 	<th><a href="?order_by=birth_place,{{order}},{{direction}},{{query}}" 
 		style="text-decoration:none;">Birth place</a></th>
+	<th><a href="?order_by=connection_count,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">#con.</a></th>
 	<th></th>
 	<!-- create header -->
 	</tr>
@@ -38,6 +40,7 @@
 		<td>{{person.birth_year|default:''}}</td>
 		<td>{{person.death_year|default:''}}</td>
 		<td>{{person.birth_place|default:''}}</td>
+		<td>{{person.connection_count}}</td>
 		<td style="white-space:nowrap;">
 			<a class = "btn btn-link btn-sm ml-auto"
 				href ="{% url 'persons:delete' person.pk 'Person' %}"
