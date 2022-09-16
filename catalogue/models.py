@@ -52,6 +52,12 @@ class Item(models.Model):
     def __str__(self):
         return self.instance_name
 
+    def _set_connection_count(self):
+        from utils import instance_links
+        links = instance_links.Links(self)
+        self.connection_count = links.n_connections
+        self.save()
+
     def save(self,*args,**kwargs):
         '''sets the gps coordinates and names field after saving based 
         on the fk location
