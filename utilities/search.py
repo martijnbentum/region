@@ -286,7 +286,10 @@ class Search:
         ordering should be descending or ascending.
         '''
         if not self.order.order_results: return
-        self.result = self.result.order_by(Lower(self.order.order_by))
+        if self.order.order_by == 'connection_count':
+            self.result = self.result.order_by(self.order.order_by)
+        else:
+            self.result = self.result.order_by(Lower(self.order.order_by))
         self.notes += '\nordered on field: ' + self.order.order_by
         if self.order.direction == 'descending': 
             self.result= self.result.reverse()
@@ -469,7 +472,9 @@ class Field:
         self.include = True 
         self.exclude = False
         exclude = 'id,gps,gps_names,source_link,publisher_names,identifier,year'
-        exclude += ',group_tags,relations,copyright,loc_ids'
+        exclude += ',group_tags,relations,copyright,loc_ids,connection_count'
+        exclude += ',setting_location_pks,publication_location_pks'
+        exclude += ',publication_years'
         exclude = exclude.split(',')
         if self.name in exclude or self.bool or self.file or self.image: 
             self.include = False 
@@ -531,6 +536,7 @@ class Order:
                 order_by,old_order,old_direction,tquery = temp.split(',')
                 if order_by == old_order:
                     direction = 'descending' if old_direction == 'ascending' else 'ascending'
+                elif order_by =='connection_count':direction = 'descending'
                 else: direction = 'ascending'
             else: 
                 order_by = get_foreign_keydict()[self.model_name.lower()]
@@ -546,7 +552,7 @@ class Order:
         self.direction = direction
 
     def __repr__(self):
-        return self.order_by + ', ' + self.direction
+        return str(self.order_by) + ', ' + str(self.direction)
 
 
 def get_fields(model_name,app_name):
