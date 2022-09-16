@@ -14,11 +14,21 @@ class Links:
             if 'relation' in model_name.lower():
                 self.relation_instances.append(instance)
 
+    @property
+    def n_connections(self):
+        if not hasattr(self,'relation_instances'):
+            self.collect_relation_instances()
+        n = len(self.relation_instances)
+        if self.instance._meta.model_name == 'publication':
+            n += len(self.instance.publisher.all())
+        return n
+
     def get_plots(self):
         self._plots, self.no_plots, self.error = [], [], []
         for instance in self.connections.instances:
             if instance != self.instance:
-                if hasattr(instance,'set_other'):instance.set_other(self.instance)
+                if hasattr(instance,'set_other'):
+                    instance.set_other(self.instance)
                 try:self._plots.append(instance.plot())
                 except: 
                     self.no_plots.append(instance)
