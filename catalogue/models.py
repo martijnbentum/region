@@ -47,6 +47,7 @@ class Item(models.Model):
     loc_ids = models.CharField(max_length=300,default ='')
     group_tags= models.ManyToManyField(GroupTag,blank=True, default= None)
     location_field = 'location'
+    connection_count = models.PositiveIntegerField(null=True,blank=True) 
     
     def __str__(self):
         return self.instance_name
