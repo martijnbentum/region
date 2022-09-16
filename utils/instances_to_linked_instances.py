@@ -73,10 +73,10 @@ def make_instances_identifier_to_locationtype_dict(save = True):
     instances = model_util.get_all_instances()
     d = {}
     for instance in instances:
-        if hasattr(instance,'setting_location_pks'):
+        if hasattr(instance,'get_setting_location_pks'):
             names = []
-            if instance.setting_location_pks: names.append('setting')
-            if instance.publication_location_pks: names.append('publication')
+            if instance.get_setting_location_pks: names.append('setting')
+            if instance.get_publication_location_pks: names.append('publication')
             if names: d[instance.identifier] = names
     if save:
         filename = 'data/instances_locationtype_dict.json'
