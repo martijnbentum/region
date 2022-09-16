@@ -19,6 +19,8 @@
 		style="text-decoration:none;">Caption</a></th>
 	<th><a href="?order_by=category,{{order}},{{direction}},{{query}}" 
 		style="text-decoration:none;">Category</a></th>
+	<th><a href="?order_by=connection_count,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">#con.</a></th>
 	<th></th>
 	</tr>
 	{% for illustration in illustration_list %}
@@ -31,7 +33,12 @@
 	{% endif %}
 
 		<td>{{illustration.caption}}</td>
-		<td>{{illustration.category}}</td>
+        {% if illustration.category %}
+            <td>{{illustration.category}}</td>
+        {% else %}
+            <td></td>
+        {% endif %}
+		<td>{{illustration.connection_count}}</td>
 		<td style="white-space:nowrap;">
 			<a class = "btn btn-link btn-sm ml-auto"
 				href ="{% url 'catalogue:delete' illustration.pk 'Illustration' %}"
