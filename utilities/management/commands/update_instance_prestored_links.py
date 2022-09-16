@@ -18,7 +18,7 @@ class Command(BaseCommand):
         print('setting no backup flag')
         set_no_backup_save_flag.set_no_backup_save_flag()
         print('updating links prestored on individual instances')
-        update_prestored_links.update_publication_text_illustration()
+        update_prestored_links.update_all()
         delta = time.time() -start
         print('updating took: ',round(delta),' seconds')
         set_no_backup_save_flag.remove_no_backup_save_flag()
