@@ -29,6 +29,13 @@ class UserEditView(generic.UpdateView):
 	def get_object(self):
 		return self.request.user
 
+def created_by_me_view(request):
+	'''create a list of all update events performed by a particular user.'''
+	user = User.objects.get(username = request.user.username)
+	crud = Crud(user,user=True) 
+	nitems= len(crud.all_created_instances)
+	var = {'crud':crud,'page_name':'Created by me','nitems':nitems}
+	return render(request,'accounts/created_by_me.html',var)
 
 def log_view(request):
 	'''create a list of all update events performed by a particular user.'''
