@@ -158,6 +158,23 @@ class Crud:
         return ', '.join(list(set([u.username for u in self.updates if u.username])))
 
     @property
+    def all_created(self):
+        o = []
+        for e in self.events:
+            if e.type == 'Create': o.append(e)
+        return o
+
+    @property
+    def all_created_instances(self):
+        o = []
+        model_names = 'periodical,movement,person,illustration,publisher'
+        model_names += ',publication,text'
+        for e in self.events:
+            if e.type == 'Create' and e.model_name in model_names: 
+                o.append(e)
+        return o
+
+    @property
     def created(self):
         for e in self.events:
             if e.type == 'Create':
