@@ -9,18 +9,25 @@ const tiles = L.tileLayer(tileUrl,{attribution});
 tiles.addTo(mymap);
 
 //global variables
+// linking filters (e.g. gender 'male') to identifiers ('catalogue_text_792')
 var id_dict = JSON.parse(document.getElementById('id-dict').textContent);
 var temp = document.getElementById('filter-active-dict').textContent;
+// linking filters 'gender,male' to state 'active' or 'inactive'
 var filter_active_dict= JSON.parse(temp);
 var temp = document.getElementById('locationtype_filter_dict').textContent;
+// linking location id (153) to setting / publication set of identifiers 
 var locationtype_filter_dict= JSON.parse(temp);
+// list of identifiers that are active
 var active_ids = id_dict['all']
+// list of selected filters
 var selected_filters = [];
+// linker filters 'gender,male' to active and inactive counts
 var count_dict = {};
 
 var right_sidebar_active = false;
 var right_sidebar_index = false;
 var right_sidebar_elements = false;
+var right_sidebar_category_counts = {};
 
 var marker_color = '#4287f5'
 var highlight_color = "#e6da09"
@@ -237,8 +244,16 @@ async function get_instances(instance_ids,instance_category,city_div) {
             _add_instance(instance,model_name, city_div);
         }
 	}
-    
+    console.log(dlinks)
+    ninstances = dlinks.childElementCount;
+    if (ninstances != right_sidebar_category_counts[model_name]) {
+        console.log(ninstances, right_sidebar_category_counts[model_name])
+        var a_id = model_name + 'category-toggle-' + city_div.id;
+        var a = document.getElementById(a_id);
+        a.innerHTML = model_name + ' <small>(' + ninstances + ')</small>';
+    }
 }
+
 
 function count_active_identifiers(identifiers) {
     var count = 0;
@@ -262,8 +277,10 @@ function show_category(instance_ids, category,city_div) {
 	entries.push(d);
 	d.id = model_name + '-all-' + city_div.id;
 	city_div.appendChild(d);
+    console.log(instance_ids)
 	get_instances(instance_ids, category, city_div)
 	var a =document.createElement("a");
+    a.id = model_name + 'category-toggle-' + city_div.id
 	a.setAttribute('href',"javascript:void(0)");
 	a.setAttribute('onclick', 'toggle_sidebar_category(this)');
 	a.setAttribute('data-links_id', model_name + '-links-'+city_div.id);
@@ -272,6 +289,7 @@ function show_category(instance_ids, category,city_div) {
 	d.appendChild(a);
 	a.innerHTML = model_name + ' <small>(' + count_active + ')</small>';
 	a.classList.add('category-header');
+    right_sidebar_category_counts[model_name] = count_active;
 }
 
 function show_categories(info) {
@@ -341,12 +359,18 @@ function show_right_sidebar(index) {
 }
 
 function update_right_sidebar() {
-    if (right_sidebar_active == false || right_sidebar_index == false) {return;}
-    if (right_sidebar_elements == false) {
+    if (right_sidebar_active === false || right_sidebar_index === false) {
+        // if right sidebar is not active do not update it
+        console.log('right sidebar not active, doing nothing')
+        return;
+     }
+    if (right_sidebar_elements === false) {
+        // only one city linked to this marker showing info related to that city
+        console.log('updating sidebar')
         show_right_sidebar(right_sidebar_index);    
         return;
     }
-    if (right_sidebar_elements == false) { return; }
+    // multiple cities linked to marker, showing info related to each city
     console.log(right_sidebar_elements)
     var indices = []
     for (let i = 0; i < right_sidebar_elements.length; i++) {
