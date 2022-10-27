@@ -18,6 +18,8 @@ def update_publication():
         x._set_publication_location_pks()
         x._set_setting_location_pks()
         x._set_connection_count()
+        x._set_form_name()
+        x._set_language_names()
 
 def update_text():
     Text= apps.get_model('catalogue','Text')
@@ -28,6 +30,7 @@ def update_text():
         x._set_setting_location_pks()
         x._set_publication_years()
         x._set_connection_count()
+        x._set_language_name()
 
 def update_illustration():
     Illustration = apps.get_model('catalogue','Illustration')
