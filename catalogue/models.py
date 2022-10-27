@@ -159,12 +159,11 @@ class Item(models.Model):
         start = time.time()
         d = {}
         d['name'] = self.instance_name
-        if self._meta.model_name in ['text','publication']: 
-            if not self.language: d['language'] = ''
-            d['language'] = self.language.name 
+        if self._meta.model_name == 'text':
+            d['language'] = self.language_name
         if self._meta.model_name == 'publication':
-            if not self.form: d['publication_type'] = ''
-            d['publication_type'] += self.form.name
+            d['language'] = self.get_language_names() 
+            d['publication_type'] = self.form_name
         d['years'] = self.get_years
         d['detail_url'] = urls.reverse_lazy(self.detail_url, args = [self.pk])
         if hasattr(self,'type_info'):d['extra'] = self.type_info
@@ -194,7 +193,7 @@ class Text(Item, info):
     setting_location_pks = models.CharField(max_length = 600, blank=True,null=True)
     publication_location_pks = models.CharField(max_length = 600, blank=True,null=True)
     publication_years = models.CharField(max_length = 600, blank = True, null=True)
-    language_name = model.CharField(max_length(50, blank=True,null=True)
+    language_name = models.CharField(max_length=50, blank=True,null=True)
 
     def _set_language_name(self):
         if self.language: self.language_name = self.language.name
@@ -643,18 +642,26 @@ class Publication(Item, info):
         null=True)
     setting_location_pks = models.CharField(max_length = 600, blank=True,null=True)
     publication_location_pks = models.CharField(max_length = 600, blank=True,null=True)
-    language_names = model.CharField(max_length(50, blank=True,null=True)
-    language_names = model.CharField(max_length(90, blank=True,null=True)
+    language_names = models.CharField(max_length=90, blank=True,null=True)
+    form_name = models.CharField(max_length=90, blank=True,null=True)
 
     def _set_language_names(self):
         languages = self.languages
-        if languages: self.language_names = languages
+        if languages: self.language_names = ','.join(languages)
+        else: self.language_names = ''
         self.save()
 
     def _set_form_name(self):
+        if self.form:
+            self.form_name = self.form.name
+        else:
+            self.form_name = ''
+        self.save()
 
     def get_language_names(self):
+        if not self.language_names: return ''
         return self.language_names.split(',')
+
 
     def pop_up(self,latlng):
         m = ''
