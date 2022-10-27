@@ -6,6 +6,17 @@ select {
     font-size:14px;
 }
 
+.title_link {
+    background-color: #dfe5e6;
+    margin:6px;
+    padding-left:3px;
+}
+
+.language {
+    color:#7485a1;
+    font-size:10px;
+}
+
 .sidebar::-webkit-scrollbar {
   display: none;
 }
