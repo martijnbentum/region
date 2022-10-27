@@ -26,6 +26,8 @@
 	<th>
 		<a href="?order_by=location__name,{{order}},{{direction}},{{query}}"
 		style="text-decoration:none;">Location</a></th>
+	<th><a href="?order_by=connection_count,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">#con.</a></th>
 	<th></th>
 	</tr>
 	{% for publication in publication_list %}
@@ -40,6 +42,7 @@
 		<td>{{publication.form.name}}</td>
 		<td>{{publication.publisher_str}}</td>
 		<td>{{publication.location_str}}</td>
+		<td>{{publication.connection_count}}</td>
 		<td style="white-space:nowrap;">
 			<a class = "btn btn-link btn-sm ml-auto"
 				href ="{% url 'catalogue:delete' publication.pk 'Publication' %}"

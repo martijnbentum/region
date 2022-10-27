@@ -115,6 +115,7 @@ def make_file_backup_postsave_receiver(app_name,model_name):
 	m += model_name + ')\n'
 	m += 'def save_file_backup_'+app_name + '_' + model_name 
 	m += '(sender, instance, **kwargs):\n'
+	m += '\tif os.path.isfile("data/no_backup_on_save"):return\n'
 	m += '\tfieldnames = make_models_image_file_dict()["'
 	m += app_name + '","'+model_name +'"]\n'
 	m += '\tfor field_name in  fieldnames:\n'

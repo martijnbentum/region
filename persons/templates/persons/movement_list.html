@@ -14,6 +14,8 @@
 		style="text-decoration:none;">Name</a></th>
 	<th><a href="?order_by=location,{{order}},{{direction}},{{query}}" 
 		style="text-decoration:none;">Location</a></th>
+	<th><a href="?order_by=connection_count,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">#con.</a></th>
 	<th></th>
 	</tr>
 	{% for movement in movement_list %}
@@ -26,6 +28,7 @@
 	{% endif %}
 		<td>{{movement.name}}</td>
 		<td>{{movement.location_str}}</td>
+		<td>{{movement.connection_count}}</td>
 		<td style="white-space:nowrap;">
 			<a class = "btn btn-link btn-sm ml-auto"
 				href ="{% url 'persons:delete' movement.pk 'Movement' %}"

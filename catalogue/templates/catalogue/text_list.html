@@ -27,6 +27,8 @@
 		style="text-decoration:none;">Genre</a></th>
 	<th><a href="?order_by=setting,{{order}},{{direction}},{{query}}" 
 		style="text-decoration:none;">Setting</a></th>
+	<th><a href="?order_by=connection_count,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">#con.</a></th>
 	<th></th>
 	</tr>
 	{% for text in text_list %}
@@ -40,7 +42,8 @@
 		<td>{{text.title}}</td>
 		<td>{{text.language}}</td>
 		<td>{{text.genre}}</td>
-		<td>{{text.setting}}</td>
+		<td>{{text.setting|truncatewords:3}}</td>
+		<td>{{text.connection_count}}</td>
 		<td style="white-space:nowrap;">
 			<a class = "btn btn-link btn-sm ml-auto"
 				href="{% url 'catalogue:delete' text.pk 'Text' %}"

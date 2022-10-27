@@ -22,6 +22,8 @@
 		style="text-decoration:none;">closure</a></th>
 	<th><a href="?order_by=location,{{order}},{{direction}},{{query}}" 
 		style="text-decoration:none;">location</a></th>
+	<th><a href="?order_by=connection_count,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">#con.</a></th>
 	<th></th>
 	</tr>
 	{% for periodical in periodical_list %}
@@ -36,6 +38,7 @@
 		<td>{{periodical.founded}}</td>
 		<td>{{periodical.closue}}</td>
 		<td>{{periodical.location_str}}</td>
+		<td>{{periodical.connection_count}}</td>
 		<td style="white-space:nowrap;">
 			<a class = "btn btn-link btn-sm ml-auto"
 				href ="{% url 'catalogue:delete' periodical.pk 'Periodical' %}"

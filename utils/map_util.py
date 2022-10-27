@@ -174,9 +174,9 @@ def locationtype_filter_dict(d = None, save = False, load = True,
             if model_name not in 'text,publication,illustration'.split(','):
                 continue
             instance = identifier2instance(identifier)
-            if location_id in instance.setting_location_pks:
+            if location_id in instance.get_setting_location_pks:
                 temp['setting'].append(identifier)
-            if location_id in instance.publication_location_pks:
+            if location_id in instance.get_publication_location_pks:
                 temp['publication'].append(identifier)
         if temp['setting'] or temp['publication']:
             output[location_id] = temp
