@@ -220,8 +220,19 @@ function _add_instance(instance, model_name, city_div) {
 	a =document.createElement("a");
 	dlinks.appendChild(a);
 	a.setAttribute('href',instance.detail_url);
-	a.innerHTML = instance.name;
+    var m = instance.name ;
+    if (model_name == 'Text') {
+        m += ' <span class="language" >(' +instance.language + ')</span>' ;
+    } else if (model_name == 'Publication') {
+        m += ' <span class="language" >(' +instance.language;
+        if (instance.language != '') {
+            m += ' | ' 
+        }
+        m += instance.publication_type +')</span>';
+    }
+    a.innerHTML = m;
 	a.classList.add("small_text");
+	a.classList.add("title_link");
 	entries.push(a)
 }
 
