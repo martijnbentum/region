@@ -69,5 +69,5 @@ def update_publisher():
     p = Publisher.objects.all()
     print('updating publisher, n:',p.count())
     for x in p:
-        x.save()
+        x._set_connection_count()
     
