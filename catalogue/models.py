@@ -171,6 +171,7 @@ class Item(models.Model):
         if hasattr(self,'setting_location_pks'):
             d['setting_location_pks']= self.get_setting_location_pks
             d['publication_location_pks']= self.get_publication_location_pks
+        d['connection_count'] = self.connection_count
         return d
 
 
