@@ -217,9 +217,12 @@ function _add_instance(instance, model_name, city_div) {
         }
     }
 	var dlinks= document.getElementById(model_name + '-links-'+city_div.id);
-	a =document.createElement("a");
-	dlinks.appendChild(a);
-	a.setAttribute('href',instance.detail_url);
+    var line_div = document.createElement('div')
+	line_div.classList.add("instance_line_div");
+	dlinks.appendChild(line_div);
+	var a_instance =document.createElement("a");
+	line_div.appendChild(a_instance);
+	a_instance.setAttribute('href',instance.detail_url);
     var m = instance.name ;
     if (model_name == 'Text') {
         m += ' <span class="language" >(' +instance.language + ')</span>' ;
@@ -230,10 +233,22 @@ function _add_instance(instance, model_name, city_div) {
         }
         m += instance.publication_type +')</span>';
     }
-    a.innerHTML = m;
-	a.classList.add("small_text");
-	a.classList.add("title_link");
-	entries.push(a)
+	a_instance.classList.add("small_text");
+	a_instance.classList.add("title_link");
+    a_instance.innerHTML = m;
+
+    if (instance.connection_count && instance.connection_count > 0) {
+        var a_links =document.createElement("a");
+        line_div.appendChild(a_links);
+        a_links.classList.add("small_text");
+        a_links.setAttribute('href',instance.detail_url);
+        var t = '<i class="fas fa-project-diagram links_link">'
+        t += ' (' + instance.connection_count + ')';
+        a_links.innerHTML = t;
+    }
+
+	entries.push(a_instance)
+    console.log(instance)
 }
 
 async function get_instances(instance_ids,instance_category,city_div) {
