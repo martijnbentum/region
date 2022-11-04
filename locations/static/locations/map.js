@@ -248,7 +248,6 @@ function _add_instance(instance, model_name, city_div) {
     }
 
 	entries.push(a_instance)
-    console.log(instance)
 }
 
 async function get_instances(instance_ids,instance_category,city_div) {
