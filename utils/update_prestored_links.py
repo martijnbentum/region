@@ -7,6 +7,7 @@ def update_all():
     update_person()
     update_movement()
     update_periodical()
+    update_publisher()
         
     
 
@@ -62,3 +63,11 @@ def update_periodical():
     print('updating periodicals, n:',p.count())
     for x in p:
         x._set_connection_count()
+
+def update_publisher():
+    Publisher= apps.get_model('catalogue','Publisher')
+    p = Publisher.objects.all()
+    print('updating publisher, n:',p.count())
+    for x in p:
+        x.save()
+    
