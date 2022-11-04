@@ -625,6 +625,7 @@ class Movement(models.Model, info):
         d['detail_url'] = urls.reverse_lazy(self.detail_url, args = [self.pk])
         d['extra'] = self.type_info
         d['identifier'] = self.identifier
+        d['connection_count'] = self.connection_count
         return d
 
 
