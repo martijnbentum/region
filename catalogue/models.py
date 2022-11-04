@@ -81,7 +81,7 @@ class Item(models.Model):
         up map visualization.
         '''
         locations = field2locations(self,self.location_field)
-        self.loc_ids = ''
+        self.gps, self.gps_names, self.loc_ids = '','',''
         if locations:
             gps = ' | '.join([l.gps for l in locations if l.gps])
             names= ' | '.join([l.name for l in locations if l.gps])
@@ -96,7 +96,6 @@ class Item(models.Model):
             if ids:
                 ids = list(set(map(str,ids)))
                 self.loc_ids = ','.join(ids)
-        else: self.gps, self.gps_names, self.loc_ids = '','',''
 
     def empty_fields(self,fields = []):
         return get_empty_fields(self,fields, default_is_empty = True)
