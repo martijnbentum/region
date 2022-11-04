@@ -6,9 +6,22 @@ select {
     font-size:14px;
 }
 
-.title_link {
-    background-color: #dfe5e6;
+.instance_line_div {
+    display: flex;
     margin:6px;
+    flex-direction: row;
+    background-color: #dfe5e6;
+}
+
+.links_link {
+    color:#bdccd9;
+    color:#7485a1;
+    font-size:10px;
+    margin-top:3px;
+}
+
+.title_link {
+    margin:0px;
     padding-left:3px;
 }
 
