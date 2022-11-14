@@ -38,7 +38,7 @@ class LocationRelation(models.Model, info):
 class Location(models.Model, info):
 	'''Geographic location of a specific type (e.g. city or country)'''
 	dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
-	gpsargs = {'blank':True,'null':True,'max_digits':8,'decimal_places':5}
+	gpsargs = {'blank':True,'null':True,'max_digits':10,'decimal_places':7}
 	name = models.CharField(max_length=200)
 	location_type= models.ForeignKey(LocationType,**dargs)
 	location_status = models.ForeignKey(LocationStatus,**dargs)
