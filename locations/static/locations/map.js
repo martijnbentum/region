@@ -227,11 +227,17 @@ function _add_instance(instance, model_name, city_div) {
     if (model_name == 'Text') {
         m += ' <span class="language" >(' +instance.language + ')</span>' ;
     } else if (model_name == 'Publication') {
+        console.log(instance)
         m += ' <span class="language" >(' +instance.language;
         if (instance.language != '') {
             m += ' | ' 
         }
-        m += instance.publication_type +')</span>';
+        m += instance.publication_type 
+
+        if (instance.years.length == 1) {
+            m += ' | ' + instance.years[0]
+        }
+        m +=')</span>';
     }
 	a_instance.classList.add("small_text");
 	a_instance.classList.add("title_link");
