@@ -257,7 +257,7 @@ class Search:
     def check_completeness_approval(self):
         '''check whether complete and or approval should be checked.
         '''
-        print(self.result,9876)
+        # print(self.result,9876)
         if self.query.completeness != None: 
             self.result = self.result.filter(complete=self.query.completeness)
             self.notes += '\ncompleteness: ' + str(self.query.completeness)
@@ -268,7 +268,7 @@ class Search:
             self.result = self.result.filter(incomplete=self.query.incompleteness)
             self.notes += '\nincompleteness (issue): ' 
             self.notes += str(self.query.incompleteness)
-        print(self.result,54321)
+        # print(self.result,54321)
 
     def exclude_doubles(self):
         '''exclude any instances that occur more than one time in the search output.
@@ -300,7 +300,7 @@ class Search:
         fields'''
         o = []
         start = time.time()
-        print(self.active_fields,3333)
+        # print(self.active_fields,3333)
         for instance in self.result:
             empty_fields = instance.empty_fields(self.active_fields)
             if self.and_or == 'and':

@@ -49,7 +49,7 @@ var icon = L.divIcon({
 var location_type = document.getElementById('location_type')
 
 function set_location_type() {
-    console.log(location_type,location_type.value);
+    //console.log(location_type,location_type.value);
     update_right_sidebar();
 }
 
@@ -269,10 +269,10 @@ async function get_instances(instance_ids,instance_category,city_div) {
             _add_instance(instance,model_name, city_div);
         }
 	}
-    console.log(dlinks)
+    //console.log(dlinks)
     ninstances = dlinks.childElementCount;
     if (ninstances != right_sidebar_category_counts[model_name]) {
-        console.log(ninstances, right_sidebar_category_counts[model_name])
+        //console.log(ninstances, right_sidebar_category_counts[model_name])
         var a_id = model_name + 'category-toggle-' + city_div.id;
         var a = document.getElementById(a_id);
         a.innerHTML = model_name + ' <small>(' + ninstances + ')</small>';
@@ -302,7 +302,7 @@ function show_category(instance_ids, category,city_div) {
 	entries.push(d);
 	d.id = model_name + '-all-' + city_div.id;
 	city_div.appendChild(d);
-    console.log(instance_ids)
+    //console.log(instance_ids)
 	get_instances(instance_ids, category, city_div)
 	var a =document.createElement("a");
     a.id = model_name + 'category-toggle-' + city_div.id
@@ -396,7 +396,7 @@ function update_right_sidebar() {
         return;
     }
     // multiple cities linked to marker, showing info related to each city
-    console.log(right_sidebar_elements)
+    //console.log(right_sidebar_elements)
     var indices = []
     for (let i = 0; i < right_sidebar_elements.length; i++) {
         var el = right_sidebar_elements[i]
@@ -847,7 +847,7 @@ function update_category_headers() {
 		var category_header = category_headers[i];
 		ids = category_header.getAttribute('data-identifiers').split(',');
 		var count = intersection([ids,active_ids]).length;
-		console.log(category_header,ids,count);
+		//console.log(category_header,ids,count);
 		if (count > 0) {
 			var t = category_header.innerHTML;
 			category_header.style.display = '';
