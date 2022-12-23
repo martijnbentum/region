@@ -199,6 +199,14 @@ def ajax_instances(request,app_name,model_name,pks):
     # print(d,'serial')
     return JsonResponse({'instances':d})
     
+def ajax_connection(request, app_name, model_name, pk):
+    model = apps.get_model(app_name,model_name)
+    print(model,'model')
+    instance = model.objects.get(pk=pk)
+    print(instance,'instance')
+    f = serializers.serialize('json',[instance])
+    print(f,'serial')
+    return JsonResponse({'instance':f})
     
 
 def geojson_file(request,filename):
