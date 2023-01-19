@@ -10,6 +10,8 @@ urlpatterns = [
 	path('map_ll_alpha/',views.map_ll_alpha, name='map_ll_alpha'),
 	path('map_search/',views.map_search, name='map_search'),
 	path('map_draw/',views.map_draw, name='map_draw'),
+	path('ajax_get_connections/<str:app_name>/<str:model_name>/<int:pk>',
+		views.ajax_get_connections, name='ajax_get_connections'),
 	path('ajax_instance/<str:app_name>/<str:model_name>/<int:pk>',
 		views.ajax_instance, name='ajax_instance'),
 	path('ajax_instances/<str:app_name>/<str:model_name>/<str:pks>',
