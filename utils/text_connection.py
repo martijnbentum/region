@@ -25,7 +25,7 @@ class text_connection:
         if self.is_translation: key = 'translation'
         if self.is_review: key = 'review'
         if not self.original:
-            for text in self.text.type_to_linked_texts_dict[key]:
+            for text in self.start_text.type_to_linked_texts_dict[key]:
                 if text.type_info != 'translation':
                     self.original = text
                     break
