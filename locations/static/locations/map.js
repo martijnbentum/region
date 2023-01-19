@@ -251,9 +251,22 @@ function _add_instance(instance, model_name, city_div) {
         var t = '<i class="fas fa-project-diagram links_link">'
         t += ' (' + instance.connection_count + ')';
         a_links.innerHTML = t;
+        if (model_name == 'Text') {
+            console.log('con:',instance, model_name)
+            get_connections(instance)
+        }
     }
 
 	entries.push(a_instance)
+}
+
+async function get_connections(instance) {
+	var path = '/locations/ajax_get_connections/'
+	path += instance.identifier.replaceAll('_','/') 
+    console.log('c path',path)
+	const response = await fetch(path); 
+	const data = await response.json()
+    console.log('connection data', data);
 }
 
 async function get_instances(instance_ids,instance_category,city_div) {
@@ -264,6 +277,7 @@ async function get_instances(instance_ids,instance_category,city_div) {
 	var path = '/locations/ajax_instances/';
 	path += instance_category.replaceAll('_','/') + '/';
 	path += instance_ids.join(',');	
+    console.log('path',path)
 	const response = await fetch(path); 
 	data = await response.json();
 	var dall = document.getElementById(model_name + '-all-'+city_div.id);
