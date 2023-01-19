@@ -74,7 +74,7 @@ function add_marker_behavior(marker) {
 	marker.on('click',on_marker_click)
 }
 
-function make_circle_marker(loc,i) {
+function make_circle_marker(loc,i, layer = 'overview') {
 	//create a marker a circle
 	latlng = loc2latlng(loc);
 	if (latlng == false) { return false;}
@@ -85,7 +85,7 @@ function make_circle_marker(loc,i) {
 	var radius = 4;
 	marker.setRadius(radius)
 	add_marker_behavior(marker);
-	layerDict['circle'].push(marker)
+	layerDict[layer].push(marker)
 	//marker.addTo(mymap);
 	return marker;
 }
@@ -439,7 +439,7 @@ function toggle_sidebar_category(element) {
 
 function show_markers(markers, make_point = true) {
 	//var controlLayers;
-	hide_markers(layerDict['circle']);
+	hide_markers(layerDict['overview']);
 	for (i = 0; i<markers.length; i++) {
 		var marker = markers[i];
 		if (make_point) {
@@ -456,13 +456,13 @@ function show_markers(markers, make_point = true) {
 	}
 }
 
-function update_markers() {
+function update_markers(markers) {
 	// show markers on map;
 	//apply clustering to markers (cluster overlapping markers together
 	//filter out markers without any active ids
-	show_markers(active_markers, make_point = true);
-	[clustered_marker_dict, clustered_marker_indices] = cluster(active_markers)
-	show_markers(active_markers, make_point = false);
+	show_markers(markers, make_point = true);
+	[clustered_marker_dict, clustered_marker_indices] = cluster(markers)
+	show_markers(markers, make_point = false);
 }
 
 
@@ -478,7 +478,7 @@ function hide_markers(markers) {
 
 // layerdict contains the circle and icon markers
 // for now only the circle markers are made
-var names = 'circle,icon'.split(',');
+var names = 'overview,connection_view'.split(',');
 layerDict = {}
 for (var i = 0; i<names.length; i++) {
 	layerDict[names[i]] = []
@@ -498,7 +498,7 @@ var overlayMarkers= {};
 var clustered_markers = [];
 var clustered_marker_indices = [];
 var clustered_marker_dict = {};
-var active_markers = [...layerDict['circle']];
+var active_markers = [...layerDict['overview']];
 show_markers(active_markers);
 active_markers.sort(sort_on_x);
 update_markers(active_markers);
@@ -710,7 +710,7 @@ function toggle_filter(name) {
 	update_info_count(); // update the count for each info in d 
     // update marker list to include only markers with active ids
 	update_active_markers();
-	update_markers(); // show the markers with active ids
+	update_markers(active_markers); // show the markers with active ids
     update_right_sidebar(); // update entries shown in right sidebar
 }
 
@@ -832,10 +832,10 @@ function update_info_count() {
 	}
 }
 
-function update_active_markers(){
+function update_active_markers(layer = 'overview'){
 	//filter out info in d (location information with linked instances)
 	// with a count of 0
-	var markers = layerDict['circle'];
+	var markers = layerDict[layer];
 	active_markers= []
 	for (let i=0; i<markers.length;i++) {
 		var marker = markers[i];
