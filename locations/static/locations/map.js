@@ -247,22 +247,23 @@ function _add_instance(instance, model_name, city_div) {
         var a_links =document.createElement("a");
         line_div.appendChild(a_links);
         a_links.classList.add("small_text");
-        a_links.setAttribute('href',instance.detail_url);
+        a_links.setAttribute('href','#');
         var t = '<i class="fas fa-project-diagram links_link">'
         t += ' (' + instance.connection_count + ')';
         a_links.innerHTML = t;
         if (model_name == 'Text') {
-            console.log('con:',instance, model_name)
-            get_connections(instance)
+            f = "get_connections('" + instance.identifier + "')"
+            a_links.setAttribute('onclick',f);
+            // console.log('con:',instance, model_name)
         }
     }
 
 	entries.push(a_instance)
 }
 
-async function get_connections(instance) {
+async function get_connections(instance_identifier) {
 	var path = '/locations/ajax_get_connections/'
-	path += instance.identifier.replaceAll('_','/') 
+	path += instance_identifier.replaceAll('_','/') 
     console.log('c path',path)
 	const response = await fetch(path); 
 	const data = await response.json()
