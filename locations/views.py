@@ -15,6 +15,7 @@ import os
 from utils.view_util import make_tabs,FormsetFactoryManager
 from utils.map_util import gps2latlng, pop_up, get_all_location_ids_dict
 from utils.model_util import instance2names
+from utils import text_connection
 from utils.search_view_helper import SearchView
 from utils.instance_links import Links
 from utilities.views import getfocus, list_view, delete_model, edit_model
@@ -199,14 +200,16 @@ def ajax_instances(request,app_name,model_name,pks):
     # print(d,'serial')
     return JsonResponse({'instances':d})
     
-def ajax_connection(request, app_name, model_name, pk):
+def ajax_get_connections(request, app_name, model_name, pk):
     model = apps.get_model(app_name,model_name)
     print(model,'model')
     instance = model.objects.get(pk=pk)
     print(instance,'instance')
     f = serializers.serialize('json',[instance])
     print(f,'serial')
-    return JsonResponse({'instance':f})
+    connections = text_connection.text_connection(instance)
+    d=get_all_location_ids_dict(instances=connections.all_texts,add_names_gps=True)
+    return JsonResponse({'instances':d,'connection_dict':connections.to_dict()})
     
 
 def geojson_file(request,filename):
