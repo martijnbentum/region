@@ -209,6 +209,7 @@ def ajax_get_connections(request, app_name, model_name, pk):
     print(f,'serial')
     connections = text_connection.text_connection(instance)
     d=get_all_location_ids_dict(instances=connections.all_texts,add_names_gps=True)
+    print(d)
     return JsonResponse({'instances':d,'connection_dict':connections.to_dict()})
     
 
