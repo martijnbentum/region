@@ -77,6 +77,7 @@ function add_marker_behavior(marker) {
 function make_circle_marker(loc,i, layer = 'overview') {
 	//create a marker a circle
 	latlng = loc2latlng(loc);
+    console.log(loc,latlng)
 	if (latlng == false) { return false;}
 	name = loc.name
 	var marker=L.circleMarker(latlng,{color:marker_color,weight:2,
@@ -199,6 +200,7 @@ async function get_instance(instance_id,instance_category) {
 function _add_instance(instance, model_name, city_div) {
 	// display a single instance to the sidebar
 	// helper function of get_instances
+    console.log(instance,model_name,city_div,'<---')
       
     var location_pk = parseInt(city_div.id.split('-')[0]);
     if (filter_active_dict['locationtype'] == 'active'){
@@ -267,7 +269,17 @@ async function get_connections(instance_identifier) {
     console.log('c path',path)
 	const response = await fetch(path); 
 	const data = await response.json()
-    console.log('connection data', data);
+    console.log('connection data', data, data.instances, data.instances.length);
+    /*
+    hide_markers(layerDict['overview']);
+    close_left_nav();
+    clear_right_sidebar();
+    var connections = Object.values(data.instances)
+    for (i = 0; i<connections.length; i++) {
+            console.log(connections[i], i, 1111)
+            make_circle_marker(connections[i],i,'connection_view')
+    }
+    */
 }
 
 async function get_instances(instance_ids,instance_category,city_div) {
@@ -455,6 +467,7 @@ function toggle_sidebar_category(element) {
 function show_markers(markers, make_point = true) {
 	//var controlLayers;
 	hide_markers(layerDict['overview']);
+	hide_markers(layerDict['connection_view']);
 	for (i = 0; i<markers.length; i++) {
 		var marker = markers[i];
 		if (make_point) {
