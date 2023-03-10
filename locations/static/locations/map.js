@@ -47,6 +47,7 @@ var icon = L.divIcon({
 	})
 
 var location_type = document.getElementById('location_type')
+var connection_view = false;
 
 function set_location_type() {
     //console.log(location_type,location_type.value);
@@ -269,8 +270,8 @@ async function get_connections(instance_identifier) {
     console.log('c path',path)
 	const response = await fetch(path); 
 	const data = await response.json()
-    console.log('connection data', data, data.instances, data.instances.length);
-    /*
+    console.log('connection data', data, 
+        data.instances, data.instances.length);
     hide_markers(layerDict['overview']);
     close_left_nav();
     clear_right_sidebar();
@@ -279,7 +280,11 @@ async function get_connections(instance_identifier) {
             console.log(connections[i], i, 1111)
             make_circle_marker(connections[i],i,'connection_view')
     }
-    */
+    update_markers(layerDict['connection_view'])
+    var group = new L.featureGroup(layerDict['connection_view'])
+    mymap.fitBounds(group.getBounds().pad(.1))
+    connection_view = true;
+    right_sidebar_connection_view_text(data)
 }
 
 async function get_instances(instance_ids,instance_category,city_div) {
@@ -394,6 +399,33 @@ function clear_right_sidebar() {
 		x.remove()
 	}
 	entries = [];
+}
+
+function right_sidebar_connection_view_text(data) {
+    var cv = data.connection_dict.original[0]
+    var original_author = data.connection_dict.original_author;
+    console.log('righ sidebar connection view',data)
+    var fields = cv.fields;
+	var sidebar= document.getElementById('right_sidebar_content');
+	var text_title =document.createElement("p");
+	var setting =document.createElement("p");
+	var publication=document.createElement("p");
+	var author=document.createElement("p");
+	var hr =document.createElement("hr");
+    sidebar.append(text_title)
+    sidebar.append(hr)
+    sidebar.append(author)
+    sidebar.append(publication)
+    sidebar.append(setting)
+    var m = fields.title;
+	text_title.classList.add("title_text");
+    text_title.innerHTML = m;
+	setting.classList.add("connection_text");
+    setting.innerHTML = '<b>Setting</b>: ' +fields.setting
+	publication.classList.add("connection_text");
+    publication.innerHTML='<b>Published in</b>: '+fields.publication_years;
+	author.classList.add("connection_text");
+    author.innerHTML = '<b>Author</b>: ' +original_author;
 }
 
 function show_right_sidebar(index) {
@@ -561,7 +593,9 @@ function close_right_nav() {
 mymap.on('zoomend', function() {
 	// update the clustering after zooming in or out
 	console.log('zoomed')
-	update_markers();
+    if (connection_view) {var marker_types = 'connection_view'}
+    else {var marker_types = 'overview'}
+	update_markers(layerDict[marker_types]);
 });
 
 open_left_nav();
