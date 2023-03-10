@@ -140,6 +140,20 @@ hr {
 	font-size:20px
 }
 
+.title_text{
+	font-size:24px;
+    font-weight:normal;
+    font-style:italic;
+    font-family: "Times New Roman", Times, serif;
+    padding-top:5px;
+    padding-bottom:0px;
+}
+
+.connection_text{
+    font-size: 14px; 
+    font-family: "Times New Roman", Times, serif;
+}
+
 .small_text {
 	font-size:14px;
 }
