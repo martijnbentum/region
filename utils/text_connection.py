@@ -46,7 +46,8 @@ class text_connection:
         d['languages'] = self.languages
         d['original_title'] = original.title if original else ''
         d['original_language'] = original.language_name if original else ''
-        d['original_author'] = original.language_name if original else ''
+        author_names = ', '.join([x.name for x in original.authors])
+        d['original_author'] = author_names if original else ''
         self.d = d
         return d
 
