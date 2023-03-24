@@ -401,31 +401,62 @@ function clear_right_sidebar() {
 	entries = [];
 }
 
-function right_sidebar_connection_view_text(data) {
-    var cv = data.connection_dict.original[0]
-    var original_author = data.connection_dict.original_author;
-    console.log('righ sidebar connection view',data)
-    var fields = cv.fields;
+function _add_connection_instance_info(instance_dict, original) {
+    var instance = instance_dict;
 	var sidebar= document.getElementById('right_sidebar_content');
 	var text_title =document.createElement("p");
 	var setting =document.createElement("p");
+	var genre =document.createElement("p");
 	var publication=document.createElement("p");
 	var author=document.createElement("p");
+	var language=document.createElement("p");
 	var hr =document.createElement("hr");
     sidebar.append(text_title)
-    sidebar.append(hr)
+    if (original) {sidebar.append(hr)}
+    if (original) {sidebar.append(genre)}
     sidebar.append(author)
     sidebar.append(publication)
-    sidebar.append(setting)
-    var m = fields.title;
-	text_title.classList.add("title_text");
-    text_title.innerHTML = m;
+    if (original) {sidebar.append(setting)}
+    sidebar.append(language)
+
+	if (original) {text_title.classList.add("title_text");}
+	else {text_title.classList.add("small_title_text");}
+    text_title.innerHTML = instance.title;
 	setting.classList.add("connection_text");
-    setting.innerHTML = '<b>Setting</b>: ' +fields.setting
+    setting.innerHTML = '<b>Setting</b>: ' +instance.setting
 	publication.classList.add("connection_text");
-    publication.innerHTML='<b>Published in</b>: '+fields.publication_years;
+    publication.innerHTML='<b>Published in</b>: '+instance.publication_years_str;
 	author.classList.add("connection_text");
-    author.innerHTML = '<b>Author</b>: ' +original_author;
+    author.innerHTML = '<b>Author</b>: ' +instance.author;
+	genre.classList.add("connection_text");
+    genre.innerHTML = '<b>Genre</b>: ' +instance.genre;
+	language.classList.add("connection_text");
+    language.innerHTML = '<b>Language</b>: ' +instance.language;
+}
+
+function _add_other_connection_info(instance_dicts, other_name) {
+	var sidebar= document.getElementById('right_sidebar_content');
+    if (instance_dicts.length == 0) { return }
+	var name=document.createElement("p");
+    sidebar.append(name)
+	name.classList.add("connection_category");
+    name.innerHTML = other_name;
+    for (let i=0; i < instance_dicts.length; i++) {
+        _add_connection_instance_info(instance_dicts[i]);
+    }
+}
+
+function right_sidebar_connection_view_text(data) {
+    var cd = data.connection_dict
+    var fields = data.connection_dict.original.serialized.fields
+    var original= data.connection_dict.original
+    var original_author = cd.original_author;
+    var original_title= cd.original_title;
+    var original_genre= cd.original.genre;
+    console.log('righ sidebar connection view',data)
+    _add_connection_instance_info(original,true)
+    _add_other_connection_info(cd.translations, 'Translations')
+    _add_other_connection_info(cd.reviews, 'Reviews')
 }
 
 function show_right_sidebar(index) {
