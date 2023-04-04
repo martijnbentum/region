@@ -402,8 +402,13 @@ function clear_right_sidebar() {
 }
 
 function _add_connection_instance_info(instance_dict, original) {
+    //show an instance in the text connection view right side bar
+    //this can be the original text or a translation or review
     var instance = instance_dict;
 	var sidebar= document.getElementById('right_sidebar_content');
+    var d = document.createElement('div');
+    entries.push(d);
+    sidebar.append(d)
 	var text_title =document.createElement("p");
 	var setting =document.createElement("p");
 	var genre =document.createElement("p");
@@ -411,13 +416,13 @@ function _add_connection_instance_info(instance_dict, original) {
 	var author=document.createElement("p");
 	var language=document.createElement("p");
 	var hr =document.createElement("hr");
-    sidebar.append(text_title)
-    if (original) {sidebar.append(hr)}
-    if (original) {sidebar.append(genre)}
-    sidebar.append(author)
-    sidebar.append(publication)
-    if (original) {sidebar.append(setting)}
-    sidebar.append(language)
+    d.append(text_title)
+    if (original) {d.append(hr)}
+    if (original) {d.append(genre)}
+    d.append(author)
+    d.append(publication)
+    if (original) {d.append(setting)}
+    d.append(language)
 
 	if (original) {text_title.classList.add("title_text");}
 	else {text_title.classList.add("small_title_text");}
@@ -435,10 +440,16 @@ function _add_connection_instance_info(instance_dict, original) {
 }
 
 function _add_other_connection_info(instance_dicts, other_name) {
+    //show translations or reviews related to a text
 	var sidebar= document.getElementById('right_sidebar_content');
+    var d = document.createElement('div');
+    entries.push(d);
+    sidebar.append(d)
     if (instance_dicts.length == 0) { return }
 	var name=document.createElement("p");
-    sidebar.append(name)
+	var hr =document.createElement("hr");
+    d.append(name)
+    d.append(hr)
 	name.classList.add("connection_category");
     name.innerHTML = other_name;
     for (let i=0; i < instance_dicts.length; i++) {
@@ -446,7 +457,32 @@ function _add_other_connection_info(instance_dicts, other_name) {
     }
 }
 
+function back_to_overview() {
+    console.log('back to overview');
+    clear_right_sidebar();
+    hide_markers(layerDict['connection_view']);
+    open_left_nav();
+    show_right_sidebar(right_sidebar_index);    
+    update_markers(active_markers);
+    connection_view = false;
+}
+
+function _add_back_to_overview_button() {
+	var back= document.getElementById('back_to_overview');
+	var a_instance=document.createElement("a");
+    back.append(a_instance);
+    var t = '<i class="fa fa-reply">'
+    a_instance.innerHTML = t;
+    f = "back_to_overview()"
+    a_instance.setAttribute('href','#');
+	a_instance.setAttribute('onclick',f);
+	a_instance.classList.add("closebtn");
+}
+
+
 function right_sidebar_connection_view_text(data) {
+    //show the text connection information in the right sidebar
+    _add_back_to_overview_button();
     var cd = data.connection_dict
     var fields = data.connection_dict.original.serialized.fields
     var original= data.connection_dict.original
