@@ -275,14 +275,13 @@ async function get_connections(instance_identifier) {
 	const data = await response.json()
     console.log('connection data', data, 
         data.instances, data.instances.length);
-    connection_d = data.instances;
     hide_markers(layerDict['overview']);
     close_left_nav();
     clear_right_sidebar();
-    var connections = Object.values(data.instances)
-    for (i = 0; i<connections.length; i++) {
-            console.log(connections[i], i, 1111)
-            make_circle_marker(connections[i],i,'connection_view')
+    connection_d = Object.values(data.instances);
+    for (i = 0; i<connection_d.length; i++) {
+            console.log(connection_d[i], i, 1111)
+            make_circle_marker(connection_d[i],i,'connection_view')
     }
     update_markers(layerDict['connection_view'])
     console.log(clustered_marker_dict,clustered_marker_indices,'cmd,cmi');
