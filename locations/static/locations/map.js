@@ -78,7 +78,7 @@ function add_marker_behavior(marker) {
 function make_circle_marker(loc,i, layer = 'overview') {
 	//create a marker a circle
 	latlng = loc2latlng(loc);
-    console.log(loc,latlng)
+    // console.log(loc,latlng)
 	if (latlng == false) { return false;}
 	name = loc.name
 	var marker=L.circleMarker(latlng,{color:marker_color,weight:2,
@@ -465,9 +465,11 @@ function back_to_overview() {
     console.log('back to overview');
     clear_right_sidebar();
     hide_markers(layerDict['connection_view']);
+    layerDict['connection_view'] = [];
     open_left_nav();
-    show_right_sidebar(right_sidebar_index);    
     update_markers(active_markers);
+    show_right_sidebar(right_sidebar_index);    
+    console.log('rsi',right_sidebar_index);
     connection_view = false;
 }
 
@@ -517,6 +519,7 @@ function show_right_sidebar(index) {
 	}
     right_sidebar_active = true;
     right_sidebar_index = index;
+    console.log('rsi',right_sidebar_index)
 }
 
 function update_right_sidebar() {
@@ -592,6 +595,7 @@ function update_markers(markers) {
 	//apply clustering to markers (cluster overlapping markers together
 	//filter out markers without any active ids
 	show_markers(markers, make_point = true);
+    markers.sort(sort_on_x);
 	[clustered_marker_dict, clustered_marker_indices] = cluster(markers)
 	show_markers(markers, make_point = false);
 }
@@ -631,8 +635,8 @@ var clustered_markers = [];
 var clustered_marker_indices = [];
 var clustered_marker_dict = {};
 var active_markers = [...layerDict['overview']];
-show_markers(active_markers);
-active_markers.sort(sort_on_x);
+// show_markers(active_markers);
+// active_markers.sort(sort_on_x);
 update_markers(active_markers);
 
 function open_left_nav() {
@@ -667,7 +671,8 @@ mymap.on('zoomend', function() {
 	console.log('zoomed')
     if (connection_view) {var marker_types = 'connection_view'}
     else {var marker_types = 'overview'}
-	update_markers(layerDict[marker_types]);
+    markers = layerDict[marker_types];
+	update_markers(markers);
 });
 
 open_left_nav();
