@@ -139,6 +139,7 @@ function set_marker_unclicked() {
 function show_info(index) {
 	// shows general information (number of linked instances) 
 	// about a location at the top of the screen
+    console.log(index);
 	var label = document.getElementById('city_label');
 	if (clustered_marker_indices.includes(index)) {
 		//multiple locations are clustered into 1 marker
@@ -157,7 +158,8 @@ function show_info(index) {
 			if (i != elements.length -1) { html += ', '; }
 		}
 	} else {
-		var info =d[index];
+        if (connection_view) { var info = Object.values(connection_d)[index]; }
+		else { var info =d[index]; }
 		var html = info.name;
 		html += '<small> (' + info.count + ' entries) ';
 		for (const x of info.model_names) {
@@ -172,6 +174,7 @@ function on_marker_hover(e) {
 	//show info and change color of an element on the map when hovered
 	deactivate_marker(last_activated);
 	activate_marker(this);
+    console.log(this,'this marker');
 	show_info(this.options.index);
 }
 
@@ -272,6 +275,7 @@ async function get_connections(instance_identifier) {
 	const data = await response.json()
     console.log('connection data', data, 
         data.instances, data.instances.length);
+    connection_d = data.instances;
     hide_markers(layerDict['overview']);
     close_left_nav();
     clear_right_sidebar();
@@ -281,6 +285,7 @@ async function get_connections(instance_identifier) {
             make_circle_marker(connections[i],i,'connection_view')
     }
     update_markers(layerDict['connection_view'])
+    console.log(clustered_marker_dict,clustered_marker_indices,'cmd,cmi');
     var group = new L.featureGroup(layerDict['connection_view'])
     mymap.fitBounds(group.getBounds().pad(.1))
     connection_view = true;
@@ -489,7 +494,7 @@ function right_sidebar_connection_view_text(data) {
     var original_author = cd.original_author;
     var original_title= cd.original_title;
     var original_genre= cd.original.genre;
-    console.log('righ sidebar connection view',data)
+    // console.log('righ sidebar connection view',data)
     _add_connection_instance_info(original,true)
     _add_other_connection_info(cd.translations, 'Translations')
     _add_other_connection_info(cd.reviews, 'Reviews')
@@ -615,6 +620,7 @@ for (var i = 0; i<names.length; i++) {
 // the d element contains all information linking locations to instances
 var d= JSON.parse(document.getElementById('d').textContent);
 var d = Object.values(d)
+var connection_d = false;
 for (i = 0; i<d.length; i++) {
 	make_circle_marker(d[i],i);
 	//make_marker(d[i],i);
