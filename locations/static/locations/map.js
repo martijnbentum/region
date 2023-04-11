@@ -158,7 +158,7 @@ function show_info(index) {
 			if (i != elements.length -1) { html += ', '; }
 		}
 	} else {
-        if (connection_view) { var info = Object.values(connection_d)[index]; }
+        if (connection_view) { var info = connection_d[index]; }
 		else { var info =d[index]; }
 		var html = info.name;
 		html += '<small> (' + info.count + ' entries) ';
@@ -483,6 +483,7 @@ function _add_back_to_overview_button() {
     a_instance.setAttribute('href','#');
 	a_instance.setAttribute('onclick',f);
 	a_instance.classList.add("closebtn");
+    entries.push(a_instance);
 }
 
 
