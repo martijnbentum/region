@@ -1,4 +1,17 @@
-import {cluster, sort_on_x} from './cluster_rf.js'
+import {cluster, sort_on_x} from './cluster_rf.js';
+
+import {
+    pks_and_category_to_identifiers,
+    intersection,
+} from './utils.js';
+
+import {
+    on_marker_hover,
+    on_marker_click,
+    make_circle_marker,
+    Markers,
+} from './marker.js';
+    
 
 // leaflet map setup
 var mymap = L.map('mapid').setView([52.0055328,4.67565177],5);
@@ -30,22 +43,7 @@ var right_sidebar_index = false;
 var right_sidebar_elements = false;
 var right_sidebar_category_counts = {};
 
-var marker_color = '#4287f5'
-var highlight_color = "#e6da09"
-var click_color = "#fc0352"
-var html_icon = '<a style="color:'+marker_color
-html_icon +=';"><i class="fas fa-map-marker-alt"></i></i></a>'
-var html_highlight_icon = '<a style="color:'+highlight_color
-html_highlight_icon+=';"><i class="fas fa-map-marker-alt"></i></i></a>'
-var last_clicked_marker = false;
-var last_activated = false;
-var last_deactivated = false;
 var entries = [];
-var icon = L.divIcon({
-	className:name,
-	html:html_icon,
-	iconAnchor:[3,15]
-	})
 
 var location_type = document.getElementById('location_type')
 var connection_view = false;
@@ -55,87 +53,6 @@ function set_location_type() {
     update_right_sidebar();
 }
 
-function loc2latlng(loc) {
-	//extract latitude and longitude form loc object
-	try { var latlng = loc.gps.split(',').map(Number); }
-	catch {var latlng = [] }
-	if (latlng.length != 2) {
-		return false
-	}
-	if (typeof(latlng[0]) != 'number' || typeof(latlng[1]) != 'number') {
-		return false
-	}
-	return latlng
-	}
-
-	
-function add_marker_behavior(marker) {
-	// adds marker behavior
-	marker.on('mouseover',on_marker_hover)
-	marker.on('mouseout',on_marker_leave)
-	marker.on('click',on_marker_click)
-}
-
-function make_circle_marker(loc,i, layer = 'overview') {
-	//create a marker a circle
-	let latlng = loc2latlng(loc);
-    // console.log(loc,latlng)
-	if (latlng == false) { return false;}
-	name = loc.name
-	var marker=L.circleMarker(latlng,{color:marker_color,weight:2,
-		fillOpacity:0.3,
-		className:loc.name, index:i,visible:'active'})
-	var radius = 4;
-	marker.setRadius(radius)
-	add_marker_behavior(marker);
-	layerDict[layer].push(marker)
-	//marker.addTo(mymap);
-	return marker;
-}
-
-function make_marker(loc,i) {
-	// create a marker icon with the divIcon
-	latlng = loc2latlng(loc);
-	if (latlng == false) { return false;}
-	var marker = L.marker(latlng,{icon:icon, className:loc.name, index:i})
-	add_marker_behavior(marker);
-	layerDict['icon'].push(marker)
-	return marker;
-}
-
-function activate_marker(marker) {
-	//change the color of a marker to highlight when hovered
-	if (marker == last_clicked_marker) { return false}
-	try {marker.setStyle({fillColor:highlight_color, color:highlight_color});}
-	catch {marker._icon.innerHTML = html_highlight_icon;}
-	last_activated = marker;
-}
-	
-function deactivate_marker(marker) {
-	//change the color of a marker to default when hovered
-	if (marker == last_clicked_marker) { return false}
-	if (last_activated == false) { return false }
-	try {marker.setStyle({fillColor:marker_color,color:marker_color});}
-	catch {marker._icon.innerHTML = html_icon;}
-	last_deactivated = marker;
-}
-
-function set_marker_clicked(marker) {
-	// change color of marker to clicked color
-	set_marker_unclicked();
-	try {marker.setStyle({fillColor:click_color, color:click_color});}
-	catch {marker._icon.innerHTML = html_highlight_icon;}
-	last_clicked_marker = marker;
-}
-
-function set_marker_unclicked() {
-	// change color of marker to default color
-	if (last_clicked_marker == false) { return false }
-	var marker = last_clicked_marker;
-	try {marker.setStyle({fillColor:marker_color,color:marker_color});}
-	catch {marker._icon.innerHTML = html_icon;}
-	last_clicked_marker = false
-}
 
 function show_info(index) {
 	// shows general information (number of linked instances) 
@@ -171,26 +88,6 @@ function show_info(index) {
 	label.innerHTML = html
 }
 
-function on_marker_hover(e) {
-	//show info and change color of an element on the map when hovered
-	deactivate_marker(last_activated);
-	activate_marker(this);
-    console.log(this,'this marker');
-	show_info(this.options.index);
-}
-
-function on_marker_leave(e) {
-	//nothing to do now
-}
-
-function on_marker_click(e) {
-	// opens sidebar (if closed) removes old elements (if present) 
-	// shows instances linked to location in sidebar
-	var s = this.options.className;
-	set_marker_clicked(this)
-	show_right_sidebar(this.options.index);
-	open_right_nav();
-}
 
 async function get_instance(instance_id,instance_category) {
 	//get information of a single instance via ajax call
@@ -282,7 +179,7 @@ async function get_connections(instance_identifier) {
     connection_d = Object.values(data.instances);
     for (i = 0; i<connection_d.length; i++) {
             console.log(connection_d[i], i, 1111)
-            make_circle_marker(connection_d[i],i,'connection_view')
+            make_circle_marker(connection_d[i],i,'connection_view',layerDict)
     }
     update_markers(layerDict['connection_view'])
     console.log(clustered_marker_dict,clustered_marker_indices,'cmd,cmi');
@@ -627,7 +524,7 @@ var d= JSON.parse(document.getElementById('d').textContent);
 var d = Object.values(d)
 var connection_d = false;
 for (i = 0; i<d.length; i++) {
-	make_circle_marker(d[i],i);
+	make_circle_marker(d[i],i,'overview',layerDict);
 	//make_marker(d[i],i);
 }
 
@@ -693,7 +590,7 @@ function count_array_overlap(a1,a2) {
 
 function make_ids_omiting_one_category(category) {
 	var temp = [];
-	category_names = Object.keys(id_dict);
+	var category_names = Object.keys(id_dict);
 	for (let i=0;i<category_names.lenght;i++) {
 		var name = category_names[i];	
 		if (name == 'all' || category == name) {continue;}
@@ -774,7 +671,7 @@ function set_filter_active_dict(active=NaN,inactive=NaN,category_name=NaN) {
 	//if there are no active filters in an category, the category is active
 	//(the last active filter was turned off, activating the whole category
 	else if (active_count == 0) {
-		set_filter_active_dict(active=category_name,inactive=NaN,category_name=category_name);
+		set_filter_active_dict(category_name,NaN,category_name);
 	}
 }
 
@@ -797,7 +694,7 @@ function update_active_ids() {
 		active_ids = id_dict['all']
 		return
 	}
-	category_names = Object.keys(id_dict);
+	var category_names = Object.keys(id_dict);
 	for (let i = 0;i<category_names.length;i++){
 		var name = category_names[i];
 		if (name == 'all') { continue; }
@@ -832,17 +729,14 @@ function toggle_filter(name) {
 	if (filter_active_dict[category_name] == 'active') {
 		//first filter term in a category is activated,
 		//set all not other terms (ie not == name) to inactive
-		set_filter_active_dict(active=name, inactive= category_name, 
-			category_name=category_name);
+		set_filter_active_dict(name,  category_name, category_name);
 	} else if (filter_active_dict[name] == 'active') {
 		//this filter name is active and possibly one or more other filter names
 		// in this category are active
-		set_filter_active_dict(active=NaN,inactive=name,
-            category_name=category_name);
+		set_filter_active_dict(NaN,name,category_name);
 	} else {
 		//current filter name is inactive, activate it and linked instances
-		set_filter_active_dict(active=name,inactive=NaN,
-            category_name=category_name);
+		set_filter_active_dict(name,NaN,category_name);
 	}
 	update_active_ids(); // set the active identifiers based on active filters
 	update_count_dict(); // update the counts (besides the filters)
@@ -882,6 +776,7 @@ function update_filter_sidebar() {
 		var inactive = count_dict[key]['inactive'];
 		var filtered_inactive= count_dict[key]['filtered_inactive'];
 		var t = filter_btn.innerText;
+        var r;
 		if (filter_active_dict[category_name] == 'active') {
 			updated = true
 			if (active == 0) {
@@ -922,13 +817,6 @@ function update_filter_sidebar() {
 
 }
 
-function intersection(array_of_arrays) {
-	// returns an array of items that occur in all arrays
-	var data = array_of_arrays;
-	var result = data.reduce( (a,b) => a.filter( c => b.includes(c) ) );
-	return result
-
-}
 
 function filter_based_on_locationtype(identifiers,info) {
     if (identifiers.length == 0) { 
@@ -1004,19 +892,9 @@ function update_category_headers() {
 	}
 }
 
-function pk_and_category_to_identifier(pk,category) {
-	//create an identifier string from a number and class and 
-    //model name (ie. category)
-	return category.toLowerCase() + '_' + pk
-}
 
-function pks_and_category_to_identifiers(pks,category) {
-	//create an identifier string from a numbers and class and 
-    //model name (ie. category)
-	var identifiers = []
-	for (let i=0;i<pks.length;i++) {
-		var pk = pks[i];
-		identifiers.push(pk_and_category_to_identifier(pk,category));
-	}
-	return identifiers
-}
+window.toggle_filter = toggle_filter;
+window.on_marker_click = on_marker_click;
+window.on_marker_hover = on_marker_hover;
+window.Markers = Markers;
+window.layerDict = layerDict;
