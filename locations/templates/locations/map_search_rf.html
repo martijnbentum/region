@@ -1,0 +1,202 @@
+{% extends "utilities/base.html" %}
+{% load static %}
+{% load getattribute %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+	integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+	crossorigin=""/>
+	<link rel="stylesheet"
+		href="{% static 'locations/map.css' %}" />
+	<!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+   integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+   crossorigin=""></script>
+	<style>
+		#mapid {height: 780px;}
+	</style>
+{% endblock %}
+
+{% block wide %}
+{% include 'locations/icons.html' %}
+
+{{id_dict|json_script:'id-dict'}}
+{{filter_active_dict|json_script:'filter-active-dict'}}
+{{locationtype_filter_dict|json_script:'locationtype_filter_dict'}}
+
+<div class="d-flex" id="search_div">
+	<div class="col-10">
+		<form>
+			<div class="d-flex">
+				<button id ="query" class="btn btn-link mb-0"  type="submit">
+					<i class="fas fa-search"></i></button>
+				<input id="exampleFormControlInput1" type="text" name="query" 
+					placeholder=Search
+					class="col-6 mb-1" style="border-width:0;border-bottom-width:1px;" 
+					value="{{query}}" >
+				<p id="nentries" >{{nentries}}<p>
+			</div>
+		</form>
+	</div>
+</div>
+
+
+<div class="map_screen" id="content">
+
+	<div class="sidebar" id="left_sidebar">
+		<div class="", id="left_sidebar_content">
+
+			<a
+                class="category-header"
+				href="javascript:void(0)"
+				id="category_filter"
+				onclick="toggle_filters_visible('locationtype')"
+				>
+				Location type
+			</a>
+			<div id = 'locationtype_filters'>
+                <hr>
+				{% for key, value in locationtype_counts.items %}
+					<a
+						class='indent'
+						href="javascript:void(0)"
+						id='locationtype,{{key}}'
+						onclick="toggle_filter('locationtype,{{key}}')">
+							{{key}} <small>({{value}})</small>
+					</a>
+				{% endfor %}
+            </div>
+
+			<a
+                class="category-header"
+				href="javascript:void(0)"
+				id="category_filter"
+				onclick="toggle_filters_visible('category')"
+				>
+				Categories
+			</a>
+			<div id = 'category_filters'>
+				<hr>
+				{% for key, value in model_counts.items %}
+					<a
+						class='indent'
+						href="javascript:void(0)"
+						id='model,{{key}}'
+						onclick="toggle_filter('model,{{key}}')">
+							{{key}} <small>({{value}})</small>
+					</a>
+				{% endfor %}
+			</div>
+
+			<a
+                class="category-header"
+				href="javascript:void(0)"
+				id="gender_filter"
+				onclick="toggle_filters_visible('gender')"
+				>
+				Gender
+			</a>
+			<div id = 'gender_filters'>
+				<hr>
+				{% for key, value in gender_counts.items %}
+					<a
+						class='indent'
+						href="javascript:void(0)"
+						id='gender,{{key}}'
+						onclick="toggle_filter('gender,{{key}}')">
+							{{key}} <small>({{value}})</small>
+					</a>
+				{% endfor %}
+			</div>
+
+			<a
+                class="category-header"
+				href="javascript:void(0)"
+				id="texttype_filter"
+				onclick="toggle_filters_visible('texttype')"
+				>
+				Text types
+			</a>
+			<div id = 'texttype_filters'>
+				<hr>
+				{% for key, value in texttype_counts.items %}
+					<a
+						class='indent'
+						href="javascript:void(0)"
+						id='texttype,{{key}}'
+						onclick="toggle_filter('texttype,{{key}}')">
+							{{key}} <small>({{value}})</small>
+					</a>
+				{% endfor %}
+			</div>
+
+			<a
+                class="category-header"
+				href="javascript:void(0)"
+				id="genre_filter"
+				onclick="toggle_filters_visible('genre')"
+				>
+			    Genres	
+			</a>
+			<div id = 'genre_filters'>
+				<hr>
+				{% for key, value in genre_counts.items %}
+					<a
+						class='indent'
+						href="javascript:void(0)"
+						id='genre,{{key}}'
+						onclick="toggle_filter('genre,{{key}}')">
+							{{key}} <small>({{value}})</small>
+					</a>
+				{% endfor %}
+			</div>
+
+			<a
+                class="category-header"
+				href="javascript:void(0)"
+				id="language_filter"
+				onclick="toggle_filters_visible('language')"
+				>
+				Languages
+			</a>
+			<div id = 'language_filters'>
+				<hr>
+				{% for key, value in language_counts.items %}
+					<a
+						class='indent'
+						href="javascript:void(0)"
+						id='language,{{key}}'
+						onclick="toggle_filter('language,{{key}}')">
+							{{key}} <small>({{value}})</small>
+					</a>
+				{% endfor %}
+			</div>
+
+		</div>
+		<br><br><br><br><br><br><br>
+	</div>
+
+
+	<div class="sidebar" id="right_sidebar">
+		<div class="", id="right_sidebar_content">
+			<div id="back_to_overview">
+			</div>
+		</div>
+		<br><br><br><br><br><br><br>
+	</div>
+
+	<p id="city_label", class ="city_label">&nbsp;</p>
+	<div id="mapid" class="mt-0 map"></div>
+</div>
+
+
+{{d|json_script:"d"}}
+
+
+<script type="module" src="{% static 'locations/map_rf.js' %}">
+</script>
+
+ 
+{% endblock %}
+

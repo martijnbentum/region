@@ -75,6 +75,15 @@ def map_search(request):
     s.var['d']=d
     return render(request, 'locations/map_search.html',s.var)
 
+def map_search_rf(request):
+    '''refactoring javascript code to make it more readable.'''
+    s = SearchView(request)
+    instances = s.search.filter()
+    d = get_all_location_ids_dict(instances = instances, add_names_gps = True)
+    s.var['page_name']='map search refactor'
+    s.var['d']=d
+    return render(request, 'locations/map_search_rf.html',s.var)
+
 
 
 def map(request):
