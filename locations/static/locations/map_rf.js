@@ -11,9 +11,14 @@ import {
     make_circle_marker,
     Markers,
 } from './marker.js';
-    
 
-// leaflet map setup
+import {Map_info} from './map_info.js'
+import {Info} from './info.js'
+    
+var map_info = new Map_info();
+var info = new Info();
+
+/* leaflet map setup
 var mymap = L.map('mapid').setView([52.0055328,4.67565177],5);
 var attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">'
 attribution += 'OpenStreetMap contributors &copy; '
@@ -21,9 +26,11 @@ attribution += '<a href="https://carto.com/attribution">CARTO</a>'
 const tileUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
 const tiles = L.tileLayer(tileUrl,{attribution});
 tiles.addTo(mymap);
+*/
 
 //global variables
 // linking filters (e.g. gender 'male') to identifiers ('catalogue_text_792')
+/*
 var id_dict = JSON.parse(document.getElementById('id-dict').textContent);
 var temp = document.getElementById('filter-active-dict').textContent;
 // linking filters 'gender,male' to state 'active' or 'inactive'
@@ -47,6 +54,7 @@ var entries = [];
 
 var location_type = document.getElementById('location_type')
 var connection_view = false;
+*/
 
 function set_location_type() {
     //console.log(location_type,location_type.value);
@@ -65,9 +73,9 @@ function show_info(index) {
 		var html = ''
 		for (let i=0; i < elements.length; i++) {
 			var el= elements[i];
-			var info = d[el.options.index];
-			html += info.name
-			html += '<small> (' + info.count + ')</small>';
+			var information = d[el.options.index];
+			html += information.name
+			html += '<small> (' + information.count + ')</small>';
 			if (html.length > 140) {
 				html += '<small> [...] + ' + (elements.length - 1 - i) 
                 html += ' locations'
@@ -76,11 +84,12 @@ function show_info(index) {
 			if (i != elements.length -1) { html += ', '; }
 		}
 	} else {
-        if (connection_view) { var info = connection_d[index]; }
-		else { var info =d[index]; }
-		var html = info.name;
-		html += '<small> (' + info.count + ' entries) ';
-		for (const x of info.model_names) {
+        if (info.connection_view) 
+            { var information = info.connection_d[index]; }
+		else { var information =d[index]; }
+		var html = information.name;
+		html += '<small> (' + information.count + ' entries) ';
+		for (const x of information.model_names) {
 			if (x) { html += x.toLowerCase() + ' '}
 		}
 		html += '</small>'
@@ -184,8 +193,8 @@ async function get_connections(instance_identifier) {
     update_markers(layerDict['connection_view'])
     console.log(clustered_marker_dict,clustered_marker_indices,'cmd,cmi');
     var group = new L.featureGroup(layerDict['connection_view'])
-    mymap.fitBounds(group.getBounds().pad(.1))
-    connection_view = true;
+    map_info.map.fitBounds(group.getBounds().pad(.1))
+    info.connection_view = true;
     right_sidebar_connection_view_text(data)
 }
 
@@ -205,13 +214,13 @@ async function get_instances(instance_ids,instance_category,city_div) {
 	dlinks.id = model_name + '-links-' +city_div.id
 	dall.appendChild(dlinks)
 	for (const instance of data.instances) {
-        if (active_ids.includes(instance.identifier)) {
+        if (info.active_ids.includes(instance.identifier)) {
             _add_instance(instance,model_name, city_div);
         }
 	}
     //console.log(dlinks)
     ninstances = dlinks.childElementCount;
-    if (ninstances != right_sidebar_category_counts[model_name]) {
+    if (ninstances != info.right_sidebar_category_counts[model_name]) {
         //console.log(ninstances, right_sidebar_category_counts[model_name])
         var a_id = model_name + 'category-toggle-' + city_div.id;
         var a = document.getElementById(a_id);
@@ -223,7 +232,7 @@ async function get_instances(instance_ids,instance_category,city_div) {
 function count_active_identifiers(identifiers) {
     var count = 0;
     for (const identifier of identifiers) {
-        if (active_ids.includes(identifier)) { count += 1;}
+        if (info.active_ids.includes(identifier)) { count += 1;}
     }
     return count;
 }
@@ -254,18 +263,18 @@ function show_category(instance_ids, category,city_div) {
 	d.appendChild(a);
 	a.innerHTML = model_name + ' <small>(' + count_active + ')</small>';
 	a.classList.add('category-header');
-    right_sidebar_category_counts[model_name] = count_active;
+    info.right_sidebar_category_counts[model_name] = count_active;
 }
 
-function show_categories(info) {
+function show_categories(information) {
 	// show categories (e.g. Text, Person) in the sidebar 
 	// linked to a given location 
 	var sidebar= document.getElementById('right_sidebar_content');
 	var city_div =document.createElement("d");
 	sidebar.appendChild(city_div)
-	city_div.id = info.pk + "-links";
+	city_div.id = information.pk + "-links";
 	entries.push(city_div)
-	for (const [key, instance_ids] of Object.entries(info)) {
+	for (const [key, instance_ids] of Object.entries(information)) {
 		if ('count,model_names,name,gps,pk,identifiers'.split(',').includes(key)){
 		} else {
 			show_category(instance_ids, key, city_div);
@@ -273,7 +282,7 @@ function show_categories(info) {
 	}
 }
 
-function show_city(info) {
+function show_city(information) {
 	//show all information linked to specific location
 	var sidebar= document.getElementById('right_sidebar_content');
 	var div =document.createElement("d");
@@ -282,16 +291,16 @@ function show_city(info) {
 	var a =document.createElement("a");
 	a.setAttribute('href',"javascript:void(0)");
 	a.setAttribute('onclick', 'toggle_sidebar_category(this)');
-	a.setAttribute('data-links_id', info.pk + '-links');
+	a.setAttribute('data-links_id', information.pk + '-links');
 	a.setAttribute('data-color_inactive', 'grey');
 	a.setAttribute('data-color_active', '#2f3030');
 	a.classList.add("city-header");
 	div.appendChild(a);
 	// var title = document.getElementById('title');
-	var html = info.name;
-	html += '<small> (' + info.count + ' entries) ' + '</small>';
+	var html = information.name;
+	html += '<small> (' + information.count + ' entries) ' + '</small>';
 	a.innerHTML = html
-	show_categories(info);
+	show_categories(information);
 }
 
 function clear_right_sidebar() {
@@ -366,9 +375,9 @@ function back_to_overview() {
     layerDict['connection_view'] = [];
     open_left_nav();
     update_markers(active_markers);
-    show_right_sidebar(right_sidebar_index);    
-    console.log('rsi',right_sidebar_index);
-    connection_view = false;
+    show_right_sidebar(info.right_sidebar_index);    
+    console.log('rsi',info.right_sidebar_index);
+    info.connection_view = false;
 }
 
 function _add_back_to_overview_button() {
@@ -407,37 +416,37 @@ function show_right_sidebar(index) {
 		var elements = clustered_marker_dict[index].elements;
 		for (let i=0; i < elements.length; i++) {
 			var el= elements[i];
-			var info = d[el.options.index];
-			show_city(info)
+			var information = d[el.options.index];
+			show_city(information)
 		}
-        right_sidebar_elements = clustered_marker_dict[index].elements;
+        info.right_sidebar_elements = clustered_marker_dict[index].elements;
 	} else {
-        right_sidebar_elements = false;
-		var info =d[index];
-		show_city(info)
+        info.right_sidebar_elements = false;
+		var information =d[index];
+		show_city(information)
 	}
-    right_sidebar_active = true;
-    right_sidebar_index = index;
-    console.log('rsi',right_sidebar_index)
+    info.right_sidebar_active = true;
+    info.right_sidebar_index = index;
+    console.log('rsi',info.right_sidebar_index)
 }
 
 function update_right_sidebar() {
-    if (right_sidebar_active === false || right_sidebar_index === false) {
+    if (info.right_sidebar_active === false || info.right_sidebar_index === false) {
         // if right sidebar is not active do not update it
         console.log('right sidebar not active, doing nothing')
         return;
      }
-    if (right_sidebar_elements === false) {
+    if (info.right_sidebar_elements === false) {
         // only one city linked to this marker showing info related to that city
         console.log('updating sidebar')
-        show_right_sidebar(right_sidebar_index);    
+        show_right_sidebar(info.right_sidebar_index);    
         return;
     }
     // multiple cities linked to marker, showing info related to each city
-    //console.log(right_sidebar_elements)
+    //console.log(info.right_sidebar_elements)
     var indices = []
-    for (let i = 0; i < right_sidebar_elements.length; i++) {
-        var el = right_sidebar_elements[i]
+    for (let i = 0; i < info.right_sidebar_elements.length; i++) {
+        var el = info.right_sidebar_elements[i]
         if (clustered_marker_indices.includes(el.options.index)) {
             show_right_sidebar(el.options.index) 
             return
@@ -476,15 +485,18 @@ function show_markers(markers, make_point = true) {
 	for (i = 0; i<markers.length; i++) {
 		var marker = markers[i];
 		if (make_point) {
-			marker.addTo(mymap);
+			marker.addTo(map_info.map);
 		} else if ( clustered_marker_indices.includes(marker.options.index) ) {
 			if (clustered_marker_dict[marker.options.index].plotted) {
 				continue;
 			}
-			clustered_marker_dict[marker.options.index].center_element.addTo(mymap);
+			let ce = clustered_marker_dict[marker.options.index].center_element;
+            ce.addTo(map_info.map)
+			//clustered_marker_dict[marker.options.index].center_element.addTo(mymap);
 			clustered_marker_dict[marker.options.index].plotted = true;
 		} else {
-			marker.addTo(mymap);
+			// marker.addTo(mymap);
+            marker.addTo(map_info.map)
 		}
 	}
 }
@@ -565,10 +577,11 @@ function close_right_nav() {
 }
 
 
-mymap.on('zoomend', function() {
+// mymap.on('zoomend', function() {
+map_info.map.on('zoomend', function() {
 	// update the clustering after zooming in or out
 	console.log('zoomed')
-    if (connection_view) {var marker_types = 'connection_view'}
+    if (info.connection_view) {var marker_types = 'connection_view'}
     else {var marker_types = 'overview'}
     var markers = layerDict[marker_types];
 	update_markers(markers);
@@ -590,7 +603,7 @@ function count_array_overlap(a1,a2) {
 
 function make_ids_omiting_one_category(category) {
 	var temp = [];
-	var category_names = Object.keys(id_dict);
+	var category_names = Object.keys(info.id_dict);
 	for (let i=0;i<category_names.lenght;i++) {
 		var name = category_names[i];	
 		if (name == 'all' || category == name) {continue;}
@@ -598,7 +611,7 @@ function make_ids_omiting_one_category(category) {
 		if (identifiers.length == 0) { continue; }
 		temp.push(identifiers);
 	}
-	if (temp.length == 0) { var ids = id_dict['all'];}
+	if (temp.length == 0) { var ids = info.id_dict['all'];}
 	else if (temp.length == 1) { var ids = Array.from(...temp); }
 	else {ids = intersection(temp);}
 	return ids
@@ -606,8 +619,8 @@ function make_ids_omiting_one_category(category) {
 
 function count_instances(category_name, filter_name) {
 	// count the number of active instances for a given category
-	var identifiers = id_dict[category_name][filter_name];
-	var active = count_array_overlap(active_ids, identifiers)
+	var identifiers = info.id_dict[category_name][filter_name];
+	var active = count_array_overlap(info.active_ids, identifiers)
 	var inactive = identifiers.length - active;
 	var ids = make_ids_omiting_one_category(category_name);
 	var filtered_inactive = count_array_overlap(ids,identifiers);
@@ -617,17 +630,17 @@ function count_instances(category_name, filter_name) {
 function update_count_dict() {
 	//update the dictionary of counts to sets the number of visible instances
 	//for each category in the filter sidebar
-	var keys = Object.keys(filter_active_dict);
+	var keys = Object.keys(info.filter_active_dict);
 	var count = 0;
 	for (let i = 0; i< keys.length; i++) {
 		var key = keys[i];
 		var [category_name,filter_name] = key.split(',');
 		if (category_name && filter_name) {
 			var[active, inactive,filtered_inactive] = count_instances(category_name,filter_name);
-			count_dict[key] ={};
-			count_dict[key]['active'] = active;
-			count_dict[key]['inactive'] = inactive;
-			count_dict[key]['filtered_inactive'] = filtered_inactive;
+			info.count_dict[key] ={};
+			info.count_dict[key]['active'] = active;
+			info.count_dict[key]['inactive'] = inactive;
+			info.count_dict[key]['filtered_inactive'] = filtered_inactive;
 		}
 	}
 }
@@ -635,37 +648,37 @@ function update_count_dict() {
 function remove_selected_filters_from_category(category_name) {
 	//filters out all filters from a filter category from selected_filters
 	var temp = []
-	for (let i=0;i<selected_filters.length;i++) {
-		var filter_name = selected_filters[i];
+	for (let i=0;i<info.selected_filters.length;i++) {
+		var filter_name = info.selected_filters[i];
 		if (filter_name.includes(category_name)) {
 			continue
 		}
 		else { temp.push(filter_name) }
 	}
-	selected_filters = temp;
+	info.selected_filters = temp;
 }
 
 function set_filter_active_dict(active=NaN,inactive=NaN,category_name=NaN) {
-	var d_keys = Object.keys(filter_active_dict);
+	var d_keys = Object.keys(info.filter_active_dict);
 	var active_count=0;
 	var inactive_count=0;
 	for (let i=0;i<d_keys.length;i++) {
 		var key = d_keys[i];
 		if (key.includes(active)) {
-			filter_active_dict[key] = 'active';
+			info.filter_active_dict[key] = 'active';
 		}
 		else if (key.includes(inactive)) {
-			filter_active_dict[key] = 'inactive';
+			info.filter_active_dict[key] = 'inactive';
 		}
 		// count the number of active filters in a category
 		if (key.includes(category_name) && key != category_name) {
-			if (filter_active_dict[key] == 'active') {active_count ++;}
-			if (filter_active_dict[key] == 'inactive') {inactive_count ++;}
+			if (info.filter_active_dict[key] == 'active') {active_count ++;}
+			if (info.filter_active_dict[key] == 'inactive'){inactive_count ++;}
 		}
 	}
 	//if there are no inactive filters in an category, the category is active
 	if (inactive_count == 0) {
-		filter_active_dict[category_name] = 'active';
+		info.filter_active_dict[category_name] = 'active';
 		remove_selected_filters_from_category(category_name);
 	}
 	//if there are no active filters in an category, the category is active
@@ -678,11 +691,11 @@ function set_filter_active_dict(active=NaN,inactive=NaN,category_name=NaN) {
 function get_ids_from_selected_filters_in_category(category) {
 	//get all ids from selected filters in a category
 	var category_ids = [];
-	for (let i=0;i<selected_filters.length;i++) {
-		var name = selected_filters[i];
+	for (let i=0;i<info.selected_filters.length;i++) {
+		var name = info.selected_filters[i];
 		var [category_name,filter_name] = name.split(',');
 		if (category != category_name) { continue; }
-		var identifiers = id_dict[category_name][filter_name];
+		var identifiers = info.id_dict[category_name][filter_name];
 		category_ids.push(...identifiers);
 	}
 	return category_ids;
@@ -690,47 +703,47 @@ function get_ids_from_selected_filters_in_category(category) {
 
 function update_active_ids() {
 	var temp = [];
-	if (selected_filters.length == 0) {
-		active_ids = id_dict['all']
+	if (info.selected_filters.length == 0) {
+		info.active_ids = info.id_dict['all']
 		return
 	}
-	var category_names = Object.keys(id_dict);
+	var category_names = Object.keys(info.id_dict);
 	for (let i = 0;i<category_names.length;i++){
 		var name = category_names[i];
 		if (name == 'all') { continue; }
 		var identifiers = get_ids_from_selected_filters_in_category(name)
 		if (identifiers.length == 0) { continue; }
 		temp.push(identifiers);
-		if (temp.length == 1) {active_ids = Array.from(...temp);}
-		else {active_ids = intersection(temp);}
+		if (temp.length == 1) {info.active_ids = Array.from(...temp);}
+		else {info.active_ids = intersection(temp);}
 	}
 
 }
 
 function set_nentries() {
 	var nentries = document.getElementById('nentries');
-	nentries.innerText = '# Entries ' + active_ids.length;
+	nentries.innerText = '# Entries ' + info.active_ids.length;
 }
 
 function update_selected_filters(name) {
 	// add a filtername to the selected filter array
 	// the intersection of all instances linked to all selected filters
 	// are the shown instances
-	if (selected_filters.includes(name)) {
-		selected_filters.splice(selected_filters.indexOf(name),1);
+	if (info.selected_filters.includes(name)) {
+		info.selected_filters.splice(info.selected_filters.indexOf(name),1);
 	}
-	else { selected_filters.push(name);}
+	else { info.selected_filters.push(name);}
 }
 
 function toggle_filter(name) {
 	//toggle a filter on or off (filtering or adding the associated instances)
 	update_selected_filters(name)	
 	var [category_name,filter_name] = name.split(',');
-	if (filter_active_dict[category_name] == 'active') {
+	if (info.filter_active_dict[category_name] == 'active') {
 		//first filter term in a category is activated,
 		//set all not other terms (ie not == name) to inactive
 		set_filter_active_dict(name,  category_name, category_name);
-	} else if (filter_active_dict[name] == 'active') {
+	} else if (info.filter_active_dict[name] == 'active') {
 		//this filter name is active and possibly one or more other filter names
 		// in this category are active
 		set_filter_active_dict(NaN,name,category_name);
@@ -765,19 +778,19 @@ function toggle_filters_visible(name) {
 
 function update_filter_sidebar() {
 	// update the filters in the sidebar to show the current state
-	var fad_keys = Object.keys(filter_active_dict);
+	var fad_keys = Object.keys(info.filter_active_dict);
 	for (let i=0;i<fad_keys.length;i++) {
 		var key = fad_keys[i];
 		var filter_btn = document.getElementById(key);
 		if (!filter_btn) { continue; }
 		var [category_name, filter_name] = key.split(',');
 		var updated = false
-		var active = count_dict[key]['active'];
-		var inactive = count_dict[key]['inactive'];
-		var filtered_inactive= count_dict[key]['filtered_inactive'];
+		var active = info.count_dict[key]['active'];
+		var inactive = info.count_dict[key]['inactive'];
+		var filtered_inactive= info.count_dict[key]['filtered_inactive'];
 		var t = filter_btn.innerText;
         var r;
-		if (filter_active_dict[category_name] == 'active') {
+		if (info.filter_active_dict[category_name] == 'active') {
 			updated = true
 			if (active == 0) {
 				//hide filters with no active linked instances
@@ -793,7 +806,7 @@ function update_filter_sidebar() {
             t = filter_btn.innerText;
 		}
 		// mark slected filters with a dot
-		if (selected_filters.includes(key)) {
+		if (info.selected_filters.includes(key)) {
 			if (!t.includes('•')) { filter_btn.innerText = '•' + t;}
 		} else {
 			filter_btn.innerText = t.replace('•','');
@@ -801,11 +814,11 @@ function update_filter_sidebar() {
 		if (updated) {continue;}
 
 		var t = filter_btn.innerText;
-		if (filter_active_dict[key] == 'active' && filter_btn) {
+		if (info.filter_active_dict[key] == 'active' && filter_btn) {
 			r = '('+active+')';
 			filter_btn.style.color='black';
 		}
-		if (filter_active_dict[key] == 'inactive' && filter_btn) {
+		if (info.filter_active_dict[key] == 'inactive' && filter_btn) {
 			//this should take into account filters from other categories
 			r = '('+filtered_inactive+')';
 			filter_btn.style.color='#bec4cf';
@@ -818,30 +831,30 @@ function update_filter_sidebar() {
 }
 
 
-function filter_based_on_locationtype(identifiers,info) {
+function filter_based_on_locationtype(identifiers,information) {
     if (identifiers.length == 0) { 
         // if there are no identifiers there is nothing to filter
         return identifiers
     }
-    if (filter_active_dict['locationtype'] == 'active'){
+    if (info.filter_active_dict['locationtype'] == 'active'){
         // if locationtype filter is not set to either setting or
         // publication do not filter
         return identifiers
     }
-    var pk = (info.pk).toString();
-    if (!Object.keys(locationtype_filter_dict).includes(pk)) {
+    var pk = (information.pk).toString();
+    if (!Object.keys(info.locationtype_filter_dict).includes(pk)) {
         // if location identifier not in locationtype dict
         // there is nothing to filter
         return identifiers
     }
     // assume locationtype publication filter is active
     var name = 'publication';
-    if (filter_active_dict['locationtype,setting'] == 'active') {
+    if (info.filter_active_dict['locationtype,setting'] == 'active') {
         // setting filter is active change name to 'setting'
         name = 'setting';
     }
     //get the identifiers linked to the current locationtype filter
-    var lt_identifiers = locationtype_filter_dict[info.pk][name]
+    var lt_identifiers = info.locationtype_filter_dict[information.pk][name]
     // return the identifiers that are in both arrays
     identifiers = intersection([lt_identifiers,identifiers])
     return identifiers
@@ -853,11 +866,11 @@ function update_info_count() {
 	//for each info in d (location information with linked instances)
 	// check whether the identifiers are in active_ids and update the count
 	for (let i=0;i<d.length;i++) {
-		var info = d[i];
-		var identifiers = info.identifiers
-		identifiers = intersection([identifiers,active_ids])
-        identifiers = filter_based_on_locationtype(identifiers,info)
-		info.count = identifiers.length
+		var information = d[i];
+		var identifiers = information.identifiers
+		identifiers = intersection([identifiers,info.active_ids])
+        identifiers = filter_based_on_locationtype(identifiers,information)
+		information.count = identifiers.length
 	}
 }
 
@@ -881,7 +894,7 @@ function update_category_headers() {
 	for (let i=0;i<category_headers.length;i++) {
 		var category_header = category_headers[i];
 		ids = category_header.getAttribute('data-identifiers').split(',');
-		var count = intersection([ids,active_ids]).length;
+		var count = intersection([ids,info.active_ids]).length;
 		//console.log(category_header,ids,count);
 		if (count > 0) {
 			var t = category_header.innerHTML;
@@ -898,3 +911,4 @@ window.on_marker_click = on_marker_click;
 window.on_marker_hover = on_marker_hover;
 window.Markers = Markers;
 window.layerDict = layerDict;
+window.map_info = map_info;
