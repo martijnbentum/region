@@ -8,53 +8,24 @@ import {
 import {
     on_marker_hover,
     on_marker_click,
-    make_circle_marker,
     Markers,
 } from './marker.js';
 
 import {Map_info} from './map_info.js'
 import {Info} from './info.js'
+import {
+    open_left_sidebar,
+    open_right_sidebar,
+    close_right_sidebar,
+    close_left_sidebar,
+    } from './sidebar.js'
+
     
 var map_info = new Map_info();
 var info = new Info();
+var markers = new Markers(map_info);
 
-/* leaflet map setup
-var mymap = L.map('mapid').setView([52.0055328,4.67565177],5);
-var attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">'
-attribution += 'OpenStreetMap contributors &copy; '
-attribution += '<a href="https://carto.com/attribution">CARTO</a>'
-const tileUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
-const tiles = L.tileLayer(tileUrl,{attribution});
-tiles.addTo(mymap);
-*/
 
-//global variables
-// linking filters (e.g. gender 'male') to identifiers ('catalogue_text_792')
-/*
-var id_dict = JSON.parse(document.getElementById('id-dict').textContent);
-var temp = document.getElementById('filter-active-dict').textContent;
-// linking filters 'gender,male' to state 'active' or 'inactive'
-var filter_active_dict= JSON.parse(temp);
-var temp = document.getElementById('locationtype_filter_dict').textContent;
-// linking location id (153) to setting / publication set of identifiers 
-var locationtype_filter_dict= JSON.parse(temp);
-// list of identifiers that are active
-var active_ids = id_dict['all']
-// list of selected filters
-var selected_filters = [];
-// linker filters 'gender,male' to active and inactive counts
-var count_dict = {};
-
-var right_sidebar_active = false;
-var right_sidebar_index = false;
-var right_sidebar_elements = false;
-var right_sidebar_category_counts = {};
-
-var entries = [];
-
-var location_type = document.getElementById('location_type')
-var connection_view = false;
-*/
 
 function set_location_type() {
     //console.log(location_type,location_type.value);
@@ -62,40 +33,6 @@ function set_location_type() {
 }
 
 
-function show_info(index) {
-	// shows general information (number of linked instances) 
-	// about a location at the top of the screen
-    console.log(index);
-	var label = document.getElementById('city_label');
-	if (clustered_marker_indices.includes(index)) {
-		//multiple locations are clustered into 1 marker
-		var elements = clustered_marker_dict[index].elements;
-		var html = ''
-		for (let i=0; i < elements.length; i++) {
-			var el= elements[i];
-			var information = d[el.options.index];
-			html += information.name
-			html += '<small> (' + information.count + ')</small>';
-			if (html.length > 140) {
-				html += '<small> [...] + ' + (elements.length - 1 - i) 
-                html += ' locations'
-				break
-			}
-			if (i != elements.length -1) { html += ', '; }
-		}
-	} else {
-        if (info.connection_view) 
-            { var information = info.connection_d[index]; }
-		else { var information =d[index]; }
-		var html = information.name;
-		html += '<small> (' + information.count + ' entries) ';
-		for (const x of information.model_names) {
-			if (x) { html += x.toLowerCase() + ' '}
-		}
-		html += '</small>'
-	}
-	label.innerHTML = html
-}
 
 
 async function get_instance(instance_id,instance_category) {
@@ -114,16 +51,16 @@ function _add_instance(instance, model_name, city_div) {
     console.log(instance,model_name,city_div,'<---')
       
     var location_pk = parseInt(city_div.id.split('-')[0]);
-    if (filter_active_dict['locationtype'] == 'active'){
+    if (info.filter_active_dict['locationtype'] == 'active'){
         // adding instance (not filtering on locationtype)
     } else if (!'Text,Publication,Illustration'.split(',').includes(model_name)) {
         console.log('this should not occur',model_name,'should be filtered out')
-    } else if (filter_active_dict['locationtype,setting'] == 'active') {
+    } else if (info.filter_active_dict['locationtype,setting'] == 'active') {
         if (!instance['setting_location_pks'].includes(location_pk)) {
             //this instance is not linked as setting location, skipping
             return
         }
-    } else if (filter_active_dict['locationtype,publication'] == 'active') {
+    } else if (info.filter_active_dict['locationtype,publication'] == 'active') {
         if (!instance['publication_location_pks'].includes(location_pk)) {
             //this instance is not linked as publication location, skipping
             return
@@ -165,13 +102,13 @@ function _add_instance(instance, model_name, city_div) {
         t += ' (' + instance.connection_count + ')';
         a_links.innerHTML = t;
         if (model_name == 'Text') {
-            f = "get_connections('" + instance.identifier + "')"
+            let f = "get_connections('" + instance.identifier + "')"
             a_links.setAttribute('onclick',f);
             // console.log('con:',instance, model_name)
         }
     }
 
-	entries.push(a_instance)
+	info.entries.push(a_instance)
 }
 
 async function get_connections(instance_identifier) {
@@ -182,16 +119,16 @@ async function get_connections(instance_identifier) {
 	const data = await response.json()
     console.log('connection data', data, 
         data.instances, data.instances.length);
-    hide_markers(layerDict['overview']);
-    close_left_nav();
+    markers.hide_markers(markers.layerDict['overview']);
+    close_left_sidebar();
     clear_right_sidebar();
-    connection_d = Object.values(data.instances);
-    for (i = 0; i<connection_d.length; i++) {
-            console.log(connection_d[i], i, 1111)
-            make_circle_marker(connection_d[i],i,'connection_view',layerDict)
+    markers.connection_d = Object.values(data.instances);
+    for (i = 0; i<markers.connection_d.length; i++) {
+            console.log(markers.connection_d[i], i, 1111)
+            markers.make_circle_marker(markers.connection_d[i],i,'connection_view')
     }
-    update_markers(layerDict['connection_view'])
-    console.log(clustered_marker_dict,clustered_marker_indices,'cmd,cmi');
+    markers.update_markers(layerDict['connection_view'])
+    console.log(markers.clustered_marker_dict,markers.clustered_marker_indices,'cmd,cmi');
     var group = new L.featureGroup(layerDict['connection_view'])
     map_info.map.fitBounds(group.getBounds().pad(.1))
     info.connection_view = true;
@@ -208,7 +145,7 @@ async function get_instances(instance_ids,instance_category,city_div) {
 	path += instance_ids.join(',');	
     console.log('path',path)
 	const response = await fetch(path); 
-	data = await response.json();
+	const data = await response.json();
 	var dall = document.getElementById(model_name + '-all-'+city_div.id);
 	var dlinks = document.createElement('div');
 	dlinks.id = model_name + '-links-' +city_div.id
@@ -219,7 +156,7 @@ async function get_instances(instance_ids,instance_category,city_div) {
         }
 	}
     //console.log(dlinks)
-    ninstances = dlinks.childElementCount;
+    var ninstances = dlinks.childElementCount;
     if (ninstances != info.right_sidebar_category_counts[model_name]) {
         //console.log(ninstances, right_sidebar_category_counts[model_name])
         var a_id = model_name + 'category-toggle-' + city_div.id;
@@ -241,14 +178,14 @@ function show_category(instance_ids, category,city_div) {
 	// get category information and create an html element to 
     //display it in the sidebar
 	// the category (e.g. Text) the corresponding instances are loaded via ajax
-	model_name = category.split('_')[1]
-    if (filter_active_dict['model,'+model_name] == 'inactive') { return; }
+	var model_name = category.split('_')[1]
+    if (info.filter_active_dict['model,'+model_name] == 'inactive') { return; }
 	var identifiers=pks_and_category_to_identifiers(instance_ids,category);
     var count_active = count_active_identifiers(identifiers) 
     if (count_active == 0) { return;}
 	// var sidebar= document.getElementById('sidebar-content');
 	var d = document.createElement('div')
-	entries.push(d);
+	info.entries.push(d);
 	d.id = model_name + '-all-' + city_div.id;
 	city_div.appendChild(d);
     //console.log(instance_ids)
@@ -273,7 +210,7 @@ function show_categories(information) {
 	var city_div =document.createElement("d");
 	sidebar.appendChild(city_div)
 	city_div.id = information.pk + "-links";
-	entries.push(city_div)
+	info.entries.push(city_div)
 	for (const [key, instance_ids] of Object.entries(information)) {
 		if ('count,model_names,name,gps,pk,identifiers'.split(',').includes(key)){
 		} else {
@@ -287,7 +224,7 @@ function show_city(information) {
 	var sidebar= document.getElementById('right_sidebar_content');
 	var div =document.createElement("d");
 	sidebar.appendChild(div);
-	entries.push(div)
+	info.entries.push(div)
 	var a =document.createElement("a");
 	a.setAttribute('href',"javascript:void(0)");
 	a.setAttribute('onclick', 'toggle_sidebar_category(this)');
@@ -306,10 +243,10 @@ function show_city(information) {
 function clear_right_sidebar() {
 	//remove old entries from sidebar
 	var sidebar= document.getElementById('right_sidebar_content');
-	for (const x of entries) {
+	for (const x of info.entries) {
 		x.remove()
 	}
-	entries = [];
+	info.entries = [];
 }
 
 function _add_connection_instance_info(instance_dict, original) {
@@ -318,7 +255,7 @@ function _add_connection_instance_info(instance_dict, original) {
     var instance = instance_dict;
 	var sidebar= document.getElementById('right_sidebar_content');
     var d = document.createElement('div');
-    entries.push(d);
+    info.entries.push(d);
     sidebar.append(d)
 	var text_title =document.createElement("p");
 	var setting =document.createElement("p");
@@ -354,7 +291,7 @@ function _add_other_connection_info(instance_dicts, other_name) {
     //show translations or reviews related to a text
 	var sidebar= document.getElementById('right_sidebar_content');
     var d = document.createElement('div');
-    entries.push(d);
+    info.entries.push(d);
     sidebar.append(d)
     if (instance_dicts.length == 0) { return }
 	var name=document.createElement("p");
@@ -371,10 +308,10 @@ function _add_other_connection_info(instance_dicts, other_name) {
 function back_to_overview() {
     console.log('back to overview');
     clear_right_sidebar();
-    hide_markers(layerDict['connection_view']);
-    layerDict['connection_view'] = [];
-    open_left_nav();
-    update_markers(active_markers);
+    markers.hide_markers(markers.layerDict['connection_view']);
+    markers.layerDict['connection_view'] = [];
+    open_left_sidebar();
+    markers.update_markers(markers.active_markers);
     show_right_sidebar(info.right_sidebar_index);    
     console.log('rsi',info.right_sidebar_index);
     info.connection_view = false;
@@ -390,7 +327,7 @@ function _add_back_to_overview_button() {
     a_instance.setAttribute('href','#');
 	a_instance.setAttribute('onclick',f);
 	a_instance.classList.add("closebtn");
-    entries.push(a_instance);
+    info.entries.push(a_instance);
 }
 
 
@@ -412,17 +349,17 @@ function right_sidebar_connection_view_text(data) {
 function show_right_sidebar(index) {
 	//show sidebar with entries from selected location
 	clear_right_sidebar();
-	if (clustered_marker_indices.includes(index)) {
-		var elements = clustered_marker_dict[index].elements;
+	if (markers.clustered_marker_indices.includes(index)) {
+		var elements = markers.clustered_marker_dict[index].elements;
 		for (let i=0; i < elements.length; i++) {
 			var el= elements[i];
-			var information = d[el.options.index];
+			var information = markers.d[el.options.index];
 			show_city(information)
 		}
-        info.right_sidebar_elements = clustered_marker_dict[index].elements;
+        info.right_sidebar_elements = markers.clustered_marker_dict[index].elements;
 	} else {
         info.right_sidebar_elements = false;
-		var information =d[index];
+		var information =markers.d[index];
 		show_city(information)
 	}
     info.right_sidebar_active = true;
@@ -447,7 +384,7 @@ function update_right_sidebar() {
     var indices = []
     for (let i = 0; i < info.right_sidebar_elements.length; i++) {
         var el = info.right_sidebar_elements[i]
-        if (clustered_marker_indices.includes(el.options.index)) {
+        if (markers.clustered_marker_indices.includes(el.options.index)) {
             show_right_sidebar(el.options.index) 
             return
         } else {
@@ -456,13 +393,13 @@ function update_right_sidebar() {
     }
     for (let i = 0; i < indices.length; i++) {
         var index = indices[i];
-        if ( d[index] != undefined && d[index].count > 0) { 
+        if ( markers.d[index] != undefined && markers.d[index].count > 0) { 
             show_right_sidebar(index);
             return;
         }
     }
     console.log('could not update right sidebar, closing')
-    close_right_nav();
+    close_right_sidebar();
 }
         
 
@@ -478,103 +415,42 @@ function toggle_sidebar_category(element) {
 	}
 }
 
-function show_markers(markers, make_point = true) {
-	//var controlLayers;
-	hide_markers(layerDict['overview']);
-	hide_markers(layerDict['connection_view']);
-	for (i = 0; i<markers.length; i++) {
-		var marker = markers[i];
-		if (make_point) {
-			marker.addTo(map_info.map);
-		} else if ( clustered_marker_indices.includes(marker.options.index) ) {
-			if (clustered_marker_dict[marker.options.index].plotted) {
-				continue;
+function show_info(index) {
+	// shows general information (number of linked instances) 
+	// about a location at the top of the screen
+    console.log(index);
+	var label = document.getElementById('city_label');
+	if (markers.clustered_marker_indices.includes(index)) {
+		//multiple locations are clustered into 1 marker
+		var elements = markers.clustered_marker_dict[index].elements; var html = ''
+		for (let i=0; i < elements.length; i++) {
+			var el= elements[i];
+			var information = markers.d[el.options.index];
+			html += information.name
+			html += '<small> (' + information.count + ')</small>';
+			if (html.length > 140) {
+				html += '<small> [...] + ' + (elements.length - 1 - i) 
+                html += ' locations'
+				break
 			}
-			let ce = clustered_marker_dict[marker.options.index].center_element;
-            ce.addTo(map_info.map)
-			//clustered_marker_dict[marker.options.index].center_element.addTo(mymap);
-			clustered_marker_dict[marker.options.index].plotted = true;
-		} else {
-			// marker.addTo(mymap);
-            marker.addTo(map_info.map)
+			if (i != elements.length -1) { html += ', '; }
 		}
+	} else {
+        if (info.connection_view) 
+            { var information = markers.connection_d[index]; }
+		else { var information =markers.d[index]; }
+		var html = information.name;
+		html += '<small> (' + information.count + ' entries) ';
+		for (const x of information.model_names) {
+			if (x) { html += x.toLowerCase() + ' '}
+		}
+		html += '</small>'
 	}
-}
-
-function update_markers(markers) {
-	// show markers on map;
-	//apply clustering to markers (cluster overlapping markers together
-	//filter out markers without any active ids
-	show_markers(markers, true);
-    markers.sort(sort_on_x);
-	[clustered_marker_dict, clustered_marker_indices] = cluster(markers)
-	show_markers(markers, false);
+	label.innerHTML = html
 }
 
 
-
-function hide_markers(markers) {
-	//remove markers from map
-	for (i = 0; i<markers.length; i++) {
-		var marker = markers[i];
-		marker.remove();
-	}
-}
-
-
-// layerdict contains the circle and icon markers
-// for now only the circle markers are made
-var names = 'overview,connection_view'.split(',');
-var layerDict = {}
-for (var i = 0; i<names.length; i++) {
-	layerDict[names[i]] = []
-}
-
-
-// the d element contains all information linking locations to instances
-var d= JSON.parse(document.getElementById('d').textContent);
-var d = Object.values(d)
-var connection_d = false;
-for (i = 0; i<d.length; i++) {
-	make_circle_marker(d[i],i,'overview',layerDict);
-	//make_marker(d[i],i);
-}
-
-var controlLayers;
-var overlayMarkers= {};
-var clustered_markers = [];
-var clustered_marker_indices = [];
-var clustered_marker_dict = {};
-var active_markers = [...layerDict['overview']];
-// show_markers(active_markers);
-// active_markers.sort(sort_on_x);
-update_markers(active_markers);
-
-function open_left_nav() {
-	// open sidebar
-	document.getElementById("left_sidebar").style.width = "180px";
-	document.getElementById("content").style.marginLeft = "183px";
-}
-
-function close_left_nav() {
-	// close sidebar
-	document.getElementById("left_sidebar").style.width = "0px";
-	document.getElementById("content").style.marginLeft = "25px";
-}
-
-function open_right_nav() {
-	// open sidebar
-	document.getElementById("right_sidebar").style.width = "400px";
-	document.getElementById("content").style.marginRight = "403px";
-	document.getElementById("search_div").style.marginRight = "353px";
-}
-
-function close_right_nav() {
-	// close sidebar
-	document.getElementById("right_sidebar").style.width = "0px";
-	document.getElementById("content").style.marginRight= "25px";
-	document.getElementById("search_div").style.marginRight = "25px";
-}
+markers.update_markers(markers.active_markers);
 
 
 // mymap.on('zoomend', function() {
@@ -583,11 +459,11 @@ map_info.map.on('zoomend', function() {
 	console.log('zoomed')
     if (info.connection_view) {var marker_types = 'connection_view'}
     else {var marker_types = 'overview'}
-    var markers = layerDict[marker_types];
-	update_markers(markers);
+    var markers = markers.layerDict[marker_types];
+	markers.update_markers(markers, map_info.map);
 });
 
-open_left_nav();
+open_left_sidebar();
 
 // ---- filtering ----
 
@@ -757,8 +633,8 @@ function toggle_filter(name) {
 	set_nentries(); //update the entry counts
 	update_info_count(); // update the count for each info in d 
     // update marker list to include only markers with active ids
-	update_active_markers();
-	update_markers(active_markers); // show the markers with active ids
+	markers.update_active_markers();
+	markers.update_markers(markers.active_markers); // show the markers with active ids
     update_right_sidebar(); // update entries shown in right sidebar
 }
 
@@ -866,7 +742,7 @@ function update_info_count() {
 	//for each info in d (location information with linked instances)
 	// check whether the identifiers are in active_ids and update the count
 	for (let i=0;i<d.length;i++) {
-		var information = d[i];
+		var information = markers.d[i];
 		var identifiers = information.identifiers
 		identifiers = intersection([identifiers,info.active_ids])
         identifiers = filter_based_on_locationtype(identifiers,information)
@@ -874,19 +750,6 @@ function update_info_count() {
 	}
 }
 
-function update_active_markers(layer = 'overview'){
-	//filter out info in d (location information with linked instances)
-	// with a count of 0
-	var markers = layerDict[layer];
-	active_markers= []
-	for (let i=0; i<markers.length;i++) {
-		var marker = markers[i];
-		if (d[marker.options.index].count > 0)
-			// check if the marker info object has any active identifiers
-			active_markers.push(marker);
-	}
-	active_markers.sort(sort_on_x);
-}
 
 
 function update_category_headers() {
@@ -909,6 +772,8 @@ function update_category_headers() {
 window.toggle_filter = toggle_filter;
 window.on_marker_click = on_marker_click;
 window.on_marker_hover = on_marker_hover;
-window.Markers = Markers;
 window.layerDict = layerDict;
 window.map_info = map_info;
+window.info = info;
+
+export {show_info, show_right_sidebar}
