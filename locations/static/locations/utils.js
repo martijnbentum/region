@@ -24,38 +24,9 @@ function intersection(array_of_arrays) {
 	return result
 }
 
-function open_left_nav() {
-	// open sidebar
-	document.getElementById("left_sidebar").style.width = "180px";
-	document.getElementById("content").style.marginLeft = "183px";
-}
-
-function close_left_nav() {
-	// close sidebar
-	document.getElementById("left_sidebar").style.width = "0px";
-	document.getElementById("content").style.marginLeft = "25px";
-}
-
-function open_right_nav() {
-	// open sidebar
-	document.getElementById("right_sidebar").style.width = "400px";
-	document.getElementById("content").style.marginRight = "403px";
-	document.getElementById("search_div").style.marginRight = "353px";
-}
-
-function close_right_nav() {
-	// close sidebar
-	document.getElementById("right_sidebar").style.width = "0px";
-	document.getElementById("content").style.marginRight= "25px";
-	document.getElementById("search_div").style.marginRight = "25px";
-}
 
 
 export {
     pks_and_category_to_identifiers, 
     intersection,
-    open_left_nav,
-    open_right_nav,
-    close_left_nav,
-    close_right_nav,
 };
