@@ -184,10 +184,10 @@ function show_category(instance_ids, category,city_div) {
     var count_active = count_active_identifiers(identifiers) 
     if (count_active == 0) { return;}
 	// var sidebar= document.getElementById('sidebar-content');
-	var d = document.createElement('div')
-	info.entries.push(d);
-	d.id = model_name + '-all-' + city_div.id;
-	city_div.appendChild(d);
+	var div = document.createElement('div')
+	info.entries.push(div);
+	div.id = model_name + '-all-' + city_div.id;
+	city_div.appendChild(div);
     //console.log(instance_ids)
 	get_instances(instance_ids, category, city_div)
 	var a =document.createElement("a");
@@ -197,7 +197,7 @@ function show_category(instance_ids, category,city_div) {
 	a.setAttribute('data-links_id', model_name + '-links-'+city_div.id);
 	var identifiers=pks_and_category_to_identifiers(instance_ids,category);
 	a.setAttribute('data-identifiers',identifiers);
-	d.appendChild(a);
+	div.appendChild(a);
 	a.innerHTML = model_name + ' <small>(' + count_active + ')</small>';
 	a.classList.add('category-header');
     info.right_sidebar_category_counts[model_name] = count_active;
@@ -254,8 +254,8 @@ function _add_connection_instance_info(instance_dict, original) {
     //this can be the original text or a translation or review
     var instance = instance_dict;
 	var sidebar= document.getElementById('right_sidebar_content');
-    var d = document.createElement('div');
-    info.entries.push(d);
+    var div = document.createElement('div');
+    info.entries.push(div);
     sidebar.append(d)
 	var text_title =document.createElement("p");
 	var setting =document.createElement("p");
@@ -264,13 +264,13 @@ function _add_connection_instance_info(instance_dict, original) {
 	var author=document.createElement("p");
 	var language=document.createElement("p");
 	var hr =document.createElement("hr");
-    d.append(text_title)
-    if (original) {d.append(hr)}
-    if (original) {d.append(genre)}
-    d.append(author)
-    d.append(publication)
-    if (original) {d.append(setting)}
-    d.append(language)
+    div.append(text_title)
+    if (original) {div.append(hr)}
+    if (original) {div.append(genre)}
+    div.append(author)
+    div.append(publication)
+    if (original) {div.append(setting)}
+    div.append(language)
 
 	if (original) {text_title.classList.add("title_text");}
 	else {text_title.classList.add("small_title_text");}
@@ -290,14 +290,14 @@ function _add_connection_instance_info(instance_dict, original) {
 function _add_other_connection_info(instance_dicts, other_name) {
     //show translations or reviews related to a text
 	var sidebar= document.getElementById('right_sidebar_content');
-    var d = document.createElement('div');
-    info.entries.push(d);
-    sidebar.append(d)
+    var div = document.createElement('div');
+    info.entries.push(div);
+    sidebar.append(div)
     if (instance_dicts.length == 0) { return }
 	var name=document.createElement("p");
 	var hr =document.createElement("hr");
-    d.append(name)
-    d.append(hr)
+    div.append(name)
+    div.append(hr)
 	name.classList.add("connection_category");
     name.innerHTML = other_name;
     for (let i=0; i < instance_dicts.length; i++) {
@@ -741,7 +741,7 @@ function filter_based_on_locationtype(identifiers,information) {
 function update_info_count() {
 	//for each info in d (location information with linked instances)
 	// check whether the identifiers are in active_ids and update the count
-	for (let i=0;i<d.length;i++) {
+	for (let i=0;i<markers.d.length;i++) {
 		var information = markers.d[i];
 		var identifiers = information.identifiers
 		identifiers = intersection([identifiers,info.active_ids])
@@ -756,7 +756,7 @@ function update_category_headers() {
 	var category_headers = document.getElementsByClassName('category-header');
 	for (let i=0;i<category_headers.length;i++) {
 		var category_header = category_headers[i];
-		ids = category_header.getAttribute('data-identifiers').split(',');
+		var ids = category_header.getAttribute('data-identifiers').split(',');
 		var count = intersection([ids,info.active_ids]).length;
 		//console.log(category_header,ids,count);
 		if (count > 0) {
@@ -772,8 +772,8 @@ function update_category_headers() {
 window.toggle_filter = toggle_filter;
 window.on_marker_click = on_marker_click;
 window.on_marker_hover = on_marker_hover;
-window.layerDict = layerDict;
 window.map_info = map_info;
 window.info = info;
+window.markers = markers;
 
 export {show_info, show_right_sidebar}
