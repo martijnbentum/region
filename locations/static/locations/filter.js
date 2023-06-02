@@ -1,4 +1,4 @@
-import {update_filter_sidebar,update_right_sidebar} from './map_rf.js';
+import {update_right_sidebar} from './map_rf.js';
 import {intersection} from './utils.js'
 
 function count_array_overlap(a1,a2) {
@@ -166,7 +166,7 @@ function filter_toggle_filter(name, info) {
 	update_active_ids(info); 
     // update the counts (besides the filters)
 	update_count_dict(info); 
-	update_filter_sidebar(); // show the filters and counts in the side bar
+	update_filter_sidebar(info); // show the filters and counts in the side bar
 	set_nentries(info); //update the entry counts
 	update_info_count(info); // update the count for each info in d 
     // update marker list to include only markers with active ids
@@ -228,6 +228,60 @@ function update_info_count(info) {
         identifiers = filter_based_on_locationtype(identifiers,information,info)
 		information.count = identifiers.length
 	}
+}
+
+function update_filter_sidebar(info) {
+	// update the filters in the sidebar to show the current state
+	var fad_keys = Object.keys(info.filter_active_dict);
+	for (let i=0;i<fad_keys.length;i++) {
+		var key = fad_keys[i];
+		var filter_btn = document.getElementById(key);
+		if (!filter_btn) { continue; }
+		var [category_name, filter_name] = key.split(',');
+		var updated = false
+		var active = info.count_dict[key]['active'];
+		var inactive = info.count_dict[key]['inactive'];
+		var filtered_inactive= info.count_dict[key]['filtered_inactive'];
+		var t = filter_btn.innerText;
+        var r;
+		if (info.filter_active_dict[category_name] == 'active') {
+			updated = true
+			if (active == 0) {
+				//hide filters with no active linked instances
+				filter_btn.style.color='#bec4cf';
+				r = '(0)';
+				filter_btn.style.display='none';
+			} else {
+				r = '('+active+')';
+				filter_btn.style.color = 'black'
+				filter_btn.style.display = '';
+			}
+			filter_btn.innerText = t.replace(/\(.*\)/,r);
+            t = filter_btn.innerText;
+		}
+		// mark slected filters with a dot
+		if (info.selected_filters.includes(key)) {
+			if (!t.includes('•')) { filter_btn.innerText = '•' + t;}
+		} else {
+			filter_btn.innerText = t.replace('•','');
+		}
+		if (updated) {continue;}
+
+		var t = filter_btn.innerText;
+		if (info.filter_active_dict[key] == 'active' && filter_btn) {
+			r = '('+active+')';
+			filter_btn.style.color='black';
+		}
+		if (info.filter_active_dict[key] == 'inactive' && filter_btn) {
+			//this should take into account filters from other categories
+			r = '('+filtered_inactive+')';
+			filter_btn.style.color='#bec4cf';
+			if (filtered_inactive == 0) {filter_btn.style.display='none';}
+			else {filter_btn.style.display='';}
+		}
+		filter_btn.innerText=t.replace(/\(.*\)/,r);
+	}
+
 }
 
 export {filter_toggle_filter}
