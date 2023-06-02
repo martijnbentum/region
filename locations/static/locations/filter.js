@@ -1,5 +1,6 @@
 import {update_right_sidebar} from './map_rf.js';
-import {intersection} from './utils.js'
+import {intersection} from './utils.js';
+import {update_filter_sidebar} from './sidebar.js';
 
 function count_array_overlap(a1,a2) {
 	//count the overlapping items from array 2 in array 1
@@ -230,58 +231,5 @@ function update_info_count(info) {
 	}
 }
 
-function update_filter_sidebar(info) {
-	// update the filters in the sidebar to show the current state
-	var fad_keys = Object.keys(info.filter_active_dict);
-	for (let i=0;i<fad_keys.length;i++) {
-		var key = fad_keys[i];
-		var filter_btn = document.getElementById(key);
-		if (!filter_btn) { continue; }
-		var [category_name, filter_name] = key.split(',');
-		var updated = false
-		var active = info.count_dict[key]['active'];
-		var inactive = info.count_dict[key]['inactive'];
-		var filtered_inactive= info.count_dict[key]['filtered_inactive'];
-		var t = filter_btn.innerText;
-        var r;
-		if (info.filter_active_dict[category_name] == 'active') {
-			updated = true
-			if (active == 0) {
-				//hide filters with no active linked instances
-				filter_btn.style.color='#bec4cf';
-				r = '(0)';
-				filter_btn.style.display='none';
-			} else {
-				r = '('+active+')';
-				filter_btn.style.color = 'black'
-				filter_btn.style.display = '';
-			}
-			filter_btn.innerText = t.replace(/\(.*\)/,r);
-            t = filter_btn.innerText;
-		}
-		// mark slected filters with a dot
-		if (info.selected_filters.includes(key)) {
-			if (!t.includes('•')) { filter_btn.innerText = '•' + t;}
-		} else {
-			filter_btn.innerText = t.replace('•','');
-		}
-		if (updated) {continue;}
-
-		var t = filter_btn.innerText;
-		if (info.filter_active_dict[key] == 'active' && filter_btn) {
-			r = '('+active+')';
-			filter_btn.style.color='black';
-		}
-		if (info.filter_active_dict[key] == 'inactive' && filter_btn) {
-			//this should take into account filters from other categories
-			r = '('+filtered_inactive+')';
-			filter_btn.style.color='#bec4cf';
-			if (filtered_inactive == 0) {filter_btn.style.display='none';}
-			else {filter_btn.style.display='';}
-		}
-		filter_btn.innerText=t.replace(/\(.*\)/,r);
-	}
-
-}
 
 export {filter_toggle_filter}

@@ -17,9 +17,11 @@ import {
     open_right_sidebar,
     close_right_sidebar,
     close_left_sidebar,
+    Sidebar,
     } from './sidebar.js'
     
 var info = new Info();
+var sidebar = new Sidebar();
 
 function set_location_type() {
     //console.log(location_type,location_type.value);
@@ -452,6 +454,7 @@ window.toggle_filter = toggle_filter;
 window.on_marker_click = on_marker_click;
 window.on_marker_hover = on_marker_hover;
 window.info = info;
+window.sidebar = sidebar;
 
 export {show_info, show_right_sidebar, update_right_sidebar}
 
