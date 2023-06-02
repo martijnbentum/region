@@ -1,3 +1,7 @@
+import {Map_info} from './map_info.js'
+import {Markers} from './marker.js'
+
+
 var id_dict = JSON.parse(document.getElementById('id-dict').textContent);
 var temp = document.getElementById('filter-active-dict').textContent;
 // linking filters 'gender,male' to state 'active' or 'inactive'
@@ -40,6 +44,8 @@ class Info {
         this.entries = []
         this.location_type = location_type;
         this.connection_view = false;
+        this.map_info = new Map_info();
+        this.markers = new Markers(this.map_info);
     }
 
 }
