@@ -11,7 +11,7 @@ import {
     on_marker_click,
 } from './marker.js';
 
-import {Info} from './info.js'
+import {Info,show_top_bar_info} from './info.js'
 import {
     open_left_sidebar,
     open_right_sidebar,
@@ -322,7 +322,6 @@ function _add_back_to_overview_button() {
     info.entries.push(a_instance);
 }
 
-
 function right_sidebar_connection_view_text(data) {
     //show the text connection information in the right sidebar
     _add_back_to_overview_button();
@@ -393,7 +392,6 @@ function update_right_sidebar() {
     console.log('could not update right sidebar, closing')
     close_right_sidebar();
 }
-        
 
 function toggle_sidebar_category(element) {
 	//hide reveal category items (e.g. Text) from sidebar
@@ -407,46 +405,8 @@ function toggle_sidebar_category(element) {
 	}
 }
 
-function show_info(index) {
-	// shows general information (number of linked instances) 
-	// about a location at the top of the screen
-    console.log(index);
-	var label = document.getElementById('city_label');
-	if (info.markers.clustered_marker_indices.includes(index)) {
-		//multiple locations are clustered into 1 marker
-		var elements = info.markers.clustered_marker_dict[index].elements; 
-        var html = '';
-		for (let i=0; i < elements.length; i++) {
-			var el= elements[i];
-			var information = info.markers.d[el.options.index];
-			html += information.name
-			html += '<small> (' + information.count + ')</small>';
-			if (html.length > 140) {
-				html += '<small> [...] + ' + (elements.length - 1 - i) 
-                html += ' locations'
-				break
-			}
-			if (i != elements.length -1) { html += ', '; }
-		}
-	} else {
-        if (info.connection_view) 
-            { var information = info.markers.connection_d[index]; }
-		else { var information =info.markers.d[index]; }
-		var html = information.name;
-		html += '<small> (' + information.count + ' entries) ';
-		for (const x of information.model_names) {
-			if (x) { html += x.toLowerCase() + ' '}
-		}
-		html += '</small>'
-	}
-	label.innerHTML = html
-}
-
-
 info.markers.update_markers(info.markers.active_markers);
 
-
-// mymap.on('zoomend', function() {
 info.map_info.map.on('zoomend', function() {
 	// update the clustering after zooming in or out
 	console.log('zoomed')
@@ -457,68 +417,6 @@ info.map_info.map.on('zoomend', function() {
 });
 
 open_left_sidebar();
-
-
-function update_filter_sidebar() {
-	// update the filters in the sidebar to show the current state
-	var fad_keys = Object.keys(info.filter_active_dict);
-	for (let i=0;i<fad_keys.length;i++) {
-		var key = fad_keys[i];
-		var filter_btn = document.getElementById(key);
-		if (!filter_btn) { continue; }
-		var [category_name, filter_name] = key.split(',');
-		var updated = false
-		var active = info.count_dict[key]['active'];
-		var inactive = info.count_dict[key]['inactive'];
-		var filtered_inactive= info.count_dict[key]['filtered_inactive'];
-		var t = filter_btn.innerText;
-        var r;
-		if (info.filter_active_dict[category_name] == 'active') {
-			updated = true
-			if (active == 0) {
-				//hide filters with no active linked instances
-				filter_btn.style.color='#bec4cf';
-				r = '(0)';
-				filter_btn.style.display='none';
-			} else {
-				r = '('+active+')';
-				filter_btn.style.color = 'black'
-				filter_btn.style.display = '';
-			}
-			filter_btn.innerText = t.replace(/\(.*\)/,r);
-            t = filter_btn.innerText;
-		}
-		// mark slected filters with a dot
-		if (info.selected_filters.includes(key)) {
-			if (!t.includes('•')) { filter_btn.innerText = '•' + t;}
-		} else {
-			filter_btn.innerText = t.replace('•','');
-		}
-		if (updated) {continue;}
-
-		var t = filter_btn.innerText;
-		if (info.filter_active_dict[key] == 'active' && filter_btn) {
-			r = '('+active+')';
-			filter_btn.style.color='black';
-		}
-		if (info.filter_active_dict[key] == 'inactive' && filter_btn) {
-			//this should take into account filters from other categories
-			r = '('+filtered_inactive+')';
-			filter_btn.style.color='#bec4cf';
-			if (filtered_inactive == 0) {filter_btn.style.display='none';}
-			else {filter_btn.style.display='';}
-		}
-		filter_btn.innerText=t.replace(/\(.*\)/,r);
-	}
-
-}
-
-
-
-
-
-
-
 
 function update_category_headers() {
 	var category_headers = document.getElementsByClassName('category-header');
@@ -536,18 +434,24 @@ function update_category_headers() {
 	}
 }
 
+function show_info(index) {
+	// shows general information (number of linked instances) 
+	// about a location at the top of the screen
+    console.log('rerouting to info js')
+    show_top_bar_info(index,info)
+}
+
 function toggle_filter(name) {
-    console.log('hello rerouting');
+    console.log('rerouting to filter js');
 	// toggle a filter on or off 
     // (filtering or adding the associated instances)
     filter_toggle_filter(name,info);
 }
-
 
 window.toggle_filter = toggle_filter;
 window.on_marker_click = on_marker_click;
 window.on_marker_hover = on_marker_hover;
 window.info = info;
 
-export {show_info, show_right_sidebar, update_filter_sidebar,update_right_sidebar}
+export {show_info, show_right_sidebar, update_right_sidebar}
 
