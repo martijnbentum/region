@@ -14,6 +14,9 @@ import {
 var d= JSON.parse(document.getElementById('d').textContent);
 var d = Object.values(d)
 
+var marker_color = '#4287f5'
+var highlight_color = "#e6da09";
+var click_color = "#fc0352";
 
 
 
@@ -23,9 +26,9 @@ class Markers {
         this.last_clicked_marker = false;
         this.last_activated = false;
         this.last_deactivated = false;
-        this.marker_color = '#4287f5'
-        this.highlight_color = "#e6da09";
-        this.click_color = "#fc0352";
+        this.marker_color = marker_color;
+        this.highlight_color = highlight_color;
+        this.click_color = click_color;
         this.clustered_markers = [];
         this.clustered_marker_indices = [];
         this.clustered_marker_dict = {};
