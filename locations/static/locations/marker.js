@@ -1,14 +1,14 @@
 //module to handle creation and 'on' methods (on_click, on_hover etc)
 import {
-    open_right_sidebar
+    open_right_sidebar,
+	show_right_sidebar,
 } from './sidebar.js';
 
 import {cluster, sort_on_x} from './cluster_rf.js';
 
-import {
-    show_info,
-	show_right_sidebar,
-    } from './map_rf.js'
+import {show_info} from './map_rf.js'
+    
+    
     
 
 var d= JSON.parse(document.getElementById('d').textContent);
