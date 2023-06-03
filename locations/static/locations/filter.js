@@ -1,6 +1,5 @@
-import {update_right_sidebar} from './map_rf.js';
 import {intersection} from './utils.js';
-import {update_filter_sidebar} from './sidebar.js';
+import {update_filter_sidebar, update_right_sidebar} from './sidebar.js';
 
 function count_array_overlap(a1,a2) {
 	//count the overlapping items from array 2 in array 1
