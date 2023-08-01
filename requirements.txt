@@ -3,7 +3,7 @@ asgiref==3.5.2
 asttokens==2.0.5
 async-timeout==4.0.2
 backcall==0.2.0
-backports.zoneinfo==0.2.1
+#backports.zoneinfo==0.2.1
 beautifulsoup4==4.11.1
 dcl==1.0.0
 decorator==5.1.1
