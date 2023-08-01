@@ -1,3 +1,12 @@
+import {
+    pks_and_category_to_identifiers,
+    count_active_identifiers
+} from './utils.js';
+
+import {
+    get_instances,
+} from './map_rf.js';
+
 export class Sidebar {
     constructor() {
     }
@@ -72,6 +81,7 @@ function show_categories(information, info) {
 
 function show_city(information, info) {
 	//show all information linked to specific location
+    console.log(information)
 	var sidebar_window= document.getElementById('right_sidebar_content');
 	var div =document.createElement("d");
 	sidebar_window.appendChild(div);
@@ -94,7 +104,7 @@ function show_city(information, info) {
 export function show_right_sidebar(index, info) {
 	//show sidebar with entries from selected location
 	clear_right_sidebar(info);
-    var index = info.right_sidebar_index;
+    // var index = info.right_sidebar_index; 
 	if (info.markers.clustered_marker_indices.includes(index)) {
 		var elements = info.markers.clustered_marker_dict[index].elements;
 		for (let i=0; i < elements.length; i++) {
@@ -105,6 +115,7 @@ export function show_right_sidebar(index, info) {
         info.right_sidebar_elements = info.markers.clustered_marker_dict[index].elements;
 	} else {
         info.right_sidebar_elements = false;
+        console.log(index,'index',info)
 		var information =info.markers.d[index];
 		show_city(information, info);
 	}

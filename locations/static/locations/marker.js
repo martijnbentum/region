@@ -210,7 +210,7 @@ function on_marker_click(e) {
     var markers = this.markers;
     console.log(markers);
 	markers.set_marker_clicked(this)
-	show_right_sidebar(this.options.index);
+	show_right_sidebar(this.options.index, window.info);
 	open_right_sidebar();
 }
 

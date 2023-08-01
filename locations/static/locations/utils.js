@@ -17,6 +17,14 @@ function pks_and_category_to_identifiers(pks,category) {
 	return identifiers
 }
 
+function count_active_identifiers(identifiers) {
+    var count = 0;
+    for (const identifier of identifiers) {
+        if (info.active_ids.includes(identifier)) { count += 1;}
+    }
+    return count;
+}
+
 function intersection(array_of_arrays) {
 	// returns an array of items that occur in all arrays
 	var data = array_of_arrays;
@@ -29,4 +37,5 @@ function intersection(array_of_arrays) {
 export {
     pks_and_category_to_identifiers, 
     intersection,
+    count_active_identifiers,
 };

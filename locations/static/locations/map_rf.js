@@ -154,13 +154,6 @@ async function get_instances(instance_ids,instance_category,city_div) {
     }
 }
 
-function count_active_identifiers(identifiers) {
-    var count = 0;
-    for (const identifier of identifiers) {
-        if (info.active_ids.includes(identifier)) { count += 1;}
-    }
-    return count;
-}
 
 
 function _add_connection_instance_info(instance_dict, original) {
@@ -323,5 +316,6 @@ window.on_marker_hover = on_marker_hover;
 window.info = info;
 window.sidebar = sidebar;
 
-export {show_info}
+export {show_info, get_instances}
+
 
