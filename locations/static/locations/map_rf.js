@@ -222,7 +222,7 @@ function back_to_overview() {
     info.markers.layerDict['connection_view'] = [];
     sidebar.open_left_sidebar();
     info.markers.update_markers(info.markers.active_markers);
-    sidebar.show_right_sidebar();    
+    sidebar.show_right_sidebar(info.right_sidebar_index);    
     console.log('rsi',info.right_sidebar_index);
     info.connection_view = false;
 }
