@@ -23,18 +23,18 @@ export class Sidebar {
     close_right_sidebar() {
         close_right_sidebar();
     }
-    update_filter_sidebar(info) {
-        update_filter_sidebar(info);
+    update_filter_sidebar() {
+        update_filter_sidebar();
     }
-    clear_right_sidebar(info) {
-        clear_right_sidebar(info);
+    clear_right_sidebar() {
+        clear_right_sidebar();
     }
-    show_right_sidebar(index, info) { 
-        show_right_sidebar(index, info)
+    show_right_sidebar(index) { 
+        show_right_sidebar(index)
     }
 }
 
-function show_category(instance_ids, category,city_div, info) {
+function show_category(instance_ids, category,city_div) {
 	// get category information and create an html element to 
     //display it in the sidebar
 	// the category (e.g. Text) the corresponding instances are loaded via ajax
@@ -63,7 +63,7 @@ function show_category(instance_ids, category,city_div, info) {
     info.right_sidebar_category_counts[model_name] = count_active;
 }
 
-function show_categories(information, info) {
+function show_categories(information) {
 	// show categories (e.g. Text, Person) in the sidebar 
 	// linked to a given location 
 	var sidebar_window= document.getElementById('right_sidebar_content');
@@ -74,12 +74,12 @@ function show_categories(information, info) {
 	for (const [key, instance_ids] of Object.entries(information)) {
 		if ('count,model_names,name,gps,pk,identifiers'.split(',').includes(key)){
 		} else {
-			show_category(instance_ids, key, city_div, info);
+			show_category(instance_ids, key, city_div );
 		}
 	}
 }
 
-function show_city(information, info) {
+function show_city(information) {
 	//show all information linked to specific location
     console.log(information)
 	var sidebar_window= document.getElementById('right_sidebar_content');
@@ -98,33 +98,33 @@ function show_city(information, info) {
 	var html = information.name;
 	html += '<small> (' + information.count + ' entries) ' + '</small>';
 	a.innerHTML = html
-	show_categories(information, info);
+	show_categories(information);
 }
 
-export function show_right_sidebar(index, info) {
+export function show_right_sidebar(index) {
 	//show sidebar with entries from selected location
-	clear_right_sidebar(info);
+	clear_right_sidebar();
     // var index = info.right_sidebar_index; 
 	if (info.markers.clustered_marker_indices.includes(index)) {
 		var elements = info.markers.clustered_marker_dict[index].elements;
 		for (let i=0; i < elements.length; i++) {
 			var el= elements[i];
 			var information = info.markers.d[el.options.index];
-			show_city(information, info);
+			show_city(information);
 		}
         info.right_sidebar_elements = info.markers.clustered_marker_dict[index].elements;
 	} else {
         info.right_sidebar_elements = false;
-        console.log(index,'index',info)
+        console.log(index,'index')
 		var information =info.markers.d[index];
-		show_city(information, info);
+		show_city(information);
 	}
     info.right_sidebar_active = true;
     info.right_sidebar_index = index;
     console.log('rsi',info.right_sidebar_index)
 }
 
-export function update_right_sidebar(info) {
+export function update_right_sidebar() {
     if (info.right_sidebar_active === false || info.right_sidebar_index === false) {
         // if right sidebar is not active do not update it
         console.log('right sidebar not active, doing nothing')
@@ -133,7 +133,7 @@ export function update_right_sidebar(info) {
     if (info.right_sidebar_elements === false) {
         // only one city linked to this marker showing info related to that city
         console.log('updating sidebar')
-        show_right_sidebar(info.right_sidebar_index, info);    
+        show_right_sidebar(info.right_sidebar_index);    
         return;
     }
     // multiple cities linked to marker, showing info related to each city
@@ -142,7 +142,7 @@ export function update_right_sidebar(info) {
     for (let i = 0; i < info.right_sidebar_elements.length; i++) {
         var el = info.right_sidebar_elements[i]
         if (info.markers.clustered_marker_indices.includes(el.options.index)) {
-            show_right_sidebar(el.options.index, info) 
+            show_right_sidebar(el.options.index) 
             return
         } else {
             indices.push(el.options.index)
@@ -151,7 +151,7 @@ export function update_right_sidebar(info) {
     for (let i = 0; i < indices.length; i++) {
         var index = indices[i];
         if ( info.markers.d[index] != undefined && info.markers.d[index].count > 0) { 
-            show_right_sidebar(index, info);
+            show_right_sidebar(index);
             return;
         }
     }
@@ -186,7 +186,7 @@ export function close_right_sidebar() {
 }
 
 
-function clear_right_sidebar(info) {
+function clear_right_sidebar() {
     //remove old entries from sidebar
     var sidebar= document.getElementById('right_sidebar_content');
     for (const x of info.entries) {
@@ -195,7 +195,7 @@ function clear_right_sidebar(info) {
     info.entries = [];
 }
 
-export function update_filter_sidebar(info) {
+export function update_filter_sidebar() {
 	// update the filters in the left sidebar to show the current state
 	var fad_keys = Object.keys(info.filter_active_dict);
 	for (let i=0;i<fad_keys.length;i++) {

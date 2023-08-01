@@ -19,7 +19,7 @@ var sidebar = new Sidebar();
 
 function set_location_type() {
     //console.log(location_type,location_type.value);
-    sidebar.update_right_sidebar(info);
+    sidebar.update_right_sidebar();
 }
 
 async function get_instance(instance_id,instance_category) {
@@ -89,8 +89,10 @@ function _add_instance(instance, model_name, city_div) {
         t += ' (' + instance.connection_count + ')';
         a_links.innerHTML = t;
         if (model_name == 'Text') {
-            let f = "get_connections('" + instance.identifier + "')"
-            a_links.setAttribute('onclick',f);
+            a_links.onclick = function() {
+                console.log('connections', instance.identifier)
+                get_connections(instance.identifier)
+            }
             // console.log('con:',instance, model_name)
         }
     }
@@ -108,17 +110,17 @@ async function get_connections(instance_identifier) {
         data.instances, data.instances.length);
     info.markers.hide_markers(info.markers.layerDict['overview']);
     sidebar.close_left_sidebar();
-    sidebar.clear_right_sidebar(info);
+    sidebar.clear_right_sidebar();
     info.markers.connection_d = Object.values(data.instances);
     for (i = 0; i<info.markers.connection_d.length; i++) {
             console.log(info.markers.connection_d[i], i, 1111)
             info.markers.make_circle_marker(info.markers.connection_d[i],
                 i,'connection_view')
     }
-    info.markers.update_markers(layerDict['connection_view'])
+    info.markers.update_markers(info.markers.layerDict['connection_view'])
     console.log(info.markers.clustered_marker_dict,
         info.markers.clustered_marker_indices,'cmd,cmi');
-    var group = new L.featureGroup(layerDict['connection_view'])
+    var group = new L.featureGroup(info.markers.layerDict['connection_view'])
     info.map_info.map.fitBounds(group.getBounds().pad(.1))
     info.connection_view = true;
     right_sidebar_connection_view_text(data)
@@ -161,9 +163,10 @@ function _add_connection_instance_info(instance_dict, original) {
     //this can be the original text or a translation or review
     var instance = instance_dict;
 	var sidebar= document.getElementById('right_sidebar_content');
+    console.log('sidebar',sidebar)
     var div = document.createElement('div');
     info.entries.push(div);
-    sidebar.append(d)
+    sidebar.append(div)
 	var text_title =document.createElement("p");
 	var setting =document.createElement("p");
 	var genre =document.createElement("p");
@@ -214,12 +217,12 @@ function _add_other_connection_info(instance_dicts, other_name) {
 
 function back_to_overview() {
     console.log('back to overview');
-    sidebar.clear_right_sidebar(info);
+    sidebar.clear_right_sidebar();
     info.markers.hide_markers(info.markers.layerDict['connection_view']);
     info.markers.layerDict['connection_view'] = [];
     sidebar.open_left_sidebar();
     info.markers.update_markers(info.markers.active_markers);
-    sidebar.show_right_sidebar(info);    
+    sidebar.show_right_sidebar();    
     console.log('rsi',info.right_sidebar_index);
     info.connection_view = false;
 }
@@ -230,7 +233,7 @@ function _add_back_to_overview_button() {
     back.append(a_instance);
     var t = '<i class="fa fa-reply">'
     a_instance.innerHTML = t;
-    f = "back_to_overview()"
+    var f = "back_to_overview()";
     a_instance.setAttribute('href','#');
 	a_instance.setAttribute('onclick',f);
 	a_instance.classList.add("closebtn");
@@ -246,7 +249,7 @@ function right_sidebar_connection_view_text(data) {
     var original_author = cd.original_author;
     var original_title= cd.original_title;
     var original_genre= cd.original.genre;
-    // console.log('righ sidebar connection view',data)
+    console.log('righ sidebar connection view',data,original)
     _add_connection_instance_info(original,true)
     _add_other_connection_info(cd.translations, 'Translations')
     _add_other_connection_info(cd.reviews, 'Reviews')
@@ -286,14 +289,14 @@ function show_info(index) {
 	// shows general information (number of linked instances) 
 	// about a location at the top of the screen
     console.log('rerouting to info js')
-    show_top_bar_info(index,info)
+    show_top_bar_info(index)
 }
 
 function toggle_filter(name) {
     console.log('rerouting to filter js');
 	// toggle a filter on or off 
     // (filtering or adding the associated instances)
-    filter_toggle_filter(name,info);
+    filter_toggle_filter(name);
 }
 
 
@@ -310,11 +313,16 @@ info.map_info.map.on('zoomend', function() {
 
 sidebar.open_left_sidebar();
 
+console.log(1,get_connections)
+console.log(1,back_to_overview)
+
 window.toggle_filter = toggle_filter;
 window.on_marker_click = on_marker_click;
 window.on_marker_hover = on_marker_hover;
 window.info = info;
 window.sidebar = sidebar;
+window.get_connections = get_connections
+window.back_to_overview= back_to_overview
 
 export {show_info, get_instances}
 
