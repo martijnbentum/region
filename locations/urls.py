@@ -9,7 +9,6 @@ urlpatterns = [
 	path('map_ll/',views.map_ll, name='map_ll'),
 	path('map_ll_alpha/',views.map_ll_alpha, name='map_ll_alpha'),
 	path('map_search/',views.map_search, name='map_search'),
-	path('map_search_rf/',views.map_search_rf, name='map_search_rf'),
 	path('map_draw/',views.map_draw, name='map_draw'),
 	path('ajax_get_connections/<str:app_name>/<str:model_name>/<int:pk>',
 		views.ajax_get_connections, name='ajax_get_connections'),
