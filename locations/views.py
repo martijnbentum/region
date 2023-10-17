@@ -6,6 +6,7 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
 from django.forms import inlineformset_factory
+from django.forms.models import model_to_dict
 from .models import Location, LocationType, LocationRelation, Figure,Style 
 from .forms import LocationForm, location_relation_formset, StyleForm,FigureForm
 from .forms import LocationRelationForm, LocationTypeForm,LocationStatusForm
@@ -74,6 +75,26 @@ def map_search(request):
     s.var['page_name']='map search'
     s.var['d']=d
     return render(request, 'locations/map_search.html',s.var)
+
+def connection_view(request, text_identifier = None, pk = None):
+    Text = apps.get_model('catalogue','Text')
+    if text_identifier != None:
+        try: pk = text_identifier.split('_')[2]
+        except ValueError: print('no pk in text_identifier')
+    if pk != None:
+        instance = Text.objects.get(pk=pk)
+    else: instance = Text.objects.all()[315]
+    # else: raise ValueError('no pk or text_identifier')
+    print(instance,'instance')
+    f = serializers.serialize('json',[instance])
+    print(f,'serial')
+    connections = text_connection.text_connection(instance)
+    print(connections)
+    d=get_all_location_ids_dict(instances=connections.all_texts,add_names_gps=True)
+    print(d)
+    var = {'instances':d,'connection_dict':connections.to_dict(),
+        'instance':f}#model_to_dict(instance)}
+    return render(request, 'locations/connection_view.html',var)
 
 
 def map(request):
