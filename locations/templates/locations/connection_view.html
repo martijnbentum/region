@@ -1,0 +1,42 @@
+{% extends "utilities/base.html" %}
+{% load static %}
+{% load getattribute %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+	integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+	crossorigin=""/>
+	<link rel="stylesheet"
+		href="{% static 'locations/connection.css' %}" />
+	<!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+   integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+   crossorigin=""></script>
+	<style>
+	</style>
+{% endblock %}
+
+{% block wide %}
+
+{{instances|json_script:'instances'}}
+{{connection_dict|json_script:'connection_dict'}}
+{{instance|json_script:'instance'}}
+
+<div id="mapid" class="mt-0 map left-side map-height"></div>
+<div id="information" class="right-side map-height">
+    <p id="title" class="title">Title</p>
+    <hr>
+    <p id="author" class="body"><span class="helper"> Author:</span>
+        Author</p>
+</div>
+
+
+
+<script src="{% static 'locations/cluster.js' %}">
+</script>
+<script src="{% static 'locations/connection.js' %}">
+</script>
+
+{% endblock %}
+
