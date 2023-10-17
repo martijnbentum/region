@@ -1,0 +1,36 @@
+.left-side {
+    width: 50%;
+    float: left;
+}
+.right-side {
+    width: 50%;
+    float: right;
+    background-color: hsl(0, 0%, 90%);
+}
+
+.title {
+  font-size: 2.5em; 
+  font-weight: bold; 
+  color: #333; 
+  text-align: center; 
+  font-family: "Times New Roman", "Times", serif;
+}
+.body{
+  font-size: 1em; 
+  font-weight: normal; 
+  color: #333; 
+  text-align: left; 
+  font-family: "Times New Roman", "Times", serif;
+  margin-left: 3em;
+}
+.helper{
+  font-size: 0.8em; 
+  font-weight: normal; 
+  color:  hsl(0, 0%, 30%);
+  text-align: left; 
+  font-family: "Times New Roman", "Times", serif;
+}
+
+.map-height {
+    height: 90vh;
+}
