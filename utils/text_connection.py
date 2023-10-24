@@ -1,4 +1,5 @@
 from django.core import serializers
+from utils.map_util import get_all_location_ids_dict
 import json
 
 class text_connection:
@@ -9,6 +10,8 @@ class text_connection:
         self.is_review = self.type == 'review'
         self.get_original()
         self.collect_translations()
+        self.collect_location_pks()
+        self.set_locations()
 
     def collect_translations(self):
         original = self.original
@@ -31,6 +34,45 @@ class text_connection:
                     break
         self.has_original = self.original == None
 
+
+    def collect_location_pks(self):
+        self.publication_location_pks= []
+        self.setting_location_pks = []
+        self.author_location_pks = []
+        temp = self.original.publication_location_pks
+        self.original_publication_location_pks = list(map(int,temp.split(',')))
+        for text in self.all_texts:
+            pks = text.publication_location_pks.split(',')
+            for pk in pks:
+                if pk not in self.publication_location_pks:
+                    self.publication_location_pks.append(int(pk))
+            pks = text.setting_location_pks.split(',')
+            for pk in pks:
+                if pk not in self.setting_location_pks:
+                    self.setting_location_pks.append(int(pk))
+        for author in self.original.authors:
+            temp = list(map(int,author.loc_ids.split(',')))
+            self.author_location_pks.extend(temp) 
+    
+    def set_locations(self):
+        instances = self.all_texts + self.original.authors
+        self.locations = get_all_location_ids_dict(instances,
+            add_names_gps=True)
+        for location_pk, info in self.locations.items():
+            info['location_type'] = []
+            info['original'] = False
+            if location_pk in self.publication_location_pks:
+                info['location_type'].append('publication')
+            if location_pk in self.setting_location_pks:
+                info['location_type'].append('setting')
+            if location_pk in self.original_publication_location_pks:
+                info['original'] = True
+            if location_pk in self.author_location_pks:
+                info['location_type'].append('author')
+        
+
+
+
     def to_dict(self):
         d = {}
         original = self.original
@@ -52,6 +94,7 @@ class text_connection:
         author_names = ', '.join([x.name for x in original.authors])
         d['original_author'] = author_names if original else ''
         d['genre'] = original.genre.name
+        d['locations'] = list(self.locations.values())
         self.d = d
         return d
 
