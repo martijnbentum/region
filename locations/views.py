@@ -83,7 +83,7 @@ def connection_view(request, text_identifier = None, pk = None):
         except ValueError: print('no pk in text_identifier')
     if pk != None:
         instance = Text.objects.get(pk=pk)
-    else: instance = Text.objects.all()[315]
+    else: instance = Text.objects.get(pk = 1422)
     # else: raise ValueError('no pk or text_identifier')
     print(instance,'instance')
     f = serializers.serialize('json',[instance])
