@@ -5,15 +5,30 @@
 .right-side {
     width: 50%;
     float: right;
-    background-color: hsl(0, 0%, 90%);
+    /* background-color: hsl(0, 0%, 90%); */
+    background-color: #ECEFF1;
+    overflow: auto;
+}
+
+.highlight{
+    background-color: #fafcfc;
 }
 
 .title {
   font-size: 2.5em; 
-  font-weight: bold; 
+  font-style: italic; 
   color: #333; 
   text-align: center; 
   font-family: "Times New Roman", "Times", serif;
+}
+.subtitle {
+  font-size: 1.2em; 
+  font-weight: normal; 
+  color: #333; 
+  text-align: left; 
+  font-family: "Times New Roman", "Times", serif;
+  margin-left: 1em;
+  text-decoration: underline;
 }
 .body{
   font-size: 1em; 
@@ -21,7 +36,11 @@
   color: #333; 
   text-align: left; 
   font-family: "Times New Roman", "Times", serif;
-  margin-left: 3em;
+  margin-left: 2em;
+  margin-right: 2em;
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+    
 }
 .helper{
   font-size: 0.8em; 
