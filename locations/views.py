@@ -76,6 +76,14 @@ def map_search(request):
     s.var['d']=d
     return render(request, 'locations/map_search.html',s.var)
 
+def simple_map_search(request):
+    s = SearchView(request, restrict_to_texts = True)
+    instances = s.search.filter()
+    d = get_all_location_ids_dict(instances = instances, add_names_gps = True)
+    s.var['page_name']='map search'
+    s.var['d']=d
+    return render(request, 'locations/simple_map_search.html',s.var)
+
 def connection_view(request, text_identifier = None, pk = None):
     Text = apps.get_model('catalogue','Text')
     if text_identifier != None:
