@@ -10,7 +10,8 @@ import os
 class SearchView:
     '''stores options for view template.'''
     def __init__(self, request = None,view_type = '', query = ' ', 
-        combine = ' ',exact = 'contains', verbose = True):
+        combine = ' ',exact = 'contains', verbose = True,
+        restrict_to_texts = False):
         '''
         request         django object
         view_type       whether the results are shown in tile or row format
@@ -24,6 +25,7 @@ class SearchView:
         self.combine = combine
         self.exact = exact
         self.verbose = verbose
+        self.restrict_to_texts = restrict_to_texts
         self.special_terms = [self.combine,self.exact]
         if verbose:print('start',delta(self.start))
         self.handle_query()
@@ -35,8 +37,12 @@ class SearchView:
         if verbose:print('var',delta(self.start))
 
     def make_search(self):
+        if self.restrict_to_texts:
+            from catalogue.models import Text 
+            models = [Text]
+        else: models = []
         self.search = SearchAll(self.request, query = self.query,
-            special_terms = self.special_terms)
+            special_terms = self.special_terms, models=models)
         self.instances= self.search.filter()
         self.identifiers = [x.identifier for x in self.instances]
         self.nentries = '# Entries: ' + str(len(self.instances))
