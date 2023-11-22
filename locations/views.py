@@ -22,7 +22,7 @@ from utils.instance_links import Links
 from utilities.views import getfocus, list_view, delete_model, edit_model
 from utilities.views import add_simple_model
 from utilities import search
-from catalogue.models import Text, Illustration, Publication, Publisher, Periodical
+from catalogue.models import Text,Illustration,Publication,Publisher,Periodical
 from persons.models import Person, Movement
 import time
 
@@ -98,7 +98,8 @@ def connection_view(request, text_identifier = None, pk = None):
     print(f,'serial')
     connections = text_connection.text_connection(instance)
     print(connections)
-    d=get_all_location_ids_dict(instances=connections.all_texts,add_names_gps=True)
+    at = connections.all_texts
+    d=get_all_location_ids_dict(instances=at,add_names_gps=True)
     print(d)
     var = {'instances':d,'connection_dict':connections.to_dict(),
         'instance':f}#model_to_dict(instance)}
@@ -115,27 +116,12 @@ def map(request):
     return render(request,'locations/map.html',args)
 
     
-def show_links(request,app_name,model_name,pk):
-    '''OBSOLETE old style map rendering, render location by getting extra info
-    for specific instation to plot the links an instance has to other instances
-    which are also plotted on the map
-    '''
-    print(app_name,model_name,pk)
-    instance = apps.get_model(app_name,model_name).objects.get(pk=pk)
-    l = Links(instance)
-    print(l.connections.instances,22222222222)
-    link_list= instance2maprows(instance,role='main') 
-    l, fn,ll= instance2related_locations(instance)
-    link_list.extend(ll)
-    print(link_list,1111111111111111111111111)
-    args = {'page_name':'links','link_list':link_list}
-    return render(request,'locations/map.html',args)
-
 
 
 def edit_location(request, pk=None, focus = '', view='complete'):
     names='location_relation_formset'
-    return edit_model(request, __name__,'Location','locations',pk,formset_names=names, 
+    return edit_model(request, __name__,'Location','locations',pk,
+        formset_names=names, 
         focus = focus, view=view)
 
 
@@ -227,18 +213,6 @@ def ajax_instances(request,app_name,model_name,pks):
     #d = serializers.serialize('json',instances)
     # print(d,'serial')
     return JsonResponse({'instances':d})
-    
-def ajax_get_connections(request, app_name, model_name, pk):
-    model = apps.get_model(app_name,model_name)
-    print(model,'model')
-    instance = model.objects.get(pk=pk)
-    print(instance,'instance')
-    f = serializers.serialize('json',[instance])
-    print(f,'serial')
-    connections = text_connection.text_connection(instance)
-    d=get_all_location_ids_dict(instances=connections.all_texts,add_names_gps=True)
-    print(d)
-    return JsonResponse({'instances':d,'connection_dict':connections.to_dict()})
     
 
 def geojson_file(request,filename):

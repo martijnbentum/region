@@ -47,7 +47,6 @@ var icon = L.divIcon({
 	})
 
 var location_type = document.getElementById('location_type')
-var connection_view = false;
 
 function set_location_type() {
     //console.log(location_type,location_type.value);
@@ -158,8 +157,7 @@ function show_info(index) {
 			if (i != elements.length -1) { html += ', '; }
 		}
 	} else {
-        if (connection_view) { var info = connection_d[index]; }
-		else { var info =d[index]; }
+		var info =d[index]; 
 		var html = info.name;
 		html += '<small> (' + info.count + ' entries) ';
 		for (const x of info.model_names) {
@@ -267,29 +265,6 @@ function _add_instance(instance, model_name, city_div) {
 	entries.push(a_instance)
 }
 
-async function get_connections(instance_identifier) {
-	var path = '/locations/ajax_get_connections/'
-	path += instance_identifier.replaceAll('_','/') 
-    console.log('c path',path)
-	const response = await fetch(path); 
-	const data = await response.json()
-    console.log('connection data', data, 
-        data.instances, data.instances.length);
-    hide_markers(layerDict['overview']);
-    close_left_nav();
-    clear_right_sidebar();
-    connection_d = Object.values(data.instances);
-    for (i = 0; i<connection_d.length; i++) {
-            console.log(connection_d[i], i, 1111)
-            make_circle_marker(connection_d[i],i,'connection_view')
-    }
-    update_markers(layerDict['connection_view'])
-    console.log(clustered_marker_dict,clustered_marker_indices,'cmd,cmi');
-    var group = new L.featureGroup(layerDict['connection_view'])
-    mymap.fitBounds(group.getBounds().pad(.1))
-    connection_view = true;
-    right_sidebar_connection_view_text(data)
-}
 
 async function get_instances(instance_ids,instance_category,city_div) {
 	// load instances associated with a given category (e.g. Text) via ajax
@@ -405,102 +380,7 @@ function clear_right_sidebar() {
 	entries = [];
 }
 
-function _add_connection_instance_info(instance_dict, original) {
-    //show an instance in the text connection view right side bar
-    //this can be the original text or a translation or review
-    var instance = instance_dict;
-	var sidebar= document.getElementById('right_sidebar_content');
-    var d = document.createElement('div');
-    entries.push(d);
-    sidebar.append(d)
-	var text_title =document.createElement("p");
-	var setting =document.createElement("p");
-	var genre =document.createElement("p");
-	var publication=document.createElement("p");
-	var author=document.createElement("p");
-	var language=document.createElement("p");
-	var hr =document.createElement("hr");
-    d.append(text_title)
-    if (original) {d.append(hr)}
-    if (original) {d.append(genre)}
-    d.append(author)
-    d.append(publication)
-    if (original) {d.append(setting)}
-    d.append(language)
 
-	if (original) {text_title.classList.add("title_text");}
-	else {text_title.classList.add("small_title_text");}
-    text_title.innerHTML = instance.title;
-	setting.classList.add("connection_text");
-    setting.innerHTML = '<b>Setting</b>: ' +instance.setting
-	publication.classList.add("connection_text");
-    publication.innerHTML='<b>Published in</b>: '+instance.publication_years_str;
-	author.classList.add("connection_text");
-    author.innerHTML = '<b>Author</b>: ' +instance.author;
-	genre.classList.add("connection_text");
-    genre.innerHTML = '<b>Genre</b>: ' +instance.genre;
-	language.classList.add("connection_text");
-    language.innerHTML = '<b>Language</b>: ' +instance.language;
-}
-
-function _add_other_connection_info(instance_dicts, other_name) {
-    //show translations or reviews related to a text
-	var sidebar= document.getElementById('right_sidebar_content');
-    var d = document.createElement('div');
-    entries.push(d);
-    sidebar.append(d)
-    if (instance_dicts.length == 0) { return }
-	var name=document.createElement("p");
-	var hr =document.createElement("hr");
-    d.append(name)
-    d.append(hr)
-	name.classList.add("connection_category");
-    name.innerHTML = other_name;
-    for (let i=0; i < instance_dicts.length; i++) {
-        _add_connection_instance_info(instance_dicts[i]);
-    }
-}
-
-function back_to_overview() {
-    console.log('back to overview');
-    clear_right_sidebar();
-    hide_markers(layerDict['connection_view']);
-    layerDict['connection_view'] = [];
-    open_left_nav();
-    update_markers(active_markers);
-    show_right_sidebar(right_sidebar_index);    
-    console.log('rsi',right_sidebar_index);
-    connection_view = false;
-}
-
-function _add_back_to_overview_button() {
-	var back= document.getElementById('back_to_overview');
-	var a_instance=document.createElement("a");
-    back.append(a_instance);
-    var t = '<i class="fa fa-reply">'
-    a_instance.innerHTML = t;
-    f = "back_to_overview()"
-    a_instance.setAttribute('href','#');
-	a_instance.setAttribute('onclick',f);
-	a_instance.classList.add("closebtn");
-    entries.push(a_instance);
-}
-
-
-function right_sidebar_connection_view_text(data) {
-    //show the text connection information in the right sidebar
-    _add_back_to_overview_button();
-    var cd = data.connection_dict
-    var fields = data.connection_dict.original.serialized.fields
-    var original= data.connection_dict.original
-    var original_author = cd.original_author;
-    var original_title= cd.original_title;
-    var original_genre= cd.original.genre;
-    // console.log('righ sidebar connection view',data)
-    _add_connection_instance_info(original,true)
-    _add_other_connection_info(cd.translations, 'Translations')
-    _add_other_connection_info(cd.reviews, 'Reviews')
-}
 
 function show_right_sidebar(index) {
 	//show sidebar with entries from selected location
@@ -574,7 +454,6 @@ function toggle_sidebar_category(element) {
 function show_markers(markers, make_point = true) {
 	//var controlLayers;
 	hide_markers(layerDict['overview']);
-	hide_markers(layerDict['connection_view']);
 	for (i = 0; i<markers.length; i++) {
 		var marker = markers[i];
 		if (make_point) {
@@ -614,17 +493,13 @@ function hide_markers(markers) {
 
 // layerdict contains the circle and icon markers
 // for now only the circle markers are made
-var names = 'overview,connection_view'.split(',');
-layerDict = {}
-for (var i = 0; i<names.length; i++) {
-	layerDict[names[i]] = []
-}
+layerDict = {};
+layerDict['overview'] = [];
 
 
 // the d element contains all information linking locations to instances
 var d= JSON.parse(document.getElementById('d').textContent);
 var d = Object.values(d)
-var connection_d = false;
 for (i = 0; i<d.length; i++) {
 	make_circle_marker(d[i],i);
 	//make_marker(d[i],i);
@@ -670,8 +545,7 @@ function close_right_nav() {
 mymap.on('zoomend', function() {
 	// update the clustering after zooming in or out
 	console.log('zoomed')
-    if (connection_view) {var marker_types = 'connection_view'}
-    else {var marker_types = 'overview'}
+    var marker_types = 'overview'
     markers = layerDict[marker_types];
 	update_markers(markers);
 });
