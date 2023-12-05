@@ -80,8 +80,10 @@ def simple_map_search(request):
     s = SearchView(request, restrict_to_texts = True)
     instances = s.search.filter()
     d = get_all_location_ids_dict(instances = instances, add_names_gps = True)
+    query_terms = ['hallo','world']
     s.var['page_name']='map search'
     s.var['d']=d
+    s.var['query_terms'] = query_terms
     return render(request, 'locations/simple_map_search.html',s.var)
 
 def connection_view(request, text_identifier = None, pk = None):
