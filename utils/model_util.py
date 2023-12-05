@@ -1,4 +1,5 @@
 from django.apps import apps
+from django.db import models
 import random
 import string
 import itertools
@@ -302,7 +303,42 @@ def instances2locationtype_counts(instances):
     d = itli.load_json_locationtype()
     count_d, instances_d = _instances2attribute_counts(instances,d)
     return count_d, instances_d
-		
+
+def model_text_field_names(model, include_char_fields = True, 
+    exclude_fields = True):
+    if exclude_fields:
+        exclude_names = 'link,complete,incomplete,approved'
+        exclude_names += ',loc_ids,gps,connection_count,pks,years'
+        exclude_names = exclude_names.split(',')
+    else: exclude_names = []
+    output = []
+    for field in model._meta.fields:
+        name = field.name
+        if len([exclude for exclude in exclude_names if exclude in name])>0: 
+            continue
+        if isinstance(field, models.CharField) and include_char_fields: 
+            output.append(field.name)
+        if isinstance(field, models.TextField): 
+            output.append(field.name)
+    return output
+    
+
+def instance_to_text(instance):
+    field_names = model_text_field_names(instance._meta.model)
+    output = []
+    for name in field_names:
+        text = getattr(instance,name)
+        if text: output.append(text)
+    return ' '.join(output)
+    
+def all_instances_to_text():
+    instances = get_all_instances()
+    output = []
+    for instance in instances:
+        text = instance_to_text(instance)
+        if text: output.append(text)
+    return ' '.join(output)
+    
 
 	
 
