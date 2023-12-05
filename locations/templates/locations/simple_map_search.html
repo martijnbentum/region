@@ -30,17 +30,19 @@
 
 <div class="d-flex" id="search_div">
 	<div class="col-11">
-        <div class="d-flex">
-            <button id ="query" class="btn btn-link mb-0"  type="submit">
-                <i class="fas fa-search"></i></button>
-            <div class="autocomplete col-9 mb-1"
-                style="border-width:0;border-bottom-width:1px;"
-                id="exampleFormControlInput1"
-            >
-                {{new_search_form.query}}
+        <form> 
+            <div class="d-flex">
+                <button id ="query" class="btn btn-link mb-0"  type="submit">
+                    <i class="fas fa-search"></i></button>
+                <div class="autocomplete col-7 mb-1 "
+                    style="border-width:0;border-bottom-width:1px;"
+                    id="exampleFormControlInput1"
+                >
+                    {{new_search_form.query}}
+                </div>
+                <p id="nentries" >{{nentries}}<p>
             </div>
-            <p id="nentries" >{{nentries}}<p>
-        </div>
+        </form>
 	</div>
 </div>
 

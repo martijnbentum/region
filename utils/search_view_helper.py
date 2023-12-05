@@ -27,7 +27,6 @@ class SearchView:
         self.exact = exact
         self.verbose = verbose
         self.restrict_to_texts = restrict_to_texts
-        self.make_new_search_form()
         self.special_terms = [self.combine,self.exact]
         if verbose:print('start',delta(self.start))
         self.handle_query()
@@ -35,17 +34,16 @@ class SearchView:
         self.make_search()
         # self.get_date_range()
         if verbose:print('search',delta(self.start))
+        self.make_new_search_form()
         self.make_var()
         if verbose:print('var',delta(self.start))
 
     def make_new_search_form(self):
-        if self.request.method == 'POST':
-            self.new_search_form = NewSearchForm(request.POST)
-        else:
-            if self.query == ' ': self.query = ''
-            initial = {'query':self.query}
-            self.new_search_form = NewSearchForm(initial = initial)
+        if self.query == ' ': self.query = ''
+        initial = {'query':self.query}
+        self.new_search_form = NewSearchForm(initial = initial)
         print(self.new_search_form, 'new search form')
+        print(initial)
 
     def make_search(self):
         if self.restrict_to_texts:
