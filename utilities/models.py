@@ -8,6 +8,9 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
 
+class Queryterm(models.Model):
+    term = models.CharField(max_length=1000,unique=True)
+
 class RelationModel(models.Model):
 	'''abstract model for relational models, e.g. text person relation model
 		provide other function: gives field name of the other field name
