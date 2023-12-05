@@ -2,6 +2,7 @@ from utilities.search import SearchAll
 from utils.general import remove_keys_from_dict
 from utils.model_util import identifier2instance
 from utils.map_util import locationtype_filter_dict
+from utilities.forms import NewSearchForm
 import copy
 import json
 import time
@@ -26,6 +27,7 @@ class SearchView:
         self.exact = exact
         self.verbose = verbose
         self.restrict_to_texts = restrict_to_texts
+        self.make_new_search_form()
         self.special_terms = [self.combine,self.exact]
         if verbose:print('start',delta(self.start))
         self.handle_query()
@@ -35,6 +37,15 @@ class SearchView:
         if verbose:print('search',delta(self.start))
         self.make_var()
         if verbose:print('var',delta(self.start))
+
+    def make_new_search_form(self):
+        if self.request.method == 'POST':
+            self.new_search_form = NewSearchForm(request.POST)
+        else:
+            if self.query == ' ': self.query = ''
+            initial = {'query':self.query}
+            self.new_search_form = NewSearchForm(initial = initial)
+        print(self.new_search_form, 'new search form')
 
     def make_search(self):
         if self.restrict_to_texts:
@@ -81,6 +92,7 @@ class SearchView:
             'locationtype_filter_dict':locationtype_filter_dict(load=True),
             'id_dict':self.id_dict,
             'filter_active_dict':self.filter_active_dict,
+            'new_search_form':self.new_search_form,
             # 'date_range':self.date_range,
             # 'earliest_date':self.earliest_date,
             # 'latest_date':self.latest_date,

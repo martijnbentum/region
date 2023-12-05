@@ -12,6 +12,8 @@ from locations.widgets import LocationWidget, LocationCountryWidget
 
 User = get_user_model()
 
+class NewSearchForm(forms.Form):
+    query = forms.CharField(initial= '', required = False)
 
 class LanguageWidget(ModelSelect2Widget):
 	model = Language
