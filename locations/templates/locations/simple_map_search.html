@@ -9,6 +9,8 @@
 	crossorigin=""/>
 	<link rel="stylesheet"
 		href="{% static 'locations/simple_map.css' %}" />
+	<link rel="stylesheet"
+		href="{% static 'locations/new_search.css' %}" />
 	<!-- Make sure you put this AFTER Leaflet's CSS -->
  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
@@ -24,20 +26,21 @@
 {{id_dict|json_script:'id-dict'}}
 {{filter_active_dict|json_script:'filter-active-dict'}}
 {{locationtype_filter_dict|json_script:'locationtype_filter_dict'}}
+{{query_terms|json_script:"query-terms"}}
 
 <div class="d-flex" id="search_div">
-	<div class="col-10">
-		<form>
-			<div class="d-flex">
-				<button id ="query" class="btn btn-link mb-0"  type="submit">
-					<i class="fas fa-search"></i></button>
-				<input id="exampleFormControlInput1" type="text" name="query" 
-					placeholder=Search
-					class="col-6 mb-1" style="border-width:0;border-bottom-width:1px;" 
-					value="{{query}}" >
-				<p id="nentries" >{{nentries}}<p>
-			</div>
-		</form>
+	<div class="col-11">
+        <div class="d-flex">
+            <button id ="query" class="btn btn-link mb-0"  type="submit">
+                <i class="fas fa-search"></i></button>
+            <div class="autocomplete col-9 mb-1"
+                style="border-width:0;border-bottom-width:1px;"
+                id="exampleFormControlInput1"
+            >
+                {{new_search_form.query}}
+            </div>
+            <p id="nentries" >{{nentries}}<p>
+        </div>
 	</div>
 </div>
 
@@ -155,6 +158,8 @@
 <script src="{% static 'locations/cluster.js' %}">
 </script>
 <script src="{% static 'locations/simple_map.js' %}">
+</script>
+<script src="{% static 'locations/new_search.js' %}">
 </script>
 
  
