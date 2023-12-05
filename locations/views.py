@@ -18,6 +18,7 @@ from utils.map_util import gps2latlng, pop_up, get_all_location_ids_dict
 from utils.model_util import instance2names
 from utils import text_connection
 from utils.search_view_helper import SearchView
+from utils import query_hints
 from utils.instance_links import Links
 from utilities.views import getfocus, list_view, delete_model, edit_model
 from utilities.views import add_simple_model
@@ -80,7 +81,7 @@ def simple_map_search(request):
     s = SearchView(request, restrict_to_texts = True)
     instances = s.search.filter()
     d = get_all_location_ids_dict(instances = instances, add_names_gps = True)
-    query_terms = ['hallo','world']
+    query_terms = query_hints.get_queryterms()
     s.var['page_name']='map search'
     s.var['d']=d
     s.var['query_terms'] = query_terms
