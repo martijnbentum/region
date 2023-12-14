@@ -44,10 +44,12 @@ class text_connection:
         for text in self.all_texts:
             pks = text.publication_location_pks.split(',')
             for pk in pks:
+                if not pk: continue
                 if pk not in self.publication_location_pks:
                     self.publication_location_pks.append(int(pk))
             pks = text.setting_location_pks.split(',')
             for pk in pks:
+                if not pk: continue
                 if pk not in self.setting_location_pks:
                     self.setting_location_pks.append(int(pk))
         for author in self.original.authors:

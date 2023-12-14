@@ -42,8 +42,6 @@ class SearchView:
         if self.query == ' ': self.query = ''
         initial = {'query':self.query}
         self.new_search_form = NewSearchForm(initial = initial)
-        print(self.new_search_form, 'new search form')
-        print(initial)
 
     def make_search(self):
         if self.restrict_to_texts:
