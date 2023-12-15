@@ -11,14 +11,46 @@ var instances = JSON.parse(document.getElementById('instances').textContent);
 var connection_dict= JSON.parse(document.getElementById('connection_dict').textContent);
 var instance= JSON.parse(document.getElementById('instance').textContent);
 var instance= JSON.parse(instance)[0];
+var current_element = false;
+var current_p = false;
+var current_div= false;
+var highlighted_markers = [];
 
-const red = "#FF0000";
-const green = "#008000";
-const blue = "#0000FF";
-const yellow = "#FFFF00";
+const red = "#b32d2d";
+const green = "#287028";
+const blue = "#0202b3";
+const yellow = "#c4c400";
 const purple = "#800080";
+const marker_color = '#4287f5'
 
-var marker_color = '#4287f5'
+const lighterRed = "#FF0000";
+const lighterGreen = "#14de4a";
+const lighterBlue = "#0000FF";
+const lighterYellow = "#FFFF00";
+const lighterPurple = "#fa02fa";
+const lighterMarkerColor = '#82cbe8';
+
+function make_lighter_color(color) {
+    if (color == red) {return lighterRed;}
+    if (color == green) {return lighterGreen;}
+    if (color == blue) {return lighterBlue;}
+    if (color == yellow) {return lighterYellow;}
+    if (color == purple) {return lighterPurple;}
+    if (color == marker_color) {return lighterMarkerColor;}
+    console.log('color not found', color);
+    return color;
+}
+
+function make_darker_color(color) {
+    if (color == lighterRed) {return red;}
+    if (color == lighterGreen) {return green;}
+    if (color == lighterBlue) {return blue;}
+    if (color == lighterYellow) {return yellow;}
+    if (color == lighterPurple) {return purple;}
+    if (color == lighterMarkerColor) {return marker_color;}
+    return color;
+}
+
 var layer_dict= {'connection':[]}
 var highlighted_elements= [];
 
@@ -29,9 +61,14 @@ console.log(connection_dict);
 console.log('instance');
 console.log(instance);
 
+
 var title = document.getElementById('title');
 title.innerHTML = connection_dict.original_title;
 
+var original_div = document.getElementById('original');
+original_div.setAttribute('type','original');
+original_div.addEventListener('mouseover',on_div_hover);
+original_div.addEventListener('mouseout',on_div_leave);
 var author = document.getElementById('author_name');
 author.textContent= connection_dict.original_author;
 var genre = document.getElementById('genre_name');
@@ -72,6 +109,57 @@ function scroll_to_element(element) {
         inline: "nearest"});
 }
 
+function find_markers_by_type(type) {
+    var output_markers = [];
+    var original = false;
+    if (type == 'original') {
+        type = 'publication';
+        original = true;
+    }
+    for (i = 0; i<layer_dict.connection.length; i++) {
+        var marker = layer_dict.connection[i];
+        if (marker.options.info.location_type.includes(type)) {
+            if (original == true && marker.options.info.original == true) {
+                output_markers.push(marker);
+            }
+            else if (original == false) {
+                output_markers.push(marker);
+            }
+        }
+    }
+    return output_markers;
+}
+
+function find_marker_by_pk(markers,pk) {
+    pk = parseInt(pk);
+    var output_markers = [];
+    for (i = 0; i<markers.length; i++) {
+        var marker = markers[i];
+        if (marker.options.info.catalogue_Text.includes(pk)) {
+            output_markers.push(marker);
+        }
+    }
+    return output_markers;
+}
+
+function highlight_markers(markers) {
+    for (i = 0; i<markers.length; i++) {
+        var marker = markers[i];
+        var color = make_lighter_color(marker.options.color);
+        marker.setStyle({color:color, fillOpacity:0.8});
+        highlighted_markers.push(marker);
+    }
+}
+
+function darken_markers() {
+    for (i = 0; i<highlighted_markers.length; i++) {
+        var marker = highlighted_markers[i];
+        var color = make_darker_color(marker.options.color);
+        marker.setStyle({color:color, fillOpacity:0.3});
+    }
+    highlighted_markers = [];
+}
+
 function on_marker_hover(e) {
     if (e.target.options.info.location_type.includes('author')) { 
         author_line = document.getElementById('author');
@@ -89,7 +177,6 @@ function on_marker_hover(e) {
         highlighted_elements.push(original_div);
     }
     else if (e.target.options.info.location_type.includes('publication')) {
-        console.log(e.target.options.info, 'publication')
         var text_pks = e.target.options.info.catalogue_Text;
         for (i = 0; i<text_pks.length; i++) {
             var pk = text_pks[i];
@@ -99,15 +186,14 @@ function on_marker_hover(e) {
         }
     }
     scroll_to_element(highlighted_elements[0]);
-    console.log('hover',e, e.target.options.info.location_type)
 }
 function on_marker_leave(e) {
     for (i = 0; i<highlighted_elements.length; i++) {
         highlighted_elements[i].classList.remove('highlight');
     }
     highlighted_elements = [];
-    console.log('leave ',e)
 }
+
 function on_marker_click(e) {
     console.log('click',e)
 }
@@ -139,8 +225,8 @@ function make_circle_marker(loc,i, layer ) {
         info:loc,
         index:i,
         visible:'active'})
-    if (loc.original == true) {var radius = 6;}
-    else {var radius = 3;}
+    if (loc.original == true) {var radius = 9;}
+    else {var radius = 5;}
 	
 	marker.setRadius(radius)
 	add_marker_behavior(marker);
@@ -151,7 +237,6 @@ function make_circle_marker(loc,i, layer ) {
 
 var locations = connection_dict.locations;
 for (i = 0; i<locations.length; i++) {
-        //console.log(locations[i], i, 1111)
         make_circle_marker(locations[i],i,'connection')
 }
 
@@ -175,6 +260,9 @@ function add_translation(translation) {
     var pk = translation.serialized.pk;
     div = document.createElement('div');
     div.id = pk;
+    div.setAttribute('type','translation');
+    div.addEventListener('mouseover',on_div_hover);
+    div.addEventListener('mouseout',on_div_leave);
     make_line('title',translation.title,pk,div);
     make_line('author',translation.author,pk,div);
     make_line('language',translation.language,pk,div);
@@ -184,7 +272,6 @@ function add_translation(translation) {
 }
 
 function add_translations() {
-    console.log('hello');
     var translations = connection_dict.translations;
     for (i = 0; i<translations.length; i++) {
             console.log(translations[i], i )
@@ -192,10 +279,67 @@ function add_translations() {
     }
 }
 
+
 console.log('before translations');
 
 
 add_translations();
 
+function element_to_div(element) {
+    var div = element;
+    while (div.tagName != 'DIV') {
+        div = div.parentElement;
+    }
+    return div;
+}
+
+function find_parent_p(element) {
+    if (element == null) {return false;}
+    if (element.tagName == 'DIV') {return false;}
+    if (element.tagName == 'P') {return false;}
+    while (element.tagName != 'P') {
+        element = element.parentElement;
+    }
+    return element;
+}
+
+
+function on_div_hover(e) {
+    var element = e.target;
+    var p = find_parent_p(element);
+    var div = element_to_div(element);
+    if (p == current_p) {return false;}
+    current_element = element;
+    current_p = p;
+    current_div = div;
+    if (p && p.id == 'author') {
+        var markers = find_markers_by_type('author');
+        highlight_markers(markers);
+    }
+    if (p && p.id == 'setting') {
+        var markers = find_markers_by_type('setting');
+        highlight_markers(markers);
+    }
+    if (p && p.id.includes('publication')) { 
+        if (div.getAttribute('type') == 'original') {
+            var markers = find_markers_by_type('original');
+            highlight_markers(markers);
+        }
+        else if (div.getAttribute('type') == 'translation'){
+            var markers = find_markers_by_type('publication');
+            var markers = find_marker_by_pk(markers, div.id);
+            highlight_markers(markers);
+        }
+    }
+} 
+
+function on_div_leave(e) {
+    var element = e.target;
+    var p = find_parent_p(element);
+    var div = element_to_div(element);
+    if (p == current_p ) {current_p = false;}
+    if (div  == current_div ) {current_div = false;}
+    darken_markers();
+}
 
 
