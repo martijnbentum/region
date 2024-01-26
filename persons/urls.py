@@ -24,6 +24,8 @@ urlpatterns = [
 		name='detail_movement'),
 	path('d_person/<int:pk>',views.detail_person,
 		name='detail_person'),
+	path('detail_person/<int:pk>',views.detail_person,
+		name='detail_person'),
 ]
 
 def create_simple_path(name):
