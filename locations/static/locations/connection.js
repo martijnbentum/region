@@ -62,23 +62,46 @@ console.log('instance');
 console.log(instance);
 
 
+
+function add_links(names, urls, element) {
+    for (let i = 0; i<names.length; i++) {
+        var a_instance =document.createElement("a");
+        element.appendChild(a_instance);
+        if (i < names.length -1) {
+            var span_instance =document.createElement("span");
+            span_instance.textContent = ', ';
+            element.appendChild(span_instance);
+        }
+        console.log('names',names[i], 'urls',urls[i]);
+        a_instance.setAttribute('href',urls[i]);
+        a_instance.textContent = names[i];
+    }
+}
+
 var title = document.getElementById('title');
-title.innerHTML = connection_dict.original_title;
+//title.innerHTML = connection_dict.original_title;
+add_links([connection_dict.original.title],
+    [connection_dict.original.detail_url], title);
 
 var original_div = document.getElementById('original');
 original_div.setAttribute('type','original');
 original_div.addEventListener('mouseover',on_div_hover);
 original_div.addEventListener('mouseout',on_div_leave);
-var author = document.getElementById('author_name');
-author.textContent= connection_dict.original_author;
+var author = document.getElementById('author');
+add_links(connection_dict.original.author_names, 
+    connection_dict.original.author_urls, author);
+//author.textContent= connection_dict.original_author;
+//author.href = connection_dict.original.author_urls[0] 
 var genre = document.getElementById('genre_name');
 genre.textContent= connection_dict.genre;
 var setting= document.getElementById('setting_name');
 setting.textContent= connection_dict.original.setting;
 var language= document.getElementById('language_name');
 language.textContent= connection_dict.original_language;
-var publication= document.getElementById('publication_names');
-publication.textContent= connection_dict.original.publication_titles;
+var publication= document.getElementById('publication');
+add_links(connection_dict.original.publication_titles,
+    connection_dict.original.publication_urls, publication);
+//publication.textContent= connection_dict.original.publication_titles;
 var year= document.getElementById('year_names');
 year.textContent= connection_dict.original.publication_years;
 
@@ -254,6 +277,19 @@ function make_line(line_name, line_content,line_id, parent_element) {
     parent_element.appendChild(line);
 }
 
+function make_link_line(line_name,names, urls, line_id, parent_element) {
+    var line = document.createElement('p');
+    var helper = document.createElement('span');
+    line.className = 'body';
+    line.id = line_name + ' ' + line_id;
+    helper.textContent = line_name + ':';
+    helper.className = 'helper';
+    line.appendChild(helper);
+    parent_element.appendChild(line);
+    console.log('names',names, 'urls',urls);
+    add_links(names, urls, line);
+    }
+
 function add_translation(translation) {
     var translations = document.getElementById('translations');
     var hr= document.createElement('hr');
@@ -263,17 +299,19 @@ function add_translation(translation) {
     div.setAttribute('type','translation');
     div.addEventListener('mouseover',on_div_hover);
     div.addEventListener('mouseout',on_div_leave);
-    make_line('title',translation.title,pk,div);
-    make_line('author',translation.author,pk,div);
+    make_link_line('title',[translation.title],[translation.detail_url],pk,div);
+    make_link_line('author',translation.author_names,translation.author_urls,
+        pk,div);
     make_line('language',translation.language,pk,div);
-    make_line('publication',translation.publication_titles,pk,div);
+    make_link_line('publication',translation.publication_titles,
+        translation.publication_urls,pk,div);
     translations.appendChild(div);
     translations.appendChild(hr);
 }
 
 function add_translations() {
     var translations = connection_dict.translations;
-    for (i = 0; i<translations.length; i++) {
+    for (let i = 0; i<translations.length; i++) {
             console.log(translations[i], i )
             add_translation(translations[i])
     }
