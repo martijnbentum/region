@@ -110,26 +110,31 @@ def _get_author_name(instance):
         relation_name = 'reviewer'
     for relation in instance.persontextrelation_set.all():
         if relation.relation_name == relation_name: persons.append(relation.person)
-    name = ', '.join([x.name for x in persons])
-    return name
+    names = [x.name for x in persons]
+    urls = [instance_to_detail_url(x) for x in persons]
+    return names, urls
+
+def instance_to_detail_url(instance):
+    return '/' + instance.detail_url.replace(':','/') + '/' + str(instance.pk) 
 
 
 def instance_to_info_dict(instance):
     d = {}
     d['title'] = instance.title
-    d['author'] = _get_author_name(instance)
+    d['author_names'], d['author_urls'] = _get_author_name(instance)
     if instance.genre:
         d['genre'] = instance.genre.name
     else: d['genre'] = ''
     if instance.text_type:
         d['text_type'] = instance.text_type.name
     else: d['text_type'] = ''
-    d['publication_titles'] = [p.title for p in instance.publications]
-    d['publication_years'] =[p.date.year for p in instance.publications] 
+    publications = instance.publications
+    d['publication_titles'] = [p.title for p in publications]
+    d['publication_years'] =[p.date.year for p in publications] 
     d['publication_years_str'] =', '.join(map(str,d['publication_years']))
-    d['publication_pks'] = [p.pk for p in instance.publications] 
-    d['publication_detail_url'] = 'catalogue:detail_publication'
-    d['detail_url'] = instance.detail_url
+    d['publication_pks'] = [p.pk for p in publications] 
+    d['publication_urls'] = [instance_to_detail_url(p) for p in publications]
+    d['detail_url'] = instance_to_detail_url(instance)
     d['setting'] = instance.setting
     d['language'] = instance.language_name
     d['serialized'] = serialize_instance(instance)
