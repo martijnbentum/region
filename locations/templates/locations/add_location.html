@@ -24,6 +24,9 @@
 
 <div class="col-md-12 d-flex">
 <h4 class="mt-2">{{page_name}}</h4>
+{% if page_name == "Edit location" %}
+    <p class="text-secondary small text-center pt-0 pb-0 mt-3 ml-5">{{instance.identifier}}</p></a>
+{% endif %}
 {% if view != "inline" %}
 	{% if page_name == "Edit location"%}
 	<a class ="btn btn-link ml-auto" href="{% url 'locations:add_location' %}"
