@@ -33,11 +33,11 @@
 	{% endif %}
 
 		<td>{{illustration.caption}}</td>
-        {% if illustration.category %}
-            <td>{{illustration.category}}</td>
-        {% else %}
-            <td></td>
-        {% endif %}
+        <td>
+            {% for category in illustration.categories.all %}
+                {{category.name}}
+            {% endfor %}
+        </td>
 		<td>{{illustration.connection_count}}</td>
 		<td style="white-space:nowrap;">
 			<a class = "btn btn-link btn-sm ml-auto"
