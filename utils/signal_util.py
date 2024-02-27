@@ -150,7 +150,7 @@ def extract_filename_and_path(name):
 	local_path = media_dir + remote_path
 	name = local_path + '/' + filename
 	remote_path = media_remote_dir + remote_path
-	if not os.path.isdir(local_path):print(path,'not an existing directory') 
+	if not os.path.isdir(local_path):print(local_path,'not an existing directory') 
 	if not os.path.isfile(name):print(name,'not an existing file')
 	return local_path, remote_path, filename
 
