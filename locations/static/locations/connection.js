@@ -28,7 +28,7 @@ const lighterGreen = "#14de4a";
 const lighterBlue = "#0000FF";
 const lighterYellow = "#FFFF00";
 const lighterPurple = "#fa02fa";
-const lighterMarkerColor = '#82cbe8';
+const lighterMarkerColor = '#3260a8';
 
 function make_lighter_color(color) {
     if (color == red) {return lighterRed;}
@@ -169,7 +169,8 @@ function highlight_markers(markers) {
     for (i = 0; i<markers.length; i++) {
         var marker = markers[i];
         var color = make_lighter_color(marker.options.color);
-        marker.setStyle({color:color, fillOpacity:0.8});
+        var radius = marker.getRadius();
+        marker.setStyle({color:color, fillOpacity:1, radius:radius*1.5});
         highlighted_markers.push(marker);
     }
 }
@@ -178,7 +179,8 @@ function darken_markers() {
     for (i = 0; i<highlighted_markers.length; i++) {
         var marker = highlighted_markers[i];
         var color = make_darker_color(marker.options.color);
-        marker.setStyle({color:color, fillOpacity:0.3});
+        var radius = marker.getRadius();
+        marker.setStyle({color:color, fillOpacity:0.1, radius:radius/1.5});
     }
     highlighted_markers = [];
 }
