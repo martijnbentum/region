@@ -357,8 +357,9 @@ class Search:
         if 'empty' in self.query.special_terms:
             print('selecting empty fields in fields:',self.active_fields)
             self.select_empty() 
-        print('empty selection:',delta(start),'seconds')
-        self.nentries_found = self.result.count()
+        print(self.result,12345, type(self.result))
+        if type(self.result) == list: self.nentries_found = len(self.result)
+        else: self.nentries_found = self.result.count()
         print('counting entries:',delta(start),'seconds')
         self.nentries = '# Entries: ' + str(self.nentries_found) 
         if self.max_entries:
