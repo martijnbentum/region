@@ -1,0 +1,9 @@
+data/
+*migrations/
+*__pycache__/
+db.sqlite3
+.env
+*OLD/
+.env/
+utils/smb_settings.py
+
