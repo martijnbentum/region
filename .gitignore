@@ -5,4 +5,8 @@ db.sqlite3
 .env
 *OLD/
 .env/
-
+*/SWP/
+locations/templates/locations/SWP/
+media/
+sent_emails/
+static/
