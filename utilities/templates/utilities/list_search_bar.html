@@ -28,6 +28,10 @@
 	</form>
 	</div>
 
+<a class ="btn btn-link ml-auto" 
+    href="{% url 'utilities:list_view' model_name app_name nentries_found%}"
+    role="button"><i class="fas fa-list"></i></a>
+
 {% with app_name|add:":add_"|add:name as add_instance %}
 	<a class ="btn btn-link ml-auto" href="{% url add_instance  %}"
 	role="button">Add {{name}}</a>

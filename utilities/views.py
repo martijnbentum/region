@@ -81,6 +81,8 @@ def list_view(request, model_name, app_name, max_entries=500):
         'page_name':model_name,
         'order':s.order.order_by,'direction':s.order.direction,
         'app_name':app_name,
+        'model_name':model_name,
+        'nentries_found':s.nentries_found,
         'query':s.query.query,'nentries':s.nentries,
         'search_fields':s.search_fields,
         'name':model_name.lower(),'extended_search':extended_search,
