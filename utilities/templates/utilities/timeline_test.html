@@ -38,6 +38,10 @@ method = "post" onsubmit="dosubmit();">
     {% csrf_token %}
 
 
+{% if no_items_found %}
+    <p>No items found for this location</p>
+{% endif %}
+
 
 <table class="table table-sm" id="form_table">
 	<tr class="d-flex">

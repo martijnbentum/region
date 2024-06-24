@@ -45,13 +45,17 @@ def timeline(request):
     model = None
     form = None
     tjson = ''
+    no_items_found = False
     if request.method == 'POST':
         form = TimelineForm(request.POST, request.FILES)
         t= make_timeline.Timelines(form)
-        print('timelines:',t.timelines,t.names,t.ncategories)
-        tjson = t.make_json()
+        if t.ok:
+            print('timelines:',t.timelines,t.names,t.ncategories)
+            tjson = t.make_json()
+        else: no_items_found = True
     if not form: form = TimelineForm()
-    var = {'page_name':'timeline','form':form,'tjson':tjson}
+    var = {'page_name':'timeline','form':form,'tjson':tjson,
+        'no_items_found':no_items_found}
     return render(request,'utilities/timeline_test.html',var)
 
 def ajax_identifiers_to_instances(request,identifiers):
