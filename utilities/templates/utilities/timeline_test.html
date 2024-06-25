@@ -120,6 +120,14 @@ function add_instance(instance, grey) {
 	p.classList.add("grid-child");
 	if (grey) {p.classList.add("grey");}
 	entries.push(p)
+	a =document.createElement("a");
+	sidebar.appendChild(a);
+	a.setAttribute('href',instance.detail_url);
+    a.innerHTML = '<i class="fas fa-eye"></i>';
+	a.classList.add("grid-child");
+	if (grey) {a.classList.add("grey");}
+    console.log(a)
+    entries.push(a)
 }
 
 async function get_instances(instance_identifiers) {
@@ -313,7 +321,7 @@ const bars = container
 }
 .grid-container {
 	display:grid;
-	grid-template-columns: 600px 300px;
+	grid-template-columns: 600px 120px 200px;
 	align-items: top;
 	margin-left:30px;
 	padding-top:0px;
