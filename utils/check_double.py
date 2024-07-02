@@ -1,4 +1,8 @@
 import Levenshtein
+from openpyxl import Workbook
+from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
+
 import re
 
 def load_locations():
@@ -54,3 +58,66 @@ def check_text_matches(texts = None, min_distance = 1, max_distance = 2):
                 if not pk in output.keys(): output[pk] = []
                 output[pk].append(text2.pk)
     return output
+
+def pk_to_url_and_setting(pk):
+    from catalogue.models import Text
+    t = Text.objects.get(pk = pk)
+    url = t.edit_url_complete
+    setting = t.setting
+    return [url, setting]
+
+def make_workbook():
+    return Workbook()
+
+def add_sheet(wb, sheet_name):
+    return wb.create_sheet(sheet_name)
+    
+
+def add_cell_value(sheet, row, column, value, hyperlink = ''):
+    cell = sheet.cell(row = row, column = column, value = value)
+    if hyperlink:
+        cell.hyperlink = hyperlink
+        cell.style = 'Hyperlink'
+    return cell
+
+def to_output(almost_text_matches = None):
+    if not almost_text_matches: almost_text_matches = check_text_matches()
+    output = []
+    for k,v in almost_text_matches.items():
+        url1, setting1 = pk_to_url_and_setting(k)
+        for pk in v:
+            url2, setting2 = pk_to_url_and_setting(pk)
+            output.append([k,pk,setting1,setting2,url1,url2])
+    return output
+    
+def handle_line(line, row_index, sheet):
+    pk1, pk2, setting1, setting2, url1, url2 = line
+    add_cell_value(sheet, row_index+2, 1, pk1)
+    add_cell_value(sheet, row_index+2, 2, setting1)
+    add_cell_value(sheet, row_index+2, 3, setting2)
+    add_cell_value(sheet, row_index+2, 4, 'link1', url1,)
+    add_cell_value(sheet, row_index+2, 5, 'link2', url2,)
+    add_cell_value(sheet, row_index+2, 6, pk1)
+    add_cell_value(sheet, row_index+2, 7, pk2)
+
+def make_text_setting_excel(output = None, filename = 'text_settings.xlsx'):
+    if not output: output = to_output()
+    wb = make_workbook()
+    sheet = add_sheet(wb, 'items')
+    for row_index, line in enumerate(output):
+        handle_line(line, row_index, sheet)
+    sheet.column_dimensions['B'].width = 100
+    sheet.column_dimensions['C'].width = 100
+    wb.remove(wb['Sheet'])
+    wb.save(filename)
+    return wb
+    
+
+
+            
+            
+            
+
+            
+
+
