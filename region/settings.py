@@ -179,5 +179,6 @@ except Exception as e:
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField' 
-CSRF_TRUSTED_ORIGINS = ['https://redefiningtheregion.cls.ru.nl']
+# CSRF_TRUSTED_ORIGINS = ['https://redefiningtheregion.cls.ru.nl']
+CSRF_TRUSTED_ORIGINS= config('CSRF_TRUSTED_ORIGINS', cast=Csv())
 
