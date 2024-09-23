@@ -5,7 +5,7 @@ from . import views
 
 app_name = 'catalogue'
 urlpatterns = [
-	path('',views.text_list,name='text_view'),
+	path('',views.home,name='home'),
 	path('text/',views.text_list,name='text_view'),
 	path('ajax_test/',views.ajax_test,name='ajax_test'),
 	path('add_illustration/', views.edit_illustration, name='add_illustration'),

@@ -23,12 +23,16 @@ from .forms import IllustrationIllustrationRelationTypeForm
 from persons.models import Person, PersonLocationRelation
 from persons.forms import textperson_formset, illustrationperson_formset
 from persons.forms import periodicalperson_formset
-from utils import view_util
+from utils import view_util, model_util
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
 from utilities.views import add_simple_model, edit_model, getfocus, delete_model
 from utilities.views import list_view
 import os
 
+def home(request):
+    image_urls  = model_util.get_random_image_urls(n=5)
+    args = {'image_urls':image_urls}
+    return render(request,'catalogue/home.html',args)
 
 def detail_illustration(request,pk):
 	illustration = Illustration.objects.get(pk = pk)
