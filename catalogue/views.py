@@ -34,6 +34,11 @@ def home(request):
     args = {'image_urls':image_urls}
     return render(request,'catalogue/home.html',args)
 
+def acknowledgements(request):
+    args = {}
+    return render(request,'catalogue/acknowledgements.html',args)
+
+
 def detail_illustration(request,pk):
 	illustration = Illustration.objects.get(pk = pk)
 	var = {'page_name':illustration.caption}
