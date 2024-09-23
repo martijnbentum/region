@@ -340,9 +340,30 @@ def all_instances_to_text():
     return ' '.join(output)
     
 
+def instance_to_image_urls(instance):
+    output = []
+    for field in instance._meta.fields:
+        if isinstance(field, models.ImageField):
+            image = getattr(instance,field.name)
+            if image.name:
+                output.append(image.url)
+    return output
 	
+def get_all_image_urls():
+    instances = get_all_instances()
+    output = []
+    for instance in instances:
+        urls = instance_to_image_urls(instance)
+        for url in urls:
+            if not url: continue
+            output.append(url)
+    return output
 
+def get_random_image_urls(n=1):
+    urls = get_all_image_urls()
+    return random.sample(urls,n)
 		 
+    
 
 
 
