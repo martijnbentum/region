@@ -60,8 +60,6 @@
 	{%block wide %}
 	{% endblock %}
 
-	{% if user.username == '' %}
-	{% else %}
 		<div class="row">
 			<div class="col-1"> 
 				{% block left %}
@@ -86,7 +84,6 @@
 		{% block afterbody%}
 		{% endblock %}
 	
-	{% endif %}
 
 <script>
     $(document).ready(function(){
