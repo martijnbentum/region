@@ -6,7 +6,7 @@ import time
 import json
 
 to_old_seconds = 3600 * 24 * 7
-directory = '../totals/'
+directory = 'data/totals/'
 
 def get_totals(model_names = ''):
 	o = {}
