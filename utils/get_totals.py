@@ -51,7 +51,7 @@ def save_total(d,filename):
 
 def get_countries(totals = None):
 	if totals == None: totals = sum(get_totals().values())
-	fn = glob.glob('../location_container_instance_links/*country*')
+	fn = glob.glob('data/location_container_instance_links/*country*')
 	output = []
 	for f in fn:
 		n = int(f.split('_n-')[-1])
