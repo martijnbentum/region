@@ -8,7 +8,7 @@ from utils.model_util import instance2names
 instance_types = 'text,illustration,publication,periodical,movement,publisher'
 instance_types += ',person'
 instance_types = instance_types.split(',')
-directory = 'data/location_container_instance_links/'
+directory = 'link_data/location_container_instance_links/'
 
 def get_relation_fields(location):
     sets = [field for field in dir(location) if field.endswith('_set')] 
@@ -147,7 +147,7 @@ def _make_pre_save_instances_linked_to_contained_locations():
     print(len(locations), 'satisfy this condition')
     if not os.path.isdir(directory): os.mkdir(directory)
     print('removing previous saves')
-    os.system('rm data/location_container_instance_links/*_pk-*')
+    os.system('rm link_data/location_container_instance_links/*_pk-*')
     for i,location in enumerate(locations):
         print('handling location:',location,location.location_type.name)
         print(i, len(locations))
