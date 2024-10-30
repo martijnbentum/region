@@ -31,7 +31,8 @@
 	<th></th>
 	</tr>
 	{% for publication in publication_list %}
-	{% if publication.approved %}
+    {% if not perms.utilities.add_generic %}
+	{% elif publication.approved %}
 	<tr style="background:#c0edc0;">
 	{% elif publication.complete %}
 	<tr style="background:#fff494;">
@@ -44,16 +45,20 @@
 		<td>{{publication.location_str}}</td>
 		<td>{{publication.connection_count}}</td>
 		<td style="white-space:nowrap;">
+        {% if perms.utilities.delete_generic %}
 			<a class = "btn btn-link btn-sm ml-auto"
 				href ="{% url 'catalogue:delete' publication.pk 'Publication' %}"
 				role="button">
 					<i class="fa fa-trash text-secondary"></i>
 			</a>
+        {% endif %}
+        {% if perms.utilities.add_generic %}
 			<a class = "btn btn-link btn-sm ml-auto"
 				href ="{% url 'catalogue:edit_publication' publication.pk %}"
 				role="button">
 					<i class="far fa-edit text-secondary"></i>
 			</a>
+        {% endif %}
 			<a class="btn btn-link btn-sm ml-auto" 
 				href="{% url publication.detail_url publication.pk %}"
 				role="button">

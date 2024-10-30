@@ -32,7 +32,8 @@
 	<th></th>
 	</tr>
 	{% for text in text_list %}
-	{% if text.approved %}
+    {% if not perms.utilities.add_generic %}
+	{% elif text.approved %}
 	<tr style="background:#c0edc0;">
 	{% elif text.complete %}
 	<tr style="background:#fff494;">
@@ -45,16 +46,20 @@
 		<td>{{text.setting|truncatewords:3}}</td>
 		<td>{{text.connection_count}}</td>
 		<td style="white-space:nowrap;">
+    {% if perms.utilities.delete_generic %}
 			<a class = "btn btn-link btn-sm ml-auto"
 				href="{% url 'catalogue:delete' text.pk 'Text' %}"
 				role="button">
 					<i class="fa fa-trash text-secondary"></i>
 			</a>
+    {% endif %}
+    {% if perms.utilities.add_generic %}
 			<a class="btn btn-link btn-sm ml-auto"
 				href="{% url 'catalogue:edit_text' text.pk %}"
 				role="button">
 					<i class="far fa-edit text-secondary"></i>
 			</a>
+    {% endif %}
 			<a class="btn btn-link btn-sm ml-auto" 
 				href="{% url text.detail_url text.pk %}"
 				role="button">

@@ -16,9 +16,11 @@
 {% endif %}
 
 <p class="title">{{instance.title}}
-	<a class = "btn btn-link btn-sm ml-auto"
-		href ="{% url instance.edit_url instance.pk %}"
-		role="button"><i class="far fa-edit text-secondary"></i></a>
+    {% if perms.utilities.add_generic %}
+        <a class = "btn btn-link btn-sm ml-auto"
+            href ="{% url instance.edit_url instance.pk %}"
+            role="button"><i class="far fa-edit text-secondary"></i></a>
+    {% endif %}
 </p>
 <p class="date">{{instance.date}}</p>
 <hr>

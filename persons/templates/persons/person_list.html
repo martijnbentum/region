@@ -27,7 +27,8 @@
 	<!-- create header -->
 	</tr>
 	{% for person in person_list %}
-	{% if person.approved %}
+    {% if not perms.utilities.add_generic %}
+	{% elif person.approved %}
 	<tr style="background:#c0edc0;">
 	{% elif person.complete %}
 	<tr style="background:#fff494;">
@@ -42,16 +43,20 @@
 		<td>{{person.birth_place|default:''}}</td>
 		<td>{{person.connection_count}}</td>
 		<td style="white-space:nowrap;">
+    {% if perms.utilities.delete_generic %}
 			<a class = "btn btn-link btn-sm ml-auto"
 				href ="{% url 'persons:delete' person.pk 'Person' %}"
 				role="button">
 					<i class="fa fa-trash text-secondary"></i>
 			</a>
+    {% endif %}
+    {% if perms.utilities.add_generic %}
 			<a class = "btn btn-link btn-sm ml-auto"
 				href ="{% url 'persons:edit_person' person.pk %}"
 				role="button">
 					<i class="far fa-edit text-secondary"></i>
 			</a>
+    {% endif %}
 			<a class="btn btn-link btn-sm ml-auto" 
 				href="{% url person.detail_url person.pk %}"
 				role="button">

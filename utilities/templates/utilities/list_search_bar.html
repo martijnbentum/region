@@ -32,10 +32,12 @@
     href="{% url 'utilities:list_view' model_name app_name nentries_found%}"
     role="button"><i class="fas fa-list"></i></a>
 
-{% with app_name|add:":add_"|add:name as add_instance %}
-	<a class ="btn btn-link ml-auto" href="{% url add_instance  %}"
-	role="button">Add {{name}}</a>
-{% endwith %}
+{% if perms.utilities.add_generic %}
+    {% with app_name|add:":add_"|add:name as add_instance %}
+        <a class ="btn btn-link ml-auto" href="{% url add_instance  %}"
+        role="button">Add {{name}}</a>
+    {% endwith %}
+{% endif %}
 </div>
 
 <div id="extended_search_list" style={{extended_search}}>
