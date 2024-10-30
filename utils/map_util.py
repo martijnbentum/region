@@ -160,7 +160,7 @@ def get_all_location_ids_dict(instances = None,add_names_gps = False):
     return d
                     
 def locationtype_filter_dict(d = None, save = False, load = True,
-    filename = 'data/locationtype_filter_dict.json'):
+    filename = 'link_data/locationtype_filter_dict.json'):
     if not save and load:
         with open(filename) as fin:
             d = json.load(fin)
