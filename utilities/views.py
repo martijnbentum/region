@@ -70,7 +70,7 @@ def ajax_identifiers_to_instances(request,identifiers):
     print(d,'serial')
     return JsonResponse({'instances':d})
 
-def list_view(request, model_name, app_name, max_entries=500):
+def list_view(request, model_name, app_name, max_entries=2700):
     '''list view of a model.'''
     extended_search = getextended_search(request)
     active_fields= get_active_search_buttons(request)
