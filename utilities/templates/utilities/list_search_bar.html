@@ -1,5 +1,6 @@
 <div class="d-flex">
 
+
 	<div class="col-11">
 	<form>
 	  <div class="d-flex">
@@ -47,8 +48,11 @@
 {{search_fields|json_script:"js_search_fields"}}
 {{active_search_buttons|json_script:"js_asb"}}
 {{active_special_term_buttons|json_script:"js_stb"}}
+{{perms.utilities.add_generic|json_script:'add-generic'}}
 
 <script>
+
+var add_generic= JSON.parse(document.getElementById('add-generic').textContent);
 var query= document.getElementById('query')
 query.addEventListener('click',before_search)
 
@@ -59,6 +63,7 @@ var active_search_buttons= JSON.parse(tmp.textContent);
 var tmp = document.getElementById('js_stb')
 var active_special_term_buttons= JSON.parse(tmp.textContent);
 var special_terms = 'combine words,combine columns,exact,empty'.split(',')
+    
 
 if (active_special_term_buttons.includes('incomplete')) {
 	special_terms.push('incomplete')
@@ -76,9 +81,16 @@ for (i = 0; i<search_fields.length; i++) {
 	make_button(search_fields[i],'button_search_field');
 }
 
+if (!add_generic) {
+    special_terms = [];
+    active_special_term_buttons = [];
+    console.log('add_generic',add_generic)
+}
+
 for (i = 0; i<special_terms.length;i++) {
 	make_button(special_terms[i],'button_special_term');
 }
+
 
 set_active_buttons();
 
