@@ -34,20 +34,24 @@
           <a class="dropdown-item" href=
 			"{% url 'utilities:list_view' 'Movement' 'persons' %}">movement</a>
           <div class="dropdown-divider"></div>
+{% if perms.utilities.add_generic %}
           <a class="dropdown-item" href=
 			"{% url 'utilities:list_view' 'Location' 'locations' 100 %}">
                 location</a>
+{% endif %}
           <a class="dropdown-item" href=
 			"{% url 'locations:simple_map_search' %}">map search</a>
           <a class="dropdown-item" href=
 			"{% url 'locations:map_search' %}">advanced map search</a>
           <div class="dropdown-divider"></div>
+{% if perms.utilities.add_generic %}
           <a class="dropdown-item" href=
 			"{% url 'accounts:created_by_me_view' %}">created by me</a>
           <a class="dropdown-item" href=
 			"{% url 'accounts:log_view' %}">log</a>
           <a class="dropdown-item" href=
 			"{% url 'accounts:logs_view' %}">logs</a>
+{% endif %}
           <a class="dropdown-item" href=
 			"{% url 'utilities:timeline' %}">timeline</a>
           <a class="dropdown-item" href=
@@ -55,6 +59,7 @@
         </div>
       </li>
 
+{% if perms.utilities.add_generic %}
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Add
@@ -78,6 +83,7 @@
 			"{% url 'locations:add_location' %}">location</a>
         </div>
       </li>
+{% endif %}
 
 
       <li class="nav-item">
@@ -93,6 +99,7 @@
 			</a>
 		</li>
       {% endif %}
+{% if perms.utilities.add_generic %}
       {% if user.username %}
 		<li class ="nav-item">
 			<a class="nav-link" href="{% url 'utilities:add_comment' user.pk %}">
@@ -100,6 +107,7 @@
 			</a>
 		</li>
       {% endif %}
+  {% endif %}
 	</ul>
 
 	<ul class = "navbar-nav navbar-right">
