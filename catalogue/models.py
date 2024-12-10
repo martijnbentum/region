@@ -819,6 +819,9 @@ class Publication(Item, info):
             d['detail_url'] = x.illustration.detail_url
             d['pk'] = x.illustration.pk
             d['illustration'] = x.illustration
+            if x.illustration.use_permission:
+                d['use_permission_name'] = x.illustration.use_permission.name
+            else: d['use_permission_name'] = None
             output.append(d)
         return sorted(output, key=lambda x: x['order'])
 
