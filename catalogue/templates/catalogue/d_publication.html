@@ -127,11 +127,13 @@
 	{%for image in instance.illustrations %}
 		<div class="row">
 			<div class="col-1">
-				{% if image.url_image %}
-					<img class="small-image" 
-						src="{{image.url_image}}" 
-						alt="">
-				{% endif %}
+                {% if image.use_permission_name == 'yes' %}
+                    {% if image.url_image %}
+                        <img class="small-image" 
+                            src="{{image.url_image}}" 
+                            alt="">
+                    {% endif %}
+                {% endif %}
 			</div>
 			<div class="col-11">
 				<a class="link-color image-caption"
