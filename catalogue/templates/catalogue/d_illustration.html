@@ -11,9 +11,20 @@
 <p class="category">Illustration</p>
 
 {% if instance.upload %}
+    {% if instance.use_permission.name == 'yes' %}
 	<img 
 	src="{{instance.upload.url}}" 
 	alt="{{instance.upload.url}}" > 
+    {% elif perms.utilities.add_generic %}
+        <img 
+        src="{{instance.upload.url}}" 
+        alt="{{instance.upload.url}}" > 
+        <p> no use permission for image </p>
+    {% else %}
+        <p> no use permission for image</p>
+    {% endif %}
+{% else %}
+    <p>no image available</p>
 {% endif %}
 
 
