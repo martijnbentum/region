@@ -349,18 +349,22 @@ def instance_to_image_urls(instance):
                 output.append(image.url)
     return output
 	
-def get_all_image_urls():
+def get_all_image_urls(check_use_permission = False):
     instances = get_all_instances()
     output = []
     for instance in instances:
+        if check_use_permission:
+            if not hasattr(instance,'use_permission'): continue
+            if not instance.use_permission: continue
+            if instance.use_permission.name == 'no': continue
         urls = instance_to_image_urls(instance)
         for url in urls:
             if not url: continue
             output.append(url)
     return output
 
-def get_random_image_urls(n=1):
-    urls = get_all_image_urls()
+def get_random_image_urls(n=1, check_use_permission = False):
+    urls = get_all_image_urls(check_use_permission = check_use_permission)
     return random.sample(urls,n)
 		 
     
