@@ -30,7 +30,8 @@ from utilities.views import list_view
 import os
 
 def home(request):
-    image_urls  = model_util.get_random_image_urls(n=3)
+    image_urls = model_util.get_random_image_urls(n=3, 
+        check_use_permission = True)
     args = {'image_urls':image_urls}
     return render(request,'catalogue/home.html',args)
 
