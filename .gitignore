@@ -11,3 +11,4 @@ media/
 sent_emails/
 static/
 link_data/
+*.swp
