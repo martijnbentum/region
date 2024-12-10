@@ -1,4 +1,5 @@
 <!doctype html>
+{% load static %}
 <html lang='en'>
     <head>
         <meta charset="utf-8">
@@ -21,6 +22,8 @@
 		<script src="https://unpkg.com/@popperjs/core@2"></script>
 		<script src="https://unpkg.com/tippy.js@6"></script>
 		<!-- end cdns for tippy -->
+
+    <link rel="stylesheet" href="{% static 'utilities/base.css' %}">
 	{% block head %}
 	{% endblock %}
     </head>
