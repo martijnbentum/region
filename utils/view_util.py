@@ -154,8 +154,12 @@ class Crud:
         return ' // '.join([self.app_name,self.model_name, self.last_update])
 
     @property
+    def contributer_list(self):
+        return list(set([u.username for u in self.updates if u.username]))
+
+    @property
     def contributers(self):
-        return ', '.join(list(set([u.username for u in self.updates if u.username])))
+        return ', '.join(self.contributer_list)
 
     @property
     def all_created(self):
