@@ -3,9 +3,10 @@ from .model_util import instance2names
 
 
 class Links:
-    def __init__(self,instance):
+    def __init__(self,instance, collect_relations = False):
         self.instance = instance
         self.connections = Connections(instance)
+        if collect_relations: self.collect_relation_instances()
 
     def collect_relation_instances(self):
         self.relation_instances = []
