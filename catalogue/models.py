@@ -1014,10 +1014,12 @@ class TextPublicationRelation(RelationModel):
     start_page = models.CharField(max_length=5,null=True,blank=True)
     end_page = models.CharField(max_length=5,null=True,blank=True)
     model_fields = ['text','publication']
+    relation_name = ' is a part of '
+    secondary_relation_name = ' has text '
 
     def __str__(self):
         try:
-            m =  self.text.title+ ' is a part of '
+            m =  self.text.title+ self.relation_name
             m += self.publication.title
             return m
         except:
@@ -1034,9 +1036,11 @@ class TextReviewPublicationRelation(RelationModel):
     text = models.ForeignKey(Text, on_delete=models.CASCADE)
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
     model_fields = ['text','publication']
+    relation_name = ' is a review of '
+    secondary_relation_name = ' is reviewed by '
 
     def __str__(self):
-        m =  self.text.title+ ' is a review of '
+        m =  self.text.title+ self.relation_name
         m += self.publication.title
         return m
 
@@ -1051,9 +1055,11 @@ class IllustrationPublicationRelation(RelationModel):
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
     page = models.CharField(max_length=5,null=True,blank=True)
     model_fields = ['illustration','publication']
+    relation_name = ' is a part of '
+    secondary_relation_name = ' has illustration '
 
     def __str__(self):
-        m =  self.illustration.caption+ ' is a part of '
+        m =  self.illustration.caption+ self.relation_name
         m += self.publication.title
         return m
 
@@ -1070,9 +1076,11 @@ class PeriodicalPublicationRelation(RelationModel, info):
     volume= models.PositiveIntegerField(null=True,blank=True)
     issue= models.PositiveIntegerField(null=True,blank=True)
     model_fields = ['periodical','publication']
+    relation_name = ' is a part of '
+    secondary_relation_name = ' has periodical '
 
     def __str__(self):
-        m =  self.periodical.title+ ' is a periodical in '
+        m =  self.periodical.title+ self.relation_name
         m += self.publication.title
         return m
 
@@ -1097,6 +1105,10 @@ class TextTextRelation(models.Model, info):
         m += self.secondary.title +' and '
         m += self.primary.title
         return m
+
+    @property
+    def relation_name(self):
+        return self.relation_type.name
 
 
 class IllustrationIllustrationRelation(models.Model, info):
