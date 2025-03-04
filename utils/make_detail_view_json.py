@@ -51,9 +51,11 @@ def publication_to_json(publication, directory = 'rdr_rdr/'):
     d['illustrations'] = illustration_linked_to_publication(publication)
     if d['use_permission'] == 'yes':
         if d['pdf_filename']:
-            os.system(f'cp {d["pdf_filename"]} {directory}publication/pdf/')
+            f = d['pdf_filename'].strip('/')
+            os.system(f'cp {f} {directory}publication/pdf/')
         if d['cover_filename']:
-            os.system(f'cp {d["pdf_filename"]} {directory}publication/cover/')
+            f = d['cover_filename'].strip('/')
+            os.system(f'cp {f} {directory}publication/cover/')
     return d
 
 
@@ -78,7 +80,8 @@ def illustration_to_json(illustration, directory = 'rdr_rdr/'):
     d['publications'] = {'published_in':secondary_instances_to_json(p)}
     if d['use_permission'] == 'yes':
         if d['filename']:
-            os.system(f'cp {d["filename"]} {directory}illustration/')
+            f = d['filename'].strip('/')
+            os.system(f'cp {f} {directory}illustration/')
     return d
 
 def movement_to_json(movement):
