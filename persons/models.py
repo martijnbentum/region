@@ -191,6 +191,19 @@ class Person(models.Model, info):
         return self._type_location_dict
 
     @property
+    def type_to_location_intances_dict(self):
+        if hasattr(self,'_type_location_instances_dict'): 
+            return self._type_location_instances_dict
+        d ={}
+        plrs = self.personlocationrelation_set.all()
+        for plr in plrs:
+            if plr.relation.name.lower() not in d.keys(): 
+                d[plr.relation.name.lower()] = []
+            d[plr.relation.name.lower()].append(plr.location)
+        self._type_location_dict= d
+        return self._type_location_dict
+
+    @property
     def texts(self):
         if hasattr(self,'_texts'): return self._texts
         output = []
@@ -228,6 +241,44 @@ class Person(models.Model, info):
                 if not publication in output: output.append(publication)
         self._publications = sorted(output, key = lambda x: x.date)
         return self._publications
+
+    @property
+    def role_to_publication_dict(self):
+        if hasattr(self,'_role_to_publication_dict'): 
+            return self._role_to_publication_dict
+        d ={}
+        for role, texts in self.role_to_text_dict.items():
+            d[role] = []
+            for text in texts:
+                for publication in text.publications:
+                    if publication not in d[role]: d[role].append(publication)
+        for role, illustrations in self.role_to_illustration_dict.items():
+            if role not in d.keys(): d[role] = []
+            for illustration in illustrations:
+                for publication in illustration.publications:
+                    if publication not in d[role]: d[role].append(publication)
+        self._role_to_publication_dict= d
+        return self._role_to_publication_dict
+        
+    @property
+    def role_to_publisher_dict(self):
+        if hasattr(self,'_role_to_publisher_dict'): 
+            return self._role_to_publisher_dict
+        d ={'manager': [], 'published_by': []}
+        for pr in self.manager.all():
+            publisher = pr.publisher
+            if publisher not in d['manager']:
+                d['manager'].append(publisher)
+        if not 'author' in self.role_to_publication_dict.keys(): return d
+        publications = self.role_to_publication_dict['author']
+        for publication in publications:
+            for publisher in publication.publisher.all():
+                if publisher not in d['published_by']:
+                    d['published_by'].append(publisher)
+        self._role_to_publisher_dict = d
+        return self._role_to_publisher_dict
+            
+
 
     @property
     def publication_locations(self):
