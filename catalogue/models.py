@@ -916,6 +916,11 @@ class Publication(Item, info):
             if text['translators']: output.extend(text['translators'])
         self._translators= list(set(output))
         return self._translators
+
+    @property
+    def role_to_person_dict(self):
+        d ={'author':self.authors,'translator':self.translators}
+        return d
         
     @property
     def reviews(self):
