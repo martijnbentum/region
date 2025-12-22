@@ -31,7 +31,7 @@ class text_connection:
             if key not in self.start_text.type_to_linked_texts_dict:
                 print('No linked texts found for text pk ', self.start_text.pk,
                     self.start_text.type_to_linked_texts_dict.keys())
-        else:
+            else:
                 for text in self.start_text.type_to_linked_texts_dict[key]:
                     if text.type_info != key:
                         self.original = text
