@@ -20,6 +20,8 @@ class text_connection:
         self.all_texts = texts
         if original not in self.all_texts: self.all_texts.append(original)
         self.languages = list(set([x.language_name for x in self.all_texts]))
+        if not self.has_original:
+            print('all texts:', self.all_texts)
 
     def get_original(self):
         self.original = None
@@ -39,8 +41,7 @@ class text_connection:
         self.has_original = self.original == None
         if not self.original:
             print('No original found for text pk ', self.start_text.pk,
-                ' type ', self.start_text.type_info
-                'all_texts:',all_texts)
+                ' type ', self.start_text.type_info)
             self.original = self.start_text
 
 
