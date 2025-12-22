@@ -12,3 +12,5 @@ sent_emails/
 static/
 link_data/
 *.swp
+.DS_Store
+rdr_rdr/
