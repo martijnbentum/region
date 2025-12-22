@@ -930,7 +930,15 @@ class Publication(Item, info):
             o.append(tpr.text)
         self._reviews= o
         return self._reviews
-        
+
+class Podcast(Item, info):
+    title = models.CharField(max_length=300)
+    speakers = models.CharField(max_length=1000,blank=True,null=True)
+    date = PartialDateField(null=True,blank=True)
+    audio_link = models.CharField(max_length=500,blank=True,null=True) 
+    
+    def __str__(self):
+        return self.title
 
         
 class Periodical(Item, info):
