@@ -1,0 +1,59 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+	<title>{{page_name}}</title>
+{% endblock %}
+
+
+{% block content %}
+{% include 'utilities/list_search_bar.html' %}
+
+{% if podcast_list %}
+
+<div class="d-flex">
+
+<table class="table">
+	<tr> 
+	<th><a href="?order_by=title,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">Name</a></th>
+	<th><a href="?order_by=speakers,{{order}},{{direction}},{{query}}" 
+		style="text-decoration:none;">Speakers</a></th>
+    <th></th>
+	</tr>
+	{% for podcast in podcast_list %}
+		<td>{{podcast.title}}</td>
+		<td>{{podcast.speakers}}</td>
+		<td style="white-space:nowrap;">
+        {% if perms.utilities.delete_generic %}
+			<a class = "btn btn-link btn-sm ml-auto"
+				href ="{% url 'catalogue:delete' podcast.pk 'Podcast' %}"
+				role="button">
+					<i class="fa fa-trash text-secondary"></i>
+			</a>
+        {% endif %}
+        {% if perms.utilities.add_generic %}
+			<a class = "btn btn-link btn-sm ml-auto"
+				href ="{% url 'catalogue:edit_podcast' podcast.pk %}"
+				role="button">
+					<i class="far fa-edit text-secondary"></i>
+			</a>
+        {% endif %}
+			<a class="btn btn-link btn-sm ml-auto" 
+				href="{% url podcast.detail_url podcast.pk %}"
+				role="button">
+				   <i class="fas fa-eye text-secondary"></i>
+			</a>
+		</td>
+	</tr>
+	{% endfor %}
+</table>
+</div>
+
+{% else %}
+	<p>no podcasts are available</p>
+{% endif %}
+
+{% endblock content %}
+
+
+	<!-- <td>{{ attr|truncatechars:40}}</td> -->

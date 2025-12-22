@@ -9,6 +9,7 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse
 from .models import Publication, Publisher, Text, Illustration, Periodical
+from .models import Podcast
 from .forms import TextForm, PublicationForm, PublisherForm, PeriodicalForm
 from .forms import IllustrationForm, IllustrationCategoryForm
 from .forms import TextTextRelationTypeForm, CopyRightForm, GenreForm
@@ -19,7 +20,7 @@ from .forms import periodicalpublication_formset, TextTypeForm
 from .forms import textreviewpublication_formset
 from .forms import publicationreviewedbytext_formset,illustrationillustration_formset
 from .forms import illustrationillustration_formsetr, IllustrationTypeForm
-from .forms import IllustrationIllustrationRelationTypeForm
+from .forms import IllustrationIllustrationRelationTypeForm, PodcastForm
 from persons.models import Person, PersonLocationRelation
 from persons.forms import textperson_formset, illustrationperson_formset
 from persons.forms import periodicalperson_formset
@@ -70,9 +71,19 @@ def detail_text(request,pk):
 	var.update({'instance':text})
 	return render(request,'catalogue/d_text.html',var)
 
+def detail_podcast(request,pk):
+    podcast= Podcast.objects.get(pk = pk)
+    var = {'page_name':podcast.title}
+    var.update({'instance':podcast})
+    return render(request,'catalogue/d_podcast.html',var)
+
 def text_list(request):
 	'''list view of text.'''
 	return list_view(request, 'Text', 'catalogue')
+
+def podcast_list(request):
+    '''list view of podcast.'''
+    return list_view(request, 'Podcast', 'catalogue')
 
 
 def make_fname(name):
@@ -105,6 +116,7 @@ def edit_text(request, pk=None, focus = '', view='complete'):
 	return edit_model(request, __name__,'Text','catalogue',pk,formset_names=names, 
 		focus = focus, view=view)
 
+
 def edit_periodical(request, pk=None, focus = '', view='complete'):
 	names='periodicalpublication_formset,periodicalperson_formset'
 	return edit_model(request, __name__,'Periodical','catalogue', pk,formset_names=names, 
@@ -126,6 +138,10 @@ def edit_illustration(request, pk=None, focus = '', view='complete'):
 	return edit_model(request, __name__, 'Illustration', 'catalogue', pk, 
 		formset_names=names, focus = focus, view=view)
 
+
+def edit_podcast(request, pk=None, focus = '', view='complete'):
+    return edit_model(request, __name__,'Podcast','catalogue',pk, 
+        focus = focus, view=view)
 
 def delete(request, pk, model_name):
 	return delete_model(request, __name__,model_name,'catalogue',pk)

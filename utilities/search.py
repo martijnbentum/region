@@ -587,6 +587,7 @@ def get_foreign_keydict():
     m += ',genre:name'
     m += ',category:name,movement_type:name,form:name,userloc:name,loc_type:name'
     m += ',geoloc:name,style:name,figure:name,birth_place:name,death_place:name'
+    m += ',podcast:title'
     return make_dict(m)
 
 

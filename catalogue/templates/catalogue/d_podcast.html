@@ -1,0 +1,55 @@
+{% extends "utilities/base.html" %}
+{% load getattribute %} 
+
+{% block head %}
+	<title>{{page_name}}</title>
+	{% include 'utilities/detail_style.html' %}
+{% endblock %}
+
+{% block content%}
+
+<div class="one-line">
+	<p class="category">Podcast</p>
+	<p class="title">{{instance.title}} 
+    {% if perms.utilities.add_generic %}
+        <a class = "btn btn-link btn-sm ml-auto"
+            href ="{% url instance.edit_url instance.pk %}"
+            role="button"><i class="far fa-edit text-secondary"></i></a>
+    {% endif %}
+	</p>
+</div>
+
+<p class="date">{{instance.dates}}</p>
+<hr>
+
+{% if instance.speakers%}
+	<span class="info-header">speakers: </span>
+	<p>{{instance.speakers}}</p>
+	<br>
+{%endif%}
+
+{% if instance.date%}
+	<span class="info-header">Recording date: </span>
+	<p>{{instance.date}}</p>
+	<br>
+{%endif%}
+
+{% if instance.description %}
+	<span class="info-header">description: </span>
+	<p>{{instance.description}}</p>
+	<br>
+{%endif%}
+
+{% if instance.audio_link%}
+	<span class="info-header">Audio: </span>
+	<a href = "{{instance.audio_link}}">{{instance.audio_link}}</a>
+	<br>
+{%endif%}
+
+
+
+<style>
+</style>
+
+
+{% endblock %}
