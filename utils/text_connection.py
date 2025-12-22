@@ -37,6 +37,11 @@ class text_connection:
                         self.original = text
                         break
         self.has_original = self.original == None
+        if not self.original:
+            print('No original found for text pk ', self.start_text.pk,
+                ' type ', self.start_text.type_info
+                'all_texts:',all_texts)
+            self.original = self.start_text
 
 
     def collect_location_pks(self):
