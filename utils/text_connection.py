@@ -28,10 +28,14 @@ class text_connection:
         if self.is_translation: key = 'translation'
         if self.is_review: key = 'review'
         if not self.original:
-            for text in self.start_text.type_to_linked_texts_dict[key]:
-                if text.type_info != 'translation':
-                    self.original = text
-                    break
+            if key not in self.start_text.type_to_linked_texts_dict:
+                print('No linked texts found for text pk ', self.start_text.pk,
+                    self.start_text.type_to_linked_texts_dict.keys())
+        else:
+                for text in self.start_text.type_to_linked_texts_dict[key]:
+                    if text.type_info != key:
+                        self.original = text
+                        break
         self.has_original = self.original == None
 
 
