@@ -1,21 +1,38 @@
 from django.db import IntegrityError
 from collections import Counter
-from nltk.corpus import stopwords
 import string
 from utilities.models import Queryterm
 
 punctuation = string.punctuation + '“”«»’'
 
+STOPWORDS = frozenset({
+    'a', 'about', 'above', 'after', 'again', 'against', 'all', 'also', 'am',
+    'an', 'and', 'any', 'are', 'as', 'at', 'be', 'because', 'been', 'before',
+    'being', 'below', 'between', 'both', 'but', 'by', 'can', 'could', 'dans',
+    'de', 'der', 'des', 'die', 'dit', 'do', 'does', 'doing', 'don', 'down',
+    'du', 'during', 'een', 'eens', 'en', 'er', 'es', 'est', 'et', 'few',
+    'for', 'from', 'further', 'had', 'has', 'have', 'having', 'he', 'her',
+    'here', 'hers', 'herself', 'het', 'him', 'himself', 'his', 'how', 'ich',
+    'if', 'ik', 'il', 'ils', 'im', 'in', 'into', 'is', 'it', 'its', 'itself',
+    'je', 'jij', 'jusqu', 'la', 'le', 'les', 'me', 'meer', 'met', 'mich',
+    'mijn', 'moi', 'mon', 'most', 'my', 'myself', 'naar', 'nach', 'ne', 'niet',
+    'no', 'nor', 'not', 'nous', 'of', 'off', 'om', 'on', 'once', 'ons',
+    'onze', 'ook', 'or', 'other', 'our', 'ours', 'ourselves', 'out', 'over',
+    'own', 'pas', 'pour', 'same', 'sich', 'sie', 'so', 'some', 'son', 'such',
+    'sur', 'te', 'than', 'that', 'the', 'their', 'theirs', 'them',
+    'themselves', 'then', 'there', 'these', 'they', 'this', 'those', 'through',
+    'to', 'too', 'under', 'und', 'une', 'up', 'van', 'very', 'via', 'von',
+    'voor', 'was', 'wat', 'we', 'weer', 'werden', 'what', 'when', 'where',
+    'which', 'while', 'wie', 'wij', 'will', 'with', 'worden', 'would', 'you',
+    'your', 'yours', 'yourself', 'yourselves', 'ze', 'zelf', 'zich', 'zij',
+    'zo', 'zu'
+})
+
 def handle_stop_words(words):
-    dutch = stopwords.words('dutch')
-    english = stopwords.words('english')
-    french= stopwords.words('french')
-    german= stopwords.words('german')
-    all_stopwords = dutch + english + french + german
     output = []
     for word in words:
         w = word.lower()
-        if w in all_stopwords: continue
+        if w in STOPWORDS: continue
         output.append(word)
     return output
 
