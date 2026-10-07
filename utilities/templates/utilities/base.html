@@ -28,6 +28,7 @@
 	{% endblock %}
     </head>
     <body>
+    {{ carto_basemap_key|json_script:"carto-basemap-key" }}
     {% block navbar %}
 	{% if view == "inline" %}
 	{% else %}

@@ -131,8 +131,12 @@
 		<li class ="nav-item">
 		  {% if user.username == '' %}
 		  {% else %}
-			<a class="nav-link" href="{% url 'logout' %}">
-				<i class="fas fa-sign-out-alt"></i><span class="sr-only">(current)</span></a>
+			<form method="post" action="{% url 'logout' %}">
+				{% csrf_token %}
+				<button type="submit" class="nav-link border-0 bg-transparent" aria-label="Log out">
+					<i class="fas fa-sign-out-alt"></i>
+				</button>
+			</form>
 		  {% endif %}
 		</li>
 	</ul>
@@ -140,4 +144,3 @@
 
   </div>
 </nav>
-

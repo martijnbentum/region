@@ -164,7 +164,7 @@ class Relations:
 		self.relation_models = [f.related_model for f in self.relation_fields]
 		#retrieve all foreign key fields and related models
 		self.fk_fields = [f for f in model._meta.local_fields if f.is_relation]
-		self.fk_fields_str= [f.get_cache_name() for f in self.fk_fields]
+		self.fk_fields_str= [f.cache_name for f in self.fk_fields]
 		self.fk_models = [f.related_model for f in self.fk_fields]
 		#retrieve m2m fields and models
 		m2m = model._meta.local_many_to_many 

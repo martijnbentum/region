@@ -1,8 +1,10 @@
 data/
 *migrations/
+!region/audit_migrations/
 *__pycache__/
 db.sqlite3
 .env
+.venv/
 *OLD/
 .env/
 */SWP/

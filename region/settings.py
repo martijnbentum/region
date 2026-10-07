@@ -35,6 +35,9 @@ DEBUG = config('DEBUG',cast=bool)
 # ALLOWED_HOSTS = ['redefiningtheregion.cls.ru.nl',]
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
+# Public basemap key, shared with Heritages; deployments can override it.
+CARTO_BASEMAP_API_KEY = config('CARTO_BASEMAP_API_KEY', default='cb1_4br2_1_20e9e72886ed24fd951815b3')
+
 
 # Application definition
 
@@ -80,12 +83,15 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'region.context_processors.carto_basemap',
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = 'region.wsgi.application'
+
+MIGRATION_MODULES = {'easyaudit': 'region.audit_migrations'}
 
 
 # Database
@@ -142,8 +148,6 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'CET'
 
 USE_I18N = True
-
-USE_L10N = True
 
 USE_TZ = True
 
