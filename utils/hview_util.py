@@ -6,6 +6,7 @@ from django.db.models.signals import pre_save,post_save,m2m_changed
 from django.dispatch import receiver
 import datetime
 from utils import signal_util
+from .audit_util import parse_changed_fields
 
 
 
@@ -198,18 +199,17 @@ class Event:
 	def __init__(self,e):
 		self.event = e
 		self.type = e.get_event_type_display()
-		self.changed = True if e.changed_fields not in ['null',None] else False
+		self.cf_dict = parse_changed_fields(e.changed_fields)
+		self.changed = bool(self.cf_dict)
 		self.username = e.user.username if e.user else ''
 		self.set_time()
 		if self.changed: self.set_changes()
+		else: self.changes = []
 
 	def __repr__(self):
 		return str(self.type) + ' ' + str(self.username) 
 
 	def set_changes(self):
-		try: self.cf_dict = eval(self.event.changed_fields)
-		except: raise ValueError('could not create dict from:',
-			self.event.changed_fields)
 		self.changes = [Change(self.username,self.time_str,k,self.cf_dict[k])
 			for k in self.cf_dict.keys()]
 
