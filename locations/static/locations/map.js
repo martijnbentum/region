@@ -6,7 +6,11 @@ attribution += 'OpenStreetMap contributors</a> &copy; '
 attribution += '<a href="https://carto.com/attribution">CARTO</a>'
 const cartoKey = JSON.parse(document.getElementById('carto-basemap-key').textContent);
 const tileUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png?key=' + encodeURIComponent(cartoKey);
-const tiles = L.tileLayer(tileUrl,{attribution});
+// CARTO website restrictions need a Referer even with a same-origin page policy.
+const tiles = L.tileLayer(tileUrl, {
+    attribution,
+    referrerPolicy: 'strict-origin-when-cross-origin'
+});
 tiles.addTo(mymap);
 
 //global variables
