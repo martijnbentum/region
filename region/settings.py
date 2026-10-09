@@ -35,8 +35,8 @@ DEBUG = config('DEBUG',cast=bool)
 # ALLOWED_HOSTS = ['redefiningtheregion.cls.ru.nl',]
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
-# Public basemap key, shared with Heritages; deployments can override it.
-CARTO_BASEMAP_API_KEY = config('CARTO_BASEMAP_API_KEY', default='cb1_4br2_1_20e9e72886ed24fd951815b3')
+# Basemap key loaded from the environment or the project .env file.
+CARTO_BASEMAP_API_KEY = config('CARTO_BASEMAP_API_KEY')
 
 
 # Application definition

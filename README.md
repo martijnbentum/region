@@ -37,8 +37,15 @@ migrations, then switch to the new environment. The save override changes in
 
 ## CARTO basemaps
 
-All current CARTO maps read one public basemap key from settings, passed to
-JavaScript using Django's `json_script`. The default is the same key as Heritages.
-Set `CARTO_BASEMAP_API_KEY` in the deployment environment or `.env` to override it.
-Ensure the CARTO key allows the Region hostname and any development hosts used
-for testing. Run `collectstatic` when deploying the updated map JavaScript.
+All current CARTO maps load `CARTO_BASEMAP_API_KEY` from the environment or the
+project's ignored `.env` file, using `python-decouple`. There is no default key.
+Add the replacement key to `.env` on each deployment before restarting Django:
+
+```dotenv
+CARTO_BASEMAP_API_KEY=your-new-carto-basemap-key
+```
+
+The key is passed to JavaScript using Django's `json_script` and remains visible
+in browser tile requests. Use a basemap key restricted to the Region hostname
+and any development hosts used for testing. Revoke the exposed key; removing it
+from the current code does not remove it from Git history.
